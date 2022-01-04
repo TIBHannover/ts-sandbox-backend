@@ -1,11 +1,18 @@
 package eu.tib.ts.model.ontology;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Value;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 
 @Builder
 @Value
-public class TsOntology {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class TsOntology implements Ontology {
     String ontologyId;
     String loaded;
     String updated;
@@ -18,4 +25,16 @@ public class TsOntology {
     int numberOfProperties;
     int numberOfIndividuals;
     Config config;
+
+    public Set<String> getCollection() {
+        return Objects.isNull(config) || CollectionUtils.isEmpty(config.getClassifications())
+            ? Collections.emptySet()
+            : Set.copyOf(config.getClassifications().get(0).getCollection());
+    }
+
+    public String getUri() {
+        return Objects.isNull(config)
+            ? null
+            : config.getFileLocation();
+    }
 }
