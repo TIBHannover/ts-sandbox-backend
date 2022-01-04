@@ -45,18 +45,25 @@ public class ProcessedOntology {
     @Column(name = "namespaces")
     private Set<String> namespaces;
 
+    @ElementCollection
+    @CollectionTable(name = "collection", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "collection")
+    private Set<String> collection;
+
     @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE", name = "created_at")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Builder.Default
-    protected ZonedDateTime createdAt = ZonedDateTime.now();
+    private ZonedDateTime createdAt = ZonedDateTime.now();
 
     @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE", name = "update_at")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Builder.Default
-    protected ZonedDateTime updatedAt = ZonedDateTime.now();
+    private ZonedDateTime updatedAt = ZonedDateTime.now();
 
-    public boolean equalsTsOntology(TsOntology tsOntology) {
-        return Objects.nonNull(tsOntology) &&
-            this.getOntologyId().equals(tsOntology.getOntologyId());
+    private String uri;
+
+    public boolean equalsTsOntology(Ontology ontology) {
+        return Objects.nonNull(ontology) &&
+            this.getOntologyId().equals(ontology.getOntologyId());
     }
 }
