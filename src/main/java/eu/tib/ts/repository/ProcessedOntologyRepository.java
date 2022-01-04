@@ -4,6 +4,9 @@ import eu.tib.ts.model.ontology.ProcessedOntology;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProcessedOntologyRepository extends CrudRepository<ProcessedOntology, Long> {
+    List<ProcessedOntology> findByOntologyIdIn(List<String> ids);
 }
