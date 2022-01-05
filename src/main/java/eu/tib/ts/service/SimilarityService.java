@@ -1,16 +1,17 @@
 package eu.tib.ts.service;
 
-import eu.tib.ts.controller.dto.SharedClassUriDto;
-import eu.tib.ts.controller.dto.SharedPropertyUriDto;
 import eu.tib.ts.model.ontology.ExtendedOntology;
 import eu.tib.ts.model.ontology.Ontology;
+import eu.tib.ts.model.ontology.Similarity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface SimilarityService {
-    <T extends Ontology> SharedPropertyUriDto getSharedPropertyUri(List<T> ontologies);
+    <T extends Ontology> Page<Similarity> getSharedPropertyUri(List<T> ontologies, Pageable pageable);
 
-    <T extends ExtendedOntology> SharedPropertyUriDto getSharedPropertyUri(T ontology);
+    <T extends ExtendedOntology> Page<Similarity> getSharedPropertyUri(T ontology, Pageable pageable);
 
-    SharedClassUriDto getSharedClassUri(List<? extends Ontology> ontologies);
+    <T extends Ontology> Page<Similarity> getSharedClassUri(List<T> ontologies, Pageable pageable);
 }

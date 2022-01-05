@@ -1,6 +1,5 @@
 package eu.tib.ts.service.impl;
 
-import eu.tib.ts.controller.dto.SharedPropertyUriDto;
 import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
 import eu.tib.ts.service.SimilarityService;
@@ -9,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -38,10 +39,11 @@ public class SimilarityServiceImplTest {
         when(processedOntologyRepository.findByOntologyIdIn(ids))
             .thenReturn(getProcessedOntologies());
 
-        SharedPropertyUriDto actual = similarityService.getSharedPropertyUri(ontologies);
+        PageRequest pageRequest = PageRequest.of(0, 100);
+        Page<Similarity> page = similarityService.getSharedPropertyUri(ontologies, pageRequest);
 
-        assertNotNull(actual);
-        assertEquals(actual.getSharedPropertyUri().size(), 6);
+        assertNotNull(page);
+        assertEquals(page.getContent().size(), 6);
     }
 
     @Test
@@ -55,16 +57,32 @@ public class SimilarityServiceImplTest {
             .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_200"))
             .build();
 
-        SharedPropertyUriDto actual = similarityService.getSharedPropertyUri(externalOntology);
+        PageRequest pageRequest = PageRequest.of(0, 100);
+        Page<Similarity> page = similarityService.getSharedPropertyUri(externalOntology, pageRequest);
 
-        assertNotNull(actual);
-        assertEquals(actual.getSharedPropertyUri().size(), 2);
+        assertNotNull(page);
+        assertEquals(page.getContent().size(), 2);
 
-        assertTrue(actual.getSharedPropertyUri().containsKey("propertyUri_0"));
-        assertEquals(actual.getSharedPropertyUri().get("propertyUri_0").size(), 3);
+        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_0")));
+        assertEquals(page.getContent().stream()
+                .filter(similarity -> similarity.getName().equals("propertyUri_0"))
+                .findFirst()
+                .map(similarity -> similarity.getOntologies().size())
+                .orElse(0),
+            3
+        );
 
-        assertTrue(actual.getSharedPropertyUri().containsKey("propertyUri_1"));
-        assertEquals(actual.getSharedPropertyUri().get("propertyUri_1").size(), 2);
+        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_1")));
+        assertEquals(page.getContent().stream()
+                .filter(similarity -> similarity.getName().equals("propertyUri_1"))
+                .findFirst()
+                .map(similarity -> similarity.getOntologies().size())
+                .orElse(0),
+            2
+        );
+
+        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_20")));
+        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_200")));
     }
 
     private List<Ontology> getOntologies() {

@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 @NoArgsConstructor(access = AccessLevel.NONE)
 public class HttpUtils {
 
-    public static <T> ResponseEntity<DataResultObject<T>> ok(T data) {
-        return new ResponseEntity<>(new DataResultObject<>(data), HttpStatus.OK);
+    public static <T> ResponseEntity<T> ok(T data) {
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     public static ResponseEntity<DataResultObject<Void>> noContent() {
