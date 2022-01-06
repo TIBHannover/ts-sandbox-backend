@@ -43,7 +43,7 @@ public class SimilarityServiceImplTest {
         Page<Similarity> page = similarityService.getSharedPropertyUri(ontologies, pageRequest);
 
         assertNotNull(page);
-        assertEquals(page.getContent().size(), 6);
+        assertEquals(2, page.getContent().size());
     }
 
     @Test
