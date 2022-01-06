@@ -40,7 +40,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
         int count = 0;
-        log.debug("Pre-processing starts");
+        log.info("Pre-processing starts");
         long startTime = System.currentTimeMillis();
         for (TsOntology tsOntology : tsOntologies) {
             if (ontologyExists(tsOntology, processedOntologies)) {
@@ -75,7 +75,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             processedOntologyService.save(processedOntology);
             count++;
         }
-        log.debug("Pre-processing done in {} ms", System.currentTimeMillis() - startTime);
+        log.info("Pre-processing done in {} ms", System.currentTimeMillis() - startTime);
         log.info("Saved {} ontologies", count);
     }
 
