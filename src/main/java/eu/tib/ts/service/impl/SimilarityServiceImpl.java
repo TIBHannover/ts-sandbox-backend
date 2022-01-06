@@ -45,6 +45,7 @@ public class SimilarityServiceImpl implements SimilarityService {
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
 
         List<Similarity> list = map.entrySet().stream()
+            .filter(entry -> entry.getValue().size() > 1)
             .map(entry -> Similarity.builder()
                 .name(entry.getKey())
                 .ontologies(entry.getValue())
@@ -81,6 +82,7 @@ public class SimilarityServiceImpl implements SimilarityService {
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
 
         List<Similarity> list = map.entrySet().stream()
+            .filter(entry -> entry.getValue().size() > 1)
             .map(entry -> Similarity.builder()
                 .name(entry.getKey())
                 .ontologies(entry.getValue())
@@ -114,6 +116,7 @@ public class SimilarityServiceImpl implements SimilarityService {
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
 
         List<Similarity> list = map.entrySet().stream()
+            .filter(entry -> entry.getValue().size() > 1)
             .map(entry -> Similarity.builder()
                 .name(entry.getKey())
                 .ontologies(entry.getValue())
