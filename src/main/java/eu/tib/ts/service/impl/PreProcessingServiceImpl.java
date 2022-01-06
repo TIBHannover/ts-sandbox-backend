@@ -64,6 +64,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                 .classes(ontologyTraverseService.getClasses(ontModel))
                 .imports(ontologyTraverseService.getImports(ontModel))
                 .properties(ontologyTraverseService.getProperties(ontModel))
+                .namespaces(ontologyTraverseService.getNamespaces(ontModel))
                 .uri(tsOntology.getUri())
                 .build();
 
