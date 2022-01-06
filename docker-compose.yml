@@ -2,16 +2,21 @@ version: '2'
 
 services:
   ts_statistics_back:
-    image: 'docker-ts-statistics-back:latest'
+    image: ts_statistics_back:latest
     build:
       context: .
     container_name: ts_statistics_back
     depends_on:
       - postgres
+    environment:
+      - spring.datasource.url=jdbc:postgresql://postgres:5432/postgres
+      - preprocessing.run=true
 
   postgres:
-    image: 'postgres:13.1-alpine'
+    image: 'postgres:13.5'
     container_name: postgres
+    volumes:
+      - ./scripts/:/docker-entrypoint-initdb.d/
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
