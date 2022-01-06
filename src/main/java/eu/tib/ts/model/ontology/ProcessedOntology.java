@@ -19,7 +19,8 @@ import java.util.Set;
 @Table(name = "processed_ontology")
 public class ProcessedOntology {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ontology_id_generator")
+    @SequenceGenerator(name = "ontology_id_generator", sequenceName = "ont_id_seq", allocationSize = 1)
     private long id;
 
     @Column(name = "ontology_id", unique = true, nullable = false)
