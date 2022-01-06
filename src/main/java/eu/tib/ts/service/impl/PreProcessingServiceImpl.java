@@ -40,13 +40,14 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
         int count = 0;
-        log.debug("Pre-processing start");
+        log.debug("Pre-processing starts");
+        long startTime = System.currentTimeMillis();
         for (TsOntology tsOntology : tsOntologies) {
             if (ontologyExists(tsOntology, processedOntologies)) {
                 continue;
             }
             String fileLocation = tsOntology.getConfig().getFileLocation();
-            log.debug("{} {}", tsOntology.getOntologyId(), fileLocation);
+            long startRead = System.currentTimeMillis();
 
             OntModel ontModel = null;
             try {
@@ -68,10 +69,12 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                 .uri(tsOntology.getUri())
                 .build();
 
+            long endRead = System.currentTimeMillis();
+            log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
             processedOntologyService.save(processedOntology);
             count++;
         }
-        log.debug("Pre-processing end");
+        log.debug("Pre-processing done in {} ms", System.currentTimeMillis() - startTime);
         log.info("Saved {} ontologies", count);
     }
 
