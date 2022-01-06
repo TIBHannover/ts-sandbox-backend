@@ -18,3 +18,6 @@ logging:
 
 ts:
   base.uri: https://service.tib.eu
+
+preprocessing:
+  run: true
