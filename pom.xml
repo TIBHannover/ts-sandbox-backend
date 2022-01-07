@@ -17,6 +17,7 @@
 		<java.version>11</java.version>
 		<apache-jena-libs.version>4.3.2</apache-jena-libs.version>
 		<swagger.version>3.0.0</swagger.version>
+		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 	</properties>
 	<dependencies>
 		<dependency>
