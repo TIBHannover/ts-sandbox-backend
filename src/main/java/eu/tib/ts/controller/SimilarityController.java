@@ -1,8 +1,6 @@
 package eu.tib.ts.controller;
 
 import eu.tib.ts.controller.assember.SimilarityModelAssembler;
-import eu.tib.ts.controller.dto.DataResultObject;
-import eu.tib.ts.controller.dto.SharedClassUriDto;
 import eu.tib.ts.model.ontology.ExternalOntology;
 import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.model.ontology.SimilarityModel;
