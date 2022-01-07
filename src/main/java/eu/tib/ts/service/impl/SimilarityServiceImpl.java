@@ -7,6 +7,7 @@ import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
 import eu.tib.ts.service.SimilarityService;
+import eu.tib.ts.utils.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -53,12 +54,7 @@ public class SimilarityServiceImpl implements SimilarityService {
             )
             .collect(Collectors.toList());
 
-        List<Similarity> slice = list.stream()
-            .skip((long) pageable.getPageNumber() * pageable.getPageSize())
-            .limit(pageable.getPageSize())
-            .collect(Collectors.toList());
-
-        return new PageImpl<>(slice, pageable, list.size());
+        return PageUtils.toPage(list, pageable);
     }
 
     @Override
@@ -90,12 +86,7 @@ public class SimilarityServiceImpl implements SimilarityService {
             )
             .collect(Collectors.toList());
 
-        List<Similarity> slice = list.stream()
-            .skip((long) pageable.getPageNumber() * pageable.getPageSize())
-            .limit(pageable.getPageSize())
-            .collect(Collectors.toList());
-
-        return new PageImpl<>(slice, pageable, list.size());
+        return PageUtils.toPage(list, pageable);
     }
 
     @Override
@@ -124,12 +115,7 @@ public class SimilarityServiceImpl implements SimilarityService {
             )
             .collect(Collectors.toList());
 
-        List<Similarity> slice = list.stream()
-            .skip((long) pageable.getPageNumber() * pageable.getPageSize())
-            .limit(pageable.getPageSize())
-            .collect(Collectors.toList());
-
-        return new PageImpl<>(slice, pageable, list.size());
+        return PageUtils.toPage(list, pageable);
     }
 
     private <T extends Ontology> List<ProcessedOntology> getProcessedOntologies(List<T> ontologies) {
