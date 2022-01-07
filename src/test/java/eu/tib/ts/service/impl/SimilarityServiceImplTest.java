@@ -61,24 +61,24 @@ class SimilarityServiceImplTest {
         Page<Similarity> page = similarityService.getSharedPropertyUri(externalOntology, pageRequest);
 
         assertNotNull(page);
-        assertEquals(page.getContent().size(), 2);
+        assertEquals(2, page.getContent().size());
 
         assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_0")));
-        assertEquals(page.getContent().stream()
+        assertEquals(3,
+            page.getContent().stream()
                 .filter(similarity -> similarity.getName().equals("propertyUri_0"))
                 .findFirst()
                 .map(similarity -> similarity.getOntologies().size())
-                .orElse(0),
-            3
+                .orElse(0)
         );
 
         assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_1")));
-        assertEquals(page.getContent().stream()
+        assertEquals(2,
+            page.getContent().stream()
                 .filter(similarity -> similarity.getName().equals("propertyUri_1"))
                 .findFirst()
                 .map(similarity -> similarity.getOntologies().size())
-                .orElse(0),
-            2
+                .orElse(0)
         );
 
         assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_20")));
