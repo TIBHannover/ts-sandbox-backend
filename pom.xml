@@ -16,6 +16,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<apache-jena-libs.version>4.3.2</apache-jena-libs.version>
+		<swagger.version>3.0.0</swagger.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -29,6 +30,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-hateoas</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-boot-starter</artifactId>
+			<version>${swagger.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.jena/apache-jena-libs -->

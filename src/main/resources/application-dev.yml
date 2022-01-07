@@ -5,18 +5,19 @@ spring:
     password: postgres
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: check
 #    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    org.springframework.web: TRACE
+    eu.tib.ts: DEBUG
 
 ts:
-  ontologies.list.size: 1000
   base.uri: https://service.tib.eu
-  timeout:
-    connect: 15000
-    read: 15000
+
+preprocessing:
+  run: true
