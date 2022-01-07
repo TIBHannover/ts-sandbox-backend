@@ -12,7 +12,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class OntologyTraverseServiceImplTest {
+class OntologyTraverseServiceImplTest {
     private static final String PATH = "src/test/resources/dices.owl";
     private static final String RDF_XML = "TTL";
 

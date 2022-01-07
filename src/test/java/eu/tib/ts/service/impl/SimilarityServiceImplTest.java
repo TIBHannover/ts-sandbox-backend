@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SimilarityServiceImplTest {
+class SimilarityServiceImplTest {
     private SimilarityService similarityService;
     @Mock
     private ProcessedOntologyRepository processedOntologyRepository;
@@ -47,6 +48,23 @@ public class SimilarityServiceImplTest {
     }
 
     @Test
+    void testGetSharedProperties_noProcessedOntologies() {
+        List<Ontology> ontologies = getOntologies();
+        List<String> ids = ontologies.stream()
+            .map(Ontology::getOntologyId)
+            .collect(Collectors.toList());
+
+        when(processedOntologyRepository.findByOntologyIdIn(ids))
+            .thenReturn(Collections.emptyList());
+
+        PageRequest pageRequest = PageRequest.of(0, 100);
+        Page<Similarity> page = similarityService.getSharedPropertyUri(ontologies, pageRequest);
+
+        assertNotNull(page);
+        assertEquals(0, page.getContent().size());
+    }
+
+    @Test
     void testGetSharedPropertiesForExternalOntology() {
         when(processedOntologyRepository.findAll())
             .thenReturn(getProcessedOntologies());
@@ -61,28 +79,80 @@ public class SimilarityServiceImplTest {
         Page<Similarity> page = similarityService.getSharedPropertyUri(externalOntology, pageRequest);
 
         assertNotNull(page);
-        assertEquals(page.getContent().size(), 2);
+        assertEquals(2, page.getContent().size());
 
         assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_0")));
-        assertEquals(page.getContent().stream()
+        assertEquals(3,
+            page.getContent().stream()
                 .filter(similarity -> similarity.getName().equals("propertyUri_0"))
                 .findFirst()
                 .map(similarity -> similarity.getOntologies().size())
-                .orElse(0),
-            3
+                .orElse(0)
         );
 
         assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_1")));
-        assertEquals(page.getContent().stream()
+        assertEquals(2,
+            page.getContent().stream()
                 .filter(similarity -> similarity.getName().equals("propertyUri_1"))
                 .findFirst()
                 .map(similarity -> similarity.getOntologies().size())
-                .orElse(0),
-            2
+                .orElse(0)
         );
 
         assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_20")));
         assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_200")));
+    }
+
+    @Test
+    void testGetSharedPropertiesForExternalOntology_noProcessedOntologies() {
+        when(processedOntologyRepository.findAll())
+            .thenReturn(Collections.emptyList());
+
+        ExternalOntology externalOntology = ExternalOntology.builder()
+            .ontologyId("ontology_100")
+            .uri("https://something_100.ttl")
+            .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_200"))
+            .build();
+
+        PageRequest pageRequest = PageRequest.of(0, 100);
+        Page<Similarity> page = similarityService.getSharedPropertyUri(externalOntology, pageRequest);
+
+        assertNotNull(page);
+        assertEquals(0, page.getContent().size());
+    }
+
+    @Test
+    void testGetSharedClassUri() {
+        List<Ontology> ontologies = getOntologies();
+        List<String> ids = ontologies.stream()
+            .map(Ontology::getOntologyId)
+            .collect(Collectors.toList());
+
+        when(processedOntologyRepository.findByOntologyIdIn(ids))
+            .thenReturn(getProcessedOntologies());
+
+        PageRequest pageRequest = PageRequest.of(0, 100);
+        Page<Similarity> page = similarityService.getSharedClassUri(ontologies, pageRequest);
+
+        assertNotNull(page);
+        assertEquals(2, page.getContent().size());
+    }
+
+    @Test
+    void testGetSharedClasses_noProcessedOntologies() {
+        List<Ontology> ontologies = getOntologies();
+        List<String> ids = ontologies.stream()
+            .map(Ontology::getOntologyId)
+            .collect(Collectors.toList());
+
+        when(processedOntologyRepository.findByOntologyIdIn(ids))
+            .thenReturn(Collections.emptyList());
+
+        PageRequest pageRequest = PageRequest.of(0, 100);
+        Page<Similarity> page = similarityService.getSharedClassUri(ontologies, pageRequest);
+
+        assertNotNull(page);
+        assertEquals(0, page.getContent().size());
     }
 
     private List<Ontology> getOntologies() {
@@ -110,6 +180,7 @@ public class SimilarityServiceImplTest {
             .ontologyId("ontology_0")
             .uri("https://something0.ttl")
             .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_20"))
+            .classes(Set.of("classUri_0", "classUri_1", "classUri_20"))
             .build();
 
         ProcessedOntology processedOntology1 = ProcessedOntology.builder()
@@ -117,6 +188,7 @@ public class SimilarityServiceImplTest {
             .ontologyId("ontology_1")
             .uri("https://something1.ttl")
             .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_21"))
+            .classes(Set.of("classUri_0", "classUri_1", "classUri_21"))
             .build();
 
         ProcessedOntology processedOntology2 = ProcessedOntology.builder()
@@ -124,6 +196,7 @@ public class SimilarityServiceImplTest {
             .ontologyId("ontology_2")
             .uri("https://something2.ttl")
             .properties(Set.of("propertyUri_0", "propertyUri_2", "propertyUri_3"))
+            .classes(Set.of("classUri_0", "classUri_2", "classUri_3"))
             .build();
 
         return List.of(processedOntology0, processedOntology1, processedOntology2);
