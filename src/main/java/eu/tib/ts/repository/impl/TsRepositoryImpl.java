@@ -20,7 +20,6 @@ import java.util.Objects;
 
 @Repository
 public class TsRepositoryImpl implements TsRepository {
-    private static final String ONTOLOGIES_LIST_PATH = "/ts4tib/api/ontologies";
     private static final String QUERY_PARAM_SIZE = "size";
 
     @Value("${ts.base.uri}")
@@ -39,7 +38,7 @@ public class TsRepositoryImpl implements TsRepository {
     @Override
     public List<TsOntology> getOntologies() {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-            .fromHttpUrl(tsBaseUri + ONTOLOGIES_LIST_PATH);
+            .fromHttpUrl(tsBaseUri);
 
         uriComponentsBuilder.queryParam(QUERY_PARAM_SIZE, ontologiesListSize);
 

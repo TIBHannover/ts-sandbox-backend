@@ -16,8 +16,6 @@ logging:
     org.springframework.web: TRACE
     eu.tib.ts: DEBUG
 
-ts:
-  base.uri: https://service.tib.eu
 
 preprocessing:
   run: true
