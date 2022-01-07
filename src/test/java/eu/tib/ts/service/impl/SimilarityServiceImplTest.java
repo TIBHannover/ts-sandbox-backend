@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SimilarityServiceImplTest {
+class SimilarityServiceImplTest {
     private SimilarityService similarityService;
     @Mock
     private ProcessedOntologyRepository processedOntologyRepository;
