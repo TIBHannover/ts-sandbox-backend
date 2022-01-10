@@ -3,7 +3,6 @@ package eu.tib.ts.controller.assember;
 import eu.tib.ts.controller.SimilarityController;
 import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.model.ontology.SimilarityModel;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
@@ -12,12 +11,6 @@ public class SimilarityModelAssembler extends RepresentationModelAssemblerSuppor
 
     public SimilarityModelAssembler() {
         super(SimilarityController.class, SimilarityModel.class);
-    }
-
-    @Override
-    public CollectionModel<SimilarityModel> toCollectionModel(Iterable<? extends Similarity> entities) {
-
-        return super.toCollectionModel(entities);
     }
 
     @Override
