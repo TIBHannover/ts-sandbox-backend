@@ -2,6 +2,7 @@ package eu.tib.ts.repository.impl;
 
 import eu.tib.ts.model.ontology.TsOntology;
 import eu.tib.ts.repository.TsRepository;
+import eu.tib.ts.repository.exception.TsRepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -55,7 +56,7 @@ public class TsRepositoryImpl implements TsRepository {
         PagedModel<TsOntology> body = responseEntity.getBody();
 
         if (Objects.isNull(body)) {
-            throw new RuntimeException("Could not get response");
+            throw new TsRepositoryException("Could not get response");
         }
 
         Collection<TsOntology> content = body.getContent();
