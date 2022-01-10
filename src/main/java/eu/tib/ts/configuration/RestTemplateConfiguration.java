@@ -3,7 +3,6 @@ package eu.tib.ts.configuration;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +21,8 @@ public class RestTemplateConfiguration {
     @Value("${ts.timeout.read}")
     private int readTimeout;
 
-    @Autowired
-    private MappingJackson2HttpMessageConverter messageConverter;
-
     @Bean
-    public RestTemplate restTemplate() {
+    public RestTemplate restTemplate(MappingJackson2HttpMessageConverter messageConverter) {
         RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
         restTemplate.setMessageConverters(List.of(messageConverter));
 

@@ -10,4 +10,6 @@ public interface ExtendedOntology extends Ontology {
     Set<String> getImports();
 
     Set<String> getNamespaces();
+
+    Set<String> getCollection();
 }

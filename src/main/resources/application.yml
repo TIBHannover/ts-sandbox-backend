@@ -16,7 +16,7 @@ spring:
 
 ts:
   ontologies.list.size: 1000
-  base.uri: https://service.tib.eu
+  base.uri: https://service.tib.eu/ts4tib/api/ontologies
   timeout:
     connect: 15000
     read: 15000

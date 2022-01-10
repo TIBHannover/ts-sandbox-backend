@@ -17,11 +17,6 @@ public class OntologyTraverseServiceImpl implements OntologyTraverseService {
     @Override
     public Set<String> getImports(OntModel model) {
 
-        // TODO: 12/29/2021 ?
-//        listImportedOntologyURIs(boolean closure)
-//        Answer a list of the imported URI's in this ontology model,
-//        and optionally in the closure of this model's imports.
-
         return model.listImportedOntologyURIs();
     }
 
