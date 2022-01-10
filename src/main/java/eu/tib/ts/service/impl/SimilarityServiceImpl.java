@@ -126,7 +126,7 @@ public class SimilarityServiceImpl implements SimilarityService {
         return processedOntologyRepository.findByOntologyIdIn(ids);
     }
 
-    private <T extends Ontology> List<ProcessedOntology> getProcessedOntologies() {
+    private List<ProcessedOntology> getProcessedOntologies() {
 
         return StreamSupport.stream(processedOntologyRepository.findAll().spliterator(), false)
             .collect(Collectors.toList());
