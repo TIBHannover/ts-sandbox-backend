@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -39,7 +40,12 @@ class SimilarityControllerTest {
     static final Pageable PAGEABLE = PageRequest.of(0, 2);
 
     @MockBean
-    private SimilarityService similarityService;
+    private @Qualifier("similarityByPropertyServiceImpl")
+    SimilarityService similarityByPropertyService;
+
+    @MockBean
+    private @Qualifier("similarityByClassServiceImpl")
+    SimilarityService similarityByClassService;
 
     @Autowired
     MockMvc mockMvc;
@@ -47,7 +53,7 @@ class SimilarityControllerTest {
     @SneakyThrows
     @Test
     void testGetSimilarityByPropertyInternal() {
-        when(similarityService.getSharedPropertyUri(anyList(), any(Pageable.class)))
+        when(similarityByPropertyService.getSimilarities(anyList(), any(Pageable.class)))
             .thenReturn(createPage());
 
         String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
@@ -75,7 +81,7 @@ class SimilarityControllerTest {
     @SneakyThrows
     @Test
     void testGetSimilarityByPropertyExternal() {
-        when(similarityService.getSharedPropertyUri(any(ExternalOntology.class), any(Pageable.class)))
+        when(similarityByPropertyService.getSimilarities(any(ExternalOntology.class), any(Pageable.class)))
             .thenReturn(createPage());
 
         String body = "{\n" +

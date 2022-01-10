@@ -6,107 +6,57 @@ import eu.tib.ts.model.ontology.Ontology;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
-import eu.tib.ts.service.SimilarityService;
 import eu.tib.ts.utils.PageUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Service
-public class SimilarityServiceImpl implements SimilarityService {
+public abstract class SimilarityAbstractService {
     private final ProcessedOntologyRepository processedOntologyRepository;
 
-    @Autowired
-    public SimilarityServiceImpl(ProcessedOntologyRepository processedOntologyRepository) {
+    protected SimilarityAbstractService(ProcessedOntologyRepository processedOntologyRepository) {
         this.processedOntologyRepository = processedOntologyRepository;
     }
 
-    @Override
-    public <T extends Ontology> Page<Similarity> getSharedPropertyUri(List<T> ontologies, Pageable pageable) {
+    protected abstract List<Pair<String, ProcessedOntology>> getCharacteristicsPairs(
+        List<ProcessedOntology> processedOntologies
+    );
+
+    public <T extends Ontology> Page<Similarity> getSimilarities(List<T> ontologies, Pageable pageable) {
         List<ProcessedOntology> processedOntologies = getProcessedOntologies(ontologies);
-
         if (processedOntologies == null || processedOntologies.isEmpty()) {
-            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+            return PageUtils.toPage(Collections.emptyList(), pageable);
         }
 
-        List<Pair<String, ProcessedOntology>> pairs = new ArrayList<>();
-        for (ProcessedOntology processedOntology : processedOntologies) {
-            for (String item : processedOntology.getProperties()) {
-                pairs.add(Pair.of(item, processedOntology));
-            }
-        }
-
+        List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(processedOntologies);
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
-
-        List<Similarity> list = map.entrySet().stream()
-            .filter(entry -> entry.getValue().size() > 1)
-            .map(entry -> Similarity.builder()
-                .name(entry.getKey())
-                .ontologies(entry.getValue())
-                .build()
-            )
-            .collect(Collectors.toList());
+        List<Similarity> list = getSimilarityList(map);
 
         return PageUtils.toPage(list, pageable);
     }
 
-    @Override
-    public <T extends ExtendedOntology> Page<Similarity> getSharedPropertyUri(T ontology, Pageable pageable) {
+    public <T extends ExtendedOntology> Page<Similarity> getSimilarities(T ontology, Pageable pageable) {
         List<ProcessedOntology> processedOntologies = getProcessedOntologies();
-
         if (processedOntologies == null || processedOntologies.isEmpty()) {
-            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+            return PageUtils.toPage(Collections.emptyList(), pageable);
         }
 
-        List<Pair<String, ProcessedOntology>> pairs = new ArrayList<>();
-        for (ProcessedOntology processedOntology : processedOntologies) {
-            for (String item : processedOntology.getProperties()) {
-                if (!ontology.getProperties().contains(item)) {
-                    continue;
-                }
-                pairs.add(Pair.of(item, processedOntology));
-            }
-        }
-
-        Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
-
-        List<Similarity> list = map.entrySet().stream()
-            .filter(entry -> entry.getValue().size() > 1)
-            .map(entry -> Similarity.builder()
-                .name(entry.getKey())
-                .ontologies(entry.getValue())
-                .build()
-            )
+        List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(processedOntologies);
+        List<Pair<String, ProcessedOntology>> filteredPairs = pairs.stream()
+            .filter(pair -> ontology.getProperties().contains(pair.getFirst()))
             .collect(Collectors.toList());
+        Map<String, List<OntologyDto>> map = getSimilarityMap(filteredPairs);
+        List<Similarity> list = getSimilarityList(map);
 
         return PageUtils.toPage(list, pageable);
     }
 
-    @Override
-    public <T extends Ontology> Page<Similarity> getSharedClassUri(List<T> ontologies, Pageable pageable) {
-        List<ProcessedOntology> processedOntologies = getProcessedOntologies(ontologies);
-
-        if (processedOntologies == null || processedOntologies.isEmpty()) {
-            return new PageImpl<>(Collections.emptyList(), pageable, 0);
-        }
-
-        List<Pair<String, ProcessedOntology>> pairs = new ArrayList<>();
-        for (ProcessedOntology processedOntology : processedOntologies) {
-            for (String item : processedOntology.getClasses()) {
-                pairs.add(Pair.of(item, processedOntology));
-            }
-        }
-
-        Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
-
-        List<Similarity> list = map.entrySet().stream()
+    private List<Similarity> getSimilarityList(Map<String, List<OntologyDto>> map) {
+        return map.entrySet().stream()
             .filter(entry -> entry.getValue().size() > 1)
             .map(entry -> Similarity.builder()
                 .name(entry.getKey())
@@ -114,8 +64,6 @@ public class SimilarityServiceImpl implements SimilarityService {
                 .build()
             )
             .collect(Collectors.toList());
-
-        return PageUtils.toPage(list, pageable);
     }
 
     private <T extends Ontology> List<ProcessedOntology> getProcessedOntologies(List<T> ontologies) {

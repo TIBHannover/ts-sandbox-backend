@@ -20,14 +20,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SimilarityServiceImplTest {
+class SimilarityByPropertyServiceImplTest {
     private SimilarityService similarityService;
     @Mock
     private ProcessedOntologyRepository processedOntologyRepository;
 
     @BeforeEach
     void setUp() {
-        similarityService = new SimilarityServiceImpl(processedOntologyRepository);
+        similarityService = new SimilarityByPropertyServiceImpl(processedOntologyRepository);
     }
 
     @Test
@@ -41,7 +41,7 @@ class SimilarityServiceImplTest {
             .thenReturn(getProcessedOntologies());
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSharedPropertyUri(ontologies, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(ontologies, pageRequest);
 
         assertNotNull(page);
         assertEquals(2, page.getContent().size());
@@ -58,7 +58,7 @@ class SimilarityServiceImplTest {
             .thenReturn(Collections.emptyList());
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSharedPropertyUri(ontologies, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(ontologies, pageRequest);
 
         assertNotNull(page);
         assertEquals(0, page.getContent().size());
@@ -76,7 +76,7 @@ class SimilarityServiceImplTest {
             .build();
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSharedPropertyUri(externalOntology, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(externalOntology, pageRequest);
 
         assertNotNull(page);
         assertEquals(2, page.getContent().size());
@@ -115,7 +115,7 @@ class SimilarityServiceImplTest {
             .build();
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSharedPropertyUri(externalOntology, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(externalOntology, pageRequest);
 
         assertNotNull(page);
         assertEquals(0, page.getContent().size());
@@ -132,7 +132,7 @@ class SimilarityServiceImplTest {
             .thenReturn(getProcessedOntologies());
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSharedClassUri(ontologies, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(ontologies, pageRequest);
 
         assertNotNull(page);
         assertEquals(2, page.getContent().size());
@@ -149,7 +149,7 @@ class SimilarityServiceImplTest {
             .thenReturn(Collections.emptyList());
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSharedClassUri(ontologies, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(ontologies, pageRequest);
 
         assertNotNull(page);
         assertEquals(0, page.getContent().size());
