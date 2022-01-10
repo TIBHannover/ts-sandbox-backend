@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,13 +40,15 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         List<TsOntology> tsOntologies = tsRepository.getOntologies();
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
+        List<TsOntology> unprocessedOntologies = tsOntologies.stream()
+            .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
+            .collect(Collectors.toList());
+
         int count = 0;
         log.info("Pre-processing starts");
         long startTime = System.currentTimeMillis();
-        for (TsOntology tsOntology : tsOntologies) {
-            if (ontologyExists(tsOntology, processedOntologies)) {
-                continue;
-            }
+
+        for (TsOntology tsOntology : unprocessedOntologies) {
             String fileLocation = tsOntology.getConfig().getFileLocation();
             long startRead = System.currentTimeMillis();
 
@@ -60,15 +63,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                 continue;
             }
 
-            ProcessedOntology processedOntology = ProcessedOntology.builder()
-                .ontologyId(tsOntology.getOntologyId())
-                .classes(ontologyTraverseService.getClasses(ontModel))
-                .imports(ontologyTraverseService.getImports(ontModel))
-                .properties(ontologyTraverseService.getProperties(ontModel))
-                .namespaces(ontologyTraverseService.getNamespaces(ontModel))
-                .collection(tsOntology.getCollection())
-                .uri(tsOntology.getUri())
-                .build();
+            ProcessedOntology processedOntology = buildOntology(tsOntology, ontModel);
 
             long endRead = System.currentTimeMillis();
             log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
@@ -77,6 +72,18 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         }
         log.info("Pre-processing done in {} ms", System.currentTimeMillis() - startTime);
         log.info("Saved {} ontologies", count);
+    }
+
+    private ProcessedOntology buildOntology(TsOntology tsOntology, OntModel ontModel) {
+        return ProcessedOntology.builder()
+            .ontologyId(tsOntology.getOntologyId())
+            .classes(ontologyTraverseService.getClasses(ontModel))
+            .imports(ontologyTraverseService.getImports(ontModel))
+            .properties(ontologyTraverseService.getProperties(ontModel))
+            .namespaces(ontologyTraverseService.getNamespaces(ontModel))
+            .collection(tsOntology.getCollection())
+            .uri(tsOntology.getUri())
+            .build();
     }
 
     private boolean ontologyExists(TsOntology tsOntology, List<ProcessedOntology> processedOntologies) {
