@@ -20,14 +20,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SimilarityByPropertyServiceImplTest {
+class SimilarityByClassServiceImplTest {
     private SimilarityService similarityService;
     @Mock
     private ProcessedOntologyRepository processedOntologyRepository;
 
     @BeforeEach
     void setUp() {
-        similarityService = new SimilarityByPropertyServiceImpl(processedOntologyRepository);
+        similarityService = new SimilarityByClassServiceImpl(processedOntologyRepository);
     }
 
     @Test
@@ -72,7 +72,7 @@ class SimilarityByPropertyServiceImplTest {
         ExternalOntology externalOntology = ExternalOntology.builder()
             .ontologyId("ontology_100")
             .uri("https://something_100.ttl")
-            .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_200"))
+            .classes(Set.of("classUri_0", "classUri_1", "classUri_200"))
             .build();
 
         PageRequest pageRequest = PageRequest.of(0, 100);
@@ -81,26 +81,26 @@ class SimilarityByPropertyServiceImplTest {
         assertNotNull(page);
         assertEquals(3, page.getContent().size());
 
-        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_0")));
+        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("classUri_0")));
         assertEquals(2,
             page.getContent().stream()
-                .filter(similarity -> similarity.getName().equals("propertyUri_0"))
+                .filter(similarity -> similarity.getName().equals("classUri_0"))
                 .findFirst()
                 .map(similarity -> similarity.getOntologies().size())
                 .orElse(0)
         );
 
-        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_1")));
+        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("classUri_1")));
         assertEquals(1,
             page.getContent().stream()
-                .filter(similarity -> similarity.getName().equals("propertyUri_1"))
+                .filter(similarity -> similarity.getName().equals("classUri_1"))
                 .findFirst()
                 .map(similarity -> similarity.getOntologies().size())
                 .orElse(0)
         );
 
-        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_20")));
-        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_300")));
+        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("classUri_20")));
+        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("classUri_300")));
     }
 
     @Test
@@ -111,7 +111,7 @@ class SimilarityByPropertyServiceImplTest {
         ExternalOntology externalOntology = ExternalOntology.builder()
             .ontologyId("ontology_100")
             .uri("https://something_100.ttl")
-            .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_200"))
+            .classes(Set.of("classUri_0", "classUri_1", "classUri_200"))
             .build();
 
         PageRequest pageRequest = PageRequest.of(0, 100);
