@@ -18,18 +18,29 @@ import java.util.List;
 @RequestMapping("/api/ontology/ratio")
 public class RatioController {
     private final RatioService ratioByPropertyService;
+    private final RatioService ratioByClassService;
 
     public RatioController(
-        @Qualifier("ratioByPropertyServiceImpl") RatioService ratioByPropertyService
-    ) {
+        @Qualifier("ratioByPropertyServiceImpl") RatioService ratioByPropertyService,
+        @Qualifier("ratioByClassServiceImpl") RatioService ratioByClassService) {
         this.ratioByPropertyService = ratioByPropertyService;
+        this.ratioByClassService = ratioByClassService;
     }
 
     @GetMapping(value = "/property", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RatioDto> getRationByProperty(
+    public ResponseEntity<RatioDto> getRatioByProperty(
         @RequestBody List<SimpleOntology> ontologies
     ) {
         double ratio = ratioByPropertyService.getRatio(ontologies);
+
+        return HttpUtils.ok(new RatioDto(ratio));
+    }
+
+    @GetMapping(value = "/class", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RatioDto> getRatioByClass(
+        @RequestBody List<SimpleOntology> ontologies
+    ) {
+        double ratio = ratioByClassService.getRatio(ontologies);
 
         return HttpUtils.ok(new RatioDto(ratio));
     }

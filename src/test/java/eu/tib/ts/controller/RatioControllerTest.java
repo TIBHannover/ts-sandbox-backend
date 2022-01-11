@@ -24,20 +24,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(RatioController.class)
 class RatioControllerTest {
 
-    public static final double PROPERTY_RESULT = 0.5;
+    public static final double RATIO_RESULT = 0.5;
 
     @MockBean
     private @Qualifier("ratioByPropertyServiceImpl")
     RatioService ratioByPropertyService;
+
+    @MockBean
+    private @Qualifier("ratioByClassServiceImpl")
+    RatioService ratioByClassService;
 
     @Autowired
     MockMvc mockMvc;
 
     @SneakyThrows
     @Test
-    void testGetSimilarityByPropertyInternal() {
+    void testGetRatioByProperty() {
         when(ratioByPropertyService.getRatio(anyList()))
-            .thenReturn(PROPERTY_RESULT);
+            .thenReturn(RATIO_RESULT);
 
         String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
             "{\"ontologyId\" : \"dicob\",\"uri\" : \"\"}]";
@@ -47,7 +51,25 @@ class RatioControllerTest {
                 .content(body))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.value", is(PROPERTY_RESULT)))
+            .andExpect(jsonPath("$.value", is(RATIO_RESULT)))
+            .andReturn();
+    }
+
+    @SneakyThrows
+    @Test
+    void testGetRatioByClass() {
+        when(ratioByClassService.getRatio(anyList()))
+            .thenReturn(RATIO_RESULT);
+
+        String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
+            "{\"ontologyId\" : \"dicob\",\"uri\" : \"\"}]";
+
+        mockMvc.perform(get("/api/ontology/ratio/class")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.value", is(RATIO_RESULT)))
             .andReturn();
     }
 }
