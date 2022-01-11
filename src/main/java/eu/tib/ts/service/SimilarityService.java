@@ -9,9 +9,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface SimilarityService {
-    <T extends Ontology> Page<Similarity> getSharedPropertyUri(List<T> ontologies, Pageable pageable);
+    <T extends Ontology> Page<Similarity> getSimilarities(List<T> ontologies, Pageable pageable);
 
-    <T extends ExtendedOntology> Page<Similarity> getSharedPropertyUri(T ontology, Pageable pageable);
-
-    <T extends Ontology> Page<Similarity> getSharedClassUri(List<T> ontologies, Pageable pageable);
+    <T extends ExtendedOntology> Page<Similarity> getSimilarities(T ontology, Pageable pageable);
 }

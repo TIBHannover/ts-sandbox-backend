@@ -67,4 +67,16 @@ public class ProcessedOntology {
         return Objects.nonNull(ontology) &&
             this.getOntologyId().equals(ontology.getOntologyId());
     }
+
+    public static <T extends ExtendedOntology> ProcessedOntology of(T ontology) {
+        return ProcessedOntology.builder()
+            .ontologyId(ontology.getOntologyId())
+            .uri(ontology.getUri())
+            .properties(ontology.getProperties())
+            .classes(ontology.getClasses())
+            .namespaces(ontology.getNamespaces())
+            .imports(ontology.getImports())
+            .collection(ontology.getCollection())
+            .build();
+    }
 }

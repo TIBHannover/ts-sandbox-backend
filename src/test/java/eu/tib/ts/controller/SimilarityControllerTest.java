@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -39,7 +40,12 @@ class SimilarityControllerTest {
     static final Pageable PAGEABLE = PageRequest.of(0, 2);
 
     @MockBean
-    private SimilarityService similarityService;
+    private @Qualifier("similarityByPropertyServiceImpl")
+    SimilarityService similarityByPropertyService;
+
+    @MockBean
+    private @Qualifier("similarityByClassServiceImpl")
+    SimilarityService similarityByClassService;
 
     @Autowired
     MockMvc mockMvc;
@@ -47,7 +53,7 @@ class SimilarityControllerTest {
     @SneakyThrows
     @Test
     void testGetSimilarityByPropertyInternal() {
-        when(similarityService.getSharedPropertyUri(anyList(), any(Pageable.class)))
+        when(similarityByPropertyService.getSimilarities(anyList(), any(Pageable.class)))
             .thenReturn(createPage());
 
         String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
@@ -58,8 +64,8 @@ class SimilarityControllerTest {
                 .content(body))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.similarities[0].name", is("property0")))
-            .andExpect(jsonPath("$._embedded.similarities[1].name", is("property1")))
+            .andExpect(jsonPath("$._embedded.similarities[0].name", is("name0")))
+            .andExpect(jsonPath("$._embedded.similarities[1].name", is("name1")))
             .andExpect(jsonPath("$._links.first.href",
                 is("http://localhost/api/ontology/similarity/property/internal?page=0&size=2")))
             .andExpect(jsonPath("$._links.self.href",
@@ -75,7 +81,7 @@ class SimilarityControllerTest {
     @SneakyThrows
     @Test
     void testGetSimilarityByPropertyExternal() {
-        when(similarityService.getSharedPropertyUri(any(ExternalOntology.class), any(Pageable.class)))
+        when(similarityByPropertyService.getSimilarities(any(ExternalOntology.class), any(Pageable.class)))
             .thenReturn(createPage());
 
         String body = "{\n" +
@@ -92,8 +98,8 @@ class SimilarityControllerTest {
                 .content(body))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.similarities[0].name", is("property0")))
-            .andExpect(jsonPath("$._embedded.similarities[1].name", is("property1")))
+            .andExpect(jsonPath("$._embedded.similarities[0].name", is("name0")))
+            .andExpect(jsonPath("$._embedded.similarities[1].name", is("name1")))
             .andExpect(jsonPath("$._links.first.href",
                 is("http://localhost/api/ontology/similarity/property/external?page=0&size=2")))
             .andExpect(jsonPath("$._links.self.href",
@@ -102,6 +108,68 @@ class SimilarityControllerTest {
                 is("http://localhost/api/ontology/similarity/property/external?page=1&size=2")))
             .andExpect(jsonPath("$._links.last.href",
                 is("http://localhost/api/ontology/similarity/property/external?page=1&size=2")))
+            .andExpect(jsonPath("$._embedded.similarities[0].ontologies", hasSize(2)))
+            .andReturn();
+    }
+
+    @SneakyThrows
+    @Test
+    void testGetSimilarityByClassInternal() {
+        when(similarityByClassService.getSimilarities(anyList(), any(Pageable.class)))
+            .thenReturn(createPage());
+
+        String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
+            "{\"ontologyId\" : \"dicob\",\"uri\" : \"\"}]";
+
+        mockMvc.perform(get("/api/ontology/similarity/class/internal")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.similarities[0].name", is("name0")))
+            .andExpect(jsonPath("$._embedded.similarities[1].name", is("name1")))
+            .andExpect(jsonPath("$._links.first.href",
+                is("http://localhost/api/ontology/similarity/class/internal?page=0&size=2")))
+            .andExpect(jsonPath("$._links.self.href",
+                is("http://localhost/api/ontology/similarity/class/internal?page=0&size=2")))
+            .andExpect(jsonPath("$._links.next.href",
+                is("http://localhost/api/ontology/similarity/class/internal?page=1&size=2")))
+            .andExpect(jsonPath("$._links.last.href",
+                is("http://localhost/api/ontology/similarity/class/internal?page=1&size=2")))
+            .andExpect(jsonPath("$._embedded.similarities[0].ontologies", hasSize(2)))
+            .andReturn();
+    }
+
+    @SneakyThrows
+    @Test
+    void testGetSimilarityByClassExternal() {
+        when(similarityByClassService.getSimilarities(any(ExternalOntology.class), any(Pageable.class)))
+            .thenReturn(createPage());
+
+        String body = "{\n" +
+            "\t\"ontologyId\" : \"dicl\",\n" +
+            "\t\"uri\": \"\",\n" +
+            "\t\"properties\": [\"property0\", \"property1\"],\n" +
+            "\t\"classes\": [\"class0\", \"class1\"],\n" +
+            "\t\"imports\": [\"import0\", \"import1\"],\n" +
+            "\t\"namespaces\": [\"namespace0\", \"namespace1\"]\n" +
+            "}";
+
+        mockMvc.perform(get("/api/ontology/similarity/class/external")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.similarities[0].name", is("name0")))
+            .andExpect(jsonPath("$._embedded.similarities[1].name", is("name1")))
+            .andExpect(jsonPath("$._links.first.href",
+                is("http://localhost/api/ontology/similarity/class/external?page=0&size=2")))
+            .andExpect(jsonPath("$._links.self.href",
+                is("http://localhost/api/ontology/similarity/class/external?page=0&size=2")))
+            .andExpect(jsonPath("$._links.next.href",
+                is("http://localhost/api/ontology/similarity/class/external?page=1&size=2")))
+            .andExpect(jsonPath("$._links.last.href",
+                is("http://localhost/api/ontology/similarity/class/external?page=1&size=2")))
             .andExpect(jsonPath("$._embedded.similarities[0].ontologies", hasSize(2)))
             .andReturn();
     }
@@ -118,22 +186,22 @@ class SimilarityControllerTest {
             .build();
 
         Similarity similarity0 = Similarity.builder()
-            .name("property0")
+            .name("name0")
             .ontologies(List.of(ontologyDto0, ontologyDto1))
             .build();
 
         Similarity similarity1 = Similarity.builder()
-            .name("property1")
+            .name("name1")
             .ontologies(List.of(ontologyDto0, ontologyDto1))
             .build();
 
         Similarity similarity2 = Similarity.builder()
-            .name("property2")
+            .name("name2")
             .ontologies(List.of(ontologyDto0, ontologyDto1))
             .build();
 
         Similarity similarity3 = Similarity.builder()
-            .name("property3")
+            .name("name3")
             .ontologies(List.of(ontologyDto0, ontologyDto1))
             .build();
 
