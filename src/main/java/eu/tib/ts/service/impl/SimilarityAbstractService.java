@@ -26,6 +26,10 @@ public abstract class SimilarityAbstractService {
         List<ProcessedOntology> processedOntologies
     );
 
+    protected abstract <T extends ExtendedOntology> List<Pair<String, ProcessedOntology>> getCharacteristicsPairs(
+        List<ProcessedOntology> processedOntologies, T ontology
+    );
+
     public <T extends Ontology> Page<Similarity> getSimilarities(List<T> ontologies, Pageable pageable) {
         List<ProcessedOntology> processedOntologies = getProcessedOntologies(ontologies);
         if (processedOntologies == null || processedOntologies.isEmpty()) {
@@ -34,7 +38,7 @@ public abstract class SimilarityAbstractService {
 
         List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(processedOntologies);
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
-        List<Similarity> list = getSimilarityList(map);
+        List<Similarity> list = getSimilarityList(map, false);
 
         return PageUtils.toPage(list, pageable);
     }
@@ -45,19 +49,19 @@ public abstract class SimilarityAbstractService {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
 
-        List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(processedOntologies);
-        List<Pair<String, ProcessedOntology>> filteredPairs = pairs.stream()
-            .filter(pair -> ontology.getProperties().contains(pair.getFirst()))
-            .collect(Collectors.toList());
-        Map<String, List<OntologyDto>> map = getSimilarityMap(filteredPairs);
-        List<Similarity> list = getSimilarityList(map);
+        ProcessedOntology externalOntology = ProcessedOntology.of(ontology);
+        processedOntologies.add(externalOntology);
+
+        List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(processedOntologies, ontology);
+        Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
+        List<Similarity> list = getSimilarityList(map, true);
 
         return PageUtils.toPage(list, pageable);
     }
 
-    private List<Similarity> getSimilarityList(Map<String, List<OntologyDto>> map) {
+    private List<Similarity> getSimilarityList(Map<String, List<OntologyDto>> map, boolean external) {
         return map.entrySet().stream()
-            .filter(entry -> entry.getValue().size() > 1)
+            .filter(entry -> external || entry.getValue().size() > 1)
             .map(entry -> Similarity.builder()
                 .name(entry.getKey())
                 .ontologies(entry.getValue())

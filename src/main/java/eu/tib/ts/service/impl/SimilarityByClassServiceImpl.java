@@ -1,5 +1,6 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.model.ontology.ExtendedOntology;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
 import eu.tib.ts.service.SimilarityService;
@@ -26,6 +27,22 @@ public class SimilarityByClassServiceImpl extends SimilarityAbstractService impl
         for (ProcessedOntology processedOntology : processedOntologies) {
             for (String item : processedOntology.getClasses()) {
                 pairs.add(Pair.of(item, processedOntology));
+            }
+        }
+
+        return pairs;
+    }
+
+    @Override
+    protected <T extends ExtendedOntology> List<Pair<String, ProcessedOntology>> getCharacteristicsPairs(
+        List<ProcessedOntology> processedOntologies, T ontology
+    ) {
+        List<Pair<String, ProcessedOntology>> pairs = new ArrayList<>();
+        for (ProcessedOntology processedOntology : processedOntologies) {
+            for (String item : processedOntology.getClasses()) {
+                if (ontology.getClasses().contains(item) && !processedOntology.equalsTsOntology(ontology)) {
+                    pairs.add(Pair.of(item, processedOntology));
+                }
             }
         }
 
