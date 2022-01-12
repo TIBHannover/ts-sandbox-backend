@@ -35,6 +35,7 @@ public class TestData {
             .uri("https://something0.ttl")
             .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_20"))
             .classes(Set.of("classUri_0", "classUri_1", "classUri_20"))
+            .collection(Set.of("collection1", "collection2"))
             .build();
 
         ProcessedOntology processedOntology1 = ProcessedOntology.builder()
@@ -43,6 +44,7 @@ public class TestData {
             .uri("https://something1.ttl")
             .properties(Set.of("propertyUri_0", "propertyUri_10", "propertyUri_21"))
             .classes(Set.of("classUri_0", "classUri_10", "classUri_21"))
+            .collection(Set.of("collection1", "collection3"))
             .build();
 
         ProcessedOntology processedOntology2 = ProcessedOntology.builder()
@@ -51,6 +53,7 @@ public class TestData {
             .uri("https://something2.ttl")
             .properties(Set.of("propertyUri_100", "propertyUri_200", "propertyUri_300"))
             .classes(Set.of("classUri_100", "classUri_200", "classUri_300"))
+            .collection(Set.of("collection10", "collection20"))
             .build();
 
         return List.of(processedOntology0, processedOntology1, processedOntology2);
