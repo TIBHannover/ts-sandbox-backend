@@ -1,9 +1,9 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.model.ontology.Ontology;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
-import eu.tib.ts.service.ratio.RatioService;
-import eu.tib.ts.service.ratio.impl.RatioByPropertyServiceImpl;
+import eu.tib.ts.service.RatioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,14 +17,14 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class RatioByPropertyServiceImplTest extends TestData {
+class RatioServiceImplTest extends TestData {
     private RatioService ratioService;
     @Mock
     private ProcessedOntologyRepository processedOntologyRepository;
 
     @BeforeEach
     void setUp() {
-        ratioService = new RatioByPropertyServiceImpl(processedOntologyRepository);
+        ratioService = new RatioServiceImpl(processedOntologyRepository);
     }
 
     @Test
@@ -34,7 +34,7 @@ class RatioByPropertyServiceImplTest extends TestData {
         when(processedOntologyRepository.findByOntologyIdIn(anyList()))
             .thenReturn(getProcessedOntologies().subList(0, 2));
 
-        double actual = ratioService.getRatio(ontologies);
+        double actual = ratioService.getRatio(ontologies, CharacteristicsType.CLASS);
 
         assertEquals(0.2, actual);
     }
@@ -46,7 +46,7 @@ class RatioByPropertyServiceImplTest extends TestData {
         when(processedOntologyRepository.findByOntologyIdIn(anyList()))
             .thenReturn(getProcessedOntologies());
 
-        double actual = ratioService.getRatio(ontologies);
+        double actual = ratioService.getRatio(ontologies, CharacteristicsType.CLASS);
 
         assertEquals(0, actual);
     }

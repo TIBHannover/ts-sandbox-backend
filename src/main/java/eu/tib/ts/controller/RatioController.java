@@ -1,46 +1,33 @@
 package eu.tib.ts.controller;
 
 import eu.tib.ts.controller.dto.RatioDto;
+import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.model.ontology.SimpleOntology;
-import eu.tib.ts.service.ratio.RatioService;
+import eu.tib.ts.service.RatioService;
 import eu.tib.ts.utils.HttpUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/ontology/ratio")
 public class RatioController {
-    private final RatioService ratioByPropertyService;
-    private final RatioService ratioByClassService;
+    private final RatioService ratioService;
 
-    public RatioController(
-        @Qualifier("ratioByPropertyServiceImpl") RatioService ratioByPropertyService,
-        @Qualifier("ratioByClassServiceImpl") RatioService ratioByClassService) {
-        this.ratioByPropertyService = ratioByPropertyService;
-        this.ratioByClassService = ratioByClassService;
+    @Autowired
+    public RatioController(RatioService ratioService) {
+        this.ratioService = ratioService;
     }
 
-    @GetMapping(value = "/property", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RatioDto> getRatioByProperty(
+    @GetMapping(value = "/{characteristics}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RatioDto> getRatio(
+        @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @RequestBody List<SimpleOntology> ontologies
     ) {
-        double ratio = ratioByPropertyService.getRatio(ontologies);
-
-        return HttpUtils.ok(new RatioDto(ratio));
-    }
-
-    @GetMapping(value = "/class", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RatioDto> getRatioByClass(
-        @RequestBody List<SimpleOntology> ontologies
-    ) {
-        double ratio = ratioByClassService.getRatio(ontologies);
+        double ratio = ratioService.getRatio(ontologies, characteristicsType);
 
         return HttpUtils.ok(new RatioDto(ratio));
     }
