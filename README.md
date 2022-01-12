@@ -1,5 +1,11 @@
 # Terminology Service Statistics
 
+### System requirements
+***
+* Java Runtime Environment 11
+* Maven
+* Docker
+
 ### How to run
 ***
 To start a project run following commands in a project directory:
