@@ -5,28 +5,28 @@ import java.util.Set;
 public enum CharacteristicsType {
     PROPERTY {
         @Override
-        public Set<String> getCharacteristics(ProcessedOntology processedOntology) {
-            return processedOntology.getProperties();
+        public <T extends ExtendedOntology> Set<String> getCharacteristics(T ontology) {
+            return ontology.getProperties();
         }
     },
     CLASS {
         @Override
-        public Set<String> getCharacteristics(ProcessedOntology processedOntology) {
-            return processedOntology.getClasses();
+        public <T extends ExtendedOntology> Set<String> getCharacteristics(T ontology) {
+            return ontology.getClasses();
         }
     },
     NAMESPACE {
         @Override
-        public Set<String> getCharacteristics(ProcessedOntology processedOntology) {
-            return processedOntology.getNamespaces();
+        public <T extends ExtendedOntology> Set<String> getCharacteristics(T ontology) {
+            return ontology.getNamespaces();
         }
     },
     IMPORT {
         @Override
-        public Set<String> getCharacteristics(ProcessedOntology processedOntology) {
-            return processedOntology.getImports();
+        public <T extends ExtendedOntology> Set<String> getCharacteristics(T ontology) {
+            return ontology.getImports();
         }
     };
 
-    public abstract Set<String> getCharacteristics(ProcessedOntology processedOntology);
+    public abstract <T extends ExtendedOntology> Set<String> getCharacteristics(T ontology);
 }
