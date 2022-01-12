@@ -1,6 +1,9 @@
 package eu.tib.ts.service.impl;
 
-import eu.tib.ts.model.ontology.*;
+import eu.tib.ts.model.ontology.CharacteristicsType;
+import eu.tib.ts.model.ontology.ExternalOntology;
+import eu.tib.ts.model.ontology.Ontology;
+import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
 import eu.tib.ts.service.SimilarityService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,14 +23,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SimilarityByClassServiceImplTest extends TestData {
+class SimilarityServiceImplTest extends TestData {
     private SimilarityService similarityService;
     @Mock
     private ProcessedOntologyRepository processedOntologyRepository;
 
     @BeforeEach
     void setUp() {
-        similarityService = new SimilarityByClassServiceImpl(processedOntologyRepository);
+        similarityService = new SimilarityServiceImpl(processedOntologyRepository);
     }
 
     @Test
@@ -41,7 +44,8 @@ class SimilarityByClassServiceImplTest extends TestData {
             .thenReturn(getProcessedOntologies());
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSimilarities(ontologies, pageRequest);
+        Page<Similarity> page =
+            similarityService.getSimilarities(ontologies, CharacteristicsType.PROPERTY, pageRequest);
 
         assertNotNull(page);
         assertEquals(1, page.getContent().size());
@@ -58,7 +62,8 @@ class SimilarityByClassServiceImplTest extends TestData {
             .thenReturn(Collections.emptyList());
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSimilarities(ontologies, pageRequest);
+        Page<Similarity> page =
+            similarityService.getSimilarities(ontologies, CharacteristicsType.PROPERTY, pageRequest);
 
         assertNotNull(page);
         assertEquals(0, page.getContent().size());
@@ -72,35 +77,36 @@ class SimilarityByClassServiceImplTest extends TestData {
         ExternalOntology externalOntology = ExternalOntology.builder()
             .ontologyId("ontology_100")
             .uri("https://something_100.ttl")
-            .classes(Set.of("classUri_0", "classUri_1", "classUri_200"))
+            .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_200"))
             .build();
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSimilarities(externalOntology, pageRequest);
+        Page<Similarity> page =
+            similarityService.getSimilarities(externalOntology, CharacteristicsType.PROPERTY, pageRequest);
 
         assertNotNull(page);
         assertEquals(3, page.getContent().size());
 
-        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("classUri_0")));
+        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_0")));
         assertEquals(2,
             page.getContent().stream()
-                .filter(similarity -> similarity.getName().equals("classUri_0"))
+                .filter(similarity -> similarity.getName().equals("propertyUri_0"))
                 .findFirst()
                 .map(similarity -> similarity.getOntologies().size())
                 .orElse(0)
         );
 
-        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("classUri_1")));
+        assertTrue(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_1")));
         assertEquals(1,
             page.getContent().stream()
-                .filter(similarity -> similarity.getName().equals("classUri_1"))
+                .filter(similarity -> similarity.getName().equals("propertyUri_1"))
                 .findFirst()
                 .map(similarity -> similarity.getOntologies().size())
                 .orElse(0)
         );
 
-        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("classUri_20")));
-        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("classUri_300")));
+        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_20")));
+        assertFalse(page.getContent().stream().anyMatch(similarity -> similarity.getName().equals("propertyUri_300")));
     }
 
     @Test
@@ -111,11 +117,12 @@ class SimilarityByClassServiceImplTest extends TestData {
         ExternalOntology externalOntology = ExternalOntology.builder()
             .ontologyId("ontology_100")
             .uri("https://something_100.ttl")
-            .classes(Set.of("classUri_0", "classUri_1", "classUri_200"))
+            .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_200"))
             .build();
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page = similarityService.getSimilarities(externalOntology, pageRequest);
+        Page<Similarity> page =
+            similarityService.getSimilarities(externalOntology, CharacteristicsType.PROPERTY, pageRequest);
 
         assertNotNull(page);
         assertEquals(0, page.getContent().size());

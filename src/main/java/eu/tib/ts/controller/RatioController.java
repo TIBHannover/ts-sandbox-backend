@@ -22,7 +22,7 @@ public class RatioController {
         this.ratioService = ratioService;
     }
 
-    @GetMapping(value = "/{characteristics}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{characteristics}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RatioDto> getRatio(
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @RequestBody List<SimpleOntology> ontologies

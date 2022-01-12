@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,7 +42,7 @@ class RatioControllerTest {
         String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
             "{\"ontologyId\" : \"dicob\",\"uri\" : \"\"}]";
 
-        mockMvc.perform(get("/api/ontology/ratio/property")
+        mockMvc.perform(post("/api/ontology/ratio/property")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
             .andDo(print())

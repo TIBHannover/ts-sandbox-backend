@@ -17,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "processed_ontology")
-public class ProcessedOntology {
+public class ProcessedOntology implements ExtendedOntology {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ontology_id_generator")
     @SequenceGenerator(name = "ontology_id_generator", sequenceName = "ont_id_seq", allocationSize = 1)
