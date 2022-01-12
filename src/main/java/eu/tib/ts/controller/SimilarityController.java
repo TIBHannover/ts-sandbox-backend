@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/ontology/similarity")
@@ -37,9 +38,11 @@ public class SimilarityController {
     public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForInternalOntology(
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @RequestBody List<SimpleOntology> ontologies,
+        @RequestParam Optional<String> collection,
         Pageable pageable
     ) {
-        Page<Similarity> page = similarityService.getSimilarities(ontologies, characteristicsType, pageable);
+        Page<Similarity> page =
+            similarityService.getSimilarities(ontologies, characteristicsType, collection, pageable);
         PagedModel<SimilarityModel> pagedModel = pagedResourcesAssembler.toModel(page, modelAssembler);
 
         return HttpUtils.ok(pagedModel);
@@ -49,9 +52,10 @@ public class SimilarityController {
     public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForExternalOntology(
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @RequestBody ExternalOntology ontology,
+        @RequestParam Optional<String> collection,
         Pageable pageable
     ) {
-        Page<Similarity> page = similarityService.getSimilarities(ontology, characteristicsType, pageable);
+        Page<Similarity> page = similarityService.getSimilarities(ontology, characteristicsType, collection, pageable);
         PagedModel<SimilarityModel> pagedModel = pagedResourcesAssembler.toModel(page, modelAssembler);
 
         return HttpUtils.ok(pagedModel);

@@ -22,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -48,7 +49,7 @@ class SimilarityControllerTest {
     @SneakyThrows
     @Test
     void testGetSimilarityByPropertyInternal() {
-        when(similarityService.getSimilarities(anyList(), any(CharacteristicsType.class), any(Pageable.class)))
+        when(similarityService.getSimilarities(anyList(), any(CharacteristicsType.class), any(Optional.class), any(Pageable.class)))
             .thenReturn(createPage());
 
         String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
@@ -76,7 +77,8 @@ class SimilarityControllerTest {
     @SneakyThrows
     @Test
     void testGetSimilarityByPropertyExternal() {
-        when(similarityService.getSimilarities(any(ExternalOntology.class), any(CharacteristicsType.class), any(Pageable.class)))
+        when(similarityService.getSimilarities(
+            any(ExternalOntology.class), any(CharacteristicsType.class), any(Optional.class), any(Pageable.class)))
             .thenReturn(createPage());
 
         String body = "{\n" +

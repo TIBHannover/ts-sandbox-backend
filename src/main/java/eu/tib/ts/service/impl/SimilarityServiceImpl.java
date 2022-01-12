@@ -3,6 +3,7 @@ package eu.tib.ts.service.impl;
 import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
+import eu.tib.ts.service.OntologyFilterService;
 import eu.tib.ts.service.SimilarityService;
 import eu.tib.ts.utils.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,21 +19,26 @@ import java.util.stream.StreamSupport;
 @Service
 public class SimilarityServiceImpl implements SimilarityService {
     private final ProcessedOntologyRepository processedOntologyRepository;
+    private final OntologyFilterService filterService;
 
     @Autowired
-    protected SimilarityServiceImpl(ProcessedOntologyRepository processedOntologyRepository) {
+    protected SimilarityServiceImpl(ProcessedOntologyRepository processedOntologyRepository,
+                                    OntologyFilterService filterService) {
         this.processedOntologyRepository = processedOntologyRepository;
+        this.filterService = filterService;
     }
 
     public <T extends Ontology> Page<Similarity> getSimilarities(List<T> ontologies,
                                                                  CharacteristicsType characteristicsType,
+                                                                 Optional<String> collection,
                                                                  Pageable pageable) {
         List<ProcessedOntology> processedOntologies = getProcessedOntologies(ontologies);
         if (processedOntologies == null || processedOntologies.isEmpty()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
+        List<ProcessedOntology> filteredOntologies = filterService.filter(processedOntologies, collection);
 
-        List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(processedOntologies, characteristicsType);
+        List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(filteredOntologies, characteristicsType);
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
         List<Similarity> list = getSimilarityList(map, false);
 
@@ -41,17 +47,21 @@ public class SimilarityServiceImpl implements SimilarityService {
 
     public <T extends ExtendedOntology> Page<Similarity> getSimilarities(T ontology,
                                                                          CharacteristicsType characteristicsType,
+                                                                         Optional<String> collection,
                                                                          Pageable pageable) {
         List<ProcessedOntology> processedOntologies = getProcessedOntologies();
+
         if (processedOntologies == null || processedOntologies.isEmpty()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
 
-        ProcessedOntology externalOntology = ProcessedOntology.of(ontology);
-        processedOntologies.add(externalOntology);
+        List<ProcessedOntology> filteredOntologies = filterService.filter(processedOntologies, collection);
 
-        List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(processedOntologies,
-            ontology, characteristicsType);
+        ProcessedOntology externalOntology = ProcessedOntology.of(ontology);
+        filteredOntologies.add(externalOntology);
+
+        List<Pair<String, ProcessedOntology>> pairs =
+            getCharacteristicsPairs(processedOntologies, ontology, characteristicsType);
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
         List<Similarity> list = getSimilarityList(map, true);
 
