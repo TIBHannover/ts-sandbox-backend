@@ -1,10 +1,8 @@
 package eu.tib.ts.service.impl;
 
-import eu.tib.ts.model.ontology.CharacteristicsType;
-import eu.tib.ts.model.ontology.ExternalOntology;
-import eu.tib.ts.model.ontology.Ontology;
-import eu.tib.ts.model.ontology.Similarity;
+import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
+import eu.tib.ts.service.OntologyFilterService;
 import eu.tib.ts.service.SimilarityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,10 +14,13 @@ import org.springframework.data.domain.PageRequest;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,10 +28,12 @@ class SimilarityServiceImplTest extends TestData {
     private SimilarityService similarityService;
     @Mock
     private ProcessedOntologyRepository processedOntologyRepository;
+    @Mock
+    private OntologyFilterService filterService;
 
     @BeforeEach
     void setUp() {
-        similarityService = new SimilarityServiceImpl(processedOntologyRepository);
+        similarityService = new SimilarityServiceImpl(processedOntologyRepository, filterService);
     }
 
     @Test
@@ -40,12 +43,16 @@ class SimilarityServiceImplTest extends TestData {
             .map(Ontology::getOntologyId)
             .collect(Collectors.toList());
 
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies();
         when(processedOntologyRepository.findByOntologyIdIn(ids))
-            .thenReturn(getProcessedOntologies());
+            .thenReturn(processedOntologies);
+        when(filterService.filter(anyList(), any(Optional.class)))
+            .thenReturn(processedOntologies);
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page =
-            similarityService.getSimilarities(ontologies, CharacteristicsType.PROPERTY, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(
+            ontologies, CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
+        );
 
         assertNotNull(page);
         assertEquals(1, page.getContent().size());
@@ -62,8 +69,9 @@ class SimilarityServiceImplTest extends TestData {
             .thenReturn(Collections.emptyList());
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page =
-            similarityService.getSimilarities(ontologies, CharacteristicsType.PROPERTY, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(
+            ontologies, CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
+        );
 
         assertNotNull(page);
         assertEquals(0, page.getContent().size());
@@ -81,8 +89,9 @@ class SimilarityServiceImplTest extends TestData {
             .build();
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page =
-            similarityService.getSimilarities(externalOntology, CharacteristicsType.PROPERTY, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(
+            externalOntology, CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
+        );
 
         assertNotNull(page);
         assertEquals(3, page.getContent().size());
@@ -121,8 +130,9 @@ class SimilarityServiceImplTest extends TestData {
             .build();
 
         PageRequest pageRequest = PageRequest.of(0, 100);
-        Page<Similarity> page =
-            similarityService.getSimilarities(externalOntology, CharacteristicsType.PROPERTY, pageRequest);
+        Page<Similarity> page = similarityService.getSimilarities(
+            externalOntology, CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
+        );
 
         assertNotNull(page);
         assertEquals(0, page.getContent().size());
