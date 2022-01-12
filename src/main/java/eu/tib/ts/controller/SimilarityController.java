@@ -33,7 +33,7 @@ public class SimilarityController {
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
-    @GetMapping(value = "/{characteristics}/internal", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{characteristics}/internal", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForInternalOntology(
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @RequestBody List<SimpleOntology> ontologies,
@@ -45,7 +45,7 @@ public class SimilarityController {
         return HttpUtils.ok(pagedModel);
     }
 
-    @GetMapping(value = "/{characteristics}/external", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{characteristics}/external", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForExternalOntology(
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @RequestBody ExternalOntology ontology,

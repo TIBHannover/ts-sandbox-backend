@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,7 +54,7 @@ class SimilarityControllerTest {
         String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
             "{\"ontologyId\" : \"dicob\",\"uri\" : \"\"}]";
 
-        mockMvc.perform(get("/api/ontology/similarity/property/internal")
+        mockMvc.perform(post("/api/ontology/similarity/property/internal")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
             .andDo(print())
@@ -88,7 +88,7 @@ class SimilarityControllerTest {
             "\t\"namespaces\": [\"namespace0\", \"namespace1\"]\n" +
             "}";
 
-        mockMvc.perform(get("/api/ontology/similarity/property/external")
+        mockMvc.perform(post("/api/ontology/similarity/property/external")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
             .andDo(print())
