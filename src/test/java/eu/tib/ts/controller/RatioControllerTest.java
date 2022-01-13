@@ -1,5 +1,6 @@
 package eu.tib.ts.controller;
 
+import eu.tib.ts.controller.dto.RatioDto;
 import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.service.RatioService;
 import lombok.SneakyThrows;
@@ -24,9 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(RatioController.class)
 class RatioControllerTest {
-
-    public static final double RATIO_RESULT = 0.5;
-
     @MockBean
     RatioService ratioService;
 
@@ -36,8 +34,14 @@ class RatioControllerTest {
     @SneakyThrows
     @Test
     void testGetRatio() {
+        RatioDto ratioDto = RatioDto.builder()
+            .result(0.25)
+            .similaritiesNumber(1)
+            .distinctCharacteristicsNumber(4)
+            .build();
+
         when(ratioService.getRatio(anyList(), any(CharacteristicsType.class)))
-            .thenReturn(RATIO_RESULT);
+            .thenReturn(ratioDto);
 
         String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
             "{\"ontologyId\" : \"dicob\",\"uri\" : \"\"}]";
@@ -47,7 +51,11 @@ class RatioControllerTest {
                 .content(body))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.value", is(RATIO_RESULT)))
+            .andExpect(jsonPath("$.result", is(ratioDto.getResult())))
+            .andExpect(jsonPath("$.similaritiesNumber", is(ratioDto.getSimilaritiesNumber())))
+            .andExpect(
+                jsonPath("$.distinctCharacteristicsNumber", is(ratioDto.getDistinctCharacteristicsNumber()))
+            )
             .andReturn();
     }
 }

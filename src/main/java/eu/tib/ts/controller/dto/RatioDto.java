@@ -1,12 +1,12 @@
 package eu.tib.ts.controller.dto;
 
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Value;
 
-@Getter
+@Builder
+@Value
 public class RatioDto {
-    private final double value;
-
-    public RatioDto(double value) {
-        this.value = value;
-    }
+    double result;
+    int similaritiesNumber;
+    double distinctCharacteristicsNumber;
 }

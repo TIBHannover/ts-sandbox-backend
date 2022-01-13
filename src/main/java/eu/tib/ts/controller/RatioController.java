@@ -27,8 +27,8 @@ public class RatioController {
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @RequestBody List<SimpleOntology> ontologies
     ) {
-        double ratio = ratioService.getRatio(ontologies, characteristicsType);
+        RatioDto ratioDto = ratioService.getRatio(ontologies, characteristicsType);
 
-        return HttpUtils.ok(new RatioDto(ratio));
+        return HttpUtils.ok(ratioDto);
     }
 }
