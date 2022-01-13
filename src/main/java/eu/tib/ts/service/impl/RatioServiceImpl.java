@@ -1,5 +1,6 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.controller.dto.RatioDto;
 import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.model.ontology.Ontology;
 import eu.tib.ts.model.ontology.ProcessedOntology;
@@ -23,11 +24,11 @@ public class RatioServiceImpl implements RatioService {
         this.processedOntologyRepository = processedOntologyRepository;
     }
 
-    public <T extends Ontology> double getRatio(List<T> ontologies,
-                                                CharacteristicsType characteristicsType) {
+    public <T extends Ontology> RatioDto getRatio(List<T> ontologies,
+                                                  CharacteristicsType characteristicsType) {
         List<ProcessedOntology> processedOntologies = getProcessedOntologies(ontologies);
         if (processedOntologies == null || processedOntologies.isEmpty()) {
-            return 0;
+            return RatioDto.builder().build();
         }
 
         List<Set<String>> characteristics = processedOntologies.stream()
@@ -41,7 +42,13 @@ public class RatioServiceImpl implements RatioService {
 
         Set<String> intersection = CollectionUtils.intersection(characteristics);
 
-        return distinctCharacteristicsNumber == 0 ? 0 : intersection.size() / distinctCharacteristicsNumber;
+        double result = distinctCharacteristicsNumber == 0 ? 0 : intersection.size() / distinctCharacteristicsNumber;
+
+        return RatioDto.builder()
+            .result(result)
+            .similaritiesNumber(intersection.size())
+            .distinctCharacteristicsNumber(distinctCharacteristicsNumber)
+            .build();
     }
 
     private <T extends Ontology> List<ProcessedOntology> getProcessedOntologies(List<T> ontologies) {

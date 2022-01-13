@@ -1,5 +1,6 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.controller.dto.RatioDto;
 import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.model.ontology.Ontology;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
@@ -34,9 +35,11 @@ class RatioServiceImplTest extends TestData {
         when(processedOntologyRepository.findByOntologyIdIn(anyList()))
             .thenReturn(getProcessedOntologies().subList(0, 2));
 
-        double actual = ratioService.getRatio(ontologies, CharacteristicsType.CLASS);
+        RatioDto actual = ratioService.getRatio(ontologies, CharacteristicsType.CLASS);
 
-        assertEquals(0.2, actual);
+        assertEquals(0.2, actual.getResult());
+        assertEquals(1, actual.getSimilaritiesNumber());
+        assertEquals(5, actual.getDistinctCharacteristicsNumber());
     }
 
     @Test
@@ -46,8 +49,10 @@ class RatioServiceImplTest extends TestData {
         when(processedOntologyRepository.findByOntologyIdIn(anyList()))
             .thenReturn(getProcessedOntologies());
 
-        double actual = ratioService.getRatio(ontologies, CharacteristicsType.CLASS);
+        RatioDto actual = ratioService.getRatio(ontologies, CharacteristicsType.CLASS);
 
-        assertEquals(0, actual);
+        assertEquals(0, actual.getResult());
+        assertEquals(0, actual.getSimilaritiesNumber());
+        assertEquals(8, actual.getDistinctCharacteristicsNumber());
     }
 }
