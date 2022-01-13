@@ -314,7 +314,7 @@
 			"response": []
 		},
 		{
-			"name": "ratio calculation",
+			"name": "ratio by property calculation",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -337,6 +337,93 @@
 						"ontology",
 						"ratio",
 						"property"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ratio by class calculation",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n\t{\r\n\t\t\"ontologyId\" : \"dicl\",\r\n\t\t\"uri\" : \"\"\r\n\t},\r\n\t{\r\n\t\t\"ontologyId\" : \"dicob\",\r\n\t\t\"uri\" : \"\"\r\n\t},\r\n\t{\r\n\t\t\"ontologyId\" : \"dices\",\r\n\t\t\"uri\" : \"\"\r\n\t}\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server_url}}/api/ontology/ratio/class",
+					"host": [
+						"{{server_url}}"
+					],
+					"path": [
+						"api",
+						"ontology",
+						"ratio",
+						"class"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ratio by namespace calculation",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n\t{\r\n\t\t\"ontologyId\" : \"dicl\",\r\n\t\t\"uri\" : \"\"\r\n\t},\r\n\t{\r\n\t\t\"ontologyId\" : \"dicob\",\r\n\t\t\"uri\" : \"\"\r\n\t},\r\n\t{\r\n\t\t\"ontologyId\" : \"dices\",\r\n\t\t\"uri\" : \"\"\r\n\t}\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server_url}}/api/ontology/ratio/namespace",
+					"host": [
+						"{{server_url}}"
+					],
+					"path": [
+						"api",
+						"ontology",
+						"ratio",
+						"namespace"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ratio by import calculation",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n\t{\r\n\t\t\"ontologyId\" : \"dicl\",\r\n\t\t\"uri\" : \"\"\r\n\t},\r\n\t{\r\n\t\t\"ontologyId\" : \"dicob\",\r\n\t\t\"uri\" : \"\"\r\n\t},\r\n\t{\r\n\t\t\"ontologyId\" : \"dices\",\r\n\t\t\"uri\" : \"\"\r\n\t}\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server_url}}/api/ontology/ratio/import",
+					"host": [
+						"{{server_url}}"
+					],
+					"path": [
+						"api",
+						"ontology",
+						"ratio",
+						"import"
 					]
 				}
 			},
