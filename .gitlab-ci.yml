@@ -23,6 +23,7 @@ stages:          # List of stages for jobs, and their order of execution
 test:
   stage: test
   script:
+    - echo $MAVEN_HOME
     - mvn clean test -B
 
 build:
