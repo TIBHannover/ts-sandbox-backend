@@ -1,7 +1,10 @@
 package eu.tib.ts.service.impl;
 
 import eu.tib.ts.controller.dto.OntologyDto;
-import eu.tib.ts.model.ontology.*;
+import eu.tib.ts.model.ontology.CharacteristicsType;
+import eu.tib.ts.model.ontology.ExtendedOntology;
+import eu.tib.ts.model.ontology.ProcessedOntology;
+import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
 import eu.tib.ts.service.OntologyFilterService;
 import eu.tib.ts.service.SimilarityService;
@@ -12,7 +15,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -28,11 +37,11 @@ public class SimilarityServiceImpl implements SimilarityService {
         this.filterService = filterService;
     }
 
-    public <T extends Ontology> Page<Similarity> getSimilarities(List<T> ontologies,
-                                                                 CharacteristicsType characteristicsType,
-                                                                 Optional<String> collection,
-                                                                 Pageable pageable) {
-        List<ProcessedOntology> processedOntologies = getProcessedOntologies(ontologies);
+    public Page<Similarity> getSimilarities(List<String> ids,
+                                            CharacteristicsType characteristicsType,
+                                            Optional<String> collection,
+                                            Pageable pageable) {
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies(ids);
         if (processedOntologies == null || processedOntologies.isEmpty()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
@@ -111,10 +120,7 @@ public class SimilarityServiceImpl implements SimilarityService {
             .collect(Collectors.toList());
     }
 
-    private <T extends Ontology> List<ProcessedOntology> getProcessedOntologies(List<T> ontologies) {
-        List<String> ids = ontologies.stream()
-            .map(Ontology::getOntologyId)
-            .collect(Collectors.toList());
+    private List<ProcessedOntology> getProcessedOntologies(List<String> ids) {
 
         return processedOntologyRepository.findByOntologyIdIn(ids);
     }
