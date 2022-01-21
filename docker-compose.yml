@@ -11,6 +11,8 @@ services:
     environment:
       - spring.datasource.url=jdbc:postgresql://postgres:5432/postgres
       - preprocessing.run=true
+    ports:
+      - "8081:8080"
 
   postgres:
     image: 'postgres:13.5'
