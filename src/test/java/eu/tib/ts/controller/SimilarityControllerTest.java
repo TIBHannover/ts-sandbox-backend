@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -52,12 +53,11 @@ class SimilarityControllerTest {
         when(similarityService.getSimilarities(anyList(), any(CharacteristicsType.class), any(Optional.class), any(Pageable.class)))
             .thenReturn(createPage());
 
-        String body = "[{\"ontologyId\" : \"dicl\",\"uri\" : \"\"},\n" +
-            "{\"ontologyId\" : \"dicob\",\"uri\" : \"\"}]";
-
-        mockMvc.perform(post("/api/ontology/similarity/property/internal")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body))
+        mockMvc.perform(
+                get("/api/ontology/similarity/property/internal")
+                    .param("ids", "dicl, dicob")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.similarities[0].name", is("name0")))

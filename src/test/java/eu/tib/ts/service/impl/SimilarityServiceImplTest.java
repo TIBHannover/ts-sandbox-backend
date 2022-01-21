@@ -51,7 +51,7 @@ class SimilarityServiceImplTest extends TestData {
 
         PageRequest pageRequest = PageRequest.of(0, 100);
         Page<Similarity> page = similarityService.getSimilarities(
-            ontologies, CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
+            ids, CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
         );
 
         assertNotNull(page);
@@ -70,7 +70,7 @@ class SimilarityServiceImplTest extends TestData {
 
         PageRequest pageRequest = PageRequest.of(0, 100);
         Page<Similarity> page = similarityService.getSimilarities(
-            ontologies, CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
+            ids, CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
         );
 
         assertNotNull(page);
