@@ -49,7 +49,8 @@ sonarqube-check:
     - mvn verify sonar:sonar -Dsonar.projectKey=terminology_sandbox_tib-terminology-service-statistics_AX4zSJvPXTVyuzMM6ZO3
   allow_failure: true
   only:
-    - main # or the name of your main branch
+    - main
+    - branches
 
 dockerize_main:
   image: docker:19.03.12
