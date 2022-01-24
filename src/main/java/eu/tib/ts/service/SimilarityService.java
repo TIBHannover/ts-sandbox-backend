@@ -2,6 +2,7 @@ package eu.tib.ts.service;
 
 import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.model.ontology.ExtendedOntology;
+import eu.tib.ts.model.ontology.PairwiseSimilarity;
 import eu.tib.ts.model.ontology.Similarity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,4 +20,12 @@ public interface SimilarityService {
                                                                   CharacteristicsType characteristicsType,
                                                                   Optional<String> collection,
                                                                   Pageable pageable);
+
+    Page<PairwiseSimilarity> getPairwiseSimilarity(Optional<List<String>> ids,
+                                                   Optional<String> collection,
+                                                   Pageable pageable);
+
+    <T extends ExtendedOntology> Page<PairwiseSimilarity> getPairwiseSimilarity(T ontology,
+                                                                                Optional<String> collection,
+                                                                                Pageable pageable);
 }
