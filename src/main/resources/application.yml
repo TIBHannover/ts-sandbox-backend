@@ -20,3 +20,10 @@ ts:
   timeout:
     connect: 15000
     read: 15000
+
+similarity:
+  weight:
+    property: 0.25
+    class: 0.25
+    namespace: 0.25
+    import: 0.25
