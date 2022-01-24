@@ -184,6 +184,49 @@ class SimilarityServiceImplTest extends TestData {
     }
 
     @Test
+    void testGetPairwiseSimilarityForInternalOntology_withIds() {
+        List<Ontology> ontologies = getOntologies();
+        List<String> ids = ontologies.stream()
+            .map(Ontology::getOntologyId)
+            .collect(Collectors.toList());
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies();
+        when(processedOntologyRepository.findByOntologyIdIn(ids))
+            .thenReturn(processedOntologies);
+        when(filterService.filter(anyList(), any(Optional.class)))
+            .thenReturn(processedOntologies);
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Page<PairwiseSimilarity> page =
+            similarityService.getPairwiseSimilarity(Optional.of(ids), Optional.empty(), pageRequest);
+
+        assertNotNull(page);
+
+        List<PairwiseSimilarity> content = page.getContent();
+        assertEquals(1, content.size());
+        assertEquals("ontology_0", content.get(0).getPair().getFirst());
+        assertEquals("ontology_1", content.get(0).getPair().getSecond());
+        assertEquals(1.0, content.get(0).getSum());
+
+        Map<String, CharacteristicsInfo> characteristics = content.get(0).getCharacteristics();
+        assertTrue(characteristics.containsKey(CharacteristicsType.PROPERTY.name().toLowerCase()));
+        assertTrue(characteristics.containsKey(CharacteristicsType.CLASS.name().toLowerCase()));
+        assertTrue(characteristics.containsKey(CharacteristicsType.IMPORT.name().toLowerCase()));
+        assertTrue(characteristics.containsKey(CharacteristicsType.NAMESPACE.name().toLowerCase()));
+    }
+
+    @Test
+    void testGetPairwiseSimilaritiesForInternalOntology_noProcessedOntologies() {
+        when(processedOntologyRepository.findAll())
+            .thenReturn(Collections.emptyList());
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Page<PairwiseSimilarity> page =
+            similarityService.getPairwiseSimilarity(Optional.empty(), Optional.empty(), pageRequest);
+
+        assertNotNull(page);
+    }
+
+    @Test
     void testGetPairwiseSimilarityForExternalOntology() {
         List<ProcessedOntology> processedOntologies = getProcessedOntologies();
         when(processedOntologyRepository.findAll())
@@ -215,5 +258,26 @@ class SimilarityServiceImplTest extends TestData {
         assertTrue(characteristics.containsKey(CharacteristicsType.CLASS.name().toLowerCase()));
         assertTrue(characteristics.containsKey(CharacteristicsType.IMPORT.name().toLowerCase()));
         assertTrue(characteristics.containsKey(CharacteristicsType.NAMESPACE.name().toLowerCase()));
+    }
+
+    @Test
+    void testGetPairwiseSimilaritiesForExternalOntology_noProcessedOntologies() {
+        when(processedOntologyRepository.findAll())
+            .thenReturn(Collections.emptyList());
+
+        ExternalOntology externalOntology = ExternalOntology.builder()
+            .ontologyId("ontology_100")
+            .uri("https://something_100.ttl")
+            .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_200"))
+            .classes(Set.of("classUri_0", "classUri_1", "classUri_200"))
+            .imports(Set.of("importUri_0", "importUri_1", "importUri_200"))
+            .namespaces(Set.of("namespaceUri_0", "namespaceUri_1", "namespaceUri_200"))
+            .build();
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Page<PairwiseSimilarity> page =
+            similarityService.getPairwiseSimilarity(externalOntology, Optional.empty(), pageRequest);
+
+        assertNotNull(page);
     }
 }
