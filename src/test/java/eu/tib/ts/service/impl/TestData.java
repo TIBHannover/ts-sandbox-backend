@@ -35,6 +35,8 @@ public class TestData {
             .uri("https://something0.ttl")
             .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_20"))
             .classes(Set.of("classUri_0", "classUri_1", "classUri_20"))
+            .imports(Set.of("importUri_0", "importUri_1", "importUri_20"))
+            .namespaces(Set.of("namespaceUri_0", "namespaceUri_1", "namespaceUri_20"))
             .collection(Set.of("collection1", "collection2"))
             .build();
 
@@ -44,6 +46,8 @@ public class TestData {
             .uri("https://something1.ttl")
             .properties(Set.of("propertyUri_0", "propertyUri_10", "propertyUri_21"))
             .classes(Set.of("classUri_0", "classUri_10", "classUri_21"))
+            .imports(Set.of("importUri_0", "importUri_10", "importUri_21"))
+            .namespaces(Set.of("namespaceUri_0", "namespaceUri_10", "namespaceUri_21"))
             .collection(Set.of("collection1", "collection3"))
             .build();
 
@@ -53,6 +57,8 @@ public class TestData {
             .uri("https://something2.ttl")
             .properties(Set.of("propertyUri_100", "propertyUri_200", "propertyUri_300"))
             .classes(Set.of("classUri_100", "classUri_200", "classUri_300"))
+            .imports(Set.of("importUri_100", "importUri_200", "importUri_300"))
+            .namespaces(Set.of("namespaceUri_100", "namespaceUri_200", "namespaceUri_300"))
             .collection(Set.of("collection10", "collection20"))
             .build();
 
