@@ -129,6 +129,17 @@ class SimilarityControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.similarities[0].pair.first", is("ont0")))
             .andExpect(jsonPath("$._embedded.similarities[0].pair.second", is("ont1")))
+            .andExpect(jsonPath("$._embedded.similarities[0].sum", is(100.0)))
+            .andExpect(jsonPath("$._embedded.similarities[0].totalSum", is(100.0)))
+            .andExpect(jsonPath("$._embedded.similarities[0].percentage", is(100.0)))
+            .andExpect(jsonPath("$._embedded.similarities[0].characteristics.import.size", is(2)))
+            .andExpect(jsonPath("$._embedded.similarities[0].characteristics.import.list", hasSize(2)))
+            .andExpect(jsonPath("$._embedded.similarities[0].characteristics.class.size", is(2)))
+            .andExpect(jsonPath("$._embedded.similarities[0].characteristics.class.list", hasSize(2)))
+            .andExpect(jsonPath("$._embedded.similarities[0].characteristics.namespace.size", is(2)))
+            .andExpect(jsonPath("$._embedded.similarities[0].characteristics.namespace.list", hasSize(2)))
+            .andExpect(jsonPath("$._embedded.similarities[0].characteristics.property.size", is(2)))
+            .andExpect(jsonPath("$._embedded.similarities[0].characteristics.property.list", hasSize(2)))
             .andExpect(jsonPath("$._embedded.similarities", hasSize(2)))
             .andReturn();
     }
