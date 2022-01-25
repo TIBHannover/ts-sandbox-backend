@@ -16,11 +16,14 @@
 
 image: maven:3.6.3-jdk-11
 
+variables:
+  IMAGE_NAME: $CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
+
 stages:          # List of stages for jobs, and their order of execution
   - test
   - build
   - sonarqube
-  - dockerize_main
+  - dockerize
 
 test:
   stage: test
@@ -52,17 +55,14 @@ sonarqube-check:
     - main
     - branches
 
-dockerize_main:
-  image: docker:19.03.12
+dockerize:
+  image: docker:18-git
   services:
-    - docker:19.03.12-dind
-  stage: dockerize_main
+    - docker:18-dind
+  stage: dockerize
   only:
     - main
-  variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   script:
-    - ls -lh
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t $IMAGE_TAG .
-    - docker push $IMAGE_TAG
+    - docker build -t $IMAGE_NAME .
+    - docker push $IMAGE_NAME:latest
