@@ -2,7 +2,7 @@ version: '2'
 
 services:
   ts_statistics_back:
-    image: ts_statistics_back:latest
+    # image: ts_statistics_back:latest
     build:
       context: .
     container_name: ts_statistics_back
