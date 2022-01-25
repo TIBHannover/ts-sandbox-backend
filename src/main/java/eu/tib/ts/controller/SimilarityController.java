@@ -10,6 +10,7 @@ import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.model.ontology.SimilarityModel;
 import eu.tib.ts.service.SimilarityService;
 import eu.tib.ts.utils.HttpUtils;
+import eu.tib.ts.utils.PageUtils;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -61,7 +62,8 @@ public class SimilarityController {
         Pageable pageable
     ) {
         Page<Similarity> page = similarityService.getSimilarities(ids, characteristicsType, collection, pageable);
-        PagedModel<SimilarityModel> pagedModel = pagedResourcesAssembler.toModel(page, modelAssembler);
+        PagedModel<SimilarityModel> pagedModel =
+            PageUtils.toPagedModel(page, SimilarityModel.class, pagedResourcesAssembler, modelAssembler);
 
         return HttpUtils.ok(pagedModel);
     }
@@ -74,7 +76,9 @@ public class SimilarityController {
         Pageable pageable
     ) {
         Page<Similarity> page = similarityService.getSimilarities(ontology, characteristicsType, collection, pageable);
-        PagedModel<SimilarityModel> pagedModel = pagedResourcesAssembler.toModel(page, modelAssembler);
+        PagedModel<SimilarityModel> pagedModel =
+            PageUtils.toPagedModel(page, SimilarityModel.class, pagedResourcesAssembler, modelAssembler);
+
 
         return HttpUtils.ok(pagedModel);
     }
@@ -87,8 +91,12 @@ public class SimilarityController {
         Pageable pageable
     ) {
         Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ids, collection, pageable);
-        PagedModel<PairwiseSimilarityModel> pagedModel
-            = pairwiseSimilarityPagedResourcesAssembler.toModel(page, pairwiseSimilarityModelAssembler);
+        PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
+            page,
+            PairwiseSimilarityModel.class,
+            pairwiseSimilarityPagedResourcesAssembler,
+            pairwiseSimilarityModelAssembler
+        );
 
         return HttpUtils.ok(pagedModel);
     }
@@ -101,8 +109,12 @@ public class SimilarityController {
         Pageable pageable
     ) {
         Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ontology, collection, pageable);
-        PagedModel<PairwiseSimilarityModel> pagedModel
-            = pairwiseSimilarityPagedResourcesAssembler.toModel(page, pairwiseSimilarityModelAssembler);
+        PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
+            page,
+            PairwiseSimilarityModel.class,
+            pairwiseSimilarityPagedResourcesAssembler,
+            pairwiseSimilarityModelAssembler
+        );
 
         return HttpUtils.ok(pagedModel);
     }

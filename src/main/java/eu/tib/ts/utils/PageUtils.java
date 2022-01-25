@@ -2,8 +2,13 @@ package eu.tib.ts.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.RepresentationModelAssembler;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,5 +23,17 @@ public class PageUtils {
             .collect(Collectors.toList());
 
         return new PageImpl<>(slice, pageable, list.size());
+    }
+
+    public static <T, M extends RepresentationModel<?>> PagedModel<M> toPagedModel(
+        Page<T> page,
+        Class<M> resourceType,
+        PagedResourcesAssembler<T> pagedResourcesAssembler,
+        RepresentationModelAssembler<T, M> modelAssembler
+    ) {
+
+        return page.isEmpty()
+            ? (PagedModel<M>) pagedResourcesAssembler.toEmptyModel(page, resourceType)
+            : pagedResourcesAssembler.toModel(page, modelAssembler);
     }
 }
