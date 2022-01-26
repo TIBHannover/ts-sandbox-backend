@@ -137,7 +137,7 @@ public class SimilarityServiceImpl implements SimilarityService {
 
         List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
             .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
-            .sorted(Comparator.comparing(PairwiseSimilarity::getSum).reversed())
+            .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
             .collect(Collectors.toList());
 
         return PageUtils.toPage(sorted, pageable);
@@ -210,7 +210,7 @@ public class SimilarityServiceImpl implements SimilarityService {
 
         List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
             .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
-            .sorted(Comparator.comparing(PairwiseSimilarity::getSum).reversed())
+            .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
             .collect(Collectors.toList());
 
         return PageUtils.toPage(sorted, pageable);
