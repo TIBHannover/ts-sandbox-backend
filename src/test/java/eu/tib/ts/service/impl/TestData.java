@@ -5,6 +5,7 @@ import eu.tib.ts.model.ontology.Ontology;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.TsOntology;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class TestData {
             .config(Config.builder().fileLocation("https://something2.ttl").build())
             .build();
 
-        return List.of(ontology0, ontology1, ontology2);
+        return new ArrayList<>(List.of(ontology0, ontology1, ontology2));
     }
 
     protected List<ProcessedOntology> getProcessedOntologies() {
@@ -62,6 +63,6 @@ public class TestData {
             .collection(Set.of("collection10", "collection20"))
             .build();
 
-        return List.of(processedOntology0, processedOntology1, processedOntology2);
+        return new ArrayList<>(List.of(processedOntology0, processedOntology1, processedOntology2));
     }
 }
