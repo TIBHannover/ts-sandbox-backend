@@ -100,7 +100,7 @@ public class SimilarityServiceImpl implements SimilarityService {
         filteredOntologies.add(externalOntology);
 
         List<Pair<String, ProcessedOntology>> pairs =
-            getCharacteristicsPairs(processedOntologies, ontology, characteristicsType);
+            getCharacteristicsPairs(filteredOntologies, ontology, characteristicsType);
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
         List<Similarity> list = getSimilarityList(map, true);
 

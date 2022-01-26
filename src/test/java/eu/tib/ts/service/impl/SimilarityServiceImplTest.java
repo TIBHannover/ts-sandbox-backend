@@ -1,10 +1,10 @@
 package eu.tib.ts.service.impl;
 
 import eu.tib.ts.model.ontology.CharacteristicsInfo;
-import eu.tib.ts.model.ontology.PairwiseSimilarity;
 import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.model.ontology.ExternalOntology;
 import eu.tib.ts.model.ontology.Ontology;
+import eu.tib.ts.model.ontology.PairwiseSimilarity;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
@@ -97,8 +97,11 @@ class SimilarityServiceImplTest extends TestData {
 
     @Test
     void testGetSimilaritiesForExternalOntology() {
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies();
         when(processedOntologyRepository.findAll())
-            .thenReturn(getProcessedOntologies());
+            .thenReturn(processedOntologies);
+        when(filterService.filter(anyList(), any(Optional.class)))
+            .thenReturn(processedOntologies);
 
         ExternalOntology externalOntology = ExternalOntology.builder()
             .ontologyId("ontology_100")
