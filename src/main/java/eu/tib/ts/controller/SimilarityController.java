@@ -58,10 +58,13 @@ public class SimilarityController {
     public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForInternalOntology(
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @RequestParam List<String> ids,
+        @RequestParam(required = false) Optional<String> id,
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        Page<Similarity> page = similarityService.getSimilarities(ids, characteristicsType, collection, pageable);
+        Page<Similarity> page = id.isPresent()
+            ? similarityService.getSimilarities(ids, characteristicsType, collection, id.get(), pageable)
+            : similarityService.getSimilarities(ids, characteristicsType, collection, pageable);
         PagedModel<SimilarityModel> pagedModel =
             PageUtils.toPagedModel(page, SimilarityModel.class, pagedResourcesAssembler, modelAssembler);
 
@@ -87,10 +90,14 @@ public class SimilarityController {
     @GetMapping(value = "/pairwise/internal", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForInternalOntology(
         @RequestParam(required = false) Optional<List<String>> ids,
+        @RequestParam(required = false) Optional<String> id,
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ids, collection, pageable);
+        Page<PairwiseSimilarity> page = id.isPresent()
+            ? similarityService.getPairwiseSimilarity(ids, collection, id.get(), pageable)
+            : similarityService.getPairwiseSimilarity(ids, collection, pageable);
+
         PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
             page,
             PairwiseSimilarityModel.class,
