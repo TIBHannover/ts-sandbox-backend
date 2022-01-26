@@ -12,6 +12,7 @@ import eu.tib.ts.service.SimilarityService;
 import eu.tib.ts.utils.HttpUtils;
 import eu.tib.ts.utils.PageUtils;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,11 +55,17 @@ public class SimilarityController {
         this.pairwiseSimilarityPagedResourcesAssembler = pairwiseSimilarityPagedResourcesAssembler;
     }
 
+    @ApiOperation(value = "Similarity measure between TS internal ontologies " +
+        "by calculating shared Properties | Classes | Imports | Namespaces")
     @GetMapping(value = "/{characteristics}/internal", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForInternalOntology(
+        @ApiParam(value = "Characteristics to be compared by", example = "PROPERTY")
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
+        @ApiParam(value = "A set of Ontology IDs managed in the TS", example = "dicl,dicob")
         @RequestParam List<String> ids,
+        @ApiParam(value = "Ontology ID to be compared by", example = "swo")
         @RequestParam(required = false) Optional<String> id,
+        @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
@@ -71,10 +78,15 @@ public class SimilarityController {
         return HttpUtils.ok(pagedModel);
     }
 
+    @ApiOperation(value = "Similarity measure for external ontology " +
+        "by calculating shared Properties | Classes | Imports | Namespaces")
     @PostMapping(value = "/{characteristics}/external", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForExternalOntology(
+        @ApiParam(value = "Characteristics to be compared by", example = "PROPERTY")
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
+        @ApiParam(value = "External ontology")
         @RequestBody ExternalOntology ontology,
+        @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
@@ -86,11 +98,14 @@ public class SimilarityController {
         return HttpUtils.ok(pagedModel);
     }
 
-    @ApiOperation("Pairwise similarity for internal ontologies")
+    @ApiOperation("Pairwise similarity between TS internal ontologies")
     @GetMapping(value = "/pairwise/internal", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForInternalOntology(
+        @ApiParam(value = "A set of Ontology IDs managed in the TS", example = "dicl,dicob")
         @RequestParam(required = false) Optional<List<String>> ids,
+        @ApiParam(value = "Ontology ID to be compared by", example = "swo")
         @RequestParam(required = false) Optional<String> id,
+        @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
@@ -108,10 +123,12 @@ public class SimilarityController {
         return HttpUtils.ok(pagedModel);
     }
 
-    @ApiOperation("Pairwise similarity for external ontologies")
+    @ApiOperation("Pairwise similarity for external ontology")
     @PostMapping(value = "/pairwise/external", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForExternalOntology(
+        @ApiParam(value = "External ontology")
         @RequestBody ExternalOntology ontology,
+        @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
