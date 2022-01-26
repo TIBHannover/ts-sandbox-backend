@@ -23,7 +23,7 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - build
   - sonarqube
-  - dockerize
+#  - dockerize
 
 test:
   stage: test
@@ -55,14 +55,14 @@ sonarqube-check:
     - main
     - branches
 
-dockerize:
-  image: docker:18-git
-  services:
-    - docker:18-dind
-  stage: dockerize
-  only:
-    - main
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t $IMAGE_NAME .
-    - docker push $IMAGE_NAME:latest
+#dockerize:
+#  image: docker:18-git
+#  services:
+#    - docker:18-dind
+#  stage: dockerize
+#  only:
+#    - main
+#  script:
+#    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#    - docker build -t $IMAGE_NAME .
+#    - docker push $IMAGE_NAME:latest
