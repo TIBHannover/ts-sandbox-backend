@@ -60,12 +60,11 @@ public class SimilarityServiceImpl implements SimilarityService {
     }
 
     @Override
-    public Page<Similarity> getSimilarities(List<String> ids,
+    public Page<Similarity> getSimilarities(String id,
                                             CharacteristicsType characteristicsType,
                                             Optional<String> collection,
-                                            String id,
                                             Pageable pageable) {
-        List<ProcessedOntology> processedOntologies = getProcessedOntologies(ids);
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies();
         Optional<ProcessedOntology> givenOntology = getProcessedOntologies(Collections.singletonList(id)).stream()
             .findFirst();
 
@@ -144,14 +143,10 @@ public class SimilarityServiceImpl implements SimilarityService {
     }
 
     @Override
-    public Page<PairwiseSimilarity> getPairwiseSimilarity(Optional<List<String>> ids,
+    public Page<PairwiseSimilarity> getPairwiseSimilarity(String id,
                                                           Optional<String> collection,
-                                                          String id,
                                                           Pageable pageable) {
-        List<ProcessedOntology> processedOntologies = ids.isPresent()
-            ? getProcessedOntologies(ids.get())
-            : getProcessedOntologies();
-
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies();
         Optional<ProcessedOntology> givenOntology = getProcessedOntologies(Collections.singletonList(id)).stream()
             .findFirst();
 
