@@ -221,9 +221,11 @@ public class SimilarityServiceImpl implements SimilarityService {
             Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
             List<Similarity> list = getSimilarityList(map, false);
             List<String> similarities = list.stream().map(Similarity::getName).collect(Collectors.toList());
+
             sum += similarities.size() * settings.getWeight().getOrDefault(type.name().toLowerCase(), 0d);
-            total += Math.min(type.getCharacteristics(ont1).size(), type.getCharacteristics(ont2).size())
+            total += Math.max(type.getCharacteristics(ont1).size(), type.getCharacteristics(ont2).size())
                 * settings.getWeight().getOrDefault(type.name().toLowerCase(), 0d);
+
             characteristicsMap.put(type.name().toLowerCase(), CharacteristicsInfo.of(similarities));
         }
 
