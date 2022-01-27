@@ -18,8 +18,8 @@ ts:
   ontologies.list.size: 1000
   base.uri: https://service.tib.eu/ts4tib/api/ontologies
   timeout:
-    connect: 15000
-    read: 15000
+    connect: 2000
+    read: 2000
 
 similarity:
   weight:
