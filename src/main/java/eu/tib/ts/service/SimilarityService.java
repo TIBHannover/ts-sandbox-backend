@@ -16,10 +16,9 @@ public interface SimilarityService {
                                      Optional<String> collection,
                                      Pageable pageable);
 
-    Page<Similarity> getSimilarities(List<String> ids,
+    Page<Similarity> getSimilarities(String id,
                                      CharacteristicsType characteristicsType,
                                      Optional<String> collection,
-                                     String id,
                                      Pageable pageable);
 
     <T extends ExtendedOntology> Page<Similarity> getSimilarities(T ontology,
@@ -31,9 +30,8 @@ public interface SimilarityService {
                                                    Optional<String> collection,
                                                    Pageable pageable);
 
-    Page<PairwiseSimilarity> getPairwiseSimilarity(Optional<List<String>> ids,
+    Page<PairwiseSimilarity> getPairwiseSimilarity(String id,
                                                    Optional<String> collection,
-                                                   String id,
                                                    Pageable pageable);
 
     <T extends ExtendedOntology> Page<PairwiseSimilarity> getPairwiseSimilarity(T ontology,

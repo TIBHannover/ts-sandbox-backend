@@ -63,14 +63,12 @@ public class SimilarityController {
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @ApiParam(value = "A set of Ontology IDs managed in the TS", example = "dicl,dicob")
         @RequestParam List<String> ids,
-        @ApiParam(value = "Ontology ID to be compared by", example = "swo")
-        @RequestParam(required = false) Optional<String> id,
         @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        Page<Similarity> page = id.isPresent()
-            ? similarityService.getSimilarities(ids, characteristicsType, collection, id.get(), pageable)
+        Page<Similarity> page = ids.size() == 1
+            ? similarityService.getSimilarities(ids.get(0), characteristicsType, collection, pageable)
             : similarityService.getSimilarities(ids, characteristicsType, collection, pageable);
         PagedModel<SimilarityModel> pagedModel =
             PageUtils.toPagedModel(page, SimilarityModel.class, pagedResourcesAssembler, modelAssembler);
@@ -103,14 +101,12 @@ public class SimilarityController {
     public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForInternalOntology(
         @ApiParam(value = "A set of Ontology IDs managed in the TS", example = "dicl,dicob")
         @RequestParam(required = false) Optional<List<String>> ids,
-        @ApiParam(value = "Ontology ID to be compared by", example = "swo")
-        @RequestParam(required = false) Optional<String> id,
         @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        Page<PairwiseSimilarity> page = id.isPresent()
-            ? similarityService.getPairwiseSimilarity(ids, collection, id.get(), pageable)
+        Page<PairwiseSimilarity> page = ids.isPresent() && ids.get().size() == 1
+            ? similarityService.getPairwiseSimilarity(ids.get().get(0), collection, pageable)
             : similarityService.getPairwiseSimilarity(ids, collection, pageable);
 
         PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
