@@ -59,7 +59,7 @@ class SimilarityControllerTest {
             .thenReturn(createPage());
 
         mockMvc.perform(
-                get("/api/ontology/similarity/property/internal")
+                get("/api/ontology/similarity/property/internal/list")
                     .param("ids", "dicl, dicob")
                     .contentType(MediaType.APPLICATION_JSON)
             )
@@ -68,13 +68,13 @@ class SimilarityControllerTest {
             .andExpect(jsonPath("$._embedded.similarities[0].name", is("name0")))
             .andExpect(jsonPath("$._embedded.similarities[1].name", is("name1")))
             .andExpect(jsonPath("$._links.first.href",
-                is("http://localhost/api/ontology/similarity/property/internal?page=0&size=2")))
+                is("http://localhost/api/ontology/similarity/property/internal/list?page=0&size=2")))
             .andExpect(jsonPath("$._links.self.href",
-                is("http://localhost/api/ontology/similarity/property/internal?page=0&size=2")))
+                is("http://localhost/api/ontology/similarity/property/internal/list?page=0&size=2")))
             .andExpect(jsonPath("$._links.next.href",
-                is("http://localhost/api/ontology/similarity/property/internal?page=1&size=2")))
+                is("http://localhost/api/ontology/similarity/property/internal/list?page=1&size=2")))
             .andExpect(jsonPath("$._links.last.href",
-                is("http://localhost/api/ontology/similarity/property/internal?page=1&size=2")))
+                is("http://localhost/api/ontology/similarity/property/internal/list?page=1&size=2")))
             .andExpect(jsonPath("$._embedded.similarities[0].ontologies", hasSize(2)))
             .andReturn();
     }
