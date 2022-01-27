@@ -57,8 +57,8 @@ public class SimilarityController {
 
     @ApiOperation(value = "Similarity measure between TS internal ontologies " +
         "by calculating shared Properties | Classes | Imports | Namespaces")
-    @GetMapping(value = "/{characteristics}/internal", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForInternalOntology(
+    @GetMapping(value = "/{characteristics}/internal/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForInternalOntologyList(
         @ApiParam(value = "Characteristics to be compared by", example = "PROPERTY")
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
         @ApiParam(value = "A set of Ontology IDs managed in the TS", example = "dicl,dicob")
@@ -67,9 +67,26 @@ public class SimilarityController {
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        Page<Similarity> page = ids.size() == 1
-            ? similarityService.getSimilarities(ids.get(0), characteristicsType, collection, pageable)
-            : similarityService.getSimilarities(ids, characteristicsType, collection, pageable);
+        Page<Similarity> page = similarityService.getSimilarities(ids, characteristicsType, collection, pageable);
+        PagedModel<SimilarityModel> pagedModel =
+            PageUtils.toPagedModel(page, SimilarityModel.class, pagedResourcesAssembler, modelAssembler);
+
+        return HttpUtils.ok(pagedModel);
+    }
+
+    @ApiOperation(value = "Similarity measure between given TS internal ontology " +
+        "and set of TS internal ontologies")
+    @GetMapping(value = "/{characteristics}/internal", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForInternalOntology(
+        @ApiParam(value = "Characteristics to be compared by", example = "PROPERTY")
+        @PathVariable("characteristics") CharacteristicsType characteristicsType,
+        @ApiParam(value = "A given Ontology ID managed in the TS", example = "swo")
+        @RequestParam String id,
+        @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
+        @RequestParam(required = false) Optional<String> collection,
+        Pageable pageable
+    ) {
+        Page<Similarity> page = similarityService.getSimilarities(id, characteristicsType, collection, pageable);
         PagedModel<SimilarityModel> pagedModel =
             PageUtils.toPagedModel(page, SimilarityModel.class, pagedResourcesAssembler, modelAssembler);
 
