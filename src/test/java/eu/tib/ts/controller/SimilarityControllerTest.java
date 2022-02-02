@@ -215,13 +215,13 @@ class SimilarityControllerTest {
             .characteristics(
                 Map.of(
                     CharacteristicsType.PROPERTY.name().toLowerCase(),
-                    CharacteristicsInfo.of(List.of("prop1", "prop2")),
+                    CharacteristicsInfo.of(List.of("prop1", "prop2"), 10, 2),
                     CharacteristicsType.IMPORT.name().toLowerCase(),
-                    CharacteristicsInfo.of(List.of("import1", "import2")),
+                    CharacteristicsInfo.of(List.of("import1", "import2"), 10, 2),
                     CharacteristicsType.CLASS.name().toLowerCase(),
-                    CharacteristicsInfo.of(List.of("class1", "class2")),
+                    CharacteristicsInfo.of(List.of("class1", "class2"), 10, 2),
                     CharacteristicsType.NAMESPACE.name().toLowerCase(),
-                    CharacteristicsInfo.of(List.of("namespace1", "namespace2"))
+                    CharacteristicsInfo.of(List.of("namespace1", "namespace2"), 10, 2)
                 )
             )
             .build();
@@ -234,13 +234,13 @@ class SimilarityControllerTest {
             .characteristics(
                 Map.of(
                     CharacteristicsType.PROPERTY.name().toLowerCase(),
-                    CharacteristicsInfo.of(List.of("prop1", "prop2")),
+                    CharacteristicsInfo.of(List.of("prop1", "prop2"), 10, 2),
                     CharacteristicsType.IMPORT.name().toLowerCase(),
-                    CharacteristicsInfo.of(List.of("import1", "import2")),
+                    CharacteristicsInfo.of(List.of("import1", "import2"), 10, 2),
                     CharacteristicsType.CLASS.name().toLowerCase(),
-                    CharacteristicsInfo.of(List.of("class1", "class2")),
+                    CharacteristicsInfo.of(List.of("class1", "class2"), 10, 2),
                     CharacteristicsType.NAMESPACE.name().toLowerCase(),
-                    CharacteristicsInfo.of(List.of("namespace1", "namespace2"))
+                    CharacteristicsInfo.of(List.of("namespace1", "namespace2"), 10, 2)
                 )
             )
             .build();

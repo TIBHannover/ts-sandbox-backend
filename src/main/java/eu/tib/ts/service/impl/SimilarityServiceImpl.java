@@ -11,9 +11,9 @@ import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.repository.ProcessedOntologyRepository;
 import eu.tib.ts.service.OntologyFilterService;
 import eu.tib.ts.service.SimilarityService;
+import eu.tib.ts.utils.MathUtils;
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -127,10 +127,8 @@ public class SimilarityServiceImpl implements SimilarityService {
                     continue;
                 }
                 set.add(pair);
-                Triple<Double, Double, Map<String, CharacteristicsInfo>> triple = processPairs(ont1, ont2);
-                pairwiseSimilarities.add(
-                    buildPairwiseSimilarities(ont1, ont2, triple.getRight(), triple.getLeft(), triple.getMiddle())
-                );
+                PairwiseSimilarity pairwiseSimilarity = processPairs(ont1, ont2);
+                pairwiseSimilarities.add(pairwiseSimilarity);
             }
         }
 
@@ -164,10 +162,8 @@ public class SimilarityServiceImpl implements SimilarityService {
                 continue;
             }
             set.add(pair);
-            Triple<Double, Double, Map<String, CharacteristicsInfo>> triple = processPairs(ont1, ont2);
-            pairwiseSimilarities.add(
-                buildPairwiseSimilarities(ont1, ont2, triple.getRight(), triple.getLeft(), triple.getMiddle())
-            );
+            PairwiseSimilarity pairwiseSimilarity = processPairs(ont1, ont2);
+            pairwiseSimilarities.add(pairwiseSimilarity);
         }
 
         List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
@@ -197,10 +193,8 @@ public class SimilarityServiceImpl implements SimilarityService {
                 continue;
             }
             set.add(pair);
-            Triple<Double, Double, Map<String, CharacteristicsInfo>> triple = processPairs(ont1, ont2);
-            pairwiseSimilarities.add(
-                buildPairwiseSimilarities(ont1, ont2, triple.getRight(), triple.getLeft(), triple.getMiddle())
-            );
+            PairwiseSimilarity pairwiseSimilarity = processPairs(ont1, ont2);
+            pairwiseSimilarities.add(pairwiseSimilarity);
         }
 
         List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
@@ -211,25 +205,32 @@ public class SimilarityServiceImpl implements SimilarityService {
         return PageUtils.toPage(sorted, pageable);
     }
 
-    private Triple<Double, Double, Map<String, CharacteristicsInfo>> processPairs(ProcessedOntology ont1,
-                                                                                  ProcessedOntology ont2) {
+    private PairwiseSimilarity processPairs(ProcessedOntology ont1,
+                                            ProcessedOntology ont2) {
         Map<String, CharacteristicsInfo> characteristicsMap = new HashMap<>();
         double sum = 0;
         double total = 0;
+        double percentSum = 0;
         for (CharacteristicsType type : CharacteristicsType.values()) {
             List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(List.of(ont1, ont2), type);
             Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
             List<Similarity> list = getSimilarityList(map, false);
             List<String> similarities = list.stream().map(Similarity::getName).collect(Collectors.toList());
 
-            sum += similarities.size() * settings.getWeight().getOrDefault(type.name().toLowerCase(), 0d);
-            total += Math.max(type.getCharacteristics(ont1).size(), type.getCharacteristics(ont2).size())
-                * settings.getWeight().getOrDefault(type.name().toLowerCase(), 0d);
+            long maxSimilaritiesSize = Math.max(type.getCharacteristics(ont1).size(), type.getCharacteristics(ont2).size());
+            total += maxSimilaritiesSize;
+            double weight = settings.getWeight().getOrDefault(type.name().toLowerCase(), 0d);
+            double percent = MathUtils.percent(similarities.size(), maxSimilaritiesSize) * weight;
+            sum += similarities.size();
+            percentSum += percent;
 
-            characteristicsMap.put(type.name().toLowerCase(), CharacteristicsInfo.of(similarities));
+            characteristicsMap.put(
+                type.name().toLowerCase(),
+                CharacteristicsInfo.of(similarities, maxSimilaritiesSize, percent)
+            );
         }
 
-        return Triple.of(sum, total, characteristicsMap);
+        return buildPairwiseSimilarities(ont1, ont2, characteristicsMap, sum, total, percentSum);
     }
 
 
@@ -237,12 +238,13 @@ public class SimilarityServiceImpl implements SimilarityService {
                                                          ProcessedOntology ont2,
                                                          Map<String, CharacteristicsInfo> characteristicsMap,
                                                          double sum,
-                                                         double totalSum) {
+                                                         double totalSum,
+                                                         double percent) {
         return PairwiseSimilarity.builder()
             .pair(Pair.of(ont1.getOntologyId(), ont2.getOntologyId()))
             .sum(sum)
             .totalSum(totalSum)
-            .percent(totalSum == 0 ? 0 : 100 * sum / totalSum)
+            .percent(percent)
             .characteristics(characteristicsMap)
             .build();
     }
