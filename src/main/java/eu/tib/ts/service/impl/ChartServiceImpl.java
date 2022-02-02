@@ -6,6 +6,7 @@ import com.zavtech.morpheus.viz.chart.Chart;
 import eu.tib.ts.model.chart.ChartData;
 import eu.tib.ts.model.chart.ChartRequest;
 import eu.tib.ts.model.ontology.CharacteristicsType;
+import eu.tib.ts.model.ontology.ExternalOntology;
 import eu.tib.ts.model.ontology.PairwiseSimilarity;
 import eu.tib.ts.service.ChartService;
 import eu.tib.ts.service.SimilarityService;
@@ -56,7 +57,44 @@ public class ChartServiceImpl implements ChartService {
             )
             .collect(Collectors.toList());
 
-        DataFrame<String, String> frame = DataFrame.of(
+        DataFrame<String, String> frame = getDataFrame(names, similarities);
+        drawChart(frame, request, "TS ontologies", os, width, height);
+
+        return ChartData.builder()
+            .data(os.toByteArray())
+            .contentType(MIME_TYPE)
+            .build();
+    }
+
+    @Override
+    public ChartData chart(ExternalOntology ontology, Optional<String> collection, ChartRequest request, Pageable pageable) {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ontology, collection, pageable);
+        List<PairwiseSimilarity> similarities = page.getContent();
+
+        int height = request.getHeight().orElse(HEIGHT);
+        int width = request.getWidth().orElse(WIDTH);
+
+        List<String> names = similarities.stream()
+            .map(similarity ->
+                String.format("%s-%s, %.2f%%",
+                    similarity.getPair().getFirst(), similarity.getPair().getSecond(), similarity.getPercent()
+                )
+            )
+            .collect(Collectors.toList());
+
+        DataFrame<String, String> frame = getDataFrame(names, similarities);
+        drawChart(frame, request, ontology.getOntologyId() + " with TS ontologies", os, width, height);
+
+        return ChartData.builder()
+            .data(os.toByteArray())
+            .contentType(MIME_TYPE)
+            .build();
+    }
+
+    private DataFrame<String, String> getDataFrame(List<String> names, List<PairwiseSimilarity> similarities) {
+        return DataFrame.of(
             names,
             String.class,
             columns ->
@@ -73,7 +111,9 @@ public class ChartServiceImpl implements ChartService {
                         )
                     )
         );
+    }
 
+    private void drawChart(DataFrame<String, String> frame, ChartRequest request, String subtitle, ByteArrayOutputStream os, int width, int height) {
         Chart.create().withBarPlot(frame, true, chart -> {
             chart.plot().axes().domain().label()
                 .withFont(new Font("Arial", Font.BOLD, 13))
@@ -83,14 +123,9 @@ public class ChartServiceImpl implements ChartService {
                 chart.plot().orient().horizontal();
             }
             chart.title().withText("Pairwise similarity");
-            chart.subtitle().withText("TS ontologies");
+            chart.subtitle().withText(subtitle);
             chart.legend().on();
             chart.writerPng(os, width, height, false);
         });
-
-        return ChartData.builder()
-            .data(os.toByteArray())
-            .contentType(MIME_TYPE)
-            .build();
     }
 }
