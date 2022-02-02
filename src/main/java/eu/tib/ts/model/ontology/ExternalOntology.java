@@ -16,5 +16,6 @@ public class ExternalOntology implements ExtendedOntology {
     Set<String> classes;
     Set<String> imports;
     Set<String> namespaces;
+    Set<String> individuals;
     Set<String> collection;
 }
