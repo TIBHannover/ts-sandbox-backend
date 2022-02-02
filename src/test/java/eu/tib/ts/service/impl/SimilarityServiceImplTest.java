@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,6 +72,25 @@ class SimilarityServiceImplTest extends TestData {
         PageRequest pageRequest = PageRequest.of(0, 100);
         Page<Similarity> page = similarityService.getSimilarities(
             ids, CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
+        );
+
+        assertNotNull(page);
+        assertEquals(1, page.getContent().size());
+    }
+
+    @Test
+    void testGetSimilaritiesById() {
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies();
+        when(processedOntologyRepository.findByOntologyIdIn(anyList()))
+            .thenReturn(processedOntologies.subList(0, 1));
+        when(processedOntologyRepository.findAll())
+            .thenReturn(processedOntologies);
+        when(filterService.filter(anyList(), any(Optional.class)))
+            .thenReturn(processedOntologies);
+
+        PageRequest pageRequest = PageRequest.of(0, 100);
+        Page<Similarity> page = similarityService.getSimilarities(
+            "ontology_0", CharacteristicsType.PROPERTY, Optional.empty(), pageRequest
         );
 
         assertNotNull(page);
@@ -178,7 +198,7 @@ class SimilarityServiceImplTest extends TestData {
         assertEquals(1, content.size());
         assertEquals("ontology_0", content.get(0).getPair().getFirst());
         assertEquals("ontology_1", content.get(0).getPair().getSecond());
-        assertEquals(1.0, content.get(0).getSum());
+        assertEquals(5.0, content.get(0).getSum());
 
         Map<String, CharacteristicsInfo> characteristics = content.get(0).getCharacteristics();
         assertTrue(characteristics.containsKey(CharacteristicsType.PROPERTY.name().toLowerCase()));
@@ -209,7 +229,36 @@ class SimilarityServiceImplTest extends TestData {
         assertEquals(1, content.size());
         assertEquals("ontology_0", content.get(0).getPair().getFirst());
         assertEquals("ontology_1", content.get(0).getPair().getSecond());
-        assertEquals(1.0, content.get(0).getSum());
+        assertEquals(5.0, content.get(0).getSum());
+
+        Map<String, CharacteristicsInfo> characteristics = content.get(0).getCharacteristics();
+        assertTrue(characteristics.containsKey(CharacteristicsType.PROPERTY.name().toLowerCase()));
+        assertTrue(characteristics.containsKey(CharacteristicsType.CLASS.name().toLowerCase()));
+        assertTrue(characteristics.containsKey(CharacteristicsType.IMPORT.name().toLowerCase()));
+        assertTrue(characteristics.containsKey(CharacteristicsType.NAMESPACE.name().toLowerCase()));
+    }
+
+    @Test
+    void testGetPairwiseSimilarityForInternalOntology_byId() {
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies();
+        when(processedOntologyRepository.findByOntologyIdIn(anyList()))
+            .thenReturn(processedOntologies.subList(0, 1));
+        when(processedOntologyRepository.findAll())
+            .thenReturn(processedOntologies);
+        when(filterService.filter(anyList(), any(Optional.class)))
+            .thenReturn(processedOntologies);
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Page<PairwiseSimilarity> page =
+            similarityService.getPairwiseSimilarity("ontology_0", Optional.empty(), pageRequest);
+
+        assertNotNull(page);
+
+        List<PairwiseSimilarity> content = page.getContent();
+        assertEquals(1, content.size());
+        assertEquals("ontology_0", content.get(0).getPair().getFirst());
+        assertEquals("ontology_1", content.get(0).getPair().getSecond());
+        assertEquals(5.0, content.get(0).getSum());
 
         Map<String, CharacteristicsInfo> characteristics = content.get(0).getCharacteristics();
         assertTrue(characteristics.containsKey(CharacteristicsType.PROPERTY.name().toLowerCase()));
@@ -256,7 +305,7 @@ class SimilarityServiceImplTest extends TestData {
         List<PairwiseSimilarity> content = page.getContent();
         assertEquals("ontology_0", content.get(0).getPair().getFirst());
         assertEquals("ontology_100", content.get(0).getPair().getSecond());
-        assertEquals(1.8, content.get(0).getSum());
+        assertEquals(9.0, content.get(0).getSum());
 
         Map<String, CharacteristicsInfo> characteristics = content.get(0).getCharacteristics();
         assertTrue(characteristics.containsKey(CharacteristicsType.PROPERTY.name().toLowerCase()));
