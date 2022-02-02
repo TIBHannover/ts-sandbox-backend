@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.util.CollectionUtils;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -47,6 +48,11 @@ public class ProcessedOntology implements ExtendedOntology {
     private Set<String> namespaces;
 
     @ElementCollection
+    @CollectionTable(name = "individuals", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "individuals")
+    private Set<String> individuals;
+
+    @ElementCollection
     @CollectionTable(name = "collection", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "collection")
     private Set<String> collection;
@@ -65,18 +71,19 @@ public class ProcessedOntology implements ExtendedOntology {
 
     public boolean equalsTsOntology(Ontology ontology) {
         return Objects.nonNull(ontology) &&
-            this.getOntologyId().equals(ontology.getOntologyId());
+            this.getOntologyId().equalsIgnoreCase(ontology.getOntologyId());
     }
 
     public static <T extends ExtendedOntology> ProcessedOntology of(T ontology) {
         return ProcessedOntology.builder()
             .ontologyId(ontology.getOntologyId())
             .uri(ontology.getUri())
-            .properties(ontology.getProperties())
-            .classes(ontology.getClasses())
-            .namespaces(ontology.getNamespaces())
-            .imports(ontology.getImports())
-            .collection(ontology.getCollection())
+            .properties(CollectionUtils.isEmpty(ontology.getProperties()) ? Set.of() : ontology.getProperties())
+            .classes(CollectionUtils.isEmpty(ontology.getClasses()) ? Set.of() : ontology.getClasses())
+            .namespaces(CollectionUtils.isEmpty(ontology.getNamespaces()) ? Set.of() : ontology.getNamespaces())
+            .imports(CollectionUtils.isEmpty(ontology.getImports()) ? Set.of() : ontology.getImports())
+            .individuals(CollectionUtils.isEmpty(ontology.getIndividuals()) ? Set.of() : ontology.getIndividuals())
+            .collection(CollectionUtils.isEmpty(ontology.getCollection()) ? Set.of() : ontology.getCollection())
             .build();
     }
 }

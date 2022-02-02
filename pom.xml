@@ -26,6 +26,7 @@
 		<sonar.language>java</sonar.language>
 		<morpheus-viz.version>0.9.21</morpheus-viz.version>
 		<morpheus-core.version>0.9.23</morpheus-core.version>
+		<owlapi-apibinding.version>5.1.19</owlapi-apibinding.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -55,6 +56,13 @@
 			<artifactId>apache-jena-libs</artifactId>
 			<version>${apache-jena-libs.version}</version>
 			<type>pom</type>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/net.sourceforge.owlapi/owlapi-apibinding -->
+		<dependency>
+			<groupId>net.sourceforge.owlapi</groupId>
+			<artifactId>owlapi-apibinding</artifactId>
+			<version>${owlapi-apibinding.version}</version>
 		</dependency>
 
 		<dependency>

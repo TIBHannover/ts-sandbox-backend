@@ -38,6 +38,7 @@ public class TestData {
             .classes(Set.of("classUri_0", "classUri_1", "classUri_20"))
             .imports(Set.of("importUri_0", "importUri_1", "importUri_20"))
             .namespaces(Set.of("namespaceUri_0", "namespaceUri_1", "namespaceUri_20"))
+            .individuals(Set.of("individualUri_0", "individualUri_1", "individualUri_20"))
             .collection(Set.of("collection1", "collection2"))
             .build();
 
@@ -49,6 +50,7 @@ public class TestData {
             .classes(Set.of("classUri_0", "classUri_10", "classUri_21"))
             .imports(Set.of("importUri_0", "importUri_10", "importUri_21"))
             .namespaces(Set.of("namespaceUri_0", "namespaceUri_10", "namespaceUri_21"))
+            .individuals(Set.of("individualUri_0", "individualUri_10", "individualUri_21"))
             .collection(Set.of("collection1", "collection3"))
             .build();
 
@@ -60,6 +62,7 @@ public class TestData {
             .classes(Set.of("classUri_100", "classUri_200", "classUri_300"))
             .imports(Set.of("importUri_100", "importUri_200", "importUri_300"))
             .namespaces(Set.of("namespaceUri_100", "namespaceUri_200", "namespaceUri_300"))
+            .individuals(Set.of("individualUri_100", "individualUri_200", "individualUri_300"))
             .collection(Set.of("collection10", "collection20"))
             .build();
 

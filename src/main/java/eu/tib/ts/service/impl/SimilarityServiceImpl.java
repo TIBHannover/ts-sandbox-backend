@@ -253,8 +253,8 @@ public class SimilarityServiceImpl implements SimilarityService {
     ) {
         List<Pair<String, ProcessedOntology>> pairs = new ArrayList<>();
         for (ProcessedOntology processedOntology : processedOntologies) {
-            for (String item : characteristicsType.getCharacteristics(processedOntology)) {
-                pairs.add(Pair.of(item, processedOntology));
+            for (String characteristics : characteristicsType.getCharacteristics(processedOntology)) {
+                pairs.add(Pair.of(characteristics, processedOntology));
             }
         }
 
@@ -268,10 +268,10 @@ public class SimilarityServiceImpl implements SimilarityService {
     ) {
         List<Pair<String, ProcessedOntology>> pairs = new ArrayList<>();
         for (ProcessedOntology processedOntology : processedOntologies) {
-            for (String item : characteristicsType.getCharacteristics(processedOntology)) {
-                if (characteristicsType.getCharacteristics(ontology).contains(item)
+            for (String characteristics : characteristicsType.getCharacteristics(processedOntology)) {
+                if (characteristicsType.getCharacteristicsToLowerCase(ontology).contains(characteristics.toLowerCase())
                     && !processedOntology.equalsTsOntology(ontology)) {
-                    pairs.add(Pair.of(item, processedOntology));
+                    pairs.add(Pair.of(characteristics, processedOntology));
                 }
             }
         }

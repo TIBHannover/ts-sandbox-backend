@@ -1,15 +1,20 @@
 package eu.tib.ts.service;
 
 import org.apache.jena.ontology.OntModel;
+import org.semanticweb.owlapi.model.OWLOntology;
 
 import java.util.Set;
 
 public interface OntologyTraverseService {
-    Set<String> getImports(OntModel model);
+    Set<String> getImports(OWLOntology ontology);
 
-    Set<String> getNamespaces(OntModel model);
+    Set<String> getNamespaces(OWLOntology ontology);
 
     Set<String> getProperties(OntModel model);
 
+    Set<String> getIndividuals(OWLOntology ontology);
+
     Set<String> getClasses(OntModel model);
+
+    Set<String> getClasses(OWLOntology ontology);
 }

@@ -45,10 +45,11 @@ class SimilarityServiceImplTest extends TestData {
     void setUp() {
         SimilaritySettings similaritySettings = SimilaritySettings.builder()
             .weight(Map.of(
-                "property", 0.25,
-                "class", 0.25,
-                "import", 0.25,
-                "namespace", 0.25
+                "property", 0.2,
+                "class", 0.2,
+                "import", 0.2,
+                "namespace", 0.2,
+                "individual", 0.2
             ))
             .build();
         similarityService = new SimilarityServiceImpl(processedOntologyRepository, filterService, similaritySettings);
@@ -244,6 +245,7 @@ class SimilarityServiceImplTest extends TestData {
             .classes(Set.of("classUri_0", "classUri_1", "classUri_200"))
             .imports(Set.of("importUri_0", "importUri_1", "importUri_200"))
             .namespaces(Set.of("namespaceUri_0", "namespaceUri_1", "namespaceUri_200"))
+            .individuals(Set.of("individualUri_0"))
             .build();
 
         PageRequest pageRequest = PageRequest.of(0, 10);
@@ -254,7 +256,7 @@ class SimilarityServiceImplTest extends TestData {
         List<PairwiseSimilarity> content = page.getContent();
         assertEquals("ontology_0", content.get(0).getPair().getFirst());
         assertEquals("ontology_100", content.get(0).getPair().getSecond());
-        assertEquals(2.0, content.get(0).getSum());
+        assertEquals(1.8, content.get(0).getSum());
 
         Map<String, CharacteristicsInfo> characteristics = content.get(0).getCharacteristics();
         assertTrue(characteristics.containsKey(CharacteristicsType.PROPERTY.name().toLowerCase()));

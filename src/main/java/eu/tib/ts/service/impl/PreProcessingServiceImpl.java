@@ -9,11 +9,13 @@ import eu.tib.ts.service.PreProcessingService;
 import eu.tib.ts.service.ProcessedOntologyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.jena.ontology.OntModel;
+import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,20 +55,24 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             long startRead = System.currentTimeMillis();
 
             OntModel ontModel = null;
+            OWLOntology owlOntology = null;
             try {
-                ontModel = ontologyReadService.readOntology(fileLocation);
+                ontModel = ontologyReadService.readOntologyWithJenaApi(fileLocation);
             } catch (Exception e) {
-                log.error("Could not read {} {}", fileLocation, e.getLocalizedMessage());
+                log.error("Could not read with Jena API {} {}", fileLocation, e.getLocalizedMessage());
             }
 
-            if (Objects.isNull(ontModel)) {
-                continue;
+            try {
+                owlOntology = ontologyReadService.readOntologyWithOwlApi(fileLocation);
+            } catch (Exception e) {
+                log.error("Could not read with OWL API{} {}", fileLocation, e.getLocalizedMessage());
             }
 
-            ProcessedOntology processedOntology = buildOntology(tsOntology, ontModel);
+            ProcessedOntology processedOntology = buildOntology(tsOntology, owlOntology, ontModel);
 
             long endRead = System.currentTimeMillis();
             log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
+
             processedOntologyService.save(processedOntology);
             count++;
         }
@@ -74,13 +80,19 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         log.info("Saved {} ontologies", count);
     }
 
-    private ProcessedOntology buildOntology(TsOntology tsOntology, OntModel ontModel) {
+    private ProcessedOntology buildOntology(TsOntology tsOntology, OWLOntology owlOntology, OntModel ontModel) {
+        Set<String> classes = ontologyTraverseService.getClasses(ontModel);
+        if (CollectionUtils.isEmpty(classes)) {
+            classes = ontologyTraverseService.getClasses(owlOntology);
+        }
+
         return ProcessedOntology.builder()
             .ontologyId(tsOntology.getOntologyId())
-            .classes(ontologyTraverseService.getClasses(ontModel))
-            .imports(ontologyTraverseService.getImports(ontModel))
+            .classes(classes)
+            .imports(ontologyTraverseService.getImports(owlOntology))
             .properties(ontologyTraverseService.getProperties(ontModel))
-            .namespaces(ontologyTraverseService.getNamespaces(ontModel))
+            .namespaces(ontologyTraverseService.getNamespaces(owlOntology))
+            .individuals(ontologyTraverseService.getIndividuals(owlOntology))
             .collection(tsOntology.getCollection())
             .uri(tsOntology.getUri())
             .build();

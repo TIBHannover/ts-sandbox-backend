@@ -10,25 +10,26 @@ import eu.tib.ts.service.PreProcessingService;
 import eu.tib.ts.service.ProcessedOntologyService;
 import lombok.SneakyThrows;
 import org.apache.jena.ontology.OntModel;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.semanticweb.owlapi.model.OWLOntology;
 
-import java.io.FileInputStream;
 import java.util.List;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PreProcessingServiceImplTest {
-    private static final String PATH = "src/test/resources/dices.owl";
-    private static final String RDF_XML = "TTL";
-
+class PreProcessingServiceImplTest extends OntologyFileData {
     private PreProcessingService preProcessingService;
     @Mock
     private TsRepository tsRepository;
@@ -59,22 +60,22 @@ class PreProcessingServiceImplTest {
         when(tsRepository.getOntologies())
             .thenReturn(ontologies);
 
-        OntModel model = ModelFactory.createOntologyModel();
-        model.read(new FileInputStream(PATH), null, RDF_XML);
+        when(ontologyReadService.readOntologyWithOwlApi(anyString()))
+            .thenReturn(OWL_ONTOLOGY);
 
-        when(ontologyReadService.readOntology(anyString()))
-            .thenReturn(model);
+        when(ontologyReadService.readOntologyWithJenaApi(anyString()))
+            .thenReturn(ONT_MODEL);
 
         preProcessingService.doPreProcessing();
 
         verify(ontologyTraverseService, times(ontologies.size()))
-            .getImports(any(OntModel.class));
+            .getImports(any(OWLOntology.class));
 
         verify(ontologyTraverseService, times(ontologies.size()))
             .getProperties(any(OntModel.class));
 
         verify(ontologyTraverseService, times(ontologies.size()))
-            .getNamespaces(any(OntModel.class));
+            .getNamespaces(any(OWLOntology.class));
 
         verify(ontologyTraverseService, times(ontologies.size()))
             .getClasses(any(OntModel.class));
@@ -90,19 +91,22 @@ class PreProcessingServiceImplTest {
         when(tsRepository.getOntologies())
             .thenReturn(ontologies);
 
-        when(ontologyReadService.readOntology(anyString()))
+        when(ontologyReadService.readOntologyWithOwlApi(anyString()))
+            .thenReturn(null);
+
+        when(ontologyReadService.readOntologyWithJenaApi(anyString()))
             .thenReturn(null);
 
         preProcessingService.doPreProcessing();
 
         verify(ontologyTraverseService, never())
-            .getImports(any(OntModel.class));
+            .getImports(any(OWLOntology.class));
 
         verify(ontologyTraverseService, never())
             .getProperties(any(OntModel.class));
 
         verify(ontologyTraverseService, never())
-            .getNamespaces(any(OntModel.class));
+            .getNamespaces(any(OWLOntology.class));
 
         verify(ontologyTraverseService, never())
             .getClasses(any(OntModel.class));
@@ -118,22 +122,22 @@ class PreProcessingServiceImplTest {
         when(tsRepository.getOntologies())
             .thenReturn(ontologies);
 
-        OntModel model = ModelFactory.createOntologyModel();
-        model.read(new FileInputStream(PATH), null, RDF_XML);
+        lenient().when(ontologyReadService.readOntologyWithOwlApi(anyString()))
+            .thenReturn(OWL_ONTOLOGY);
 
-        lenient().when(ontologyReadService.readOntology(anyString()))
-            .thenReturn(model);
+        lenient().when(ontologyReadService.readOntologyWithJenaApi(anyString()))
+            .thenReturn(ONT_MODEL);
 
         preProcessingService.doPreProcessing();
 
         verify(ontologyTraverseService, never())
-            .getImports(any(OntModel.class));
+            .getImports(any(OWLOntology.class));
 
         verify(ontologyTraverseService, never())
             .getProperties(any(OntModel.class));
 
         verify(ontologyTraverseService, never())
-            .getNamespaces(any(OntModel.class));
+            .getNamespaces(any(OWLOntology.class));
 
         verify(ontologyTraverseService, never())
             .getClasses(any(OntModel.class));

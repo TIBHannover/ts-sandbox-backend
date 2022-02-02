@@ -23,7 +23,8 @@ ts:
 
 similarity:
   weight:
-    property: 0.25
-    class: 0.25
-    namespace: 0.25
-    import: 0.25
+    property: 0.2
+    class: 0.2
+    namespace: 0.2
+    import: 0.2
+    individual: 0.2

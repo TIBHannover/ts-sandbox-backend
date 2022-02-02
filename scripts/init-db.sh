@@ -40,6 +40,11 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     	classes varchar(255) NULL
     );
 
+    CREATE TABLE public.individuals (
+        	id bigint NOT NULL,
+        	individuals varchar(255) NULL
+        );
+
     ALTER TABLE public.properties
     ADD CONSTRAINT fk_properties FOREIGN KEY (id) REFERENCES public.processed_ontology(id);
 
@@ -54,6 +59,9 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
     ALTER TABLE public.namespaces
     ADD CONSTRAINT fk_namespaces FOREIGN KEY (id) REFERENCES public.processed_ontology(id);
+
+    ALTER TABLE public.individuals
+        ADD CONSTRAINT fk_individuals FOREIGN KEY (id) REFERENCES public.processed_ontology(id);
 
 
 EOSQL

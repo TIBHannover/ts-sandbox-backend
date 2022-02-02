@@ -1,7 +1,11 @@
 package eu.tib.ts.service;
 
 import org.apache.jena.ontology.OntModel;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 public interface OntologyReadService {
-    OntModel readOntology(String uri);
+    OWLOntology readOntologyWithOwlApi(String uri) throws OWLOntologyCreationException;
+
+    OntModel readOntologyWithJenaApi(String uri) throws OWLOntologyCreationException;
 }

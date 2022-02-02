@@ -11,5 +11,7 @@ public interface ExtendedOntology extends Ontology {
 
     Set<String> getNamespaces();
 
+    Set<String> getIndividuals();
+
     Set<String> getCollection();
 }
