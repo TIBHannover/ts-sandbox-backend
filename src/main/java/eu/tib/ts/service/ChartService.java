@@ -9,6 +9,4 @@ import java.util.Optional;
 
 public interface ChartService {
     ChartData chart(Optional<List<String>> ids, Optional<String> collection, ChartRequest request, Pageable pageable);
-
-    ChartData chart1(Optional<List<String>> ids, Optional<String> collection, ChartRequest request, Pageable pageable);
 }

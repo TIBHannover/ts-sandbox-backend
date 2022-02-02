@@ -25,31 +25,8 @@ public class ChartController {
         this.chartService = chartService;
     }
 
-    @GetMapping(value = "1", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<byte[]> testChart(
-        Pageable pageable,
-        @RequestParam(required = false) Optional<List<String>> ids,
-        @RequestParam(required = false) Optional<String> collection,
-        @RequestParam(required = false) Optional<Boolean> horizontal,
-        @RequestParam(required = false) Optional<Integer> height,
-        @RequestParam(required = false) Optional<Integer> width
-    ) {
-        ChartRequest request = ChartRequest.builder()
-            .height(height)
-            .width(width)
-            .horizontal(horizontal)
-            .build();
-
-        ChartData chartData = chartService.chart1(ids, collection, request, pageable);
-
-        return ResponseEntity.ok()
-            .contentLength(chartData.getLength())
-            .contentType(chartData.getContentType())
-            .body(chartData.getData());
-    }
-
-    @GetMapping(value = "2", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<byte[]> testChart2(
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<byte[]> chart(
         Pageable pageable,
         @RequestParam(required = false) Optional<List<String>> ids,
         @RequestParam(required = false) Optional<String> collection,
@@ -70,5 +47,4 @@ public class ChartController {
             .contentType(chartData.getContentType())
             .body(chartData.getData());
     }
-
 }
