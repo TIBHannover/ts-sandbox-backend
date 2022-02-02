@@ -5,9 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntProperty;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDocumentFormat;
+import org.semanticweb.owlapi.model.OWLImportsDeclaration;
+import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -15,30 +25,75 @@ import java.util.stream.Collectors;
 public class OntologyTraverseServiceImpl implements OntologyTraverseService {
 
     @Override
-    public Set<String> getImports(OntModel model) {
+    public Set<String> getImports(OWLOntology owlOntology) {
+        if (owlOntology == null) {
+            return Set.of();
+        }
 
-        return model.listImportedOntologyURIs();
+        return owlOntology.importsDeclarations()
+            .map(OWLImportsDeclaration::getIRI)
+            .map(IRI::toString)
+            .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<String> getNamespaces(OntModel model) {
+    public Set<String> getNamespaces(OWLOntology owlOntology) {
+        if (owlOntology == null) {
+            return Set.of();
+        }
 
-        return model.listNameSpaces().toSet();
+        OWLDocumentFormat format = owlOntology.getOWLOntologyManager().getOntologyFormat(owlOntology);
+        Set<String> set = new HashSet<>();
+        if (format != null && format.isPrefixOWLDocumentFormat()) {
+            set = new HashSet<>(format.asPrefixOWLDocumentFormat().getPrefixName2PrefixMap().values());
+        }
+
+        return set;
     }
 
     @Override
     public Set<String> getProperties(OntModel model) {
+        if (model == null) {
+            return Set.of();
+        }
 
         return model.listOntProperties().toList().stream()
             .filter(OntProperty::isObjectProperty)
             .map(OntProperty::getURI)
-            .map(String::toLowerCase)
-            .map(s -> s.replace("_", ""))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<String> getIndividuals(OWLOntology owlOntology) {
+        if (owlOntology == null) {
+            return Set.of();
+        }
+
+        Set<OWLNamedIndividual> set = new HashSet<>();
+        owlOntology.individualsInSignature().forEach(set::add);
+
+        return set.stream()
+            .map(OWLNamedIndividual::getIRI)
+            .map(IRI::toString)
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<String> getClasses(OWLOntology owlOntology) {
+        Set<OWLClass> set = new HashSet<>();
+        owlOntology.classesInSignature().forEach(set::add);
+
+        return set.stream()
+            .map(OWLClass::toString)
             .collect(Collectors.toSet());
     }
 
     @Override
     public Set<String> getClasses(OntModel model) {
+        if (model == null) {
+            return Set.of();
+        }
+
         Set<String> classes = new HashSet<>();
         // create an iterator over the root classes
         Iterator<OntClass> iterator = model.listHierarchyRootClasses();
@@ -61,7 +116,7 @@ public class OntologyTraverseServiceImpl implements OntologyTraverseService {
             return;
         }
 
-        classes.add(oc.toString().toLowerCase());
+        classes.add(oc.toString());
 
         // check if we already visited this OntClass (avoid loops in graphs)
         if (oc.canAs(OntClass.class) && !occurs.contains(oc)) {
