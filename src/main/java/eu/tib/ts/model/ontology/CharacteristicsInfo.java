@@ -9,11 +9,15 @@ import java.util.List;
 @Value
 public class CharacteristicsInfo {
     long size;
+    long maxSimilaritiesSize;
+    double percent;
     List<String> list;
 
-    public static CharacteristicsInfo of(List<String> similarities) {
+    public static CharacteristicsInfo of(List<String> similarities, long maxSimilaritiesSize, double percent) {
         return CharacteristicsInfo.builder()
             .size(similarities.size())
+            .maxSimilaritiesSize(maxSimilaritiesSize)
+            .percent(percent)
             .list(similarities)
             .build();
     }
