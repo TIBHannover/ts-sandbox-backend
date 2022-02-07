@@ -82,6 +82,10 @@ class ChartServiceImplTest {
             .ontologyId("ontology_100")
             .uri("https://something_100.ttl")
             .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_200"))
+            .classes(Set.of("classUri_0", "classUri_1", "classUri_200"))
+            .imports(Set.of("importUri_0", "importUri_1", "importUri_200"))
+            .namespaces(Set.of("namespaceUri_0", "namespaceUri_1", "namespaceUri_200"))
+            .individuals(Set.of("individualUri_0"))
             .build();
 
         CharacteristicsInfo characteristicsInfo0 = CharacteristicsInfo.of(List.of("prop1", "prop2"), 100, 100);
@@ -113,6 +117,7 @@ class ChartServiceImplTest {
             .height(Optional.of(600))
             .horizontal(Optional.of(Boolean.TRUE))
             .build();
+
 
         ChartData chart = chartService.chart(externalOntology, Optional.empty(), chartRequest, pageRequest);
 
