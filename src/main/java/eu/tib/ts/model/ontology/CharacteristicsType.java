@@ -5,7 +5,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public enum CharacteristicsType {
+public enum CharacteristicsType implements MostCommonlyUsable {
     PROPERTY {
         @Override
         public <T extends ExtendedOntology> Set<String> getOntologyCharacteristics(T ontology) {
@@ -34,6 +34,11 @@ public enum CharacteristicsType {
         @Override
         public <T extends ExtendedOntology> Set<String> getOntologyCharacteristics(T ontology) {
             return ontology.getIndividuals();
+        }
+
+        @Override
+        public boolean consideredForCommonlyUsed() {
+            return false;
         }
     };
 
