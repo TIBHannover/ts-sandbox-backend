@@ -4,10 +4,11 @@ import eu.tib.ts.controller.assember.PairwiseSimilarityModelAssembler;
 import eu.tib.ts.controller.assember.SimilarityModelAssembler;
 import eu.tib.ts.controller.dto.PairwiseSimilarityModel;
 import eu.tib.ts.model.ontology.CharacteristicsType;
-import eu.tib.ts.model.ontology.ExternalOntology;
 import eu.tib.ts.model.ontology.PairwiseSimilarity;
+import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.Similarity;
 import eu.tib.ts.model.ontology.SimilarityModel;
+import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.service.SimilarityService;
 import eu.tib.ts.utils.HttpUtils;
 import eu.tib.ts.utils.PageUtils;
@@ -22,8 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +34,7 @@ import java.util.Optional;
 @RequestMapping("/api/ontology/similarity")
 public class SimilarityController {
     private final SimilarityService similarityService;
+    private final PreProcessingOntologyService preProcessingOntologyService;
     private final SimilarityModelAssembler modelAssembler;
     private final PairwiseSimilarityModelAssembler pairwiseSimilarityModelAssembler;
     private final PagedResourcesAssembler<Similarity> pagedResourcesAssembler;
@@ -43,12 +43,14 @@ public class SimilarityController {
     @Autowired
     public SimilarityController(
         SimilarityService similarityService,
+        PreProcessingOntologyService preProcessingOntologyService,
         SimilarityModelAssembler modelAssembler,
         PairwiseSimilarityModelAssembler pairwiseSimilarityModelAssembler,
         PagedResourcesAssembler<Similarity> pagedResourcesAssembler,
         PagedResourcesAssembler<PairwiseSimilarity> pairwiseSimilarityPagedResourcesAssembler
     ) {
         this.similarityService = similarityService;
+        this.preProcessingOntologyService = preProcessingOntologyService;
         this.modelAssembler = modelAssembler;
         this.pairwiseSimilarityModelAssembler = pairwiseSimilarityModelAssembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
@@ -95,16 +97,17 @@ public class SimilarityController {
 
     @ApiOperation(value = "Similarity measure for external ontology " +
         "by calculating shared Properties | Classes | Imports | Namespaces")
-    @PostMapping(value = "/{characteristics}/external", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{characteristics}/external", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForExternalOntology(
         @ApiParam(value = "Characteristics to be compared by", example = "PROPERTY")
         @PathVariable("characteristics") CharacteristicsType characteristicsType,
-        @ApiParam(value = "External ontology")
-        @RequestBody ExternalOntology ontology,
+        @ApiParam(value = "External ontology URL")
+        @RequestParam String url,
         @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
+        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url);
         Page<Similarity> page = similarityService.getSimilarities(ontology, characteristicsType, collection, pageable);
         PagedModel<SimilarityModel> pagedModel =
             PageUtils.toPagedModel(page, SimilarityModel.class, pagedResourcesAssembler, modelAssembler);
@@ -137,14 +140,15 @@ public class SimilarityController {
     }
 
     @ApiOperation("Pairwise similarity for external ontology")
-    @PostMapping(value = "/pairwise/external", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/pairwise/external", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForExternalOntology(
-        @ApiParam(value = "External ontology")
-        @RequestBody ExternalOntology ontology,
+        @ApiParam(value = "External ontology URL")
+        @RequestParam String url,
         @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
+        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url);
         Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ontology, collection, pageable);
         PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
             page,

@@ -5,9 +5,10 @@ import eu.tib.ts.controller.assember.SimilarityModelAssembler;
 import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.model.ontology.CharacteristicsInfo;
 import eu.tib.ts.model.ontology.CharacteristicsType;
-import eu.tib.ts.model.ontology.ExternalOntology;
 import eu.tib.ts.model.ontology.PairwiseSimilarity;
+import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.Similarity;
+import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.service.SimilarityService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -28,14 +29,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,6 +50,9 @@ class SimilarityControllerTest {
 
     @MockBean
     SimilarityService similarityService;
+
+    @MockBean
+    PreProcessingOntologyService preProcessingOntologyService;
 
     @Autowired
     MockMvc mockMvc;
@@ -83,21 +88,26 @@ class SimilarityControllerTest {
     @Test
     void testGetSimilarityByPropertyExternal() {
         when(similarityService.getSimilarities(
-            any(ExternalOntology.class), any(CharacteristicsType.class), any(Optional.class), any(Pageable.class)))
+            any(ProcessedOntology.class), any(CharacteristicsType.class), any(Optional.class), any(Pageable.class)))
             .thenReturn(createPage());
 
-        String body = "{\n" +
-            "\t\"ontologyId\" : \"dicl\",\n" +
-            "\t\"uri\": \"\",\n" +
-            "\t\"properties\": [\"property0\", \"property1\"],\n" +
-            "\t\"classes\": [\"class0\", \"class1\"],\n" +
-            "\t\"imports\": [\"import0\", \"import1\"],\n" +
-            "\t\"namespaces\": [\"namespace0\", \"namespace1\"]\n" +
-            "}";
+        ProcessedOntology processedOntology0 = ProcessedOntology.builder()
+            .id(0)
+            .ontologyId("ontology_0")
+            .uri("https://something0.ttl")
+            .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_20"))
+            .classes(Set.of("classUri_0", "classUri_1", "classUri_20"))
+            .build();
 
-        mockMvc.perform(post("/api/ontology/similarity/property/external")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body))
+        when(preProcessingOntologyService.preProcess(any(Optional.class), anyString()))
+            .thenReturn(processedOntology0);
+
+        mockMvc.perform(
+                get("/api/ontology/similarity/property/external")
+                    .param("characteristicsType", "PROPERTY")
+                    .param("url", "https://raw.githubusercontent.com/LiUSemWeb/Materials-Design-Ontology/master/mdo-full.owl")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.similarities[0].name", is("name0")))
@@ -148,21 +158,25 @@ class SimilarityControllerTest {
     @Test
     void testGetPairwiseSimilarityForExternalOntology() {
         when(similarityService.getPairwiseSimilarity(
-            any(ExternalOntology.class), any(Optional.class), any(Pageable.class)))
+            any(ProcessedOntology.class), any(Optional.class), any(Pageable.class)))
             .thenReturn(createPairwisePage());
 
-        String body = "{\n" +
-            "\t\"ontologyId\" : \"dicl\",\n" +
-            "\t\"uri\": \"\",\n" +
-            "\t\"properties\": [\"property0\", \"property1\"],\n" +
-            "\t\"classes\": [\"class0\", \"class1\"],\n" +
-            "\t\"imports\": [\"import0\", \"import1\"],\n" +
-            "\t\"namespaces\": [\"namespace0\", \"namespace1\"]\n" +
-            "}";
+        ProcessedOntology processedOntology0 = ProcessedOntology.builder()
+            .id(0)
+            .ontologyId("ontology_0")
+            .uri("https://something0.ttl")
+            .properties(Set.of("propertyUri_0", "propertyUri_1", "propertyUri_20"))
+            .classes(Set.of("classUri_0", "classUri_1", "classUri_20"))
+            .build();
 
-        mockMvc.perform(post("/api/ontology/similarity/pairwise/external")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body))
+        when(preProcessingOntologyService.preProcess(any(Optional.class), anyString()))
+            .thenReturn(processedOntology0);
+
+        mockMvc.perform(
+                get("/api/ontology/similarity/pairwise/external")
+                    .param("url", "https://raw.githubusercontent.com/LiUSemWeb/Materials-Design-Ontology/master/mdo-full.owl")
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.similarities[0].pair.first", is("ont0")))

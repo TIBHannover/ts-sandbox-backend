@@ -4,25 +4,22 @@ import eu.tib.ts.model.ontology.Config;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.TsOntology;
 import eu.tib.ts.repository.TsRepository;
-import eu.tib.ts.service.OntologyReadService;
-import eu.tib.ts.service.OntologyTraverseService;
+import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.service.PreProcessingService;
 import eu.tib.ts.service.ProcessedOntologyService;
 import lombok.SneakyThrows;
-import org.apache.jena.ontology.OntModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.semanticweb.owlapi.model.OWLOntology;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,113 +31,60 @@ class PreProcessingServiceImplTest extends OntologyFileData {
     @Mock
     private TsRepository tsRepository;
     @Mock
-    private OntologyReadService ontologyReadService;
-    @Mock
-    private OntologyTraverseService ontologyTraverseService;
-    @Mock
     private ProcessedOntologyService processedOntologyService;
+    @Mock
+    private PreProcessingOntologyService preProcessingOntologyService;
 
     @BeforeEach
     void setUp() {
         preProcessingService = new PreProcessingServiceImpl(
             tsRepository,
-            ontologyReadService,
-            ontologyTraverseService,
-            processedOntologyService
+            processedOntologyService,
+            preProcessingOntologyService
         );
     }
 
     @SneakyThrows
     @Test
     void testDoPreProcessing_newOntologies_readOntologySuccessful() {
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies();
         when(processedOntologyService.findAll())
-            .thenReturn(getProcessedOntologies());
+            .thenReturn(processedOntologies);
 
         List<TsOntology> ontologies = getNewOntologies();
         when(tsRepository.getOntologies())
             .thenReturn(ontologies);
 
-        when(ontologyReadService.readOntologyWithOwlApi(anyString()))
-            .thenReturn(OWL_ONTOLOGY);
-
-        when(ontologyReadService.readOntologyWithJenaApi(anyString()))
-            .thenReturn(ONT_MODEL);
+        ProcessedOntology processedOntology = processedOntologies.get(0);
+        when(preProcessingOntologyService.preProcess(any(Optional.class), anyString()))
+            .thenReturn(processedOntology);
 
         preProcessingService.doPreProcessing();
 
-        verify(ontologyTraverseService, times(ontologies.size()))
-            .getImports(any(OWLOntology.class));
-
-        verify(ontologyTraverseService, times(ontologies.size()))
-            .getProperties(any(OntModel.class));
-
-        verify(ontologyTraverseService, times(ontologies.size()))
-            .getNamespaces(any(OWLOntology.class));
-
-        verify(ontologyTraverseService, times(ontologies.size()))
-            .getClasses(any(OntModel.class));
-    }
-
-    @SneakyThrows
-    @Test
-    void testDoPreProcessing_newOntologies_readOntologyUnsuccessful() {
-        when(processedOntologyService.findAll())
-            .thenReturn(getProcessedOntologies());
-
-        List<TsOntology> ontologies = getNewOntologies();
-        when(tsRepository.getOntologies())
-            .thenReturn(ontologies);
-
-        when(ontologyReadService.readOntologyWithOwlApi(anyString()))
-            .thenReturn(null);
-
-        when(ontologyReadService.readOntologyWithJenaApi(anyString()))
-            .thenReturn(null);
-
-        preProcessingService.doPreProcessing();
-
-        verify(ontologyTraverseService, never())
-            .getImports(any(OWLOntology.class));
-
-        verify(ontologyTraverseService, never())
-            .getProperties(any(OntModel.class));
-
-        verify(ontologyTraverseService, never())
-            .getNamespaces(any(OWLOntology.class));
-
-        verify(ontologyTraverseService, never())
-            .getClasses(any(OntModel.class));
+        verify(processedOntologyService, times(2))
+            .save(processedOntology);
     }
 
     @SneakyThrows
     @Test
     void testDoPreProcessing_oldOntologies_readOntologySuccessful() {
+        List<ProcessedOntology> processedOntologies = getProcessedOntologies();
         when(processedOntologyService.findAll())
-            .thenReturn(getProcessedOntologies());
+            .thenReturn(processedOntologies);
 
         List<TsOntology> ontologies = getOldOntologies();
         when(tsRepository.getOntologies())
             .thenReturn(ontologies);
 
-        lenient().when(ontologyReadService.readOntologyWithOwlApi(anyString()))
-            .thenReturn(OWL_ONTOLOGY);
-
-        lenient().when(ontologyReadService.readOntologyWithJenaApi(anyString()))
-            .thenReturn(ONT_MODEL);
+        ProcessedOntology processedOntology = processedOntologies.get(0);
 
         preProcessingService.doPreProcessing();
 
-        verify(ontologyTraverseService, never())
-            .getImports(any(OWLOntology.class));
+        verify(preProcessingOntologyService, never())
+            .preProcess(any(Optional.class), anyString());
 
-        verify(ontologyTraverseService, never())
-            .getProperties(any(OntModel.class));
-
-        verify(ontologyTraverseService, never())
-            .getNamespaces(any(OWLOntology.class));
-
-        verify(ontologyTraverseService, never())
-            .getClasses(any(OntModel.class));
+        verify(processedOntologyService, never())
+            .save(processedOntology);
     }
 
     private List<TsOntology> getNewOntologies() {

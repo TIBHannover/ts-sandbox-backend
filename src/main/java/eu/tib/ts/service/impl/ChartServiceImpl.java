@@ -6,7 +6,7 @@ import com.zavtech.morpheus.viz.chart.Chart;
 import eu.tib.ts.model.chart.ChartData;
 import eu.tib.ts.model.chart.ChartRequest;
 import eu.tib.ts.model.ontology.CharacteristicsType;
-import eu.tib.ts.model.ontology.ExternalOntology;
+import eu.tib.ts.model.ontology.ExtendedOntology;
 import eu.tib.ts.model.ontology.PairwiseSimilarity;
 import eu.tib.ts.service.ChartService;
 import eu.tib.ts.service.SimilarityService;
@@ -67,7 +67,7 @@ public class ChartServiceImpl implements ChartService {
     }
 
     @Override
-    public ChartData chart(ExternalOntology ontology, Optional<String> collection, ChartRequest request, Pageable pageable) {
+    public <T extends ExtendedOntology> ChartData chart(T ontology, Optional<String> collection, ChartRequest request, Pageable pageable) {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ontology, collection, pageable);
