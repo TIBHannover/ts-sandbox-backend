@@ -32,6 +32,8 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
 
     @Override
     public ProcessedOntology preProcess(Optional<TsOntology> tsOntology, String fileLocation) {
+        log.debug("Start pre-processing {}", fileLocation);
+
         OntModel ontModel = null;
         OWLOntology owlOntology = null;
         try {
@@ -43,7 +45,7 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
         try {
             owlOntology = ontologyReadService.readOntologyWithOwlApi(fileLocation);
         } catch (Exception e) {
-            log.error("Could not read with OWL API{} {}", fileLocation, e.getLocalizedMessage());
+            log.error("Could not read with OWL API {} {}", fileLocation, e.getLocalizedMessage());
         }
 
         return buildOntology(tsOntology, owlOntology, ontModel, fileLocation);
