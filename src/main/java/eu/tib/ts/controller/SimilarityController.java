@@ -117,17 +117,37 @@ public class SimilarityController {
     }
 
     @ApiOperation("Pairwise similarity between TS internal ontologies")
-    @GetMapping(value = "/pairwise/internal", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForInternalOntology(
+    @GetMapping(value = "/pairwise/internal/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForInternalOntologyList(
         @ApiParam(value = "A set of Ontology IDs managed in the TS", example = "dicl,dicob")
         @RequestParam(required = false) Optional<List<String>> ids,
         @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        Page<PairwiseSimilarity> page = ids.isPresent() && ids.get().size() == 1
-            ? similarityService.getPairwiseSimilarity(ids.get().get(0), collection, pageable)
-            : similarityService.getPairwiseSimilarity(ids, collection, pageable);
+        Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ids, collection, pageable);
+
+        PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
+            page,
+            PairwiseSimilarityModel.class,
+            pairwiseSimilarityPagedResourcesAssembler,
+            pairwiseSimilarityModelAssembler
+        );
+
+        return HttpUtils.ok(pagedModel);
+    }
+
+    @ApiOperation("Pairwise similarity between given TS internal ontology " +
+        "and a set of TS internal ontologies")
+    @GetMapping(value = "/pairwise/internal", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForInternalOntology(
+        @ApiParam(value = "A given Ontology ID managed in the TS", example = "swo")
+        @RequestParam String id,
+        @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
+        @RequestParam(required = false) Optional<String> collection,
+        Pageable pageable
+    ) {
+        Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(id, collection, pageable);
 
         PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
             page,
