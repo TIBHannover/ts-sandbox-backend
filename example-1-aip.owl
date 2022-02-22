@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/krdzavacn/ontologies/2022/1/untitled-ontology-96#"
+     xml:base="http://www.semanticweb.org/krdzavacn/ontologies/2022/1/untitled-ontology-96"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:www="http://www.oais.ip#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/krdzavacn/ontologies/2022/1/untitled-ontology-96">
+        <owl:imports rdf:resource="https://git.tib.eu/terminology/sandbox/oais-ip-ontology-collection/raw/master/dev/tbox/oais-ip-tbox.owl"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.oais.ip#OWLObjectProperty_390e74ef_0c0b_4b4d_8e67_277d6b8d81a4 -->
+
+    <owl:ObjectProperty rdf:about="http://www.oais.ip#OWLObjectProperty_390e74ef_0c0b_4b4d_8e67_277d6b8d81a4"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLObjectProperty_7e26b671_53a8_43a1_9d06_5d0326c7f534 -->
+
+    <owl:ObjectProperty rdf:about="http://www.oais.ip#OWLObjectProperty_7e26b671_53a8_43a1_9d06_5d0326c7f534"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLObjectProperty_8dcaf240_2460_4b3c_b62c_6facbd43fe04 -->
+
+    <owl:ObjectProperty rdf:about="http://www.oais.ip#OWLObjectProperty_8dcaf240_2460_4b3c_b62c_6facbd43fe04"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLObjectProperty_f3ca648a_efea_4080_ad36_7cef6e8246d3 -->
+
+    <owl:ObjectProperty rdf:about="http://www.oais.ip#OWLObjectProperty_f3ca648a_efea_4080_ad36_7cef6e8246d3"/>
+    
+
+
+    <!-- http://www.oais.ip#packageDescription -->
+
+    <owl:ObjectProperty rdf:about="http://www.oais.ip#packageDescription"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.oais.ip#hasSHA -->
+
+    <owl:DatatypeProperty rdf:about="http://www.oais.ip#hasSHA"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.oais.ip#OWLClass_00ccc91b_919e_42bd_9988_70f853ad7b08 -->
+
+    <owl:Class rdf:about="http://www.oais.ip#OWLClass_00ccc91b_919e_42bd_9988_70f853ad7b08"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLClass_15990c1d_c071_4537_8130_c6a883a1e8b2 -->
+
+    <owl:Class rdf:about="http://www.oais.ip#OWLClass_15990c1d_c071_4537_8130_c6a883a1e8b2"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLClass_2104e04d_3fd5_416c_b94c_ec9803a257ca -->
+
+    <owl:Class rdf:about="http://www.oais.ip#OWLClass_2104e04d_3fd5_416c_b94c_ec9803a257ca"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLClass_46d2d588_bd75_497f_8b5a_bad62bd3f54a -->
+
+    <owl:Class rdf:about="http://www.oais.ip#OWLClass_46d2d588_bd75_497f_8b5a_bad62bd3f54a"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLClass_726b1d12_438c_4fd2_9231_0247163ba6b7 -->
+
+    <owl:Class rdf:about="http://www.oais.ip#OWLClass_726b1d12_438c_4fd2_9231_0247163ba6b7"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLClass_aa1fe408_d629_445d_9a1b_fb50e0e0bf73 -->
+
+    <owl:Class rdf:about="http://www.oais.ip#OWLClass_aa1fe408_d629_445d_9a1b_fb50e0e0bf73"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLClass_b5c58b00_397e_4c6b_93ae_a7608c07bb57 -->
+
+    <owl:Class rdf:about="http://www.oais.ip#OWLClass_b5c58b00_397e_4c6b_93ae_a7608c07bb57"/>
+    
+
+
+    <!-- http://www.oais.ip#OWLClass_bcb23472_88dd_4d05_b7fe_8ff576bba1b1 -->
+
+    <owl:Class rdf:about="http://www.oais.ip#OWLClass_bcb23472_88dd_4d05_b7fe_8ff576bba1b1"/>
+    
+
+
+    <!-- http://www.oais.ip#208b1e70_ab6t_4782_9f15_dbc1a231c4rb -->
+
+    <owl:Class rdf:about="http://www.oais.ip#208b1e70_ab6t_4782_9f15_dbc1a231c4rb"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.oais.ip#coypu_0010 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_0010">
+        <rdf:type rdf:resource="http://www.oais.ip#208b1e70_ab6t_4782_9f15_dbc1a231c4rb"/>
+        <rdfs:label>CC-BY-4.0</rdfs:label>
+        <rdfs:seeAlso>https://creativecommons.org/licenses/by/2.0/de/</rdfs:seeAlso>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.oais.ip#coypu_003 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_003">
+        <rdf:type rdf:resource="http://www.oais.ip#OWLClass_2104e04d_3fd5_416c_b94c_ec9803a257ca"/>
+        <www:OWLObjectProperty_390e74ef_0c0b_4b4d_8e67_277d6b8d81a4 rdf:resource="http://www.oais.ip#coypu_020"/>
+        <www:OWLObjectProperty_7e26b671_53a8_43a1_9d06_5d0326c7f534 rdf:resource="http://www.oais.ip#coypu_013"/>
+        <rdfs:label>TIB Terminology Service Statistics (AIP1)</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.oais.ip#coypu_004 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_004">
+        <rdf:type rdf:resource="http://www.oais.ip#OWLClass_15990c1d_c071_4537_8130_c6a883a1e8b2"/>
+        <rdfs:isDefinedBy>https://git.tib.eu/terminology/sandbox/tib-terminology-service-statistics</rdfs:isDefinedBy>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.oais.ip#coypu_005 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_005">
+        <rdf:type rdf:resource="http://www.oais.ip#OWLClass_46d2d588_bd75_497f_8b5a_bad62bd3f54a"/>
+        <www:packageDescription rdf:resource="http://www.oais.ip#coypu_003"/>
+        <rdfs:isDefinedBy>https://terminology.nfdi4ing.de/ts4ing/ontologies/swo/terms?iri=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FIAO_0000064&amp;amp;viewMode=All&amp;amp;siblings=false</rdfs:isDefinedBy>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.oais.ip#coypu_006 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_006">
+        <rdf:type rdf:resource="http://www.oais.ip#OWLClass_46d2d588_bd75_497f_8b5a_bad62bd3f54a"/>
+        <www:packageDescription rdf:resource="http://www.oais.ip#coypu_003"/>
+        <rdfs:isDefinedBy>https://terminology.nfdi4ing.de/ts4ing/ontologies/swo/terms?iri=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FIAO_0000104&amp;amp;viewMode=All&amp;amp;siblings=false</rdfs:isDefinedBy>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.oais.ip#coypu_007 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_007">
+        <rdf:type rdf:resource="http://www.oais.ip#OWLClass_bcb23472_88dd_4d05_b7fe_8ff576bba1b1"/>
+        <rdfs:isDefinedBy>https://git.tib.eu/terminology/sandbox/tib-terminology-service-statistics</rdfs:isDefinedBy>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.oais.ip#coypu_008 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_008">
+        <rdf:type rdf:resource="http://www.oais.ip#OWLClass_00ccc91b_919e_42bd_9988_70f853ad7b08"/>
+        <rdfs:isDefinedBy>https://git.tib.eu/terminology/sandbox/tib-terminology-service-statistics/-/commits/main</rdfs:isDefinedBy>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.oais.ip#coypu_009 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_009">
+        <rdf:type rdf:resource="http://www.oais.ip#OWLClass_b5c58b00_397e_4c6b_93ae_a7608c07bb57"/>
+        <www:hasSHA>b09338330cf3816fe1f3fc996fe9a370928fe13f</www:hasSHA>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.oais.ip#coypu_013 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_013">
+        <rdf:type rdf:resource="http://www.oais.ip#OWLClass_aa1fe408_d629_445d_9a1b_fb50e0e0bf73"/>
+        <www:OWLObjectProperty_8dcaf240_2460_4b3c_b62c_6facbd43fe04 rdf:resource="http://www.oais.ip#coypu_0010"/>
+        <www:OWLObjectProperty_8dcaf240_2460_4b3c_b62c_6facbd43fe04 rdf:resource="http://www.oais.ip#coypu_007"/>
+        <www:OWLObjectProperty_8dcaf240_2460_4b3c_b62c_6facbd43fe04 rdf:resource="http://www.oais.ip#coypu_008"/>
+        <www:OWLObjectProperty_8dcaf240_2460_4b3c_b62c_6facbd43fe04 rdf:resource="http://www.oais.ip#coypu_009"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.oais.ip#coypu_020 -->
+
+    <owl:NamedIndividual rdf:about="http://www.oais.ip#coypu_020">
+        <rdf:type rdf:resource="http://www.oais.ip#OWLClass_726b1d12_438c_4fd2_9231_0247163ba6b7"/>
+        <www:OWLObjectProperty_f3ca648a_efea_4080_ad36_7cef6e8246d3 rdf:resource="http://www.oais.ip#coypu_004"/>
+        <rdfs:label>CoyPu AIP1 CI</rdfs:label>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.2.5.20160517-0735) https://github.com/owlcs/owlapi -->
+
