@@ -8,7 +8,7 @@
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
     <owl:Ontology rdf:about="http://www.semanticweb.org/krdzavacn/ontologies/2022/1/untitled-ontology-96">
-        <owl:imports rdf:resource="https://git.tib.eu/terminology/sandbox/oais-ip-ontology-collection/raw/master/dev/tbox/oais-ip-tbox.owl"/>
+        <owl:imports rdf:resource="https://git.tib.eu/terminology/sandbox/oais-ip-collection/-/raw/main/oais-ip-tbox.owl"/>
     </owl:Ontology>
     
 
