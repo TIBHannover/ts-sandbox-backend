@@ -13,9 +13,9 @@ To start a project run following commands in a project directory:
 2. `docker-compose build` to build containers
 3. `docker-compose up -d` create and start the containers in the background and leave them running
 
-Terminology Service Statistics runs on port 8081
+Terminology Service Statistics runs on port 8081: `http://localhost:8081`
 
-API documentation: [swagger](http://localhost:8083/swagger-ui/)
+API documentation: [swagger](http://localhost:8081/swagger-ui/)
 
 ### Questions to be answered by statistic
 ***
@@ -38,8 +38,14 @@ API documentation: [swagger](http://localhost:8083/swagger-ui/)
 #### What is a commonly used ontology in the collection XYZ?
 `/api/ontology/similarity/collection/{name}`
 
-### How to develop
+## How to develop
 ***
+
+### System requirements
+
+* Java Development Kit 11
+* Maven
+* Docker
 
 #### Common flow for the implementation of new features or bug fixes.
 
@@ -63,7 +69,7 @@ API documentation: [swagger](http://localhost:8083/swagger-ui/)
 
 * this service provides with content for `Analytics` tab
 
-#### Backend service [ols-backend-2.0-poc](https://git.tib.eu/terminology/sandbox/ols-backend-2.0-poc)
+#### (Optional) Backend service [ols-backend-2.0-poc](https://git.tib.eu/terminology/sandbox/ols-backend-2.0-poc)
 
 * this service provides with content for `Ontologies` tab 
 
