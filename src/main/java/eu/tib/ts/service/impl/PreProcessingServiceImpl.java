@@ -8,6 +8,7 @@ import eu.tib.ts.service.PreProcessingService;
 import eu.tib.ts.service.ProcessedOntologyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,13 +22,18 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     private final ProcessedOntologyService processedOntologyService;
     private final PreProcessingOntologyService preProcessingOntologyService;
 
+    private final List<String> skipList;
+
     @Autowired
     public PreProcessingServiceImpl(TsRepository tsRepository,
                                     ProcessedOntologyService processedOntologyService,
-                                    PreProcessingOntologyService preProcessingOntologyService) {
+                                    PreProcessingOntologyService preProcessingOntologyService,
+                                    @Value("#{'${skip.ontologies.processing}'.split(',')}")
+                                        List<String> skipList) {
         this.tsRepository = tsRepository;
         this.preProcessingOntologyService = preProcessingOntologyService;
         this.processedOntologyService = processedOntologyService;
+        this.skipList = skipList;
     }
 
     @Override
@@ -37,6 +43,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         List<TsOntology> unprocessedOntologies = tsOntologies.stream()
             .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
+            .filter(tsOntology -> !skipList.contains(tsOntology.getOntologyId().toLowerCase()))
             .collect(Collectors.toList());
 
         int count = 0;
