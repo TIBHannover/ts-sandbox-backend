@@ -32,7 +32,7 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
 
     @Override
     public ProcessedOntology preProcess(Optional<TsOntology> tsOntology, String fileLocation) {
-        log.debug("Start pre-processing {}", fileLocation);
+        log.debug("Start pre-processing {} {}", tsOntology.map(TsOntology::getOntologyId).orElse(EXTERNAL), fileLocation);
 
         OntModel ontModel = null;
         OWLOntology owlOntology = null;
