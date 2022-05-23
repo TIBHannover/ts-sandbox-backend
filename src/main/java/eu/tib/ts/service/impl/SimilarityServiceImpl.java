@@ -205,6 +205,41 @@ public class SimilarityServiceImpl implements SimilarityService {
         return PageUtils.toPage(sorted, pageable);
     }
 
+    @Override
+    public <T extends ExtendedOntology> Page<PairwiseSimilarity> getPairwiseSimilarity(T ontology,
+                                                                                       Optional<List<String>> ids,
+                                                                                       Optional<String> collection,
+                                                                                       Pageable pageable) {
+        List<ProcessedOntology> processedOntologies = ids.isPresent()
+            ? getProcessedOntologies(ids.get())
+            : getProcessedOntologies();
+
+        if (processedOntologies == null || processedOntologies.isEmpty()) {
+            return PageUtils.toPage(Collections.emptyList(), pageable);
+        }
+        List<ProcessedOntology> filteredOntologies = filterService.filter(processedOntologies, collection);
+        ProcessedOntology ont2 = ProcessedOntology.of(ontology);
+
+        List<PairwiseSimilarity> pairwiseSimilarities = new ArrayList<>();
+        Set<OntologyPair> set = new HashSet<>();
+        for (ProcessedOntology ont1 : filteredOntologies) {
+            OntologyPair pair = OntologyPair.of(ont1, ont2);
+            if (ont1.equalsTsOntology(ont2) || set.contains(pair.inverted())) {
+                continue;
+            }
+            set.add(pair);
+            PairwiseSimilarity pairwiseSimilarity = processPairs(ont1, ont2);
+            pairwiseSimilarities.add(pairwiseSimilarity);
+        }
+
+        List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
+            .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
+            .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
+            .collect(Collectors.toList());
+
+        return PageUtils.toPage(sorted, pageable);
+    }
+
     private PairwiseSimilarity processPairs(ProcessedOntology ont1,
                                             ProcessedOntology ont2) {
         Map<String, CharacteristicsInfo> characteristicsMap = new HashMap<>();
