@@ -157,12 +157,13 @@ class SimilarityControllerTest {
     @SneakyThrows
     @Test
     void testGetPairwiseSimilarityForInternalOntology() {
-        when(similarityService.getPairwiseSimilarity(anyString(), any(Optional.class), any(Pageable.class)))
+        when(similarityService.getPairwiseSimilarity(anyString(), any(Optional.class), any(Optional.class), any(Pageable.class)))
             .thenReturn(createPairwisePage());
 
         mockMvc.perform(
                 get("/api/ontology/similarity/pairwise/internal")
                     .param("id", "dicl")
+                    .param("ids", "dices, dicob")
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andDo(print())

@@ -107,6 +107,44 @@ public class SimilarityServiceImpl implements SimilarityService {
     }
 
     @Override
+    public Page<PairwiseSimilarity> getPairwiseSimilarity(String id,
+                                                          Optional<List<String>> ids,
+                                                          Optional<String> collection,
+                                                          Pageable pageable) {
+        List<ProcessedOntology> processedOntologies = ids.isPresent()
+            ? getProcessedOntologies(ids.get())
+            : getProcessedOntologies();
+
+        Optional<ProcessedOntology> givenOntology = getProcessedOntologies(Collections.singletonList(id)).stream()
+            .findFirst();
+
+        if (CollectionUtils.isEmpty(processedOntologies) || givenOntology.isEmpty()) {
+            return PageUtils.toPage(Collections.emptyList(), pageable);
+        }
+        List<ProcessedOntology> filteredOntologies = filterService.filter(processedOntologies, collection);
+        ProcessedOntology ont1 = ProcessedOntology.of(givenOntology.get());
+
+        List<PairwiseSimilarity> pairwiseSimilarities = new ArrayList<>();
+        Set<OntologyPair> set = new HashSet<>();
+        for (ProcessedOntology ont2 : filteredOntologies) {
+            OntologyPair pair = OntologyPair.of(ont1, ont2);
+            if (ont1.equalsTsOntology(ont2) || set.contains(pair.inverted())) {
+                continue;
+            }
+            set.add(pair);
+            PairwiseSimilarity pairwiseSimilarity = processPairs(ont1, ont2);
+            pairwiseSimilarities.add(pairwiseSimilarity);
+        }
+
+        List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
+            .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
+            .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
+            .collect(Collectors.toList());
+
+        return PageUtils.toPage(sorted, pageable);
+    }
+
+    @Override
     public Page<PairwiseSimilarity> getPairwiseSimilarity(Optional<List<String>> ids,
                                                           Optional<String> collection,
                                                           Pageable pageable) {
