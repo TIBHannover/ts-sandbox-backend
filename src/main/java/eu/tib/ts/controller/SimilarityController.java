@@ -179,4 +179,27 @@ public class SimilarityController {
 
         return HttpUtils.ok(pagedModel);
     }
+
+    @ApiOperation("Pairwise similarity for external ontology")
+    @GetMapping(value = "/pairwise/external/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForExternalOntologyList(
+        @ApiParam(value = "External ontology URL")
+        @RequestParam String url,
+        @ApiParam(value = "A set of Ontology IDs managed in the TS", example = "dicl,dicob")
+        @RequestParam(required = false) Optional<List<String>> ids,
+        @ApiParam(value = "Collection to filter set of ontologies", example = "NFDI4ING")
+        @RequestParam(required = false) Optional<String> collection,
+        Pageable pageable
+    ) {
+        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url);
+        Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ontology, ids, collection, pageable);
+        PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
+            page,
+            PairwiseSimilarityModel.class,
+            pairwiseSimilarityPagedResourcesAssembler,
+            pairwiseSimilarityModelAssembler
+        );
+
+        return HttpUtils.ok(pagedModel);
+    }
 }

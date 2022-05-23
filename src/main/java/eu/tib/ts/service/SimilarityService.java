@@ -37,4 +37,9 @@ public interface SimilarityService {
     <T extends ExtendedOntology> Page<PairwiseSimilarity> getPairwiseSimilarity(T ontology,
                                                                                 Optional<String> collection,
                                                                                 Pageable pageable);
+
+    <T extends ExtendedOntology> Page<PairwiseSimilarity> getPairwiseSimilarity(T ontology,
+                                                                                Optional<List<String>> ids,
+                                                                                Optional<String> collection,
+                                                                                Pageable pageable);
 }
