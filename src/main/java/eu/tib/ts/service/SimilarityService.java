@@ -26,6 +26,11 @@ public interface SimilarityService {
                                                                   Optional<String> collection,
                                                                   Pageable pageable);
 
+    Page<PairwiseSimilarity> getPairwiseSimilarity(String id,
+                                                   Optional<List<String>> ids,
+                                                   Optional<String> collection,
+                                                   Pageable pageable);
+
     Page<PairwiseSimilarity> getPairwiseSimilarity(Optional<List<String>> ids,
                                                    Optional<String> collection,
                                                    Pageable pageable);
