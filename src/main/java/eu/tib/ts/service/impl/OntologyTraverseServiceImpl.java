@@ -92,6 +92,10 @@ public class OntologyTraverseServiceImpl implements OntologyTraverseService {
     @Override
     public Set<String> getClasses(OWLOntology owlOntology) {
         log.debug("Getting classes");
+        if (owlOntology == null) {
+            return Set.of();
+        }
+
         Set<OWLClass> set = new HashSet<>();
         owlOntology.classesInSignature().forEach(set::add);
 
