@@ -3,6 +3,7 @@ package eu.tib.ts.repository.impl;
 import eu.tib.ts.model.ontology.TsOntology;
 import eu.tib.ts.repository.TsRepository;
 import eu.tib.ts.repository.exception.TsRepositoryException;
+import org.jfree.util.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -43,19 +44,25 @@ public class TsRepositoryImpl implements TsRepository {
 
         uriComponentsBuilder.queryParam(QUERY_PARAM_SIZE, ontologiesListSize);
 
+        System.out.println("Titled before parsing"  );
+
+        Log.info("starting getOntologies");
         ResponseEntity<PagedModel<TsOntology>> responseEntity =
             restTemplate
                 .exchange(
                     uriComponentsBuilder.build().toUriString(),
                     HttpMethod.GET,
                     HttpEntity.EMPTY,
-                    new ParameterizedTypeReference<>() {
+                    new ParameterizedTypeReference<PagedModel<TsOntology>>() {
                     }
                 );
 
         PagedModel<TsOntology> body = responseEntity.getBody();
+        System.out.println("Titled after parsing"  );
 
         if (Objects.isNull(body)) {
+            System.out.println("can not parsing"  );
+
             throw new TsRepositoryException("Could not get response");
         }
 

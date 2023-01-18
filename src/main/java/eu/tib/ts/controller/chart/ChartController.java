@@ -73,7 +73,7 @@ public class ChartController {
             .horizontal(horizontal)
             .build();
 
-        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url);
+        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url,"");
         ChartData chartData = chartService.chart(ontology, collection, request, pageable);
 
         return ResponseEntity.ok()

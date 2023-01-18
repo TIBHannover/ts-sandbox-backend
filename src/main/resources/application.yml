@@ -1,25 +1,30 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://postgres:5432/postgres
-    username: postgres
-    password: postgres
-  jpa:
-    hibernate:
-      ddl-auto: none
-#    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    mongodb:
+      database: ontology_statistics_db
+      host: mongodb
+      port: 27017
+
+server:
+  port: 9191
+
+  main:
+    allow-bean-definition-overriding : true
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
 
+preprocessing:
+  run: true
+
 ts:
-  ontologies.list.size: 1000
-  base.uri: https://service.tib.eu/ts4tib/api/ontologies
+  ontologies.list.size: 15
+  base.uri: https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=NFDI4ING #https://service.tib.eu/ts4tib/api/ontologies #http://localhost:8080/api/ontologies
+  # http://localhost:8080/api/ontologies/filterby?schema=collection&classification=NFDI4ING
   timeout:
-    connect: 2000
-    read: 2000
+    connect: 4000
+    read: 4000
 
 similarity:
   weight:

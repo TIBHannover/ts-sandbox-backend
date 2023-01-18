@@ -21,14 +21,11 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/ontology/similarity")
@@ -107,7 +104,7 @@ public class SimilarityController {
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url);
+        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url,"getSimilarityForExternalOntology");
         Page<Similarity> page = similarityService.getSimilarities(ontology, characteristicsType, collection, pageable);
         PagedModel<SimilarityModel> pagedModel =
             PageUtils.toPagedModel(page, SimilarityModel.class, pagedResourcesAssembler, modelAssembler);
@@ -170,7 +167,7 @@ public class SimilarityController {
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url);
+        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url,"getPairwiseSimilarityForExternalOntology");
         Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ontology, collection, pageable);
         PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
             page,
@@ -193,7 +190,7 @@ public class SimilarityController {
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url);
+        ProcessedOntology ontology = preProcessingOntologyService.preProcess(Optional.empty(), url,"getPairwiseSimilarityForExternalOntologyList");
         Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(ontology, ids, collection, pageable);
         PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
             page,

@@ -1,6 +1,7 @@
 package eu.tib.ts.controller;
 
 import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.service.PreProcessingService;
 import eu.tib.ts.service.ProcessedOntologyService;
 import eu.tib.ts.utils.HttpUtils;
 import io.swagger.annotations.ApiOperation;
@@ -21,7 +22,9 @@ public class OntologyController {
 
     @Autowired
     public OntologyController(ProcessedOntologyService ontologyService) {
+
         this.ontologyService = ontologyService;
+
     }
 
     @ApiOperation("List of all ontologies")
@@ -29,13 +32,16 @@ public class OntologyController {
     public ResponseEntity<List<OntologyDto>> getOntologyList(
     ) {
 
+        System.out.println("List of all ontologies");
         return HttpUtils.ok(ontologyService.getOntologies());
+
     }
 
     @ApiOperation("List of all ontologies ids")
     @GetMapping(value = "/ids", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<String>> getOntologyIdList(
     ) {
+        System.out.println("List of all ontologies ids");
 
         return HttpUtils.ok(ontologyService.getOntologyIds());
     }

@@ -28,7 +28,6 @@ public class RatioController {
         @RequestBody List<SimpleOntology> ontologies
     ) {
         RatioDto ratioDto = ratioService.getRatio(ontologies, characteristicsType);
-
         return HttpUtils.ok(ratioDto);
     }
 }

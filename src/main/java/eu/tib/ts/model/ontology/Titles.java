@@ -7,8 +7,7 @@ import lombok.Value;
 @Builder
 @Value
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SimpleOntology implements Ontology {
-    String ontologyId;
-    String uri;
-    String title;
+public class Titles {
+    String firstTitle;
+    String secondTitle;
 }

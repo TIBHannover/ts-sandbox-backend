@@ -1,89 +1,98 @@
 package eu.tib.ts.model.ontology;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.util.CollectionUtils;
 
-import javax.persistence.*;
-import java.time.ZonedDateTime;
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.JoinColumn;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
 @Getter
+@Setter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "processed_ontology")
+@Document(collection = "mongo_processed_ontology")
 public class ProcessedOntology implements ExtendedOntology {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ontology_id_generator")
-    @SequenceGenerator(name = "ontology_id_generator", sequenceName = "ont_id_seq", allocationSize = 1)
-    private long id;
 
-    @Column(name = "ontology_id", unique = true, nullable = false)
+
+    @Transient
+    public static final String SEQUENCE_NAME = "user_sequence";
+
+    @Id
+    private int id;
+
+    @Field(name = "ontology_id")
     private String ontologyId;
+
 
     @ElementCollection
     @CollectionTable(name = "classes", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "classes")
+    @Field("classes")
     private Set<String> classes;
 
     @ElementCollection
     @CollectionTable(name = "imports", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "imports")
+    @Field("imports")
     private Set<String> imports;
 
     @ElementCollection
     @CollectionTable(name = "properties", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "properties")
+    @Field("properties")
     private Set<String> properties;
 
     @ElementCollection
     @CollectionTable(name = "namespaces", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "namespaces")
+    @Field("namespaces")
     private Set<String> namespaces;
 
     @ElementCollection
     @CollectionTable(name = "individuals", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "individuals")
+    @Field("individuals")
     private Set<String> individuals;
 
     @ElementCollection
     @CollectionTable(name = "collection", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "collection")
+    @Field("collection")
     private Set<String> collection;
 
-    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE", name = "created_at")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Builder.Default
-    private ZonedDateTime createdAt = ZonedDateTime.now();
 
-    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE", name = "update_at")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Builder.Default
-    private ZonedDateTime updatedAt = ZonedDateTime.now();
+    @Field
+    private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
+
+    @Field
+    private String updatedAt = "DateToZonedDateTimeConverter.INSTANCE";
+
 
     private String uri;
+    private String title;
 
     public boolean equalsTsOntology(Ontology ontology) {
         return Objects.nonNull(ontology) &&
-            this.getOntologyId().equalsIgnoreCase(ontology.getOntologyId());
+                this.getOntologyId().equalsIgnoreCase(ontology.getOntologyId());
     }
 
     public static <T extends ExtendedOntology> ProcessedOntology of(T ontology) {
+
+
+
         return ProcessedOntology.builder()
-            .ontologyId(ontology.getOntologyId())
-            .uri(ontology.getUri())
-            .properties(CollectionUtils.isEmpty(ontology.getProperties()) ? Set.of() : ontology.getProperties())
-            .classes(CollectionUtils.isEmpty(ontology.getClasses()) ? Set.of() : ontology.getClasses())
-            .namespaces(CollectionUtils.isEmpty(ontology.getNamespaces()) ? Set.of() : ontology.getNamespaces())
-            .imports(CollectionUtils.isEmpty(ontology.getImports()) ? Set.of() : ontology.getImports())
-            .individuals(CollectionUtils.isEmpty(ontology.getIndividuals()) ? Set.of() : ontology.getIndividuals())
-            .collection(CollectionUtils.isEmpty(ontology.getCollection()) ? Set.of() : ontology.getCollection())
-            .build();
+                .ontologyId(ontology.getOntologyId())
+                .uri(ontology.getUri())
+                .title(ontology.getTitle())
+                .properties(CollectionUtils.isEmpty(ontology.getProperties()) ? Collections.emptySet() : ontology.getProperties())
+                .classes(CollectionUtils.isEmpty(ontology.getClasses()) ? Collections.emptySet() : ontology.getClasses())
+                .namespaces(CollectionUtils.isEmpty(ontology.getNamespaces()) ? Collections.emptySet() : ontology.getNamespaces())
+                .imports(CollectionUtils.isEmpty(ontology.getImports()) ? Collections.emptySet() : ontology.getImports())
+                .individuals(CollectionUtils.isEmpty(ontology.getIndividuals()) ? Collections.emptySet() : ontology.getIndividuals())
+                .collection(CollectionUtils.isEmpty(ontology.getCollection()) ? Collections.emptySet() : ontology.getCollection())
+                .build();
     }
 }

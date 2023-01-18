@@ -9,6 +9,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     	id bigint NOT NULL,
     	ontology_id varchar(255) NOT NULL,
     	uri varchar(255) NULL,
+    	title varchar(255) NULL,
     	created_at timestamptz NULL,
     	update_at timestamptz NULL,
     	CONSTRAINT processed_ontology_pkey PRIMARY KEY (id),

@@ -13,11 +13,7 @@ import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,7 +24,7 @@ public class OntologyTraverseServiceImpl implements OntologyTraverseService {
     public Set<String> getImports(OWLOntology owlOntology) {
         log.debug("Getting imports");
         if (owlOntology == null) {
-            return Set.of();
+            return Collections.singleton("");
         }
 
         return owlOntology.importsDeclarations()
@@ -42,7 +38,7 @@ public class OntologyTraverseServiceImpl implements OntologyTraverseService {
     public Set<String> getNamespaces(OWLOntology owlOntology) {
         log.debug("Getting namespaces");
         if (owlOntology == null) {
-            return Set.of();
+            return Collections.singleton("");
         }
 
         OWLDocumentFormat format = owlOntology.getOWLOntologyManager().getOntologyFormat(owlOntology);
@@ -62,7 +58,7 @@ public class OntologyTraverseServiceImpl implements OntologyTraverseService {
     public Set<String> getProperties(OntModel model) {
         log.debug("Getting properties");
         if (model == null) {
-            return Set.of();
+            return Collections.singleton("");
         }
 
         return model.listOntProperties().toList().stream()
@@ -76,7 +72,7 @@ public class OntologyTraverseServiceImpl implements OntologyTraverseService {
     public Set<String> getIndividuals(OWLOntology owlOntology) {
         log.debug("Getting individuals");
         if (owlOntology == null) {
-            return Set.of();
+            return Collections.singleton("");
         }
 
         Set<OWLNamedIndividual> set = new HashSet<>();
@@ -93,7 +89,7 @@ public class OntologyTraverseServiceImpl implements OntologyTraverseService {
     public Set<String> getClasses(OWLOntology owlOntology) {
         log.debug("Getting classes");
         if (owlOntology == null) {
-            return Set.of();
+            return Collections.singleton("");
         }
 
         Set<OWLClass> set = new HashSet<>();
@@ -109,7 +105,7 @@ public class OntologyTraverseServiceImpl implements OntologyTraverseService {
     public Set<String> getClasses(OntModel model) {
         log.debug("Getting classes");
         if (model == null) {
-            return Set.of();
+            return Collections.singleton("");
         }
 
         Set<String> classes = new HashSet<>();

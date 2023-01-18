@@ -6,8 +6,10 @@ import lombok.Value;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Builder
 @Value
@@ -29,7 +31,7 @@ public class TsOntology implements Ontology {
     public Set<String> getCollection() {
         return Objects.isNull(config) || CollectionUtils.isEmpty(config.getClassifications())
             ? Collections.emptySet()
-            : Set.copyOf(config.getClassifications().get(0).getCollection());
+            : new HashSet<>(config.getClassifications().get(0).getCollection());
     }
 
     public String getUri() {
@@ -37,4 +39,13 @@ public class TsOntology implements Ontology {
             ? null
             : config.getFileLocation();
     }
+
+    @Override
+    public String getTitle() {
+        return Objects.isNull(config)
+                ? null
+                : config.getTitle();
+    }
+
+
 }

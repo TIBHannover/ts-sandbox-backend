@@ -12,6 +12,7 @@ import java.util.Set;
 public class ExternalOntology implements ExtendedOntology {
     String ontologyId;
     String uri;
+    String title;
     Set<String> properties;
     Set<String> classes;
     Set<String> imports;

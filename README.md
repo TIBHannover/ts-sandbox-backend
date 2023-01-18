@@ -2,20 +2,27 @@
 
 ### System requirements
 ***
-* Java Runtime Environment 11
+* Java Runtime Environment 8
 * Maven
 * Docker
+
+### application versions and ports
+
+* mongo version 3.4.24
+* mongo running on port 27017
+* application is running on port 9191
+* spring boot version 2.4.0
 
 ### How to run
 ***
 To start a project run following commands in a project directory:
-1. `mvn clean install` to build project
+1. `mvn clean install` to build project `mvn clean install -DskipTests` to build project skipping the tests
 2. `docker-compose build` to build containers
 3. `docker-compose up -d` create and start the containers in the background and leave them running
 
-Terminology Service Statistics runs on port 8081: `http://localhost:8081`
+Terminology Service Statistics runs on port 9191: `http://localhost:9191`
 
-API documentation: [swagger](http://localhost:8081/swagger-ui/)
+API documentation: [swagger](http://localhost:9191/swagger-ui/)
 
 ### Questions to be answered by statistic
 ***
@@ -41,30 +48,6 @@ API documentation: [swagger](http://localhost:8081/swagger-ui/)
 ## How to develop
 ***
 
-### System requirements
-
-* Java Development Kit 11
-* Maven
-* Docker
-
-#### Common flow for the implementation of new features or bug fixes.
-
-* create a new issue, tagging it accordingly and assigning it
-* create Merge Request (MR) from that issue
-* use the MR created branch to create a local branch
-* make your commits to that branch and push to remote branch
-* (if any) trigger the CI/CD pipeline to test new developments on the test server
-* if the pipeline runs successfully the MR can be marked as ready
-* delete source branch should be selected, so that merged branches are not left in the remote
-* merge to the master branch
-
-#### Frontend service [ts frontend 2.0 nfdi4chem](https://git.tib.eu/terminology/sandbox/nfdi4chem-ts)
-
-- create new tab
-    - create new component in a new folder
-    - add new rout to `src/App.js`
-    - add new link to `src/components/common/navbar/Navbar.jsx`
-
 #### Backend Terminology Service Statistics (current service)
 
 * this service provides with content for `Analytics` tab
@@ -72,8 +55,3 @@ API documentation: [swagger](http://localhost:8081/swagger-ui/)
 #### (Optional) Backend service [ols-backend-2.0-poc](https://git.tib.eu/terminology/sandbox/ols-backend-2.0-poc)
 
 * this service provides with content for `Ontologies` tab 
-
-
-
-
-

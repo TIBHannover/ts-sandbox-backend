@@ -4,7 +4,7 @@ import eu.tib.ts.controller.dto.RatioDto;
 import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.model.ontology.Ontology;
 import eu.tib.ts.model.ontology.ProcessedOntology;
-import eu.tib.ts.repository.ProcessedOntologyRepository;
+import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.service.RatioService;
 import eu.tib.ts.utils.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class RatioServiceImpl implements RatioService {
-    private final ProcessedOntologyRepository processedOntologyRepository;
+    private final ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository;
 
     @Autowired
-    protected RatioServiceImpl(ProcessedOntologyRepository processedOntologyRepository) {
-        this.processedOntologyRepository = processedOntologyRepository;
+    protected RatioServiceImpl(ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository) {
+        this.ProcessedMongoOntologyRepository = ProcessedMongoOntologyRepository;
     }
 
     public <T extends Ontology> RatioDto getRatio(List<T> ontologies,
@@ -56,6 +56,6 @@ public class RatioServiceImpl implements RatioService {
             .map(Ontology::getOntologyId)
             .collect(Collectors.toList());
 
-        return processedOntologyRepository.findByOntologyIdIn(ids);
+        return ProcessedMongoOntologyRepository.findByOntologyIdIn(ids);
     }
 }

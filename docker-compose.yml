@@ -1,29 +1,19 @@
-version: '2'
+version: '3'
 
 services:
-  ts_statistics_back:
-    # image: ts_statistics_back:latest
-    build:
-      context: .
-    container_name: ts_statistics_back
-    depends_on:
-      - postgres
-    environment:
-      - spring.datasource.url=jdbc:postgresql://postgres:5432/postgres
-      - preprocessing.run=true
-      - spring.profiles.active=dev
-      - TZ=Europe/Berlin
-    ports:
-      - "8081:8080"
+    mongodb:
+      image: mongo:3.4.24
+      container_name: "mongodb"
+      ports:
+        - "27017:27017"
+    ts-statistics-back:
+      image: ts-statistics-back:1.0
+      container_name: ts-statistics-back
+      build:
+        context: .
+      ports:
+        - "9191:9191"
+      links:
+        - mongodb
 
-  postgres:
-    image: 'postgres:13.5'
-    container_name: postgres
-    volumes:
-      - ./scripts/:/docker-entrypoint-initdb.d/
-      - ./pgdata:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
+

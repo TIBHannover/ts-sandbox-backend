@@ -21,6 +21,7 @@ public class PairwiseSimilarityModelAssembler
         model.setSum(entity.getSum());
         model.setTotalSum(entity.getTotalSum());
         model.setPercentage(entity.getPercent());
+        model.setTitles(entity.getTitles());
         model.setCharacteristics(entity.getCharacteristics());
 
         return model;

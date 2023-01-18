@@ -2,6 +2,7 @@ package eu.tib.ts.model.ontology;
 
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ public enum CharacteristicsType implements MostCommonlyUsable {
         Set<String> ontologyCharacteristics = getOntologyCharacteristics(ontology);
 
         return CollectionUtils.isEmpty(ontologyCharacteristics)
-            ? Set.of()
+            ? Collections.emptySet()
             : ontologyCharacteristics;
     }
 

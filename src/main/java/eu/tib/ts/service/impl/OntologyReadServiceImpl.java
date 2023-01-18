@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.jfree.util.Log;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -22,6 +23,7 @@ public class OntologyReadServiceImpl implements OntologyReadService {
         OntModel model = ModelFactory.createOntologyModel();
         OntologyType type = OntologyType.get(StringUtils.right(uri, FILE_EXTENSION_LENGTH));
         model.read(uri, type.getName());
+        Log.info("starting main service");
 
         return model;
     }

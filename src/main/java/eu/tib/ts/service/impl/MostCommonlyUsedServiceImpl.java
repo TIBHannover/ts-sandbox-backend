@@ -3,7 +3,7 @@ package eu.tib.ts.service.impl;
 import eu.tib.ts.controller.dto.KeyValueResultDto;
 import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.model.ontology.ProcessedOntology;
-import eu.tib.ts.repository.ProcessedOntologyRepository;
+import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.service.MostCommonlyUsedService;
 import eu.tib.ts.service.OntologyFilterService;
 import eu.tib.ts.utils.PageUtils;
@@ -12,35 +12,31 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Service
 public class MostCommonlyUsedServiceImpl implements MostCommonlyUsedService {
-    private final ProcessedOntologyRepository processedOntologyRepository;
+    private final ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository;
     private final OntologyFilterService filterService;
 
-    private static final Set<String> NAMESPACES_EXCLUSION_SET = Set.of(
-        "https://w3id.org/mdo/full/",
-        "http://www.w3.org/2002/07/owl",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns",
-        "http://www.w3.org/xml/1998/namespace",
-        "http://www.w3.org/2001/xmlschema",
-        "http://www.w3.org/2000/01/rdf-schema"
-    );
+
+    private static final Set<String> NAMESPACES_EXCLUSION_SET = Stream.of("https://w3id.org/mdo/full/",
+            "http://www.w3.org/2002/07/owl",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns",
+            "http://www.w3.org/xml/1998/namespace",
+            "http://www.w3.org/2001/xmlschema",
+            "http://www.w3.org/2000/01/rdf-schema").collect(Collectors.toSet());
+
+
+
 
     @Autowired
-    public MostCommonlyUsedServiceImpl(ProcessedOntologyRepository processedOntologyRepository,
+    public MostCommonlyUsedServiceImpl(ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository,
                                        OntologyFilterService filterService) {
-        this.processedOntologyRepository = processedOntologyRepository;
+        this.ProcessedMongoOntologyRepository = ProcessedMongoOntologyRepository;
         this.filterService = filterService;
     }
 
@@ -96,12 +92,13 @@ public class MostCommonlyUsedServiceImpl implements MostCommonlyUsedService {
 
     private List<ProcessedOntology> getProcessedOntologies(List<String> ids) {
 
-        return processedOntologyRepository.findByOntologyIdIn(ids);
+        return ProcessedMongoOntologyRepository.findByOntologyIdIn(ids);
+
     }
 
     private List<ProcessedOntology> getProcessedOntologies() {
 
-        return StreamSupport.stream(processedOntologyRepository.findAll().spliterator(), false)
+        return StreamSupport.stream(ProcessedMongoOntologyRepository.findAll().spliterator(), false)
             .sorted(Comparator.comparing(ProcessedOntology::getOntologyId))
             .collect(Collectors.toList());
     }

@@ -21,7 +21,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
         log.error(ERROR_OCCURRED, ex);
 
-        var response = ErrorResponse.builder()
+        ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.BAD_REQUEST.value())
             .error(ex.getLocalizedMessage())
             .message("Client error")
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ResponseEntity<ErrorResponse> handleTsRepositoryException(TsRepositoryException ex, HttpServletRequest request) {
         log.error(ERROR_OCCURRED, ex);
 
-        var response = ErrorResponse.builder()
+        ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .error(ex.getLocalizedMessage())
             .message("Server error")
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleNoSuchElementException(NoSuchElementException ex, HttpServletRequest request) {
         log.error(ERROR_OCCURRED, ex);
 
-        var response = ErrorResponse.builder()
+        ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.NOT_FOUND.value())
             .error(ex.getLocalizedMessage())
             .message("Not found")
@@ -63,7 +63,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleAll(Exception ex, HttpServletRequest request) {
         log.error(ERROR_OCCURRED, ex);
 
-        var response = ErrorResponse.builder()
+        ErrorResponse response = ErrorResponse.builder()
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .error(ex.getLocalizedMessage())
             .message("Server error")
