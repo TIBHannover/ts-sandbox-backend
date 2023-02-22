@@ -29,8 +29,7 @@ public class OntologyController {
 
     @ApiOperation("List of all ontologies")
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<OntologyDto>> getOntologyList(
-    ) {
+    public ResponseEntity<List<OntologyDto>> getOntologyList() {
 
         System.out.println("List of all ontologies");
         return HttpUtils.ok(ontologyService.getOntologies());
@@ -39,8 +38,8 @@ public class OntologyController {
 
     @ApiOperation("List of all ontologies ids")
     @GetMapping(value = "/ids", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<String>> getOntologyIdList(
-    ) {
+    public ResponseEntity<List<String>> getOntologyIdList() {
+
         System.out.println("List of all ontologies ids");
 
         return HttpUtils.ok(ontologyService.getOntologyIds());

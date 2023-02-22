@@ -80,7 +80,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             long endRead = System.currentTimeMillis();
             log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
 
-//            ProcessedOntology.builder().id().build();
+//          ProcessedOntology.builder().id().build();
             processedOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedOntology.SEQUENCE_NAME));
             processedOntologyService.save(processedOntology);
             count++;

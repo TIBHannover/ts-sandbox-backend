@@ -12,7 +12,7 @@ services:
       build:
         context: .
       ports:
-        - "9191:9191"
+        - "8081:8081"
       links:
         - mongodb
 
