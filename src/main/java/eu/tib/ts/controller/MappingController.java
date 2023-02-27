@@ -4,7 +4,6 @@ import eu.tib.ts.controller.assember.MappingModelAssembler;
 import eu.tib.ts.controller.assember.PairwiseMappingModelAssembler;
 
 import eu.tib.ts.model.ontology.*;
-
 import eu.tib.ts.model.ontology.Mapping;
 
 import eu.tib.ts.service.MappingService;
