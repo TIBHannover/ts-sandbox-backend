@@ -73,7 +73,7 @@ public class SimilarityController {
         return HttpUtils.ok(pagedModel);
     }
 
-    @ApiOperation(value = "Similarity measure between given TS internal ontology " +
+    @ApiOperation(value = "Similarity measure between given TS internal ontology" +
         "and set of TS internal ontologies")
     @GetMapping(value = "/{characteristics}/internal", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<SimilarityModel>> getSimilarityForInternalOntology(

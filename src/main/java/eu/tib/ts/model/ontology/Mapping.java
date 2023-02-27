@@ -1,6 +1,7 @@
 package eu.tib.ts.model.ontology;
 
 import eu.tib.ts.controller.dto.MappingDto;
+
 import lombok.Builder;
 import lombok.Value;
 
@@ -10,6 +11,7 @@ import java.util.List;
 @Builder
 public class Mapping {
 
-    String mappingName ;
-    List<MappingDto> mappingDtoList;
+    private String name;
+    private List<MappingDto> mappingDtoList;
+
 }

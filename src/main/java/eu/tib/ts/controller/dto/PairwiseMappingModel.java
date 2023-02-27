@@ -1,11 +1,9 @@
-package eu.tib.ts.model.ontology;
+package eu.tib.ts.controller.dto;
 
-import eu.tib.ts.controller.dto.MappingDto;
 import lombok.*;
+import org.springframework.data.util.Pair;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -13,7 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Relation(collectionRelation = "mappings", itemRelation = "mapping")
-public class MappingModel extends RepresentationModel<MappingModel> {
-    private String name;
-    private List<MappingDto> mappingDtoList;
+public class PairwiseMappingModel extends RepresentationModel<PairwiseMappingModel> {
+
+    private Pair<String,String> pair;
+    String mappingSourceUri;
+    String mappingTargetUri;
+
+
 }
