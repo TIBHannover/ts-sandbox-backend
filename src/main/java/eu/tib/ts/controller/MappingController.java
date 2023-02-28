@@ -3,12 +3,14 @@ package eu.tib.ts.controller;
 import eu.tib.ts.controller.assember.MappingModelAssembler;
 import eu.tib.ts.controller.assember.PairwiseMappingModelAssembler;
 
+import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.model.ontology.Mapping;
 
 import eu.tib.ts.service.MappingService;
 import eu.tib.ts.service.PreProcessingOntologyService;
 
+import eu.tib.ts.service.ProcessedOntologyService;
 import eu.tib.ts.utils.HttpUtils;
 import eu.tib.ts.utils.PageUtils;
 
@@ -31,6 +33,8 @@ import java.util.Optional;
 @RequestMapping("api/ontology")
 public class MappingController {
     private final MappingService mappingService;
+
+    private final ProcessedOntologyService processedOntologyService;
     private final PreProcessingOntologyService preProcessingOntologyService;
 
     private final MappingModelAssembler mappingModelAssembler;
@@ -42,6 +46,7 @@ public class MappingController {
 
     @Autowired
     public MappingController(
+            ProcessedOntologyService processedOntologyService,
             MappingService mappingService,
             PreProcessingOntologyService preProcessingOntologyService,
             MappingModelAssembler mappingModelAssembler,
@@ -49,6 +54,7 @@ public class MappingController {
             PagedResourcesAssembler<Mapping> pagedResourcesAssembler,
             PagedResourcesAssembler<PairwiseMapping> pairwiseMappingPagedResourcesAssembler
     ) {
+        this.processedOntologyService = processedOntologyService;
         this.mappingService = mappingService;
         this.preProcessingOntologyService = preProcessingOntologyService;
         this.mappingModelAssembler = mappingModelAssembler;
@@ -57,8 +63,20 @@ public class MappingController {
         this.pairwiseMappingPagedResourcesAssembler = pairwiseMappingPagedResourcesAssembler;
     }
 
-    @ApiOperation(value = "Mapping between internal ontologies in TS")
-    @GetMapping(value = "/{characteristics}/mapping/internal/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("List of all ontologies")
+    @GetMapping(value = "/mapping", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<OntologyDto>> getOntologyList(
+            @ApiParam(value = "Collection to filter set of ontologies", example = "CoyPu")
+            @RequestParam(required = false) Optional<String> collection
+    ) {
+
+        System.out.println("List of all mappings between ontologies in selected collection");
+        return HttpUtils.ok(processedOntologyService.getOntologies());
+
+    }
+
+    @ApiOperation(value = "Mapping between all ontologies in TS")
+    @GetMapping(value = "/mapping/internal/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<MappingModel>> getMappingForInternalOntologyList(
             @ApiParam(value = "Characteristics to be mapped by", example = "CLASS")
             @PathVariable("characteristics") CharacteristicsType characteristicsType,

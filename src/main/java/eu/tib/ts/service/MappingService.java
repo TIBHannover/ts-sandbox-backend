@@ -13,6 +13,9 @@ public interface MappingService {
                                      CharacteristicsType characteristicsType,
                                      Optional<String> collection,
                                      Pageable pageable);
+
+    Page<Mapping> getMappings(Optional<String> collection, Pageable pageable);
+
 }
 
 

@@ -56,6 +56,11 @@ public class MappingServiceImpl implements MappingService {
 
     }
 
+    @Override
+    public Page<Mapping> getMappings(Optional<String> collection, Pageable pageable) {
+        return null;
+    }
+
     private List<ProcessedOntology> getProcessedOntologiesMapping(List<String> ids){
 
     return ProcessededMongoOntologyRepository.findByOntologyIdIn(ids);
@@ -79,8 +84,7 @@ public class MappingServiceImpl implements MappingService {
                 pairs.add(Pair.of(characteristics, processedOntology));
             }
         }
-
-        return pairs;
+    return pairs;
     }
 
     /**
