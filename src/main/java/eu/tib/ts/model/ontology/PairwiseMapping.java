@@ -11,6 +11,7 @@ import java.util.Map;
 @Value
 public class PairwiseMapping {
 
+    //pair of source and target ontologies.
     Pair<String, String> pair;
 
     //the total number of mappings between two ontologies withing one collection.
@@ -20,5 +21,5 @@ public class PairwiseMapping {
     Pair<String, String> titles;
 
     //map of all mapping between ontologies
-    Map<String, MappingCharacteristicsInfo> characteristics;
+    Map<String, MappingCharacteristicsInfo> mappingCharacteristicsInfo;
 }

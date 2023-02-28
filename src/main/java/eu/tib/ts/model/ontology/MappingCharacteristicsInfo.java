@@ -12,4 +12,11 @@ public class MappingCharacteristicsInfo {
     long size;
     List<String> mappingsList;
 
+    public static MappingCharacteristicsInfo of (long size, List<String> mappingsList){
+
+        return MappingCharacteristicsInfo.builder()
+                .size(mappingsList.size())
+                .mappingsList(mappingsList)
+                .build();
+    }
 }
