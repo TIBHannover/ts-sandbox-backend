@@ -4,6 +4,7 @@ import eu.tib.ts.controller.dto.MappingDto;
 
 import eu.tib.ts.model.ontology.CharacteristicsType;
 import eu.tib.ts.model.ontology.Mapping;
+import eu.tib.ts.model.ontology.PairwiseMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
@@ -57,8 +58,10 @@ public class MappingServiceImpl implements MappingService {
     }
 
     @Override
-    public Page<Mapping> getMappings(Optional<String> collection, Pageable pageable) {
+    public Page<PairwiseMapping> getPiarwiseMapping(Optional<String> collection, Pageable pageable) {
+
         return null;
+
     }
 
     private List<ProcessedOntology> getProcessedOntologiesMapping(List<String> ids){

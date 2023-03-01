@@ -41,6 +41,19 @@ public class ProcessedOntologyServiceImpl implements ProcessedOntologyService {
             .collect(Collectors.toList());
     }
 
+    /**
+     *
+     * @author nenad.krdzavac@tib.eu
+     * List of OntologyDto that includes collection where ontology belongs to.
+     * @return
+     */
+    @Override
+    public List<OntologyDto> getMappingOntologies() {
+        return Lists.newArrayList(repository.findAll()).stream()
+                .map(OntologyDto::mappingOf)
+                .sorted(Comparator.comparing(OntologyDto::getOntologyId))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public List<String> getOntologyIds() {
