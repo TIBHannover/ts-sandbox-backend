@@ -15,7 +15,7 @@ public class MappingCharacteristicsInfo {
     public static MappingCharacteristicsInfo of (long size, List<String> mappingsList){
 
         return MappingCharacteristicsInfo.builder()
-                .size(mappingsList.size())
+                .size(size)
                 .mappingsList(mappingsList)
                 .build();
     }

@@ -14,6 +14,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @Relation(collectionRelation = "mappings", itemRelation = "mapping")
 public class MappingModel extends RepresentationModel<MappingModel> {
+
     private String name;
     private List<MappingDto> mappingDtoList;
+
 }

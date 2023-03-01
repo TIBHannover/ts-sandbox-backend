@@ -21,8 +21,9 @@ public class PairwiseMappingModelAssembler
         PairwiseMappingModel model = instantiateModel(entity);
 
         model.setPair(model.getPair());
-        model.setMappingSourceUri(model.getMappingSourceUri());
-        model.setMappingTargetUri(model.getMappingTargetUri());
+        model.setSum(model.getSum());
+        model.setMappingCharacteristicsInfo(model.getMappingCharacteristicsInfo());
+        model.setTitle(model.getTitle());
 
         return model;
     }

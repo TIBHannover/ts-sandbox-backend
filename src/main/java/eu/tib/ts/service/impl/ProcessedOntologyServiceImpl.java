@@ -1,6 +1,7 @@
 package eu.tib.ts.service.impl;
 
 import com.github.jsonldjava.shaded.com.google.common.collect.Lists;
+import eu.tib.ts.controller.dto.MappingDto;
 import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static eu.tib.ts.model.ontology.ProcessedOntology.SEQUENCE_NAME;
@@ -38,6 +40,7 @@ public class ProcessedOntologyServiceImpl implements ProcessedOntologyService {
             .sorted(Comparator.comparing(OntologyDto::getOntologyId))
             .collect(Collectors.toList());
     }
+
 
     @Override
     public List<String> getOntologyIds() {

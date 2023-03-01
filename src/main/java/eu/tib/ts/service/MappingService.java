@@ -14,7 +14,7 @@ public interface MappingService {
                                      Optional<String> collection,
                                      Pageable pageable);
 
-    Page<Mapping> getMappings(Optional<String> collection, Pageable pageable);
+    Page<PairwiseMapping> getPiarwiseMapping(Optional<String> collection, Pageable pageable);
 
 }
 
