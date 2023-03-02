@@ -51,6 +51,10 @@ public class MappingController {
 
         List<OntologyDto> ontologyDtoListFilterByCollection = new ArrayList<OntologyDto>();
 
+        /**
+         * Iterates through the list of all collections and extracts only those onologies which belong to
+         * selected collection.
+         */
         for(OntologyDto dto: ontologyList){
 
             for(String s : collection) {
