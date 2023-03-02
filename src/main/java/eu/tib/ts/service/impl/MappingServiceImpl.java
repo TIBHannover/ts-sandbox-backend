@@ -58,7 +58,7 @@ public class MappingServiceImpl implements MappingService {
     }
 
     @Override
-    public Page<PairwiseMapping> getPiarwiseMapping(Optional<String> collection, Pageable pageable) {
+    public Page<PairwiseMapping> getPiarwiseMapping(Optional<List<String>> ids, Optional<String> collection, Pageable pageable) {
 
         return null;
 
@@ -67,6 +67,12 @@ public class MappingServiceImpl implements MappingService {
     private List<ProcessedOntology> getProcessedOntologiesMapping(List<String> ids){
 
     return ProcessededMongoOntologyRepository.findByOntologyIdIn(ids);
+
+    }
+
+    private List<ProcessedOntology> filterOntologiesByCollection(Set<String> collection){
+
+        return null;
 
     }
 

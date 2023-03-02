@@ -81,8 +81,6 @@ public class ProcessedOntology implements ExtendedOntology {
 
     public static <T extends ExtendedOntology> ProcessedOntology of(T ontology) {
 
-
-
         return ProcessedOntology.builder()
                 .ontologyId(ontology.getOntologyId())
                 .uri(ontology.getUri())

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface MappingService {
 
@@ -14,7 +15,9 @@ public interface MappingService {
                                      Optional<String> collection,
                                      Pageable pageable);
 
-    Page<PairwiseMapping> getPiarwiseMapping(Optional<String> collection, Pageable pageable);
+    Page<PairwiseMapping> getPiarwiseMapping(Optional<List<String>> ids, Optional<String> collection, Pageable pageable);
+
+
 
 }
 

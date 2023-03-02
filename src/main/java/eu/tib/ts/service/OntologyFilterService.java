@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface OntologyFilterService {
     List<ProcessedOntology> filter(List<ProcessedOntology> processedOntologies, Optional<String> collection);
+
 }
