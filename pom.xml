@@ -31,11 +31,27 @@
 
 	<dependencies>
 
+                        <dependency>
+                           <groupId>uk.ox.logmap</groupId>
+                           <artifactId>logmap-matcher</artifactId>
+                           <version>4.0</version>
+                        </dependency>
+
+		<!-- logmap-matcher
+
+            <dependency>
+            <groupId>com.googlecode</groupId>
+                                                                   <artifactId>google-api-translate-java</artifactId>
+                                                                   <version>0.97</version>
+                                                                </dependency>
+
+                                                                        /logmap-matcher -->
+
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
-			<version>2.7.5</version>
+			<version>3.0.2</version>
 		</dependency>
 
 		<dependency>
@@ -55,8 +71,6 @@
 			<version>${swagger.version}</version>
 		</dependency>
 
-
-
 		<!-- https://mvnrepository.com/artifact/org.apache.jena/apache-jena-libs -->
 		<dependency>
 			<groupId>org.apache.jena</groupId>
@@ -66,13 +80,20 @@
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/net.sourceforge.owlapi/owlapi-apibinding -->
+
 		<dependency>
 			<groupId>net.sourceforge.owlapi</groupId>
 			<artifactId>owlapi-apibinding</artifactId>
 			<version>${owlapi-apibinding.version}</version>
 		</dependency>
 
+		<!--There may exist conflict in using OWL API . LogMap matcher is using OWL API ver. 4.1.3 but TS Statistics is using OWL API ver. 5.1.19-->
 
+		<dependency>
+			<groupId>net.sourceforge.owlapi</groupId>
+			<artifactId>owlapi-distribution</artifactId>
+			<version>4.1.3</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -114,7 +135,10 @@
 
 	<build>
 		<finalName>ts-statistics-back</finalName>
+
+
 		<plugins>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

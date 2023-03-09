@@ -11,6 +11,9 @@ import java.util.List;
 @Builder
 public class Mapping {
 
+    /**
+     *
+     */
     private String name;
     private List<MappingDto> mappingDtoList;
 

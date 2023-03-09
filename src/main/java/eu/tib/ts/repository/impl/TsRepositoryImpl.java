@@ -63,7 +63,8 @@ public class TsRepositoryImpl implements TsRepository {
         if (Objects.isNull(body)) {
             System.out.println("can not parsing"  );
 
-            throw new TsRepositoryException("Could not get response");
+        throw new TsRepositoryException("Could not get response");
+
         }
 
         Collection<TsOntology> content = body.getContent();

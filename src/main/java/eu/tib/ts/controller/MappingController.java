@@ -16,9 +16,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import uk.ac.ox.krr.logmap2.LogMap2_Matcher;
+import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/ontology")
@@ -52,23 +55,44 @@ public class MappingController {
         List<OntologyDto> ontologyDtoListFilterByCollection = new ArrayList<OntologyDto>();
 
         /**
-         * Iterates through the list of all collections and extracts only those onologies which belong to
+         * Iterates through the collections and extracts only those onologies which belong to
          * selected collection.
          */
+
         for(OntologyDto dto: ontologyList){
 
             for(String s : collection) {
 
                 if (dto.getCollection().contains(s)) {
 
-                    System.out.println("dto.getCollection(): " + dto.getCollection() + " dto.getUri(): " + dto.getUri());
+                System.out.println("dto.getCollection(): " + dto.getCollection() + " dto.getUri(): " + dto.getUri());
 
-                    ontologyDtoListFilterByCollection.add(dto);
+                ontologyDtoListFilterByCollection.add(dto);
+
                 }
             }
         }
 
-        return HttpUtils.ok(ontologyDtoListFilterByCollection);
+//        LogMap2_Matcher logmap2 = new LogMap2_Matcher("https://gitlab.com/coypu-project/coy-ontology/-/raw/main/ontology/global/coy.ttl",
+//                "https://gitlab.isl.ics.forth.gr/cidoc-crm/cidoc_crm_rdf/-/raw/master/7.1.2/CIDOC_CRM_v7.1.2.rdf");
+//
+//        Set<MappingObjectStr> logmap2_mappings = logmap2.getLogmap2_Mappings();
+//
+//        System.out.println("Number of mappings computed by LogMap: " + logmap2_mappings.size());
+//
+//        for(MappingObjectStr mos: logmap2_mappings){
+//
+//            if(mos.getTypeOfMapping()==MappingObjectStr.CLASSES) {
+//
+//                System.out.println(mos.getIRIStrEnt1() + " , " + mos.getMappingDirection() + " , " +
+//                        mos.getIRIStrEnt2() + " , " + mos.getTypeOfMapping() + " , " +
+//                        mos.getStructuralConfidenceMapping());
+//
+//            }
+//        }
+
+
+    return HttpUtils.ok(ontologyDtoListFilterByCollection);
 
     }
 }
