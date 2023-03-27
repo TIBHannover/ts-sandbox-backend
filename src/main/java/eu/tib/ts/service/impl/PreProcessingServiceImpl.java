@@ -7,12 +7,22 @@ import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.service.PreProcessingService;
 import eu.tib.ts.service.ProcessedOntologyService;
 import lombok.extern.slf4j.Slf4j;
+
+import org.semanticweb.owlapi.apibinding.OWLManager;
+
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ox.krr.logmap2.LogMap2_Matcher;
+import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,6 +34,8 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
     private final SequenceGeneratorService sequenceGeneratorService;
     private final List<String> skipList;
+
+    OWLOntologyManager ontologyManager;
 
     @Autowired
     public PreProcessingServiceImpl(TsRepository tsRepository,
@@ -88,6 +100,40 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         System.out.println("Titled : after loop");
         log.info("Pre-processing done in {} ms", System.currentTimeMillis() - startTime);
         log.info("Saved {} ontologies", count);
+
+        log.info("Mappings between ontology pairs: ");
+
+        for(int i=0;i<unprocessedOntologies.size();i++) {
+
+            for (int j = i + 1; j < unprocessedOntologies.size()+1; j++) {
+
+                ontologyManager= OWLManager.createOWLOntologyManager();
+
+                try {
+
+                    /**
+                     *
+                     * Calculates mappings between all ontologies pair loaded into MongoDB.
+                     *
+                     */
+
+                    LogMap2_Matcher logmap2 = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+                            unprocessedOntologies.get(i).getUri())),ontologyManager.loadOntology(IRI.create(
+                                    unprocessedOntologies.get(j).getUri())));
+
+                    Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
+
+                    log.info("ont id_1:" + unprocessedOntologies.get(i).getUri() + " , ont id_2: " +
+                            unprocessedOntologies.get(j).getUri() + " number of mappings: " +
+                            logmap2Mappings.size());
+
+                }catch(Exception e){
+
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 
     private boolean ontologyExists(TsOntology tsOntology, List<ProcessedOntology> processedOntologies) {

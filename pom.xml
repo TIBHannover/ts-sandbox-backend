@@ -31,13 +31,28 @@
 
 	<dependencies>
 
-		<!--
+
                         <dependency>
                            <groupId>uk.ox.logmap</groupId>
                            <artifactId>logmap-matcher</artifactId>
                            <version>4.0</version>
+		<exclusions>
+			<exclusion>
+				<groupId>net.sourceforge.owlapi</groupId>
+				<artifactId>owlapi-distribution</artifactId>
+			</exclusion>
+			<exclusion>
+				<groupId>net.sourceforge.owlapi</groupId>
+				<artifactId>owlapi-api</artifactId>
+			</exclusion>
+			<exclusion>
+				<groupId>net.sourceforge.owlapi</groupId>
+				<artifactId>owlapi-contract</artifactId>
+			</exclusion>
+
+		</exclusions>
                         </dependency>
-        -->
+
 
 		<!-- logmap-matcher
 
@@ -87,14 +102,6 @@
 			<groupId>net.sourceforge.owlapi</groupId>
 			<artifactId>owlapi-apibinding</artifactId>
 			<version>${owlapi-apibinding.version}</version>
-		</dependency>
-
-		<!--There may exist conflict in using OWL API . LogMap matcher is using OWL API ver. 4.1.3 but TS Statistics is using OWL API ver. 5.1.19-->
-
-		<dependency>
-			<groupId>net.sourceforge.owlapi</groupId>
-			<artifactId>owlapi-distribution</artifactId>
-			<version>4.1.3</version>
 		</dependency>
 
 		<dependency>

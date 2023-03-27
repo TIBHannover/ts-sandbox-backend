@@ -30,6 +30,7 @@ public class OntologyReadServiceImpl implements OntologyReadService {
 
     @Override
     public OWLOntology readOntologyWithOwlApi(String uri) throws OWLOntologyCreationException {
+
         OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 
         return manager.loadOntology(IRI.create(uri));
