@@ -73,7 +73,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         System.out.println("Titled : " + tsOntologies.get(0).getTitle());
 
-
         for (TsOntology tsOntology : unprocessedOntologies) {
             String fileLocation = tsOntology.getConfig().getFileLocation();
             String title = tsOntology.getConfig().getTitle();
@@ -84,7 +83,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
             log.info("Titled : " + title);
             System.out.println("Titled : inner loop " + title);
-
 
             ProcessedOntology processedOntology =
                     preProcessingOntologyService.preProcess(Optional.of(tsOntology), fileLocation, title);
@@ -101,35 +99,54 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         log.info("Pre-processing done in {} ms", System.currentTimeMillis() - startTime);
         log.info("Saved {} ontologies", count);
 
+    }
+
+    @Override
+    public void doPreprocessingMapping(){
+
+        System.out.println("Titled doPreProcessingMapping:");
+
+        List<TsOntology> tsOntologies = tsRepository.getOntologies();
+
+        List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
+
+        System.out.println("Titled : third line " + tsOntologies);
+
+        List<TsOntology> unprocessedOntologies = tsOntologies.stream()
+                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
+                .filter(tsOntology -> !skipList.contains(tsOntology.getOntologyId().toLowerCase()))
+                .collect(Collectors.toList());
+
         log.info("Mappings between ontology pairs: ");
 
         for(int i=0;i<unprocessedOntologies.size();i++) {
 
             for (int j = i + 1; j < unprocessedOntologies.size()+1; j++) {
 
-                ontologyManager= OWLManager.createOWLOntologyManager();
+            ontologyManager= OWLManager.createOWLOntologyManager();
 
-                try {
+            try {
 
                     /**
                      *
-                     * Calculates mappings between all ontologies pair loaded into MongoDB.
+                     * Calculates mappings between all ontologies pair within one collection.
                      *
                      */
 
-                    LogMap2_Matcher logmap2 = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+            LogMap2_Matcher logmap2 = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(i).getUri())),ontologyManager.loadOntology(IRI.create(
-                                    unprocessedOntologies.get(j).getUri())));
+                            unprocessedOntologies.get(j).getUri())));
 
-                    Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
+            Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
 
-                    log.info("ont id_1:" + unprocessedOntologies.get(i).getUri() + " , ont id_2: " +
+            log.info("ont id_1:" + unprocessedOntologies.get(i).getUri() + " , ont id_2: " +
                             unprocessedOntologies.get(j).getUri() + " number of mappings: " +
                             logmap2Mappings.size());
 
                 }catch(Exception e){
 
-                    e.printStackTrace();
+            e.printStackTrace();
+
                 }
             }
         }

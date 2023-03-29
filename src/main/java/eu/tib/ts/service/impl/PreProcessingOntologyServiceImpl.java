@@ -26,7 +26,6 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
 
     long idd = 0;
 
-
     @Autowired
     public PreProcessingOntologyServiceImpl(OntologyReadService ontologyReadService,
                                             OntologyTraverseService ontologyTraverseService) {
@@ -37,10 +36,12 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
 
     @Override
     public ProcessedOntology preProcess(Optional<TsOntology> tsOntology, String fileLocation, String title) {
+
         log.debug("Start pre-processing {} {}", tsOntology.map(TsOntology::getOntologyId).orElse(EXTERNAL), fileLocation);
 
         OntModel ontModel = null;
         OWLOntology owlOntology = null;
+
         try {
             ontModel = ontologyReadService.readOntologyWithJenaApi(fileLocation);
         } catch (Exception e) {
@@ -52,7 +53,9 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
         } catch (Exception e) {
             log.error("Could not read with OWL API {} {}", fileLocation, e.getLocalizedMessage());
         }
+
         return buildOntology(tsOntology, owlOntology, ontModel, fileLocation, title);
+
     }
 
     private ProcessedOntology buildOntology(Optional<TsOntology> tsOntology,

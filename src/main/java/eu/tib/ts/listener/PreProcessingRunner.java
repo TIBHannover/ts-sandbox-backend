@@ -28,5 +28,6 @@ public class PreProcessingRunner implements ApplicationListener<ApplicationReady
         System.out.println("Titled : Event Executed "  );
 
         preProcessingService.doPreProcessing();
+        preProcessingService.doPreprocessingMapping();
     }
 }
