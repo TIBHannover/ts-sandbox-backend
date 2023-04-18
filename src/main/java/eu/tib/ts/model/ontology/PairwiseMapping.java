@@ -15,7 +15,7 @@ public class PairwiseMapping {
     Pair<String, String> pair;
 
     //the total number of mappings between two ontologies withing one collection.
-    double sum;
+    Integer sum;
 
     //the titles of ontologies for which we calculate mappings.
     Pair<String, String> titles;

@@ -46,6 +46,4 @@ public class TsOntology implements Ontology {
                 ? null
                 : config.getTitle();
     }
-
-
 }

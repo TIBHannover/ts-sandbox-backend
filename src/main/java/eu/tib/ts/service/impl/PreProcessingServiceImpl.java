@@ -74,20 +74,24 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         System.out.println("Titled : " + tsOntologies.get(0).getTitle());
 
         for (TsOntology tsOntology : unprocessedOntologies) {
+
             String fileLocation = tsOntology.getConfig().getFileLocation();
             String title = tsOntology.getConfig().getTitle();
             if (title.equals("") || title.equals("null")) {
                 title = "no title found";
             }
+
             long startRead = System.currentTimeMillis();
 
             log.info("Titled : " + title);
+
             System.out.println("Titled : inner loop " + title);
 
             ProcessedOntology processedOntology =
                     preProcessingOntologyService.preProcess(Optional.of(tsOntology), fileLocation, title);
 
             long endRead = System.currentTimeMillis();
+
             log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
 
 //          ProcessedOntology.builder().id().build();
@@ -95,27 +99,20 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             processedOntologyService.save(processedOntology);
             count++;
         }
+
         System.out.println("Titled : after loop");
+
         log.info("Pre-processing done in {} ms", System.currentTimeMillis() - startTime);
+
         log.info("Saved {} ontologies", count);
 
-    }
+        log.info("List of all {} ontologies", count);
 
-    @Override
-    public void doPreprocessingMapping(){
+        for(TsOntology tso: unprocessedOntologies){
 
-        System.out.println("Titled doPreProcessingMapping:");
+        log.info(tso.getOntologyId() + " , " + tso.getUri());
 
-        List<TsOntology> tsOntologies = tsRepository.getOntologies();
-
-        List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
-
-        System.out.println("Titled : third line " + tsOntologies);
-
-        List<TsOntology> unprocessedOntologies = tsOntologies.stream()
-                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
-                .filter(tsOntology -> !skipList.contains(tsOntology.getOntologyId().toLowerCase()))
-                .collect(Collectors.toList());
+        }
 
         log.info("Mappings between ontology pairs: ");
 
@@ -123,9 +120,9 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
             for (int j = i + 1; j < unprocessedOntologies.size()+1; j++) {
 
-            ontologyManager= OWLManager.createOWLOntologyManager();
+                ontologyManager= OWLManager.createOWLOntologyManager();
 
-            try {
+                try {
 
                     /**
                      *
@@ -133,24 +130,24 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                      *
                      */
 
-            LogMap2_Matcher logmap2 = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+                    LogMap2_Matcher logmap2 = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(i).getUri())),ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(j).getUri())));
 
-            Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
+                    Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
 
-            log.info("ont id_1:" + unprocessedOntologies.get(i).getUri() + " , ont id_2: " +
+                    log.info("source ont:" + unprocessedOntologies.get(i).getUri() + " , target ont: " +
                             unprocessedOntologies.get(j).getUri() + " number of mappings: " +
                             logmap2Mappings.size());
 
+
                 }catch(Exception e){
 
-            e.printStackTrace();
+                    e.printStackTrace();
 
                 }
             }
         }
-
     }
 
     private boolean ontologyExists(TsOntology tsOntology, List<ProcessedOntology> processedOntologies) {

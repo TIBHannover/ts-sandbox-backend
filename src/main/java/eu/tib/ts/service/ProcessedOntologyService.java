@@ -24,4 +24,5 @@ public interface ProcessedOntologyService {
     List<String> getOntologyIds();
 
     ProcessedOntology save(ProcessedOntology processedOntology);
+
 }

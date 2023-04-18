@@ -22,7 +22,6 @@ import java.util.Set;
 @Document(collection = "mongo_processed_ontology")
 public class ProcessedOntology implements ExtendedOntology {
 
-
     @Transient
     public static final String SEQUENCE_NAME = "user_sequence";
 
@@ -69,7 +68,6 @@ public class ProcessedOntology implements ExtendedOntology {
 
     @Field
     private String updatedAt = "DateToZonedDateTimeConverter.INSTANCE";
-
 
     private String uri;
     private String title;
