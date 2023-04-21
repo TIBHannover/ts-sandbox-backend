@@ -23,8 +23,4 @@ public class MappingDto {
                 .build();
 
     }
-
-
-
-
 }

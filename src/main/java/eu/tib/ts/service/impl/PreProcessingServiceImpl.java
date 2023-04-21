@@ -110,6 +110,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         for(TsOntology tso: unprocessedOntologies){
 
+
         log.info(tso.getOntologyId() + " , " + tso.getUri());
 
         }
@@ -133,6 +134,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                     LogMap2_Matcher logmap2 = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(i).getUri())),ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(j).getUri())));
+
 
                     Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
 
