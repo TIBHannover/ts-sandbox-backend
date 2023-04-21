@@ -1,11 +1,10 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.TsOntology;
 import eu.tib.ts.repository.TsRepository;
-import eu.tib.ts.service.PreProcessingOntologyService;
-import eu.tib.ts.service.PreProcessingService;
-import eu.tib.ts.service.ProcessedOntologyService;
+import eu.tib.ts.service.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -35,18 +34,27 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     private final SequenceGeneratorService sequenceGeneratorService;
     private final List<String> skipList;
 
+    private final PreProcessingMappingService preProcessingMappingService;
+
+    private final ProcessedMappingService processedMappingService;
+
+
     OWLOntologyManager ontologyManager;
 
     @Autowired
     public PreProcessingServiceImpl(TsRepository tsRepository,
                                     ProcessedOntologyService processedOntologyService,
+                                    ProcessedMappingService processedMappingService,
                                     PreProcessingOntologyService preProcessingOntologyService,
+                                    PreProcessingMappingService preProcessingMappingService,
                                     SequenceGeneratorService sequenceGeneratorService,
                                     @Value("#{'${skip.ontologies.processing}'.split(',')}")
                                     List<String> skipList) {
         this.tsRepository = tsRepository;
         this.preProcessingOntologyService = preProcessingOntologyService;
+        this.preProcessingMappingService = preProcessingMappingService;
         this.processedOntologyService = processedOntologyService;
+        this.processedMappingService = processedMappingService;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.skipList = skipList;
         System.out.println("PreProcessingServiceImpl constructor : ");
@@ -117,6 +125,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         log.info("Mappings between ontology pairs: ");
 
+
         for(int i=0;i<unprocessedOntologies.size();i++) {
 
             for (int j = i + 1; j < unprocessedOntologies.size()+1; j++) {
@@ -142,10 +151,18 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                             unprocessedOntologies.get(j).getUri() + " number of mappings: " +
                             logmap2Mappings.size());
 
+                 ProcessedMapping processedMapping =
+                    preProcessingMappingService.preProcess(logmap2Mappings, ontologyManager.loadOntology(IRI.create(
+                            unprocessedOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
+                            unprocessedOntologies.get(j).getUri())));
 
-                }catch(Exception e){
+//          ProcessedOntology.builder().id().build();
+            processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
+            processedMappingService.save(processedMapping);
 
-                    e.printStackTrace();
+            }catch(Exception e){
+
+            e.printStackTrace();
 
                 }
             }
