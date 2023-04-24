@@ -9,6 +9,7 @@ import eu.tib.ts.service.PreProcessingMappingService;
 import eu.tib.ts.service.PreProcessingOntologyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.jena.ontology.OntModel;
+import org.apache.tomcat.jni.Proc;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,9 +31,19 @@ public class PreProcessingMappingServiceImpl implements PreProcessingMappingServ
     long idd = 0;
 
     @Override
-    public ProcessedMapping preProcess(Set<MappingObjectStr> MappingObjectStrSet, OWLOntology sourceOntologyIRI, OWLOntology targetOntologyIRI) {
-        return null;
+    public ProcessedMapping preProcess(Set<MappingObjectStr> mappingObjectStrSet, OWLOntology sourceOntology, OWLOntology targetOntology) {
+
+    log.info("start pre-processing mapping between ontology {} and ontology {} ", sourceOntology.getOntologyID(), targetOntology.getOntologyID());
+
+        return ProcessedMapping.builder()
+                .mappingId(sourceOntology.getOntologyID()+"_"+targetOntology.getOntologyID())
+                .sourceOntology(sourceOntology)
+                .targetOntology(targetOntology)
+                .mappingObjectStrs(mappingObjectStrSet)
+                .build();
+
     }
+
 
 //    @Autowired
 //    public PreProcessingMappingServiceImpl(OntologyReadService ontologyReadService,

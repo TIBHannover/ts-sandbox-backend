@@ -11,5 +11,5 @@ import java.util.Set;
 
 public interface PreProcessingMappingService {
 
-    ProcessedMapping preProcess(Set<MappingObjectStr> MappingObjectStrSet, OWLOntology sourceOntologyIRI, OWLOntology targetOntologyIRI);
+    ProcessedMapping preProcess(Set<MappingObjectStr> MappingObjectStrSet, OWLOntology sourceOntology, OWLOntology targetOntology);
 }

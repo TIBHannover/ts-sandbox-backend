@@ -1,6 +1,7 @@
 package eu.tib.ts.model.ontology;
 
 import lombok.*;
+import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,6 +12,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.JoinColumn;
 
+import java.util.Collection;
 import java.util.Set;
 
 @Getter
@@ -27,23 +29,22 @@ public static final String SEQUENCE_NAME = "user_sequence";
 @Id
 private int id;
 
-
 @Field(name="mapping_id")
 private String mappingId;
 
 @ElementCollection
-@CollectionTable(name="sourceOntologyIRI", joinColumns = @JoinColumn(name ="id"))
-@Field("sourceOntologyIRI")
-private Set<String> sourceOntologyIRI;
+@CollectionTable(name="sourceOntology", joinColumns = @JoinColumn(name ="id"))
+@Field("sourceOntology")
+private OWLOntology sourceOntology;
 
 @ElementCollection
-@CollectionTable(name="targetOntologyIRI", joinColumns = @JoinColumn(name ="id"))
-@Field("targetOntologyIRI")
-private Set<String> targetOntologyIRI;
+@CollectionTable(name="targetOntology", joinColumns = @JoinColumn(name ="id"))
+@Field("targetOntology")
+private OWLOntology targetOntology;
 
 @ElementCollection
 @CollectionTable(name="mappingObjectStrs", joinColumns = @JoinColumn(name="id"))
 @Field("mappingObjectStrs")
-private Set<MappingObjectStr> mappingObjectStrs;
+private Collection<MappingObjectStr> mappingObjectStrs;
 
 }

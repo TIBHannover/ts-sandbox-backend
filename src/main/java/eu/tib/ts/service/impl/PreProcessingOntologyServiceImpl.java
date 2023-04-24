@@ -43,15 +43,23 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
         OWLOntology owlOntology = null;
 
         try {
+
             ontModel = ontologyReadService.readOntologyWithJenaApi(fileLocation);
+
         } catch (Exception e) {
+
             log.error("Could not read with Jena API {} {}", fileLocation, e.getLocalizedMessage());
+
         }
 
         try {
+
             owlOntology = ontologyReadService.readOntologyWithOwlApi(fileLocation);
+
         } catch (Exception e) {
+
             log.error("Could not read with OWL API {} {}", fileLocation, e.getLocalizedMessage());
+
         }
 
         return buildOntology(tsOntology, owlOntology, ontModel, fileLocation, title);
