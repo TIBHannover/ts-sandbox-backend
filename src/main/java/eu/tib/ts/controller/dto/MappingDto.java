@@ -20,7 +20,7 @@ public class MappingDto {
     OWLOntology targetOntology;
     Collection<MappingObjectStr> mappingObjectStrs;
 
-    public static MappingDto getMappingDto(ProcessedMapping processedMapping) {
+    public static MappingDto getMappingsDto(ProcessedMapping processedMapping) {
 
         return MappingDto.builder()
                 .id(processedMapping.getId())

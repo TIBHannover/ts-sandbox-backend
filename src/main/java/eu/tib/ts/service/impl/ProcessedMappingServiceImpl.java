@@ -37,8 +37,8 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
     @Override
     public List<MappingDto> getMappings() {
         return Lists.newArrayList(repository.findAll()).stream()
-                .map(MappingDto::getMappingDto)
-                .sorted(Comparator.comparing(MappingDto::getOntologyId))
+                .map(MappingDto::getMappingsDto)
+                .sorted(Comparator.comparing(MappingDto::getMappingId))
                 .collect(Collectors.toList());
     }
 
