@@ -36,7 +36,7 @@ public class PreProcessingMappingServiceImpl implements PreProcessingMappingServ
     log.info("start pre-processing mapping between ontology {} and ontology {} ", sourceOntology.getOntologyID(), targetOntology.getOntologyID());
 
         return ProcessedMapping.builder()
-                .mappingId(sourceOntology.getOntologyID()+"_"+targetOntology.getOntologyID())
+                .mappingId("mapping_"+sourceOntology.getOntologyID()+"_to_"+targetOntology.getOntologyID())
                 .sourceOntology(sourceOntology)
                 .targetOntology(targetOntology)
                 .mappingObjectStrs(mappingObjectStrSet)

@@ -21,13 +21,16 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "mongo_processed_mapping")
-public class ProcessedMapping{
+public class ProcessedMapping {
 
 @Transient
 public static final String SEQUENCE_NAME = "user_sequence";
 
 @Id
 private int id;
+
+@Field(name = "ontology_id")
+private String ontologyId;
 
 @Field(name="mapping_id")
 private String mappingId;
@@ -46,5 +49,11 @@ private OWLOntology targetOntology;
 @CollectionTable(name="mappingObjectStrs", joinColumns = @JoinColumn(name="id"))
 @Field("mappingObjectStrs")
 private Collection<MappingObjectStr> mappingObjectStrs;
+
+    @Field
+    private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
+
+    @Field
+    private String updatedAt = "DateToZonedDateTimeConverter.INSTANCE";
 
 }

@@ -2,7 +2,6 @@ package eu.tib.ts.service.impl;
 
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.repository.ProcessedMongoMappingRepository;
-import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.service.ProcessedMappingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +17,8 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
 
     @Autowired
     public SequenceGeneratorService sequenceGeneratorService;
+
+
 
     @Override
     public ProcessedMapping save(ProcessedMapping processedMapping) {

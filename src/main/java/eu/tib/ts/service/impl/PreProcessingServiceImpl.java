@@ -145,9 +145,9 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                             unprocessedOntologies.get(j).getUri())));
 
 
-                    Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
+                Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
 
-                    log.info("source ont:" + unprocessedOntologies.get(i).getUri() + " , target ont: " +
+                log.info("source ont:" + unprocessedOntologies.get(i).getUri() + " , target ont: " +
                             unprocessedOntologies.get(j).getUri() + " number of mappings: " +
                             logmap2Mappings.size());
 
