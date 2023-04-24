@@ -42,8 +42,6 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
                 .collect(Collectors.toList());
     }
 
-
-
     @Override
     public ProcessedMapping save(ProcessedMapping processedMapping) {
         return repository.save(processedMapping);
