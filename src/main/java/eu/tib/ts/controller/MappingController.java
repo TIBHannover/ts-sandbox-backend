@@ -83,23 +83,21 @@ public class MappingController {
     }
 
     @ApiOperation("List of all mappings between ontologies")
-    @GetMapping(value = "/mappings", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<MappingDto>> getMappings(
-            Pageable pageable
-    ) {
+    @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<MappingDto>> getMappings() {
 
         System.out.println("Mappings between ontologies");
 
-        List<MappingDto> mappingDtoList = processedMappingService.getMappings();
+        List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
 
-        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<MappingDto>();
+        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
 
         for(MappingDto mappingDto: mappingDtoList){
-
 
             mappingDtoListFillteredByMappingId.add(mappingDto);
 
             System.out.println(mappingDto.getMappingId());
+
             System.out.println(mappingDto.getSourceOntology()+ " " + mappingDto.getTargetOntology());
 
             for(MappingObjectStr mostr: mappingDto.getMappingObjectStrs()){
@@ -108,9 +106,7 @@ public class MappingController {
             }
         }
 
-
         return HttpUtils.ok(mappingDtoListFillteredByMappingId);
 
     }
-
 }

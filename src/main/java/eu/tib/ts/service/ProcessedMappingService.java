@@ -8,7 +8,7 @@ import java.util.List;
 public interface ProcessedMappingService {
 
 public List<ProcessedMapping> findAll();
-public List<MappingDto> getMappings();
+public List<MappingDto> getAllMappings();
 
 ProcessedMapping save (ProcessedMapping processedMapping);
 
