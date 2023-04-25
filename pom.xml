@@ -31,8 +31,7 @@
 
 	<dependencies>
 
-
-                        <dependency>
+		<dependency>
                            <groupId>uk.ox.logmap</groupId>
                            <artifactId>logmap-matcher</artifactId>
                            <version>4.0</version>

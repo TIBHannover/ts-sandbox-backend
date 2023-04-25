@@ -14,7 +14,6 @@ import java.util.Collection;
 public class MappingDto {
 
     long id;
-    String ontologyId;
     String mappingId;
     OWLOntology sourceOntology;
     OWLOntology targetOntology;

@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ProcessedMongoMappingRepository extends MongoRepository<ProcessedMapping, Integer> {
 
-    List<ProcessedMapping> findByOntologyIdIn(List<String> ids);
+    List<ProcessedMapping> findByMappingIdIn(List<String> ids);
 }

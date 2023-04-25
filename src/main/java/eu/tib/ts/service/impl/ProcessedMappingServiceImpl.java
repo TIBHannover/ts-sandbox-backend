@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProcessedMappingServiceImpl implements ProcessedMappingService {
+
     private final ProcessedMongoMappingRepository repository;
 
     @Autowired
@@ -24,15 +25,6 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
 
     @Autowired
     public SequenceGeneratorService sequenceGeneratorService;
-
-
-    @Override
-    public List<ProcessedMapping> findAll(){
-
-        return Lists.newArrayList(repository.findAll());
-
-    }
-
 
     @Override
     public List<MappingDto> getAllMappings() {
