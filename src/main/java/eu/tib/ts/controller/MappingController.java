@@ -90,20 +90,19 @@ public class MappingController {
 
         List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
 
+        System.out.println("mappingDtoList.size(): " + mappingDtoList.size());
+
         List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
 
         for(MappingDto mappingDto: mappingDtoList){
 
             mappingDtoListFillteredByMappingId.add(mappingDto);
 
-            System.out.println(mappingDto.getMappingId());
+            System.out.println("mappingDto.getMappingId(): " + mappingDto.getMappingId());
 
-            System.out.println(mappingDto.getSourceOntology()+ " " + mappingDto.getTargetOntology());
+            System.out.println(mappingDto.getSourceIRI()+ " - " + mappingDto.getTargetIRI() + " - " + mappingDto.getTypeOfMapping());
 
-            for(MappingObjectStr mostr: mappingDto.getMappingObjectStrs()){
 
-                System.out.println(mostr.getIRIStrEnt1() +" - " + mostr.getMappingDirection() + " - "+ mostr.getIRIStrEnt2()+" - " + mostr.getTypeOfMapping());
-            }
         }
 
         return HttpUtils.ok(mappingDtoListFillteredByMappingId);

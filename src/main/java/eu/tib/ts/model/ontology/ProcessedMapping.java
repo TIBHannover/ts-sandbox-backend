@@ -29,26 +29,23 @@ public static final String SEQUENCE_NAME = "user_sequence";
 @Id
 private int id;
 
-@Field(name = "ontology_id")
-private String ontologyId;
-
 @Field(name="mapping_id")
 private String mappingId;
 
 @ElementCollection
-@CollectionTable(name="sourceOntology", joinColumns = @JoinColumn(name ="id"))
-@Field("sourceOntology")
-private OWLOntology sourceOntology;
+@CollectionTable(name="sourceIRI", joinColumns = @JoinColumn(name ="id"))
+@Field("sourceIRI")
+private String sourceIRI;
 
 @ElementCollection
-@CollectionTable(name="targetOntology", joinColumns = @JoinColumn(name ="id"))
-@Field("targetOntology")
-private OWLOntology targetOntology;
+@CollectionTable(name="targetIRI", joinColumns = @JoinColumn(name ="id"))
+@Field("targetIRI")
+private String targetIRI;
 
 @ElementCollection
-@CollectionTable(name="mappingObjectStrs", joinColumns = @JoinColumn(name="id"))
-@Field("mappingObjectStrs")
-private Collection<MappingObjectStr> mappingObjectStrs;
+@CollectionTable(name="typeOfMapping", joinColumns = @JoinColumn(name="id"))
+@Field("typeOfMapping")
+private int typeOfMapping;
 
     @Field
     private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";

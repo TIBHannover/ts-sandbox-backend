@@ -106,6 +106,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             processedOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedOntology.SEQUENCE_NAME));
             processedOntologyService.save(processedOntology);
             count++;
+
         }
 
         System.out.println("Titled : after loop");
@@ -151,14 +152,17 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                             unprocessedOntologies.get(j).getUri() + " number of mappings: " +
                             logmap2Mappings.size());
 
-                 ProcessedMapping processedMapping =
-                    preProcessingMappingService.preProcess(logmap2Mappings, ontologyManager.loadOntology(IRI.create(
-                            unprocessedOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
-                            unprocessedOntologies.get(j).getUri())));
+                for(MappingObjectStr mos: logmap2Mappings) {
+
+
+                    ProcessedMapping processedMapping =
+
+                            preProcessingMappingService.preProcess(mos.getTypeOfMapping(), mos.getIRIStrEnt1(), mos.getIRIStrEnt2());
 
 //          ProcessedOntology.builder().id().build();
-            processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
-            processedMappingService.save(processedMapping);
+                    processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
+                    processedMappingService.save(processedMapping);
+                }
 
             }catch(Exception e){
 

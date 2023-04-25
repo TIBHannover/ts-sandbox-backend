@@ -30,7 +30,6 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
     public List<MappingDto> getAllMappings() {
         return Lists.newArrayList(repository.findAll()).stream()
                 .map(MappingDto::getMappingsDto)
-                .sorted(Comparator.comparing(MappingDto::getMappingId))
                 .collect(Collectors.toList());
     }
 

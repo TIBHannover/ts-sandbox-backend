@@ -4,6 +4,8 @@ spring:
       database: ontology_statistics_db
       host: mongodb
       port: 27017
+  main:
+    lazy-initialization: true
 
 server:
   port: 8081

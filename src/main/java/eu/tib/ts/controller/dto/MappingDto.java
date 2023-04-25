@@ -14,19 +14,22 @@ import java.util.Collection;
 public class MappingDto {
 
     long id;
+
     String mappingId;
-    OWLOntology sourceOntology;
-    OWLOntology targetOntology;
-    Collection<MappingObjectStr> mappingObjectStrs;
+
+    String sourceIRI;
+    String targetIRI;
+
+    int typeOfMapping;
 
     public static MappingDto getMappingsDto(ProcessedMapping processedMapping) {
 
         return MappingDto.builder()
                 .id(processedMapping.getId())
                 .mappingId(processedMapping.getMappingId())
-                .sourceOntology(processedMapping.getSourceOntology())
-                .targetOntology(processedMapping.getTargetOntology())
-                .mappingObjectStrs(processedMapping.getMappingObjectStrs())
+                .sourceIRI(processedMapping.getSourceIRI())
+                .targetIRI(processedMapping.getTargetIRI())
+                .typeOfMapping(processedMapping.getTypeOfMapping())
                 .build();
 
     }

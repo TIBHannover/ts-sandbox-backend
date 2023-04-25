@@ -25,21 +25,19 @@ import java.util.Set;
 public class PreProcessingMappingServiceImpl implements PreProcessingMappingService {
 
     public static final String EXTERNAL = "external";
-//    private final OntologyReadService ontologyReadService;
-//    private final OntologyTraverseService ontologyTraverseService;
 
     long idd = 0;
 
     @Override
-    public ProcessedMapping preProcess(Set<MappingObjectStr> mappingObjectStrSet, OWLOntology sourceOntology, OWLOntology targetOntology) {
+    public ProcessedMapping preProcess(int typeOfMapping, String sourceIRI, String targetIRI) {
 
-    log.info("start pre-processing mapping between ontology {} and ontology {} ", sourceOntology.getOntologyID(), targetOntology.getOntologyID());
+    log.info("start pre-processing mapping between {} and {} ", sourceIRI, targetIRI);
 
         return ProcessedMapping.builder()
-                .mappingId("mapping_"+sourceOntology.getOntologyID()+"_to_"+targetOntology.getOntologyID())
-                .sourceOntology(sourceOntology)
-                .targetOntology(targetOntology)
-                .mappingObjectStrs(mappingObjectStrSet)
+                .mappingId("mapping_"+sourceIRI+"_to_"+targetIRI)
+                .sourceIRI(sourceIRI)
+                .targetIRI(targetIRI)
+                .typeOfMapping(typeOfMapping)
                 .build();
 
     }
