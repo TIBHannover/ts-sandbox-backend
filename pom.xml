@@ -50,18 +50,7 @@
 			</exclusion>
 
 		</exclusions>
-                        </dependency>
-
-
-		<!-- logmap-matcher
-
-            <dependency>
-            <groupId>com.googlecode</groupId>
-                                                                   <artifactId>google-api-translate-java</artifactId>
-                                                                   <version>0.97</version>
-                                                                </dependency>
-
-                                                                        /logmap-matcher -->
+        </dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb -->
 		<dependency>

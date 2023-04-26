@@ -86,7 +86,7 @@ public class MappingController {
     @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<MappingDto>> getMappings() {
 
-        System.out.println("Mappings between ontologies");
+        System.out.println("Mappings between ontologies:");
 
         List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
 
@@ -97,11 +97,6 @@ public class MappingController {
         for(MappingDto mappingDto: mappingDtoList){
 
             mappingDtoListFillteredByMappingId.add(mappingDto);
-
-            System.out.println("mappingDto.getMappingId(): " + mappingDto.getMappingId());
-
-            System.out.println(mappingDto.getSourceIRI()+ " - " + mappingDto.getTargetIRI() + " - " + mappingDto.getTypeOfMapping());
-
 
         }
 

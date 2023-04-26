@@ -1,5 +1,6 @@
 package eu.tib.ts.controller.dto;
 
+import eu.tib.ts.model.ontology.MappingCharacteristicsInfo;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
 
 import java.util.Collection;
+import java.util.Set;
 
 @Builder
 @Value
@@ -17,20 +19,23 @@ public class MappingDto {
 
     String mappingId;
 
-    String sourceIRI;
-    String targetIRI;
+    String sourceOntology;
+    String targetOntology;
+    int numberOfMappings;
 
-    int typeOfMapping;
+    Set<MappingObjectSetModel> mappingList;
 
-    public static MappingDto getMappingsDto(ProcessedMapping processedMapping) {
+    public static MappingDto getMappingObjectStrDto(ProcessedMapping processedMapping) {
 
         return MappingDto.builder()
                 .id(processedMapping.getId())
                 .mappingId(processedMapping.getMappingId())
-                .sourceIRI(processedMapping.getSourceIRI())
-                .targetIRI(processedMapping.getTargetIRI())
-                .typeOfMapping(processedMapping.getTypeOfMapping())
+                .numberOfMappings(processedMapping.getNumberOfMappings())
+                .sourceOntology(processedMapping.getSourceOntology())
+                .targetOntology(processedMapping.getTargetOntology())
+                .mappingList(processedMapping.getMappingList())
                 .build();
 
     }
+
 }

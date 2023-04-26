@@ -1,5 +1,6 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.TsOntology;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ox.krr.logmap2.LogMap2_Matcher;
 import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -126,7 +128,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         log.info("Mappings between ontology pairs: ");
 
-
         for(int i=0;i<unprocessedOntologies.size();i++) {
 
             for (int j = i + 1; j < unprocessedOntologies.size()+1; j++) {
@@ -142,27 +143,38 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                      */
 
                     LogMap2_Matcher logmap2 = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
-                            unprocessedOntologies.get(i).getUri())),ontologyManager.loadOntology(IRI.create(
+                            unprocessedOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(j).getUri())));
 
 
-                Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
+                    Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
 
-                log.info("source ont:" + unprocessedOntologies.get(i).getUri() + " , target ont: " +
+                    log.info("source ont:" + unprocessedOntologies.get(i).getUri() + " , target ont: " +
                             unprocessedOntologies.get(j).getUri() + " number of mappings: " +
                             logmap2Mappings.size());
 
+
+                Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
+
                 for(MappingObjectStr mos: logmap2Mappings) {
 
+                    MappingObjectSetModel mappingObjectSetModel = new MappingObjectSetModel();
+
+                    mappingObjectSetModel.setSourceIRI(mos.getIRIStrEnt1());
+                    mappingObjectSetModel.setMappingDirection(mos.getMappingDirection());
+                    mappingObjectSetModel.setTargetIRI(mos.getIRIStrEnt2());
+                    mappingObjectSetModel.setTypeOfMapping(mos.getTypeOfMapping());
+
+                    mappingList.add(mappingObjectSetModel);
+                }
 
                     ProcessedMapping processedMapping =
+                            preProcessingMappingService.preProcess(unprocessedOntologies.get(i).getUri(),unprocessedOntologies.get(j).getUri(), logmap2Mappings.size(),mappingList);
 
-                            preProcessingMappingService.preProcess(mos.getTypeOfMapping(), mos.getIRIStrEnt1(), mos.getIRIStrEnt2());
 
 //          ProcessedOntology.builder().id().build();
-                    processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
-                    processedMappingService.save(processedMapping);
-                }
+                processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
+                processedMappingService.save(processedMapping);
 
             }catch(Exception e){
 

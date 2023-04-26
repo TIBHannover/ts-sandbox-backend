@@ -2,14 +2,12 @@ package eu.tib.ts.service.impl;
 
 import com.github.jsonldjava.shaded.com.google.common.collect.Lists;
 import eu.tib.ts.controller.dto.MappingDto;
-import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.repository.ProcessedMongoMappingRepository;
 import eu.tib.ts.service.ProcessedMappingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +27,7 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
     @Override
     public List<MappingDto> getAllMappings() {
         return Lists.newArrayList(repository.findAll()).stream()
-                .map(MappingDto::getMappingsDto)
+                .map(MappingDto::getMappingObjectStrDto)
                 .collect(Collectors.toList());
     }
 

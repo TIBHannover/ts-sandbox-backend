@@ -1,5 +1,6 @@
 package eu.tib.ts.model.ontology;
 
+import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import lombok.*;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.data.annotation.Id;
@@ -12,8 +13,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.JoinColumn;
 
-import java.util.Collection;
-
+import java.util.Set;
 
 @Getter
 @Setter
@@ -33,24 +33,30 @@ private int id;
 private String mappingId;
 
 @ElementCollection
-@CollectionTable(name="sourceIRI", joinColumns = @JoinColumn(name ="id"))
-@Field("sourceIRI")
-private String sourceIRI;
+@CollectionTable(name="sourceOntology", joinColumns =   @JoinColumn(name="id"))
+@Field("sourceOntology")
+private String sourceOntology;
 
 @ElementCollection
-@CollectionTable(name="targetIRI", joinColumns = @JoinColumn(name ="id"))
-@Field("targetIRI")
-private String targetIRI;
+@CollectionTable(name="targetOntology", joinColumns =   @JoinColumn(name="id"))
+@Field("targetOntology")
+private String targetOntology;
+
 
 @ElementCollection
-@CollectionTable(name="typeOfMapping", joinColumns = @JoinColumn(name="id"))
-@Field("typeOfMapping")
-private int typeOfMapping;
+@CollectionTable(name="numberOfMappings", joinColumns = @JoinColumn(name="id"))
+@Field("numberOfMappings")
+private int numberOfMappings;
 
-    @Field
-    private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
+@ElementCollection
+@CollectionTable(name="mappingList", joinColumns = @JoinColumn(name="id"))
+@Field("mappingList")
+private Set<MappingObjectSetModel> mappingList;
 
-    @Field
-    private String updatedAt = "DateToZonedDateTimeConverter.INSTANCE";
+@Field
+private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
+
+@Field
+private String updatedAt = "DateToZonedDateTimeConverter.INSTANCE";
 
 }
