@@ -20,7 +20,9 @@ public class PreProcessingMappingServiceImpl implements PreProcessingMappingServ
 
 
     @Override
-    public ProcessedMapping preProcess(String sourceOntology, String targetOntology, int numberOfMappings, Set<MappingObjectSetModel> mappingList) {
+    public ProcessedMapping preProcess(String sourceOntology, String targetOntology, int numberOfMappings,
+                                       int numberOfConflictiveMappings, Set<MappingObjectSetModel> mappingList,
+                                       Set<MappingObjectSetModel> conflictiveMappingsList) {
 
         log.info("start pre-processing mapping between ontologies : " );
 
@@ -29,9 +31,11 @@ public class PreProcessingMappingServiceImpl implements PreProcessingMappingServ
         return ProcessedMapping.builder()
                 .mappingId(uuid)
                 .numberOfMappings(numberOfMappings)
+                .numberOfConflictiveMappings(numberOfConflictiveMappings)
                 .sourceOntology(sourceOntology)
                 .targetOntology(targetOntology)
                 .mappingList(mappingList)
+                .conflictiveMappingsList(conflictiveMappingsList)
                 .build();
     }
 }

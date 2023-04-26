@@ -21,9 +21,13 @@ public class MappingDto {
 
     String sourceOntology;
     String targetOntology;
+
     int numberOfMappings;
+    int numberOfConflictiveMappings;
 
     Set<MappingObjectSetModel> mappingList;
+
+    Set<MappingObjectSetModel> conflictiveMappingsList;
 
     public static MappingDto getMappingObjectStrDto(ProcessedMapping processedMapping) {
 
@@ -31,9 +35,11 @@ public class MappingDto {
                 .id(processedMapping.getId())
                 .mappingId(processedMapping.getMappingId())
                 .numberOfMappings(processedMapping.getNumberOfMappings())
+                .numberOfConflictiveMappings(processedMapping.getNumberOfConflictiveMappings())
                 .sourceOntology(processedMapping.getSourceOntology())
                 .targetOntology(processedMapping.getTargetOntology())
                 .mappingList(processedMapping.getMappingList())
+                .conflictiveMappingsList(processedMapping.getConflictiveMappingsList())
                 .build();
 
     }

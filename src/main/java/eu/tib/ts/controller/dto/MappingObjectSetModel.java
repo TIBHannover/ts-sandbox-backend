@@ -12,5 +12,6 @@ public class MappingObjectSetModel {
     String targetIRI;
     int typeOfMapping;
     double structuralConfidenceMapping;
+    double confidence;
 
 }

@@ -149,10 +149,25 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                     Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
 
-                    log.info("source ont:" + unprocessedOntologies.get(i).getUri() + " , target ont: " +
-                            unprocessedOntologies.get(j).getUri() + " number of mappings: " +
-                            logmap2Mappings.size());
+                    Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2.getLogmap2_ConflictiveMappings();
 
+
+                Set<MappingObjectSetModel> conflictiveMappingList = new HashSet<MappingObjectSetModel>();
+
+                    for(MappingObjectStr conflictMappings: conflictiveLogmap2Mappings) {
+
+                        MappingObjectSetModel conflictMappingObjectSetModel = new MappingObjectSetModel();
+
+                        conflictMappingObjectSetModel.setSourceIRI(conflictMappings.getIRIStrEnt1());
+                        conflictMappingObjectSetModel.setMappingDirection(conflictMappings.getMappingDirection());
+                        conflictMappingObjectSetModel.setTargetIRI(conflictMappings.getIRIStrEnt2());
+                        conflictMappingObjectSetModel.setTypeOfMapping(conflictMappings.getTypeOfMapping());
+                        conflictMappingObjectSetModel.setConfidence(conflictMappings.getConfidence());
+                        conflictMappingObjectSetModel.setStructuralConfidenceMapping(conflictMappings.getStructuralConfidenceMapping());
+
+
+                        conflictiveMappingList.add(conflictMappingObjectSetModel);
+                    }
 
                 Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
 
@@ -164,15 +179,18 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                     mappingObjectSetModel.setMappingDirection(mos.getMappingDirection());
                     mappingObjectSetModel.setTargetIRI(mos.getIRIStrEnt2());
                     mappingObjectSetModel.setTypeOfMapping(mos.getTypeOfMapping());
+                    mappingObjectSetModel.setConfidence(mos.getConfidence());
+                    mappingObjectSetModel.setStructuralConfidenceMapping(mos.getStructuralConfidenceMapping());
 
                     mappingList.add(mappingObjectSetModel);
                 }
 
                     ProcessedMapping processedMapping =
-                            preProcessingMappingService.preProcess(unprocessedOntologies.get(i).getUri(),unprocessedOntologies.get(j).getUri(), logmap2Mappings.size(),mappingList);
+                            preProcessingMappingService.preProcess(unprocessedOntologies.get(i).getUri(),
+                                    unprocessedOntologies.get(j).getUri(), logmap2Mappings.size(),
+                                    conflictiveLogmap2Mappings.size(), mappingList,conflictiveMappingList);
 
 
-//          ProcessedOntology.builder().id().build();
                 processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
                 processedMappingService.save(processedMapping);
 

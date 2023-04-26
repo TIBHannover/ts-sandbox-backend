@@ -7,5 +7,7 @@ import java.util.Set;
 
 public interface PreProcessingMappingService {
 
-    ProcessedMapping preProcess(String sourceOntology, String targetOntology, int numberOfMappings, Set<MappingObjectSetModel> mappiObjectSetModel );
+    public ProcessedMapping preProcess(String sourceOntology, String targetOntology, int numberOfMappings,
+                                       int numberOfConflictiveMappings, Set<MappingObjectSetModel> mappingList,
+                                       Set<MappingObjectSetModel> conflictiveMappingsList);
 }
