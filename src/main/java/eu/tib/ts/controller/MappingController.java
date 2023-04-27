@@ -82,15 +82,11 @@ public class MappingController {
 
     }
 
-    @ApiOperation("List of all mappings between ontologies")
+    @ApiOperation("List mappings between a pair of ontologies")
     @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<MappingDto>> getMappings() {
 
-        System.out.println("Mappings between ontologies:");
-
         List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
-
-        System.out.println("mappingDtoList.size(): " + mappingDtoList.size());
 
         List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
 

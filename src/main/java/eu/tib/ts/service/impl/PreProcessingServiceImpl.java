@@ -26,6 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
+
 @Slf4j
 @Service
 public class PreProcessingServiceImpl implements PreProcessingService {
@@ -117,16 +119,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         log.info("Saved {} ontologies", count);
 
-        log.info("List of all {} ontologies", count);
-
-        for(TsOntology tso: unprocessedOntologies){
-
-
-        log.info(tso.getOntologyId() + " , " + tso.getUri());
-
-        }
-
-        log.info("Mappings between ontology pairs: ");
+        log.info("Mappings between pairs of ontologies start:");
 
         for(int i=0;i<unprocessedOntologies.size();i++) {
 
@@ -146,49 +139,20 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                             unprocessedOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(j).getUri())));
 
-
+                    /**
+                     * gets mapping between pairs of ontologies
+                     */
                     Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
 
+                    /**
+                     * gets conflictive mappings between pairs of ontologies
+                     */
                     Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2.getLogmap2_ConflictiveMappings();
-
-
-                Set<MappingObjectSetModel> conflictiveMappingList = new HashSet<MappingObjectSetModel>();
-
-                    for(MappingObjectStr conflictMappings: conflictiveLogmap2Mappings) {
-
-                        MappingObjectSetModel conflictMappingObjectSetModel = new MappingObjectSetModel();
-
-                        conflictMappingObjectSetModel.setSourceIRI(conflictMappings.getIRIStrEnt1());
-                        conflictMappingObjectSetModel.setMappingDirection(conflictMappings.getMappingDirection());
-                        conflictMappingObjectSetModel.setTargetIRI(conflictMappings.getIRIStrEnt2());
-                        conflictMappingObjectSetModel.setTypeOfMapping(conflictMappings.getTypeOfMapping());
-                        conflictMappingObjectSetModel.setConfidence(conflictMappings.getConfidence());
-                        conflictMappingObjectSetModel.setStructuralConfidenceMapping(conflictMappings.getStructuralConfidenceMapping());
-
-
-                        conflictiveMappingList.add(conflictMappingObjectSetModel);
-                    }
-
-                Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
-
-                for(MappingObjectStr mos: logmap2Mappings) {
-
-                    MappingObjectSetModel mappingObjectSetModel = new MappingObjectSetModel();
-
-                    mappingObjectSetModel.setSourceIRI(mos.getIRIStrEnt1());
-                    mappingObjectSetModel.setMappingDirection(mos.getMappingDirection());
-                    mappingObjectSetModel.setTargetIRI(mos.getIRIStrEnt2());
-                    mappingObjectSetModel.setTypeOfMapping(mos.getTypeOfMapping());
-                    mappingObjectSetModel.setConfidence(mos.getConfidence());
-                    mappingObjectSetModel.setStructuralConfidenceMapping(mos.getStructuralConfidenceMapping());
-
-                    mappingList.add(mappingObjectSetModel);
-                }
 
                     ProcessedMapping processedMapping =
                             preProcessingMappingService.preProcess(unprocessedOntologies.get(i).getUri(),
                                     unprocessedOntologies.get(j).getUri(), logmap2Mappings.size(),
-                                    conflictiveLogmap2Mappings.size(), mappingList,conflictiveMappingList);
+                                    conflictiveLogmap2Mappings.size(), getMappingList(logmap2Mappings),getMappingList(conflictiveLogmap2Mappings));
 
 
                 processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
@@ -203,6 +167,31 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         }
     }
 
+    /**
+     * @param logmap2MappingsSet
+     * @return mappingList
+     *
+     */
+private Set<MappingObjectSetModel> getMappingList (Set<MappingObjectStr> logmap2MappingsSet){
+
+        Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
+
+    for(MappingObjectStr mos: logmap2MappingsSet) {
+
+        MappingObjectSetModel mappingObjectSetModel = new MappingObjectSetModel();
+
+        mappingObjectSetModel.setSourceIRI(mos.getIRIStrEnt1());
+        mappingObjectSetModel.setMappingDirection(mos.getMappingDirection());
+        mappingObjectSetModel.setTargetIRI(mos.getIRIStrEnt2());
+        mappingObjectSetModel.setTypeOfMapping(mos.getTypeOfMapping());
+        mappingObjectSetModel.setConfidence(mos.getConfidence());
+        mappingObjectSetModel.setStructuralConfidenceMapping(mos.getStructuralConfidenceMapping());
+
+        mappingList.add(mappingObjectSetModel);
+    }
+
+        return mappingList;
+}
     private boolean ontologyExists(TsOntology tsOntology, List<ProcessedOntology> processedOntologies) {
         return processedOntologies.stream()
                 .anyMatch(ont -> ont.equalsTsOntology(tsOntology));

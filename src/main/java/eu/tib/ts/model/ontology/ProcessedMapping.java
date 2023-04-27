@@ -15,6 +15,10 @@ import javax.persistence.JoinColumn;
 
 import java.util.Set;
 
+/**
+ * Information about mappings between a pair of ontologies located in MongoDB mongo_processed_mapping collection
+ *
+ */
 @Getter
 @Setter
 @Builder(toBuilder = true)
@@ -41,7 +45,6 @@ private String sourceOntology;
 @CollectionTable(name="targetOntology", joinColumns =   @JoinColumn(name="id"))
 @Field("targetOntology")
 private String targetOntology;
-
 
 @ElementCollection
 @CollectionTable(name="numberOfMappings", joinColumns = @JoinColumn(name="id"))

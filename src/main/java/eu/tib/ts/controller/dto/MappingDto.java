@@ -11,6 +11,9 @@ import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * All information about mappings between a pair of ontologies stored in MongoDB database
+ */
 @Builder
 @Value
 public class MappingDto {
@@ -20,9 +23,11 @@ public class MappingDto {
     String mappingId;
 
     String sourceOntology;
+
     String targetOntology;
 
     int numberOfMappings;
+
     int numberOfConflictiveMappings;
 
     Set<MappingObjectSetModel> mappingList;

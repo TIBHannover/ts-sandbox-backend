@@ -5,7 +5,6 @@ import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.service.PreProcessingMappingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
 
 import java.util.Set;
 import java.util.UUID;
@@ -13,10 +12,6 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class PreProcessingMappingServiceImpl implements PreProcessingMappingService {
-
-    public static final String EXTERNAL = "external";
-
-    long idd = 0;
 
 
     @Override
@@ -26,6 +21,9 @@ public class PreProcessingMappingServiceImpl implements PreProcessingMappingServ
 
         log.info("start pre-processing mapping between ontologies : " );
 
+        /**
+         * generated random uuid is assigned to mapping id
+         */
         final String uuid = UUID.randomUUID().toString().replace("-", "");
 
         return ProcessedMapping.builder()
