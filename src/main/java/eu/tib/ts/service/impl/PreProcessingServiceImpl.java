@@ -26,8 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
-
 @Slf4j
 @Service
 public class PreProcessingServiceImpl implements PreProcessingService {
@@ -140,7 +138,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                             unprocessedOntologies.get(j).getUri())));
 
                     /**
-                     * gets mapping between pairs of ontologies
+                     * gets mappings between pairs of ontologies
                      */
                     Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
 
