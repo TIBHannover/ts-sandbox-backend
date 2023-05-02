@@ -152,7 +152,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                                     unprocessedOntologies.get(j).getUri(), logmap2Mappings.size(),
                                     conflictiveLogmap2Mappings.size(), getMappingList(logmap2Mappings),getMappingList(conflictiveLogmap2Mappings));
 
-
                 processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
                 processedMappingService.save(processedMapping);
 
