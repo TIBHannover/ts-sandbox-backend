@@ -1,6 +1,7 @@
 package eu.tib.ts.model.ontology;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
+import eu.tib.ts.controller.dto.OntologyDto;
 import lombok.*;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.data.annotation.Id;
@@ -39,12 +40,12 @@ private String mappingId;
 @ElementCollection
 @CollectionTable(name="sourceOntology", joinColumns =   @JoinColumn(name="id"))
 @Field("sourceOntology")
-private String sourceOntology;
+private Set<OntologyDto> sourceOntology;
 
 @ElementCollection
 @CollectionTable(name="targetOntology", joinColumns =   @JoinColumn(name="id"))
 @Field("targetOntology")
-private String targetOntology;
+private Set<OntologyDto> targetOntology;
 
 @ElementCollection
 @CollectionTable(name="numberOfMappings", joinColumns = @JoinColumn(name="id"))

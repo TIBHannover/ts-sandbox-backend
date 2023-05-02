@@ -1,6 +1,8 @@
 package eu.tib.ts.service.impl;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
+import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.model.ontology.Ontology;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.TsOntology;
@@ -59,18 +61,19 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         this.processedMappingService = processedMappingService;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.skipList = skipList;
-        System.out.println("PreProcessingServiceImpl constructor : ");
+
+        log.info("PreProcessingServiceImpl constructor : ");
 
     }
 
     @Override
     public void doPreProcessing() {
         List<TsOntology> tsOntologies = tsRepository.getOntologies();
-        System.out.println("Titled doPreProcessing:");
+        log.info("Titled doPreProcessing:");
 
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
-        System.out.println("Titled : third line " + tsOntologies);
+        log.info("Titled : third line " + tsOntologies);
 
         List<TsOntology> unprocessedOntologies = tsOntologies.stream()
                 .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
@@ -81,7 +84,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         log.info("Pre-processing starts");
         long startTime = System.currentTimeMillis();
 
-        System.out.println("Titled : " + tsOntologies.get(0).getTitle());
+        log.info("Titled : " + tsOntologies.get(0).getTitle());
 
         for (TsOntology tsOntology : unprocessedOntologies) {
 
@@ -95,7 +98,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
             log.info("Titled : " + title);
 
-            System.out.println("Titled : inner loop " + title);
+            log.info("Titled : inner loop " + title);
 
             ProcessedOntology processedOntology =
                     preProcessingOntologyService.preProcess(Optional.of(tsOntology), fileLocation, title);
@@ -104,14 +107,13 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
             log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
 
-//          ProcessedOntology.builder().id().build();
             processedOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedOntology.SEQUENCE_NAME));
             processedOntologyService.save(processedOntology);
             count++;
 
         }
 
-        System.out.println("Titled : after loop");
+        log.info("Titled : after loop");
 
         log.info("Pre-processing done in {} ms", System.currentTimeMillis() - startTime);
 
@@ -147,9 +149,31 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                      */
                     Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2.getLogmap2_ConflictiveMappings();
 
+                    OntologyDto sourceOntology = OntologyDto.builder()
+                            .ontologyId(unprocessedOntologies.get(i).getOntologyId())
+                            .uri(unprocessedOntologies.get(i).getUri())
+                            .title(unprocessedOntologies.get(i).getTitle())
+                            .collection(unprocessedOntologies.get(i).getCollection())
+                            .build();
+
+                    Set<OntologyDto> sourceOntologySet = new HashSet<>();
+
+                    sourceOntologySet.add(sourceOntology);
+
+                    OntologyDto targetOntology = OntologyDto.builder()
+                            .ontologyId(unprocessedOntologies.get(j).getOntologyId())
+                            .uri(unprocessedOntologies.get(j).getUri())
+                            .title(unprocessedOntologies.get(j).getTitle())
+                            .collection(unprocessedOntologies.get(j).getCollection())
+                            .build();
+
+                    Set<OntologyDto> targetOntologySet = new HashSet<>();
+                    targetOntologySet.add(targetOntology);
+
+
                     ProcessedMapping processedMapping =
-                            preProcessingMappingService.preProcess(unprocessedOntologies.get(i).getUri(),
-                                    unprocessedOntologies.get(j).getUri(), logmap2Mappings.size(),
+                            preProcessingMappingService.preProcess(sourceOntologySet,
+                                    targetOntologySet, logmap2Mappings.size(),
                                     conflictiveLogmap2Mappings.size(), getMappingList(logmap2Mappings),getMappingList(conflictiveLogmap2Mappings));
 
                 processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
@@ -171,7 +195,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
      */
 private Set<MappingObjectSetModel> getMappingList (Set<MappingObjectStr> logmap2MappingsSet){
 
-        Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
+        Set<MappingObjectSetModel> mappingList = new HashSet<>();
 
     for(MappingObjectStr mos: logmap2MappingsSet) {
 
@@ -189,6 +213,7 @@ private Set<MappingObjectSetModel> getMappingList (Set<MappingObjectStr> logmap2
 
         return mappingList;
 }
+
     private boolean ontologyExists(TsOntology tsOntology, List<ProcessedOntology> processedOntologies) {
         return processedOntologies.stream()
                 .anyMatch(ont -> ont.equalsTsOntology(tsOntology));

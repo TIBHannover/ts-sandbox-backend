@@ -3,6 +3,7 @@ package eu.tib.ts.controller.dto;
 import eu.tib.ts.model.ontology.MappingCharacteristicsInfo;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
+import eu.tib.ts.model.ontology.TsOntology;
 import lombok.Builder;
 import lombok.Value;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -22,9 +23,9 @@ public class MappingDto {
 
     String mappingId;
 
-    String sourceOntology;
+    Set<OntologyDto> sourceOntology;
 
-    String targetOntology;
+    Set<OntologyDto> targetOntology;
 
     int numberOfMappings;
 

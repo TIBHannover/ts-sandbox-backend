@@ -1,6 +1,7 @@
 package eu.tib.ts.service.impl;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
+import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.service.PreProcessingMappingService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ public class PreProcessingMappingServiceImpl implements PreProcessingMappingServ
 
 
     @Override
-    public ProcessedMapping preProcess(String sourceOntology, String targetOntology, int numberOfMappings,
+    public ProcessedMapping preProcess(Set<OntologyDto> sourceOntology, Set<OntologyDto> targetOntology, int numberOfMappings,
                                        int numberOfConflictiveMappings, Set<MappingObjectSetModel> mappingList,
                                        Set<MappingObjectSetModel> conflictiveMappingsList) {
 
