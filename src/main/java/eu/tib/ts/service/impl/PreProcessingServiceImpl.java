@@ -60,7 +60,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         long startTime = System.currentTimeMillis();
 
         System.out.println("Titled : " + tsOntologies.get(0).getTitle());
-
+        System.out.println("Labeled : " + tsOntologies.get(0).getConfig().getLabelProperty());
 
         for (TsOntology tsOntology : unprocessedOntologies) {
             String fileLocation = tsOntology.getConfig().getFileLocation();
@@ -68,10 +68,10 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             if (title.equals("") || title.equals("null")) {
                 title = "no title found";
             }
+
             long startRead = System.currentTimeMillis();
 
-            log.info("Titled : " + title);
-            System.out.println("Titled : inner loop " + title);
+
 
 
             ProcessedOntology processedOntology =
@@ -80,7 +80,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             long endRead = System.currentTimeMillis();
             log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
 
-//            ProcessedOntology.builder().id().build();
             processedOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedOntology.SEQUENCE_NAME));
             processedOntologyService.save(processedOntology);
             count++;

@@ -23,11 +23,11 @@ preprocessing:
 
 
 ts:
-  ontologies.list.size: 15
+  ontologies.list.size: 25
   base.uri: https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=NFDI4ING #https://service.tib.eu/ts4tib/api/ontologies
   timeout:
-    connect: 4000
-    read: 4000
+    connect: 6000
+    read: 6000
 
 similarity:
   weight:

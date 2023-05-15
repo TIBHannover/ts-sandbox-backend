@@ -19,9 +19,8 @@ import java.util.Set;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "mongo_processed_ontology")
+@Document(collection = "mongo_processed_ontologies")
 public class ProcessedOntology implements ExtendedOntology {
-
 
     @Transient
     public static final String SEQUENCE_NAME = "user_sequence";
@@ -80,8 +79,6 @@ public class ProcessedOntology implements ExtendedOntology {
     }
 
     public static <T extends ExtendedOntology> ProcessedOntology of(T ontology) {
-
-
 
         return ProcessedOntology.builder()
                 .ontologyId(ontology.getOntologyId())

@@ -16,7 +16,7 @@ public class SimilarityModelAssembler extends RepresentationModelAssemblerSuppor
     @Override
     public SimilarityModel toModel(Similarity entity) {
         SimilarityModel model = instantiateModel(entity);
-        model.setName(entity.getName());
+        model.setName(entity.getObjects().getFirst());
         model.setOntologies(entity.getOntologies());
 
         return model;

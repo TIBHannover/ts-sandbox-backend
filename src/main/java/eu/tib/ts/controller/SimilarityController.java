@@ -138,7 +138,7 @@ public class SimilarityController {
         "and a set of TS internal ontologies")
     @GetMapping(value = "/pairwise/internal", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForInternalOntology(
-        @ApiParam(value = "A given Ontology ID managed in the TS", example = "swo")
+        @ApiParam(value = "A given Ontology ID managed in the TS", example = "dicl")
         @RequestParam String id,
         @ApiParam(value = "A set of Ontology IDs managed in the TS", example = "dicl,dicob")
         @RequestParam(required = false) Optional<List<String>> ids,

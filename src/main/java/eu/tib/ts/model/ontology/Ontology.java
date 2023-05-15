@@ -6,4 +6,5 @@ public interface Ontology {
     String getUri();
 
     String getTitle();
+
 }
