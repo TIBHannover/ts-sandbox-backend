@@ -149,6 +149,9 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                      */
                     Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2.getLogmap2_ConflictiveMappings();
 
+                    /**
+                     * adds information about source ontology in ontology dto
+                     */
                     OntologyDto sourceOntology = OntologyDto.builder()
                             .ontologyId(unprocessedOntologies.get(i).getOntologyId())
                             .uri(unprocessedOntologies.get(i).getUri())
@@ -160,6 +163,9 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                     sourceOntologySet.add(sourceOntology);
 
+                    /**
+                     * adds information about target ontology into ontology dto.
+                     */
                     OntologyDto targetOntology = OntologyDto.builder()
                             .ontologyId(unprocessedOntologies.get(j).getOntologyId())
                             .uri(unprocessedOntologies.get(j).getUri())
@@ -189,6 +195,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     }
 
     /**
+     * stores information about mapping list (both type of mappings) in a Set of mapping object set model
      * @param logmap2MappingsSet
      * @return mappingList
      *
