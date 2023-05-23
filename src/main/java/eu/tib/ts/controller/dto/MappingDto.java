@@ -1,13 +1,8 @@
 package eu.tib.ts.controller.dto;
-
-import eu.tib.ts.model.ontology.MappingCharacteristicsInfo;
 import eu.tib.ts.model.ontology.ProcessedMapping;
-import eu.tib.ts.model.ontology.ProcessedOntology;
-import eu.tib.ts.model.ontology.TsOntology;
 import lombok.Builder;
 import lombok.Value;
-import org.semanticweb.owlapi.model.OWLOntology;
-import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
+
 
 import java.util.Collection;
 import java.util.Set;

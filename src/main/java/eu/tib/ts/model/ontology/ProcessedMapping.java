@@ -3,12 +3,11 @@ package eu.tib.ts.model.ontology;
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
 import lombok.*;
-import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
+
 
 import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
