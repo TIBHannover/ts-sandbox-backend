@@ -52,6 +52,10 @@
                 <groupId>uk.ox.logmap</groupId>
                 <artifactId>logmap-matcher</artifactId>
                 <version>4.0</version>
+                          <scope>system</scope>
+                            <systemPath>${project.basedir}/lib/logmap-matcher-4.0.jar</systemPath>
+                            <type>jar</type>
+                            <optional>true</optional>
                 <exclusions>
                     <exclusion>
                         <groupId>net.sourceforge.owlapi</groupId>
