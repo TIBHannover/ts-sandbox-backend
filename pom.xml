@@ -39,13 +39,6 @@
 
 	<dependencies>
 
-		<!-- https://mvnrepository.com/artifact/com.google.api/google-api-translate-java -->
-		<dependency>
-			<groupId>com.google.api</groupId>
-			<artifactId>google-api-translate-java</artifactId>
-			<version>0.97</version>
-		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/com.memetix/microsoft-translator-java-api -->
 		<dependency>
 			<groupId>com.memetix</groupId>
