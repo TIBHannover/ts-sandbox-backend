@@ -45,6 +45,7 @@
 			<groupId>com.google.api</groupId>
 			<artifactId>google-api-translate-java</artifactId>
 			<version>0.97</version>
+			<!-- comment: four lines below may cause issue when try to dockerize project. Remove it when run comman docker-compose build -->
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/google-api-translate-java-0.97.jar</systemPath>
 			<type>jar</type>
