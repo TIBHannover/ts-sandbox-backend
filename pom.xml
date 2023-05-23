@@ -40,10 +40,15 @@
 	<dependencies>
 
 		<!-- https://mvnrepository.com/artifact/com.google.api/google-api-translate-java -->
+
 		<dependency>
 			<groupId>com.google.api</groupId>
 			<artifactId>google-api-translate-java</artifactId>
 			<version>0.97</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/google-api-translate-java-0.97.jar</systemPath>
+			<type>jar</type>
+			<optional>true</optional>
 		</dependency>
 
 
