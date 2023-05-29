@@ -40,16 +40,18 @@
 	<dependencies>
 
 		<!-- https://mvnrepository.com/artifact/com.google.api/google-api-translate-java -->
+		<!-- comment: four lines below may cause issue when try to dockerize project. Remove it when run comman docker-compose build -->
 
 		<dependency>
 			<groupId>com.google.api</groupId>
 			<artifactId>google-api-translate-java</artifactId>
 			<version>0.97</version>
-			<!-- comment: four lines below may cause issue when try to dockerize project. Remove it when run comman docker-compose build -->
+<!--
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/google-api-translate-java-0.97.jar</systemPath>
 			<type>jar</type>
 			<optional>true</optional>
+-->
 		</dependency>
 
 
@@ -67,12 +69,12 @@
                 <artifactId>logmap-matcher</artifactId>
                 <version>4.0</version>
 			<!-- comment: four lines below may cause issue when try to dockerize project. Remove it when run comman docker-compose build -->
-
+<!--
                           <scope>system</scope>
                             <systemPath>${project.basedir}/lib/logmap-matcher-4.0.jar</systemPath>
                             <type>jar</type>
                             <optional>true</optional>
-
+-->
                 <exclusions>
                     <exclusion>
                         <groupId>net.sourceforge.owlapi</groupId>
@@ -176,12 +178,7 @@
 
 		<plugins>
 
-			<plugin>
-				<groupId>uk.ox.logmap</groupId>
-				<artifactId>logmap-matcher</artifactId>
-				<version>4.0</version>
-			</plugin>
-
+<!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
@@ -205,8 +202,8 @@
 				</executions>
 
 			</plugin>
-
-
+-->
+<!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
@@ -230,7 +227,7 @@
 				</executions>
 
 			</plugin>
-
+-->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
