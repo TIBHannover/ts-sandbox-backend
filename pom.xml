@@ -30,6 +30,7 @@
 	</properties>
 
 	<repositories>
+		<!-- TIB Nexus repository : https://wiki.tib.eu/confluence/display/tep/Nexus+Repository+Manager-->
 		<repository>
 			<id>central</id>
 			<name>Central Repository</name>
