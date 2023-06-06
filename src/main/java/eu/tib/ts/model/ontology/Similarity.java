@@ -1,6 +1,7 @@
 package eu.tib.ts.model.ontology;
 
 import eu.tib.ts.controller.dto.OntologyDto;
+
 import lombok.Builder;
 import lombok.Value;
 

@@ -69,7 +69,6 @@ public class ProcessedOntology implements ExtendedOntology {
     @Field
     private String updatedAt = "DateToZonedDateTimeConverter.INSTANCE";
 
-
     private String uri;
     private String title;
 

@@ -4,6 +4,8 @@ spring:
       database: ontology_statistics_db
       host: mongodb
       port: 27017
+  main:
+    lazy-initialization: true
 
 server:
   port: 9191
@@ -23,11 +25,11 @@ preprocessing:
 
 
 ts:
-  ontologies.list.size: 10
-  base.uri: https://service.tib.eu/ts4tib/api/ontologies #https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=NFDI4ING
+  ontologies.list.size: 50
+  base.uri: https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu #https://service.tib.eu/ts4tib/api/ontologies
   timeout:
-    connect: 6000
-    read: 6000
+    connect: 4000
+    read: 4000
 
 similarity:
   weight:
@@ -38,4 +40,4 @@ similarity:
     individual: 0.2
 
 #list ontology ids in lower case
-skip.ontologies.processing: hp,gaxcore,tema
+skip.ontologies.processing: hp,gaxcore,tema,fibo

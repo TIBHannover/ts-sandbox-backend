@@ -12,8 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.tib.ts.model.ontology.ProcessedOntology.SEQUENCE_NAME;
-
 @Service
 public class ProcessedOntologyServiceImpl implements ProcessedOntologyService {
     private final ProcessedMongoOntologyRepository repository;
@@ -37,6 +35,20 @@ public class ProcessedOntologyServiceImpl implements ProcessedOntologyService {
             .map(OntologyDto::of)
             .sorted(Comparator.comparing(OntologyDto::getOntologyId))
             .collect(Collectors.toList());
+    }
+
+    /**
+     *
+     * @author nenad.krdzavac@tib.eu
+     * List of OntologyDto that includes collection where ontology belongs to.
+     * @return
+     */
+    @Override
+    public List<OntologyDto> getMappingOntologies() {
+        return Lists.newArrayList(repository.findAll()).stream()
+                .map(OntologyDto::mappingOf)
+                .sorted(Comparator.comparing(OntologyDto::getOntologyId))
+                .collect(Collectors.toList());
     }
 
     @Override

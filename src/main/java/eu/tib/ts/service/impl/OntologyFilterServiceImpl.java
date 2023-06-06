@@ -28,4 +28,6 @@ public class OntologyFilterServiceImpl implements OntologyFilterService {
                     .collect(Collectors.toList()))
             .orElse(processedOntologies);
     }
+
+
 }

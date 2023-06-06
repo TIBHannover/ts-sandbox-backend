@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.Link;
+
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -36,8 +36,5 @@ public class PageUtils {
         return page.isEmpty()
                 ? (PagedModel<M>) pagedResourcesAssembler.toEmptyModel(page, resourceType)
                 : pagedResourcesAssembler.toModel(page, modelAssembler);
-
-
-
     }
 }
