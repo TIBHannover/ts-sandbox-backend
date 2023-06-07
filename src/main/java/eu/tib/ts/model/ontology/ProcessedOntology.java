@@ -19,7 +19,7 @@ import java.util.Set;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "mongo_processed_ontology")
+@Document(collection = "mongo_processed_ontologies")
 public class ProcessedOntology implements ExtendedOntology {
 
     @Transient
