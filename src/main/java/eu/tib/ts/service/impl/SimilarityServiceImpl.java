@@ -1,6 +1,7 @@
 package eu.tib.ts.service.impl;
 
 import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.model.ontology.Objects;
 import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.service.OntologyFilterService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -26,6 +28,7 @@ public class SimilarityServiceImpl implements SimilarityService {
     private final ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository;
     private final OntologyFilterService filterService;
     private final SimilaritySettings settings;
+
 
     @Autowired
     protected SimilarityServiceImpl(ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository,
@@ -61,7 +64,7 @@ public class SimilarityServiceImpl implements SimilarityService {
                                             Pageable pageable) {
         List<ProcessedOntology> processedOntologies = getProcessedOntologies();
         Optional<ProcessedOntology> givenOntology = getProcessedOntologies(Collections.singletonList(id)).stream()
-            .findFirst();
+                .findFirst();
 
         if (CollectionUtils.isEmpty(processedOntologies) || !givenOntology.isPresent()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
@@ -70,7 +73,7 @@ public class SimilarityServiceImpl implements SimilarityService {
         filteredOntologies.add(givenOntology.get());
 
         List<Pair<String, ProcessedOntology>> pairs =
-            getCharacteristicsPairs(filteredOntologies, givenOntology.get(), characteristicsType);
+                getCharacteristicsPairs(filteredOntologies, givenOntology.get(), characteristicsType);
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
         List<Similarity> list = getSimilarityList(map, true);
 
@@ -94,7 +97,7 @@ public class SimilarityServiceImpl implements SimilarityService {
         filteredOntologies.add(externalOntology);
 
         List<Pair<String, ProcessedOntology>> pairs =
-            getCharacteristicsPairs(filteredOntologies, ontology, characteristicsType);
+                getCharacteristicsPairs(filteredOntologies, ontology, characteristicsType);
         Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
         List<Similarity> list = getSimilarityList(map, true);
 
@@ -107,11 +110,11 @@ public class SimilarityServiceImpl implements SimilarityService {
                                                           Optional<String> collection,
                                                           Pageable pageable) {
         List<ProcessedOntology> processedOntologies = ids.isPresent()
-            ? getProcessedOntologies(ids.get())
-            : getProcessedOntologies();
+                ? getProcessedOntologies(ids.get())
+                : getProcessedOntologies();
 
         Optional<ProcessedOntology> givenOntology = getProcessedOntologies(Collections.singletonList(id)).stream()
-            .findFirst();
+                .findFirst();
 
         if (CollectionUtils.isEmpty(processedOntologies) || !givenOntology.isPresent()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
@@ -132,9 +135,10 @@ public class SimilarityServiceImpl implements SimilarityService {
         }
 
         List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
-            .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
-            .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
-            .collect(Collectors.toList());
+                .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
+                .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
+                .collect(Collectors.toList());
+
 
         return PageUtils.toPage(sorted, pageable);
     }
@@ -144,8 +148,8 @@ public class SimilarityServiceImpl implements SimilarityService {
                                                           Optional<String> collection,
                                                           Pageable pageable) {
         List<ProcessedOntology> processedOntologies = ids.isPresent()
-            ? getProcessedOntologies(ids.get())
-            : getProcessedOntologies();
+                ? getProcessedOntologies(ids.get())
+                : getProcessedOntologies();
         if (processedOntologies == null || processedOntologies.isEmpty()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
@@ -166,9 +170,9 @@ public class SimilarityServiceImpl implements SimilarityService {
         }
 
         List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
-            .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
-            .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
-            .collect(Collectors.toList());
+                .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
+                .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
+                .collect(Collectors.toList());
 
         return PageUtils.toPage(sorted, pageable);
     }
@@ -179,7 +183,7 @@ public class SimilarityServiceImpl implements SimilarityService {
                                                           Pageable pageable) {
         List<ProcessedOntology> processedOntologies = getProcessedOntologies();
         Optional<ProcessedOntology> givenOntology = getProcessedOntologies(Collections.singletonList(id)).stream()
-            .findFirst();
+                .findFirst();
 
         if (CollectionUtils.isEmpty(processedOntologies) || !givenOntology.isPresent()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
@@ -200,9 +204,9 @@ public class SimilarityServiceImpl implements SimilarityService {
         }
 
         List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
-            .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
-            .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
-            .collect(Collectors.toList());
+                .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
+                .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
+                .collect(Collectors.toList());
 
         return PageUtils.toPage(sorted, pageable);
     }
@@ -231,9 +235,9 @@ public class SimilarityServiceImpl implements SimilarityService {
         }
 
         List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
-            .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
-            .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
-            .collect(Collectors.toList());
+                .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
+                .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
+                .collect(Collectors.toList());
 
         return PageUtils.toPage(sorted, pageable);
     }
@@ -244,8 +248,8 @@ public class SimilarityServiceImpl implements SimilarityService {
                                                                                        Optional<String> collection,
                                                                                        Pageable pageable) {
         List<ProcessedOntology> processedOntologies = ids.isPresent()
-            ? getProcessedOntologies(ids.get())
-            : getProcessedOntologies();
+                ? getProcessedOntologies(ids.get())
+                : getProcessedOntologies();
 
         if (processedOntologies == null || processedOntologies.isEmpty()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
@@ -266,9 +270,9 @@ public class SimilarityServiceImpl implements SimilarityService {
         }
 
         List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
-            .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
-            .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
-            .collect(Collectors.toList());
+                .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
+                .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
+                .collect(Collectors.toList());
 
         return PageUtils.toPage(sorted, pageable);
     }
@@ -280,13 +284,14 @@ public class SimilarityServiceImpl implements SimilarityService {
         double total = 0;
         double percentSum = 0;
         List<Similarity> list = null;
-        List<Titles> titles= new ArrayList<>();
-        List<Pairs> pair= new ArrayList<>();
+        List<Titles> titles = new ArrayList<>();
+
+        List<Pairs> pair = new ArrayList<>();
         for (CharacteristicsType type : CharacteristicsType.values()) {
             List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(Arrays.asList(ont1, ont2), type);
             Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
             list = getSimilarityList(map, false);
-            List<String> similarities = list.stream().map(Similarity::getName).collect(Collectors.toList());
+            List<Pair<String, String>> similarities = list.stream().map(Similarity::getObjects).collect(Collectors.toList());
 
             long maxSimilaritiesSize = Math.max(type.getCharacteristics(ont1).size(), type.getCharacteristics(ont2).size());
             total += maxSimilaritiesSize;
@@ -296,37 +301,37 @@ public class SimilarityServiceImpl implements SimilarityService {
             percentSum += percent;
 
             characteristicsMap.put(
-                type.name().toLowerCase(),
-                CharacteristicsInfo.of(similarities, maxSimilaritiesSize, percent)
+                    type.name().toLowerCase(),
+                    CharacteristicsInfo.of(similarities, maxSimilaritiesSize, percent)
             );
         }
 
         titles.add(Titles.builder().firstTitle(ont1.getTitle()).secondTitle(ont2.getTitle()).build());
-//        pair.add(Pairs.builder().first(ont1.getOntologyId()).second(ont2.getOntologyId()).build());
 
-        return buildPairwiseSimilarities(ont1 ,ont2 , characteristicsMap, sum, total, percentSum,titles);
+        return buildPairwiseSimilarities(ont1, ont2, characteristicsMap, sum, total, percentSum, titles);
     }
 
 
-    private PairwiseSimilarity buildPairwiseSimilarities(ProcessedOntology ont1,ProcessedOntology ont2,
+    private PairwiseSimilarity buildPairwiseSimilarities(ProcessedOntology ont1, ProcessedOntology ont2,
                                                          Map<String, CharacteristicsInfo> characteristicsMap,
                                                          double sum,
                                                          double totalSum,
                                                          double percent,
                                                          List<Titles> titled) {
+
         return PairwiseSimilarity.builder()
-            .pair(Pair.of(ont1.getOntologyId(),ont2.getOntologyId()))
-            .sum(sum)
-            .totalSum(totalSum)
-            .percent(percent)
-            .titles(Pair.of(titled.get(0).getFirstTitle(),titled.get(0).getSecondTitle()))
-            .characteristics(characteristicsMap)
-            .build();
+                .pair(Pair.of(ont1.getOntologyId(), ont2.getOntologyId()))
+                .sum(sum)
+                .totalSum(totalSum)
+                .percent(percent)
+                .titles(Pair.of(titled.get(0).getFirstTitle(), titled.get(0).getSecondTitle()))
+                .characteristics(characteristicsMap)
+                .build();
     }
 
     private List<Pair<String, ProcessedOntology>> getCharacteristicsPairs(
-        List<ProcessedOntology> processedOntologies,
-        CharacteristicsType characteristicsType
+            List<ProcessedOntology> processedOntologies,
+            CharacteristicsType characteristicsType
     ) {
         List<Pair<String, ProcessedOntology>> pairs = new ArrayList<>();
         for (ProcessedOntology processedOntology : processedOntologies) {
@@ -339,15 +344,15 @@ public class SimilarityServiceImpl implements SimilarityService {
     }
 
     private <T extends ExtendedOntology> List<Pair<String, ProcessedOntology>> getCharacteristicsPairs(
-        List<ProcessedOntology> processedOntologies,
-        T ontology,
-        CharacteristicsType characteristicsType
+            List<ProcessedOntology> processedOntologies,
+            T ontology,
+            CharacteristicsType characteristicsType
     ) {
         List<Pair<String, ProcessedOntology>> pairs = new ArrayList<>();
         for (ProcessedOntology processedOntology : processedOntologies) {
             for (String characteristics : characteristicsType.getCharacteristics(processedOntology)) {
                 if (characteristicsType.getCharacteristicsToLowerCase(ontology).contains(characteristics.toLowerCase())
-                    && !processedOntology.equalsTsOntology(ontology)) {
+                        && !processedOntology.equalsTsOntology(ontology)) {
                     pairs.add(Pair.of(characteristics, processedOntology));
                 }
             }
@@ -357,54 +362,59 @@ public class SimilarityServiceImpl implements SimilarityService {
     }
 
     private List<Similarity> getSimilarityList(Map<String, List<OntologyDto>> map, boolean external) {
+//entry.getValue().get(0).getLabelProperty()
+        AtomicInteger index = new AtomicInteger();
+
         return map.entrySet().stream()
-            .filter(entry -> external || entry.getValue().size() > 1)
-            .map(entry -> Similarity.builder()
-                .name(entry.getKey())
-                .ontologies(entry.getValue())
-                .build()
-            )
-            .collect(Collectors.toList());
+                .filter(entry -> external || entry.getValue().size() > 1)
+                .map(entry -> Similarity.builder()
+                        .objects(Pair.of(entry.getKey(),entry.getKey().lastIndexOf('#')+1>0? entry.getKey().substring(entry.getKey().lastIndexOf('#')+1):"no label found"))
+                        .ontologies(entry.getValue())
+                        .build()
+                )
+                .collect(Collectors.toList());
     }
+
 
     private List<ProcessedOntology> getProcessedOntologies(List<String> ids) {
 
         return ProcessedMongoOntologyRepository.findByOntologyIdIn(ids);
+
     }
 
     private List<ProcessedOntology> getProcessedOntologies() {
 
         return StreamSupport.stream(ProcessedMongoOntologyRepository.findAll().spliterator(), false)
-            .sorted(Comparator.comparing(ProcessedOntology::getOntologyId))
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(ProcessedOntology::getOntologyId))
+                .collect(Collectors.toList());
 
     }
 
     private Map<String, List<OntologyDto>> getSimilarityMap(List<Pair<String, ProcessedOntology>> pairs) {
         Map<String, List<OntologyDto>> similarityMap = pairs.stream()
-            .collect(
-                Collectors.groupingBy(
-                    Pair::getFirst,
-                    Collectors.mapping(pair -> OntologyDto.of(pair.getSecond()),
-                        Collectors.collectingAndThen(
-                            Collectors.toList(),
-                            list -> list.stream()
-                                .sorted(Comparator.comparing(OntologyDto::getOntologyId))
-                                .collect(Collectors.toList())
+                .collect(
+                        Collectors.groupingBy(
+                                Pair::getFirst,
+                                Collectors.mapping(pair -> OntologyDto.of(pair.getSecond()),
+                                        Collectors.collectingAndThen(
+                                                Collectors.toList(),
+                                                list -> list.stream()
+                                                        .sorted(Comparator.comparing(OntologyDto::getOntologyId))
+                                                        .collect(Collectors.toList())
+                                        )
+                                )
                         )
-                    )
-                )
-            );
+                );
 
         return similarityMap.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey,
-                    Map.Entry::getValue,
-                    (oldValue, newValue) -> oldValue,
-                    LinkedHashMap::new
-                )
-            );
+                .sorted(Map.Entry.comparingByKey())
+                .collect(
+                        Collectors.toMap(
+                                Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (oldValue, newValue) -> oldValue,
+                                LinkedHashMap::new
+                        )
+                );
     }
 }

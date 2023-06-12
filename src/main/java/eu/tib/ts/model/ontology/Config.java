@@ -11,6 +11,7 @@ public class Config {
     String id;
     String versionIri;
     String title;
+    String label;
     String namespace;
     String preferredPrefix;
     String description;

@@ -13,6 +13,7 @@ public class ExternalOntology implements ExtendedOntology {
     String ontologyId;
     String uri;
     String title;
+    String label;
     Set<String> properties;
     Set<String> classes;
     Set<String> imports;

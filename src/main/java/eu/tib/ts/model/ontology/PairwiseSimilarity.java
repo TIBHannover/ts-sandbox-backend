@@ -15,5 +15,6 @@ public class PairwiseSimilarity {
     double totalSum;
     double percent;
     Pair<String, String> titles;
+    Pair<String, String> objects;
     Map<String, CharacteristicsInfo> characteristics;
 }
