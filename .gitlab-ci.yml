@@ -73,6 +73,7 @@ sonarqube-check:
   only:
     - main
     - branches
+  when: manual
 deploy to TEST:
   variables:
     INVENTORY_FILE: inventory/sandbox_test.yml
