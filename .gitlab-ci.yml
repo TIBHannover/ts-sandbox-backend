@@ -24,6 +24,7 @@ stages:          # List of stages for jobs, and their order of execution
   - build
   - sonarqube
   - deploy
+  - remove_docker
 #  - dockerize
 
 .deploy_job:
