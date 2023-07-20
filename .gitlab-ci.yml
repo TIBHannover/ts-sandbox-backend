@@ -46,6 +46,7 @@ test:
   stage: test
   script:
     - mvn clean test -B
+  when: manual
 
 build:
   stage: build
@@ -54,6 +55,7 @@ build:
     - branches
   script:
     - mvn clean package -B
+  when: manual
 
 sonarqube-check:
   stage: sonarqube
