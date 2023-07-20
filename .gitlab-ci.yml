@@ -40,7 +40,7 @@ stages:          # List of stages for jobs, and their order of execution
     - chmod 644 ~/.ssh/known_hosts
     - git clone https://github.com/aamir9138/TIB-Terminology-Service-Statistics-box.git
   script:
-    - ansible-playbook -v -i ${INVENTORY_FILE} TIB-Terminology-Service-Statistics-box/ansible/playbook.yml
+    - ansible-playbook -v -i ${INVENTORY_FILE}  --extra-vars "gitlab_token=$GITLAB_TOKEN_CI"  TIB-Terminology-Service-Statistics-box/ansible/playbook.yml
 
 test:
   stage: test
