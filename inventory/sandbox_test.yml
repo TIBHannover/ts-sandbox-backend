@@ -6,5 +6,5 @@ frontend:
       ansible_become_password: xxxxxxxx
       sandbox_repo: "https://oath:{{gitlab_token}}@git.tib.eu/terminology/sandbox/tib-terminology-service-statistics.git"
       sandbox_base_dir: '/home/terminology/SANDBOX'
-      sandbox_version: 'main'
+      sandbox_version: '67-deployment-to-test-server'
   #    alternative_dockercomposefile: ../../config/docker-compose.yml
