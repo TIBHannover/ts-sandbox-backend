@@ -10,4 +10,4 @@ COPY . /opt/sandbox/
 RUN cd /opt/sandbox && ls && mvn clean package -DskipTests
 
 EXPOSE 9191
-ENTRYPOINT ["java", "-jar", "/opt/sandbox/target/ts-statistics-back.jar"]
+ENTRYPOINT ["java", "-Xmx5G", "-Xms1024m", "-jar", "/opt/sandbox/target/ts-statistics-back.jar"]
