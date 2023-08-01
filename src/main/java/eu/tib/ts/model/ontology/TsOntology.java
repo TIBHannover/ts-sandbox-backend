@@ -29,15 +29,18 @@ public class TsOntology implements Ontology {
     Config config;
 
     public Set<String> getCollection() {
-        return Objects.isNull(config) || CollectionUtils.isEmpty(config.getClassifications())
-            ? Collections.emptySet()
-            : new HashSet<>(config.getClassifications().get(0).getCollection());
+        if (config == null || CollectionUtils.isEmpty(config.getClassifications())) {
+            return Collections.emptySet();
+        } else {
+            Classification classification = config.getClassifications().get(0);
+            return classification != null && classification.getCollection() != null
+                    ? new HashSet<>(classification.getCollection())
+                    : Collections.emptySet();
+        }
     }
 
     public String getUri() {
-        return Objects.isNull(config)
-            ? null
-            : config.getFileLocation();
+        return config != null ? config.getFileLocation() : null;
     }
 
     @Override
