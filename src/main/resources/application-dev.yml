@@ -40,4 +40,4 @@ similarity:
     individual: 0.2
 
 #list ontology ids in lower case
-skip.ontologies.processing: hp,gaxcore,tema,fibo
+skip.ontologies.processing: hp,gaxcore,tema,fibo,chiro,chebi,efo,bau,raum,hoom,ms,ncit,ordo40,ordo42,snomedct,envo,pato,bto,obi,mop,edam,chmo,afo,sto
