@@ -1,6 +1,6 @@
 frontend:
   hosts:
-    ols4ing11.test.service.tib.eu:
+    ols4ing01.develop.service.tib.eu:
       ansible_ssh_user: terminology
       ansible_become_method: su
       ansible_become_password: xxxxxxxx
