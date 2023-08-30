@@ -22,7 +22,7 @@ preprocessing:
 
 ts:
   ontologies.list.size: 1000
-  base.uri: https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu #https://service.tib.eu/ts4tib/api/ontologies #http://localhost:8080/api/ontologies
+  base.uri: https://service.tib.eu/ts4tib/api/ontologies #https://service.tib.eu/ts4tib/api/ontologies #http://localhost:8080/api/ontologies
   # http://localhost:8080/api/ontologies/filterby?schema=collection&classification=NFDI4ING
   timeout:
     connect: 4000
@@ -37,4 +37,4 @@ similarity:
     individual: 0.2
 
 #list ontology ids in lower case
-skip.ontologies.processing: hp,gaxcore,tema,fibo
+skip.ontologies.processing: hp,gaxcore,tema,fibo,chiro,chebi,efo,bau,raum,hoom,ms,ncit,ordo40,ordo42,snomedct,envo,pato,bto,obi,mop,edam,chmo,afo,sto
