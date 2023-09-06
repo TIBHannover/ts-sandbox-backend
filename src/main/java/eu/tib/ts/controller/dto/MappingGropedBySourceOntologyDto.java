@@ -1,5 +1,6 @@
 package eu.tib.ts.controller.dto;
 
+import eu.tib.ts.model.ontology.ProcessedMapping;
 import lombok.Builder;
 import lombok.Value;
 
@@ -22,8 +23,16 @@ public class MappingGropedBySourceOntologyDto {
 
     int numberOfTargetOntologies;
 
+    Set<TargetOntologyDto> targetOntologyDtoList;
 
+    public static MappingGropedBySourceOntologyDto getMappingGroupedBySourceOntologyObjectStrDto(ProcessedMapping processedMapping) {
 
-
-
+        return MappingGropedBySourceOntologyDto.builder()
+                .id(processedMapping.getId())
+                .mappingId(processedMapping.getMappingId())
+                .sourceOntology(processedMapping.getSourceOntology())
+                .numberOfTargetOntologies(processedMapping.getNumberOfTargetOntologies())
+                .targetOntologyDtoList(processedMapping.getTargetOntologyDtoList())
+                .build();
+    }
 }
