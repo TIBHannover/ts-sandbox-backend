@@ -18,7 +18,7 @@ import java.util.Set;
 public class TargetOntologyListObjectSetModel {
 
     long id;
-    
+
     Set<OntologyDto> targetOntology;
 
     int numberOfMappings;
@@ -26,7 +26,4 @@ public class TargetOntologyListObjectSetModel {
 
     Set<MappingObjectSetModel> mappingList;
     Set<MappingObjectSetModel> conflictiveMappingsList;
-
-
-
 }

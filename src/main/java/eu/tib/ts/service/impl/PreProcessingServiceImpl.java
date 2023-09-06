@@ -149,40 +149,45 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                     Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2.getLogmap2_ConflictiveMappings();
 
                     /**
-                     * adds information about source ontology in ontology dto
+                     * Only mappings or conflictive mappings that are greater than zero are processed.
                      */
-                    OntologyDto sourceOntology = OntologyDto.builder()
-                            .ontologyId(unprocessedOntologies.get(i).getOntologyId())
-                            .uri(unprocessedOntologies.get(i).getUri())
-                            .title(unprocessedOntologies.get(i).getTitle())
-                            .collection(unprocessedOntologies.get(i).getCollection())
-                            .build();
+                    if (logmap2Mappings.size() > 0 || conflictiveLogmap2Mappings.size() >0) {
+                        /**
+                         * adds information about source ontology in ontology dto
+                         */
+                        OntologyDto sourceOntology = OntologyDto.builder()
+                                .ontologyId(unprocessedOntologies.get(i).getOntologyId())
+                                .uri(unprocessedOntologies.get(i).getUri())
+                                .title(unprocessedOntologies.get(i).getTitle())
+                                .collection(unprocessedOntologies.get(i).getCollection())
+                                .build();
 
-                    Set<OntologyDto> sourceOntologySet = new HashSet<>();
+                        Set<OntologyDto> sourceOntologySet = new HashSet<>();
 
-                    sourceOntologySet.add(sourceOntology);
+                        sourceOntologySet.add(sourceOntology);
 
-                    /**
-                     * adds information about target ontology into ontology dto.
-                     */
-                    OntologyDto targetOntology = OntologyDto.builder()
-                            .ontologyId(unprocessedOntologies.get(j).getOntologyId())
-                            .uri(unprocessedOntologies.get(j).getUri())
-                            .title(unprocessedOntologies.get(j).getTitle())
-                            .collection(unprocessedOntologies.get(j).getCollection())
-                            .build();
+                        /**
+                         * adds information about target ontology into ontology dto.
+                         */
+                        OntologyDto targetOntology = OntologyDto.builder()
+                                .ontologyId(unprocessedOntologies.get(j).getOntologyId())
+                                .uri(unprocessedOntologies.get(j).getUri())
+                                .title(unprocessedOntologies.get(j).getTitle())
+                                .collection(unprocessedOntologies.get(j).getCollection())
+                                .build();
 
-                    Set<OntologyDto> targetOntologySet = new HashSet<>();
-                    targetOntologySet.add(targetOntology);
+                        Set<OntologyDto> targetOntologySet = new HashSet<>();
+                        targetOntologySet.add(targetOntology);
 
 
-                    ProcessedMapping processedMapping =
-                            preProcessingMappingService.preProcess(sourceOntologySet,
-                                    targetOntologySet, logmap2Mappings.size(),
-                                    conflictiveLogmap2Mappings.size(), getMappingList(logmap2Mappings),getMappingList(conflictiveLogmap2Mappings));
+                        ProcessedMapping processedMapping =
+                                preProcessingMappingService.preProcess(sourceOntologySet,
+                                        targetOntologySet, logmap2Mappings.size(),
+                                        conflictiveLogmap2Mappings.size(), getMappingList(logmap2Mappings), getMappingList(conflictiveLogmap2Mappings));
 
-                processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
-                processedMappingService.save(processedMapping);
+                        processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
+                        processedMappingService.save(processedMapping);
+                    }
 
             }catch(Exception e){
 
