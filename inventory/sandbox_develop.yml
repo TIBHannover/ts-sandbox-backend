@@ -6,5 +6,5 @@ frontend:
       ansible_become_password: xxxxxxxx
       sandbox_repo: "https://oath:{{gitlab_token}}@git.tib.eu/terminology/sandbox/tib-terminology-service-statistics.git"
       sandbox_base_dir: '/home/terminology/SANDBOX'
-      sandbox_version: '68-sandbox-statistics-module-only-process-coypu-collection-but-has-to-process-all-ts-ontologies'
+      sandbox_version: 'main'
   #    alternative_dockercomposefile: ../../config/docker-compose.yml
