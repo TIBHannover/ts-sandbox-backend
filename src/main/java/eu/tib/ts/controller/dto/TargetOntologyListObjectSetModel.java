@@ -18,9 +18,9 @@ import java.util.Set;
 public class TargetOntologyListObjectSetModel {
 
     long id;
-    String ontologyId;
-    String uri;
-    String title;
+    
+    Set<OntologyDto> targetOntology;
+
     int numberOfMappings;
     int numberOfConflictiveMappings;
 
