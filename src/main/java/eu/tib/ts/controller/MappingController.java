@@ -1,6 +1,7 @@
 package eu.tib.ts.controller;
 
 import eu.tib.ts.controller.dto.MappingDto;
+import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 import eu.tib.ts.controller.dto.OntologyDto;
 
 import eu.tib.ts.service.OntologyFilterService;
@@ -98,20 +99,20 @@ public class MappingController {
 
     }
     @ApiOperation("List mappings between a pair of ontologies grouped by source ontologies")
-    @GetMapping(value = "/mappingsgroupedbysourceontology", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<MappingDto>> getMappingsGroupedBySourceOntology() {
+    @GetMapping(value = "/allmappingsgroupedbysourceontology", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsGroupedBySourceOntology() {
 
-        List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList = processedMappingService.getAllMappingsGroupedBySourceOntology();
 
-        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoListFillteredByMappingId = new ArrayList<>();
 
-        for(MappingDto mappingDto: mappingDtoList){
+        for(MappingGropedBySourceOntologyDto mappingDto: mappingGropedBySourceOntologyDtoList){
 
-            mappingDtoListFillteredByMappingId.add(mappingDto);
+            mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingDto);
 
         }
 
-        return HttpUtils.ok(mappingDtoListFillteredByMappingId);
+        return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
 
     }
 
