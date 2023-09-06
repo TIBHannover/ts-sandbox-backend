@@ -1,10 +1,12 @@
-# Terminology Service Statistics
+# Terminology Service Sandbox Backend
+
+* Internally Hosted Sandbox Frontend: http://ols4ing01.develop.service.tib.eu/ts/sandbox
+* Internally Hosted Sandbox Backend: http://ols4ing01.develop.service.tib.eu:9191/swagger-ui/index.html
+* Public URL : not public
 
 ### System requirements
 ***
-* Java Runtime Environment 8
-* Maven
-* Docker
+* Docker and Docker Compose
 
 ### application versions and ports
 
@@ -16,15 +18,15 @@
 ### How to run
 ***
 To start a project run following commands in a project directory:
-1. `mvn clean install` to build project `mvn clean install -DskipTests` to build project skipping the tests
-2. `docker-compose build` to build containers
-3. `docker-compose up -d` create and start the containers in the background and leave them running
+
+1. `docker-compose build` to build containers
+2. `docker-compose up -d` create and start the containers in the background and leave them running
 
 Terminology Service Statistics runs on port 9191: `http://localhost:9191`
 
-API documentation: [swagger](http://localhost:9191/swagger-ui/)
+API documentation: [swagger](http://localhost:9191/swagger-ui/index.html)
 
-### Questions to be answered by statistic
+### Questions to be answered by Terminology Service Statistics for Pairwise Similarity
 ***
 
 #### How many ontologies share this property?
@@ -45,13 +47,10 @@ API documentation: [swagger](http://localhost:9191/swagger-ui/)
 #### What is a commonly used ontology in the collection XYZ?
 `/api/ontology/similarity/collection/{name}`
 
-## How to develop
-***
+### Frontend Code Base using this Repository as Backend
 
-#### Backend Terminology Service Statistics (current service)
+* Frontend Repository: [code base](https://git.tib.eu/terminology/sandbox/tib-terminology-service-2-0-central-frontend)
 
-* this service provides with content for `Analytics` tab
+### Backend Terminology Service Statistics (current service)
 
-#### (Optional) Backend service [ols-backend-2.0-poc](https://git.tib.eu/terminology/sandbox/ols-backend-2.0-poc)
-
-* this service provides with content for `Ontologies` tab 
+* this service provides with content for `Sandbox` tab in Terminology Service Frontend
