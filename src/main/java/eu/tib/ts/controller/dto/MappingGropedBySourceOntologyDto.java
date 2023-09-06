@@ -23,7 +23,7 @@ public class MappingGropedBySourceOntologyDto {
 
     int numberOfTargetOntologies;
 
-    Set<TargetOntologyListObjectSetModel> targetOntologyListObjectSetModel;
+    Set<TargetOntologyListObjectSetModel> targetOntologyList;
 
     public static MappingGropedBySourceOntologyDto getMappingGroupedBySourceOntologyObjectStrDto(ProcessedMapping processedMapping) {
 
@@ -32,7 +32,7 @@ public class MappingGropedBySourceOntologyDto {
                 .mappingId(processedMapping.getMappingId())
                 .sourceOntology(processedMapping.getSourceOntology())
                 .numberOfTargetOntologies(processedMapping.getNumberOfTargetOntologies())
-                .targetOntologyListObjectSetModel(processedMapping.getTargetOntologyListObjectSetModel())
+                .targetOntologyList(processedMapping.getTargetOntologyList())
                 .build();
     }
 }

@@ -68,9 +68,9 @@ private Set<MappingObjectSetModel> mappingList;
 private Set<MappingObjectSetModel> conflictiveMappingsList;
 
 @ElementCollection
-@CollectionTable(name="targetOntologyListObjectSetModel", joinColumns = @JoinColumn(name="id"))
-@Field("targetOntologyListObjectSetModel")
-private Set<TargetOntologyListObjectSetModel> targetOntologyListObjectSetModel;
+@CollectionTable(name="targetOntologyList", joinColumns = @JoinColumn(name="id"))
+@Field("targetOntologyList")
+private Set<TargetOntologyListObjectSetModel> targetOntologyList;
 
 @ElementCollection
 @CollectionTable(name="numberOfTargetOntologies", joinColumns = @JoinColumn(name="id"))
