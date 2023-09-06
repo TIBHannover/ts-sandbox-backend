@@ -68,14 +68,16 @@ private Set<MappingObjectSetModel> mappingList;
 private Set<MappingObjectSetModel> conflictiveMappingsList;
 
 @ElementCollection
+@CollectionTable(name="numberOfTargetOntologies", joinColumns = @JoinColumn(name="id"))
+@Field("numberOfTargetOntologies")
+private int numberOfTargetOntologies;
+
+@ElementCollection
 @CollectionTable(name="targetOntologyList", joinColumns = @JoinColumn(name="id"))
 @Field("targetOntologyList")
 private Set<TargetOntologyListObjectSetModel> targetOntologyList;
 
-@ElementCollection
-@CollectionTable(name="numberOfTargetOntologies", joinColumns = @JoinColumn(name="id"))
-@Field("numberOfTargetOntologies")
-private int numberOfTargetOntologies;
+
 
 @Field
 private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
