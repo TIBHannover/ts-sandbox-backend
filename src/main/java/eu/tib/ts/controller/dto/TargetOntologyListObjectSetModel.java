@@ -1,6 +1,7 @@
 package eu.tib.ts.controller.dto;
 
-import eu.tib.ts.model.ontology.ProcessedMapping;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
@@ -12,7 +13,9 @@ import java.util.Set;
  * number of mappings, number of conflictive mappings, as well as
  * list of mappings, and list of conflictive mappings
  */
-public class TargetOntologyDto {
+@Getter
+@Setter
+public class TargetOntologyListObjectSetModel {
 
     long id;
     String ontologyId;

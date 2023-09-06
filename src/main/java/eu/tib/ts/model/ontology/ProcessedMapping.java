@@ -2,7 +2,7 @@ package eu.tib.ts.model.ontology;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
-import eu.tib.ts.controller.dto.TargetOntologyDto;
+import eu.tib.ts.controller.dto.TargetOntologyListObjectSetModel;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -68,9 +68,9 @@ private Set<MappingObjectSetModel> mappingList;
 private Set<MappingObjectSetModel> conflictiveMappingsList;
 
 @ElementCollection
-@CollectionTable(name="targetOntologyDtoList", joinColumns = @JoinColumn(name="id"))
-@Field("targetOntologyDtoList")
-private Set<TargetOntologyDto> targetOntologyDtoList;
+@CollectionTable(name="targetOntologyListObjectSetModel", joinColumns = @JoinColumn(name="id"))
+@Field("targetOntologyListObjectSetModel")
+private Set<TargetOntologyListObjectSetModel> targetOntologyListObjectSetModel;
 
 @ElementCollection
 @CollectionTable(name="numberOfTargetOntologies", joinColumns = @JoinColumn(name="id"))
