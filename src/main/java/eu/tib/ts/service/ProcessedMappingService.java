@@ -1,6 +1,7 @@
 package eu.tib.ts.service;
 
 import eu.tib.ts.controller.dto.MappingDto;
+import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.List;
 public interface ProcessedMappingService {
 
 public List<MappingDto> getAllMappings();
+
+public List<MappingGropedBySourceOntologyDto> getAllMappingsGroupedBySourceOntology();
 
 ProcessedMapping save (ProcessedMapping processedMapping);
 
