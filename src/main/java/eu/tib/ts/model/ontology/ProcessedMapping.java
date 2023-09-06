@@ -2,6 +2,7 @@ package eu.tib.ts.model.ontology;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.controller.dto.TargetOntologyDto;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -65,6 +66,16 @@ private Set<MappingObjectSetModel> mappingList;
 @CollectionTable(name="conflictiveMappingsList", joinColumns = @JoinColumn(name="id"))
 @Field("conflictiveMappingsList")
 private Set<MappingObjectSetModel> conflictiveMappingsList;
+
+@ElementCollection
+@CollectionTable(name="targetOntologyDtoList", joinColumns = @JoinColumn(name="id"))
+@Field("targetOntologyDtoList")
+private Set<TargetOntologyDto> targetOntologyDtoList;
+
+@ElementCollection
+@CollectionTable(name="numberOfTargetOntologies", joinColumns = @JoinColumn(name="id"))
+@Field("numberOfTargetOntologies")
+private int numberOfTargetOntologies;
 
 @Field
 private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
