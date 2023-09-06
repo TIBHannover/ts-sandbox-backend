@@ -97,4 +97,22 @@ public class MappingController {
         return HttpUtils.ok(mappingDtoListFillteredByMappingId);
 
     }
+    @ApiOperation("List mappings between a pair of ontologies grouped by source ontologies")
+    @GetMapping(value = "/mappingsgroupedbysourceontology", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<MappingDto>> getMappingsGroupedBySourceOntology() {
+
+        List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
+
+        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
+
+        for(MappingDto mappingDto: mappingDtoList){
+
+            mappingDtoListFillteredByMappingId.add(mappingDto);
+
+        }
+
+        return HttpUtils.ok(mappingDtoListFillteredByMappingId);
+
+    }
+
 }
