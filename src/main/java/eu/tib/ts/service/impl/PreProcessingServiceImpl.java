@@ -122,11 +122,13 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         for(int i=0;i<unprocessedOntologies.size();i++) {
 
+            Set<OntologyDto> sourceOntologyGroupedSet = new HashSet<>();
+
             for (int j = i + 1; j < unprocessedOntologies.size()+1; j++) {
 
-                ontologyManager= OWLManager.createOWLOntologyManager();
+            ontologyManager= OWLManager.createOWLOntologyManager();
 
-                try {
+            try {
 
                     /**
                      *
@@ -149,9 +151,10 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                     Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2.getLogmap2_ConflictiveMappings();
 
                     /**
-                     * Only mappings or conflictive mappings that are greater than zero are processed.
+                     * Only mappings or conflictive mappings that are greater than zero are preprocessed.
                      */
                     if (logmap2Mappings.size() > 0 || conflictiveLogmap2Mappings.size() >0) {
+
                         /**
                          * adds information about source ontology in ontology dto
                          */
@@ -162,9 +165,14 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                                 .collection(unprocessedOntologies.get(i).getCollection())
                                 .build();
 
-                        Set<OntologyDto> sourceOntologySet = new HashSet<>();
 
+                        Set<OntologyDto> sourceOntologySet = new HashSet<>();
                         sourceOntologySet.add(sourceOntology);
+
+                        /*
+                         * mappings grouped by source ontology set.
+                         */
+                        sourceOntologyGroupedSet.add(sourceOntology);
 
                         /**
                          * adds information about target ontology into ontology dto.
@@ -179,7 +187,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                         Set<OntologyDto> targetOntologySet = new HashSet<>();
                         targetOntologySet.add(targetOntology);
 
-
                         ProcessedMapping processedMapping =
                                 preProcessingMappingService.preProcess(sourceOntologySet,
                                         targetOntologySet, logmap2Mappings.size(),
@@ -187,6 +194,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                         processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
                         processedMappingService.save(processedMapping);
+
                     }
 
             }catch(Exception e){
@@ -199,7 +207,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     }
 
     /**
-     * stores information about mapping list (both type of mappings) in a Set of mapping object set model
+      * stores information about mapping list (both type of mappings) in a Set of mapping object set model
      * @param logmap2MappingsSet
      * @return mappingList
      *
