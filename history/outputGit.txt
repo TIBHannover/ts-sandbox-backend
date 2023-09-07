@@ -1,0 +1,5 @@
+1 axioms in left ontology but not in right ontology:
+- Annotation(<http://purl.org/dc/terms/modified> "2022-12-23"^^xsd:date)
+
+1 axioms in right ontology but not in left ontology:
++ Annotation(<http://purl.org/dc/terms/modified> "2022-11-21")
