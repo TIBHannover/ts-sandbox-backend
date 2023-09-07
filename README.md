@@ -23,7 +23,8 @@ To start a project run following commands in a project directory:
 1. `docker-compose build` to build containers
 2. `docker-compose up -d` create and start the containers in the background and leave them running
 
-Terminology Service Statistics runs on port 9191: `http://localhost:9191`
+Terminology Service Statistics runs on port 9191: `http://localhost:9191`  
+
 Semantic Diff Service runs on port 9292: `http://localhost:9292`
 
 API documentation for statistics module: [swagger-statistics](http://localhost:9191/swagger-ui/index.html)
