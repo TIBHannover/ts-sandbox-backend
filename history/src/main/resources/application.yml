@@ -1,0 +1,11 @@
+spring:
+  data:
+    mongodb:
+      database: local
+      host: mongodb
+      port: 27017
+  main:
+    lazy-initialization: true
+
+server:
+  port: 9292

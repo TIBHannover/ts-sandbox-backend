@@ -10,18 +10,10 @@ services:
       image: ts-statistics-back:1.0
       container_name: ts-statistics-back
       build:
-        context: statistics
+        context: .
       ports:
         - "9191:9191"
       links:
         - mongodb
-    history-back:
-      image: history-back:1.0
-      container_name: history-back
-      build:
-        context: history
-      ports:
-        - "9292:9292"
-      links:
-        - mongodb
+
 

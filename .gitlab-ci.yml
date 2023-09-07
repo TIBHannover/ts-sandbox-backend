@@ -51,7 +51,7 @@ sonarqube-check:
     key: "${CI_JOB_NAME}"
     paths:
       - .sonar/cache
-  script: 
+  script:
     - mvn verify sonar:sonar -Dsonar.projectKey=terminology_sandbox_tib-terminology-service-statistics_AX4zSJvPXTVyuzMM6ZO3
   allow_failure: true
   only:
