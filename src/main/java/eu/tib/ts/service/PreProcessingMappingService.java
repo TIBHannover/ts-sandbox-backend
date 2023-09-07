@@ -2,7 +2,7 @@ package eu.tib.ts.service;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
-import eu.tib.ts.controller.dto.TargetOntologyListObjectSetModel;
+import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 
 import java.util.Set;
@@ -14,7 +14,7 @@ public interface PreProcessingMappingService {
                                        Set<MappingObjectSetModel> conflictiveMappingsList);
 
     public ProcessedMapping preProcessGroupedBySourceOntology(Set<OntologyDto> sourceOntologySet, int numberOfTargetOntologies,
-                                                              Set<TargetOntologyListObjectSetModel> targetOntologyList);
+                                                              Set<TargetOntologyObjectSetModel> targetOntologyList);
 
 
 }

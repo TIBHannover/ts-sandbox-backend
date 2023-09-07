@@ -2,7 +2,7 @@ package eu.tib.ts.model.ontology;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
-import eu.tib.ts.controller.dto.TargetOntologyListObjectSetModel;
+import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -75,7 +75,7 @@ private int numberOfTargetOntologies;
 @ElementCollection
 @CollectionTable(name="targetOntologyList", joinColumns = @JoinColumn(name="id"))
 @Field("targetOntologyList")
-private Set<TargetOntologyListObjectSetModel> targetOntologyList;
+private Set<TargetOntologyObjectSetModel> targetOntologyList;
 
 @Field
 private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
