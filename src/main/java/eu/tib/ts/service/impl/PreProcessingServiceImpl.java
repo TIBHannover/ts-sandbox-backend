@@ -2,6 +2,7 @@ package eu.tib.ts.service.impl;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.controller.dto.TargetOntologyListObjectSetModel;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.TsOntology;
@@ -123,8 +124,9 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         for(int i=0;i<unprocessedOntologies.size();i++) {
 
             Set<OntologyDto> sourceOntologyGroupedSet = new HashSet<>();
+            int numberOfTargetOntologies =0;
 
-            for (int j = i + 1; j < unprocessedOntologies.size()+1; j++) {
+            for (int j = i + 1; j < unprocessedOntologies.size()+1; j++){
 
             ontologyManager= OWLManager.createOWLOntologyManager();
 
@@ -172,7 +174,10 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                         /*
                          * mappings grouped by source ontology set.
                          */
-                        sourceOntologyGroupedSet.add(sourceOntology);
+                        if(!sourceOntologyGroupedSet.contains(sourceOntology)) {
+
+                            sourceOntologyGroupedSet.add(sourceOntology);
+                        }
 
                         /**
                          * adds information about target ontology into ontology dto.
@@ -190,10 +195,21 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                         ProcessedMapping processedMapping =
                                 preProcessingMappingService.preProcess(sourceOntologySet,
                                         targetOntologySet, logmap2Mappings.size(),
-                                        conflictiveLogmap2Mappings.size(), getMappingList(logmap2Mappings), getMappingList(conflictiveLogmap2Mappings));
+                                        conflictiveLogmap2Mappings.size(), getMappingList(logmap2Mappings),
+                                        getMappingList(conflictiveLogmap2Mappings));
 
                         processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
                         processedMappingService.save(processedMapping);
+
+                        Set<TargetOntologyListObjectSetModel> targetOntologyListObjectSetModelSet  =
+                                new HashSet<TargetOntologyListObjectSetModel>();
+
+                        ProcessedMapping processedMappingGroupedBySourceOntology  =
+                                preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntologySet,
+                                        numberOfTargetOntologies,targetOntologyListObjectSetModelSet);
+
+                        processedMappingGroupedBySourceOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
+                        processedMappingService.save(processedMappingGroupedBySourceOntology);
 
                     }
 

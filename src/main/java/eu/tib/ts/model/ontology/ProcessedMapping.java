@@ -77,8 +77,6 @@ private int numberOfTargetOntologies;
 @Field("targetOntologyList")
 private Set<TargetOntologyListObjectSetModel> targetOntologyList;
 
-
-
 @Field
 private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
 
