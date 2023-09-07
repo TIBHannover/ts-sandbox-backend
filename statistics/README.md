@@ -2,17 +2,16 @@
 
 ### System requirements
 ***
-* Java Runtime Environment 17
+* Java Runtime Environment 8
 * Maven
 * Docker
 
 ### application versions and ports
 
-* mongo version 3.6.23
+* mongo version 3.4.24
 * mongo running on port 27017
-* statistics-module is running on port 9191
-* history-module is running on port 9292
-* spring boot version 3.1.2
+* application is running on port 9191
+* spring boot version 2.4.0
 
 ### How to run
 ***
@@ -23,9 +22,8 @@ To start a project run following commands in a project directory:
 
 Terminology Service Statistics runs on port 9191: `http://localhost:9191`
 
-API documentation for statistics module: [swagger-statistics](http://localhost:9191/swagger-ui/index.html)
+API documentation: [swagger](http://localhost:9191/swagger-ui/)
 
-API documentation for history module: [swagger-history](http://localhost:9292/swagger-ui/index.html)
 ### Questions to be answered by statistic
 ***
 

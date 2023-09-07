@@ -1,0 +1,20 @@
+/*
+
+Insert initial tree with next structure:
+treeId: String,
+node: String,
+parent: String,
+children: List<String>,
+sha1: string,
+value: string
+
+*/
+db.history.insertMany( [ { treeId: "123", node: "Root", parent: null, children: [ "http://www.w3id.org/ecsel-dr-PMV#Task", "http://www.w3id.org/ecsel-dr-PMV#Subprocess" ], sha1: "81df949c32a3cd28ed164b64327c7effca2d4948", value: "Root for tree" }, { treeId: "123", node: "http://www.w3id.org/ecsel-dr-PMV#Task", parent: "Root", children: [ "rdfs:comment", "rdfs:label" ], sha1: "81df949c32a3cd28ed164b64327c7effca2d4948", value: "Task attribute" }, { treeId: "123", node: "rdfs:comment", parent: "http://www.w3id.org/ecsel-dr-PMV#Task", children: [], sha1: "81df949c32a3cd28ed164b64327c7effca2d4948", value: "comment for Task attribute" },  { treeId: "123", node: "rdfs:label", parent: "http://www.w3id.org/ecsel-dr-PMV#Task", children: [], sha1: "81df949c32a3cd28ed164b64327c7effca2d4948", value: "label for Task attribute" }, { treeId: "123", node: "http://www.w3id.org/ecsel-dr-PMV#Subprocess", parent: "Root", children: [ "rdfs:date", "rdf:stamp" ], sha1: "81df949c32a3cd28ed164b64327c7effca2d4948", value: "Subprocess attribute" }, { treeId: "123", node: "rdf:date", parent: "http://www.w3id.org/ecsel-dr-PMV#Subprocess", children: null, sha1: "81df949c32a3cd28ed164b64327c7effca2d4948", value: "date for subprocess" } ] )
+
+
+
+
+
+
+
+

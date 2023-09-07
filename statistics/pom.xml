@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.1.2</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>eu.tib.ts.statistics</groupId>
+	<artifactId>terminology-service-statistics</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>terminology-service-statistics</name>
+	<description>Terminology Service Statistics</description>
+	<properties>
+		<apache-jena-libs.version>3.17.0</apache-jena-libs.version>
+		<swagger.version>3.0.0</swagger.version>
+		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+		<!-- JaCoCo Properties -->
+		<jacoco.version>0.8.7</jacoco.version>
+		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.language>java</sonar.language>
+		<morpheus-viz.version>0.9.21</morpheus-viz.version>
+		<morpheus-core.version>0.9.23</morpheus-core.version>
+		<owlapi-apibinding.version>5.1.19</owlapi-apibinding.version>
+	</properties>
+
+	<!-- TIB Nexus repository : https://wiki.tib.eu/confluence/display/tep/Nexus+Repository+Manager-->
+
+     <repositories>
+
+         <repository>
+             <id>central</id>
+             <name>Central Repository</name>
+             <snapshots>
+                 <enabled>false</enabled>
+             </snapshots>
+             <url>https://develop.tib.eu/nexus/content/groups/public/</url>
+         </repository>
+     </repositories>
+
+     <pluginRepositories>
+         <pluginRepository>
+             <id>central</id>
+             <name>Central Repository</name>
+             <releases>
+                 <updatePolicy>never</updatePolicy>
+             </releases>
+             <snapshots>
+                 <enabled>false</enabled>
+             </snapshots>
+             <url>https://develop.tib.eu/nexus/content/groups/public/</url>
+         </pluginRepository>
+     </pluginRepositories>
+
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/com.memetix/microsoft-translator-java-api -->
+
+		<dependency>
+			<groupId>com.memetix</groupId>
+			<artifactId>microsoft-translator-java-api</artifactId>
+			<version>0.6.2</version>
+		</dependency>
+
+                   <dependency>
+                   <groupId>com.google.api</groupId>
+                   <artifactId>google-api-translate-java</artifactId>
+                   <version>0.97</version>
+                   </dependency>
+
+                   <dependency>
+                   <groupId>uk.ox.logmap</groupId>
+                   <artifactId>logmap-matcher</artifactId>
+                   <version>4.0</version>
+                   </dependency>
+
+                 <!--
+                   <dependency>
+                   <groupId>eu.sealsproject.omt</groupId>
+                   <artifactId>omt-client</artifactId>
+                   <version>6.0.0</version>
+                   </dependency>
+         -->
+
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+			<version>5.2.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+			<version>3.1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.jena/apache-jena-libs -->
+		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>apache-jena-libs</artifactId>
+			<version>${apache-jena-libs.version}</version>
+			<type>pom</type>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/net.sourceforge.owlapi/owlapi-apibinding -->
+
+		<dependency>
+			<groupId>net.sourceforge.owlapi</groupId>
+			<artifactId>owlapi-apibinding</artifactId>
+			<version>${owlapi-apibinding.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+			<version>1.18.24</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jacoco</groupId>
+			<artifactId>jacoco-maven-plugin</artifactId>
+			<version>${jacoco.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.zavtech</groupId>
+			<artifactId>morpheus-core</artifactId>
+			<version>${morpheus-core.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.zavtech</groupId>
+			<artifactId>morpheus-viz</artifactId>
+			<version>${morpheus-viz.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.persistence</groupId>
+			<artifactId>javax.persistence-api</artifactId>
+			<version>2.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20230618</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>ts-statistics-back</finalName>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.1.2</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.5.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-site</id>
+						<phase>package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
