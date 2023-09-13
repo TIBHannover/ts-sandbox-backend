@@ -14,6 +14,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.JoinColumn;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -43,9 +44,15 @@ private String mappingId;
 private Set<OntologyDto> sourceOntology;
 
 @ElementCollection
+@CollectionTable(name="sourceOntologySet", joinColumns =   @JoinColumn(name="id"))
+@Field("sourceOntologySet")
+private Set<OntologyDto> sourceOntologySet = new HashSet<>();
+
+@ElementCollection
 @CollectionTable(name="targetOntology", joinColumns =   @JoinColumn(name="id"))
 @Field("targetOntology")
 private Set<OntologyDto> targetOntology;
+
 
 @ElementCollection
 @CollectionTable(name="numberOfMappings", joinColumns = @JoinColumn(name="id"))
