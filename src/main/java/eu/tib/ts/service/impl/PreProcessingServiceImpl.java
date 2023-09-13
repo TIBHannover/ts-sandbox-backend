@@ -44,6 +44,8 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
 
     OWLOntologyManager ontologyManager;
+    OWLOntologyManager sourceOntologyManager;
+    OWLOntologyManager targetOtologyManager;
 
     @Autowired
     public PreProcessingServiceImpl(TsRepository tsRepository,
@@ -124,12 +126,18 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         for(int i=0;i<unprocessedOntologies.size();i++) {
 
             Set<OntologyDto> sourceOntologyGroupedSet = new HashSet<>();
+            Set<OntologyDto> targetOntologyGroupedSet = new HashSet<>();
 
             int numberOfTargetOntologies =0;
+
+            TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
 
             Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet =
                     new HashSet<TargetOntologyObjectSetModel>();
 
+            sourceOntologyManager = OWLManager.createOWLOntologyManager();
+            targetOtologyManager = OWLManager.createOWLOntologyManager();
+            
             for (int j = i + 1; j < unprocessedOntologies.size()+1; j++){
 
             ontologyManager= OWLManager.createOWLOntologyManager();
@@ -183,10 +191,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                             sourceOntologyGroupedSet.add(sourceOntology);
                         }
 
-                        TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
-
-                        targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel);
-
                         /**
                          * adds information about target ontology into ontology dto.
                          */
@@ -199,6 +203,11 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                         Set<OntologyDto> targetOntologySet = new HashSet<>();
                         targetOntologySet.add(targetOntology);
+
+                        /*
+                         * target ontology added t0 target ontology group set.
+                         */
+                        targetOntologyGroupedSet.add(targetOntology);
 
                         ProcessedMapping processedMapping =
                                 preProcessingMappingService.preProcess(sourceOntologySet,
@@ -217,6 +226,9 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                 }
             }
+
+            targetOntologyObjectSetModelSet.add(targetOntologyGroupedSet);
+
             ProcessedMapping processedMappingGroupedBySourceOntology  =
                     preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntologyGroupedSet,
                             numberOfTargetOntologies, targetOntologyObjectSetModelSet);
