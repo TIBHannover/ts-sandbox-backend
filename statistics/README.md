@@ -1,35 +1,29 @@
-# Terminology Service Sandbox Backend
-
-* Internally Hosted Sandbox Frontend: http://ols4ing01.develop.service.tib.eu/ts/sandbox
-* Internally Hosted Sandbox Backend: http://ols4ing01.develop.service.tib.eu:9191/swagger-ui/index.html
-* Public URL : not public
+# Terminology Service Statistics
 
 ### System requirements
 ***
-* Docker and Docker Compose
+* Java Runtime Environment 8
+* Maven
+* Docker
 
 ### application versions and ports
 
-* mongo version 3.6.23
+* mongo version 3.4.24
 * mongo running on port 27017
-* statistics-module is running on port 9191
-* history-module is running on port 9292
-* spring boot version 3.1.2
+* application is running on port 9191
+* spring boot version 2.4.0
 
 ### How to run
 ***
 To start a project run following commands in a project directory:
+1. `mvn clean install` to build project `mvn clean install -DskipTests` to build project skipping the tests
+2. `docker-compose build` to build containers
+3. `docker-compose up -d` create and start the containers in the background and leave them running
 
-1. `docker-compose build` to build containers
-2. `docker-compose up -d` create and start the containers in the background and leave them running
+Terminology Service Statistics runs on port 9191: `http://localhost:9191`
 
-Terminology Service Statistics runs on port 9191: `http://localhost:9191`  
+API documentation: [swagger](http://localhost:9191/swagger-ui/)
 
-Semantic Diff Service runs on port 9292: `http://localhost:9292`
-
-API documentation for statistics module: [swagger-statistics](http://localhost:9191/swagger-ui/index.html)
-
-API documentation for history module: [swagger-history](http://localhost:9292/swagger-ui/index.html)
 ### Questions to be answered by statistic
 ***
 
