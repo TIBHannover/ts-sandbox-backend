@@ -17,11 +17,11 @@ import java.util.Set;
 @Setter
 public class TargetOntologyObjectSetModel {
 
-//    long id;
+    long id;
     int numberOfMappings;
     int numberOfConflictiveMappings;
 
-    OntologyDto targetOntology;
+    Set<OntologyDto> targetOntology;
     Set<MappingObjectSetModel> mappingList;
     Set<MappingObjectSetModel> conflictiveMappingsList;
 
