@@ -141,11 +141,13 @@ public class SimilarityController {
     public ResponseEntity<PagedModel<PairwiseSimilarityModel>> getPairwiseSimilarityForInternalOntology(
         @Parameter(description = "A given Ontology ID managed in the TS", example = "dicl")
         @RequestParam String id,
+        @Parameter(description = "A set of Ontology IDs managed in the TS", example = "dicl,dicob")
+        @RequestParam(required = false) Optional<List<String>> ids,
         @Parameter(description = "Collection to filter set of ontologies", example = "NFDI4ING")
         @RequestParam(required = false) Optional<String> collection,
         Pageable pageable
     ) {
-        Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(id, collection, pageable);
+        Page<PairwiseSimilarity> page = similarityService.getPairwiseSimilarity(id, ids, collection, pageable);
 
         PagedModel<PairwiseSimilarityModel> pagedModel = PageUtils.toPagedModel(
             page,
