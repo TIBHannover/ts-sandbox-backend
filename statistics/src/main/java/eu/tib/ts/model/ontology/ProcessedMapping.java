@@ -53,7 +53,6 @@ private Set<OntologyDto> sourceOntologySet = new HashSet<>();
 @Field("targetOntology")
 private Set<OntologyDto> targetOntology;
 
-
 @ElementCollection
 @CollectionTable(name="numberOfMappings", joinColumns = @JoinColumn(name="id"))
 @Field("numberOfMappings")
