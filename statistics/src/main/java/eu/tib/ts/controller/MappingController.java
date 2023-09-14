@@ -81,41 +81,41 @@ public class MappingController {
 //
 //    }
 
-//    @Operation(summary = "List mappings between a pair of ontologies")
-//    @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<List<MappingDto>> getMappings() {
-//
-//        List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
-//
-//        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
-//
-//        for(MappingDto mappingDto: mappingDtoList){
-//
-//        mappingDtoListFillteredByMappingId.add(mappingDto);
-//
-//    }
-//
-//    return HttpUtils.ok(mappingDtoListFillteredByMappingId);
-//
-//    }
-
-    @Operation(summary="List mappings between a pair of ontologies grouped by source ontology")
+    @Operation(summary = "List mappings between a pair of ontologies")
     @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsGroupedBySourceOntology() {
+    public ResponseEntity<List<MappingDto>> getMappings() {
 
-        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
-                processedMappingService.getAllMappingsGroupedBySourceOntology();
+        List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
 
-        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoListFillteredByMappingId = new ArrayList<>();
+        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
 
-        for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
+        for(MappingDto mappingDto: mappingDtoList){
 
-            mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
-
-        }
-
-        return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
+        mappingDtoListFillteredByMappingId.add(mappingDto);
 
     }
+
+    return HttpUtils.ok(mappingDtoListFillteredByMappingId);
+
+    }
+
+//    @Operation(summary="List mappings between a pair of ontologies grouped by source ontology")
+//    @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsGroupedBySourceOntology() {
+//
+//        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
+//                processedMappingService.getAllMappingsGroupedBySourceOntology();
+//
+//        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoListFillteredByMappingId = new ArrayList<>();
+//
+//        for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
+//
+//            mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
+//
+//        }
+//
+//        return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
+//
+//    }
 
 }
