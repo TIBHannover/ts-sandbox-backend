@@ -85,6 +85,8 @@ public class MappingController {
     @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<MappingDto>> getMappings() {
 
+        System.setProperty("http.agent", "Chrome");
+
         List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
 
         List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
@@ -99,23 +101,23 @@ public class MappingController {
 
     }
 
-//    @Operation(summary="List mappings between a pair of ontologies grouped by source ontology")
-//    @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsGroupedBySourceOntology() {
-//
-//        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
-//                processedMappingService.getAllMappingsGroupedBySourceOntology();
-//
-//        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoListFillteredByMappingId = new ArrayList<>();
-//
-//        for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
-//
-//            mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
-//
-//        }
-//
-//        return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
-//
-//    }
+    @Operation(summary="List mappings between a pair of ontologies grouped by source ontology")
+    @GetMapping(value = "/groupedmappings", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsGroupedBySourceOntology() {
+
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
+                processedMappingService.getAllMappingsGroupedBySourceOntology();
+
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoListFillteredByMappingId = new ArrayList<>();
+
+        for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
+
+            mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
+
+        }
+
+        return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
+
+    }
 
 }

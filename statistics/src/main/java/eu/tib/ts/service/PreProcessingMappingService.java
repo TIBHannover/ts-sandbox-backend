@@ -13,7 +13,7 @@ public interface PreProcessingMappingService {
                                        int numberOfConflictiveMappings, Set<MappingObjectSetModel> mappingList,
                                        Set<MappingObjectSetModel> conflictiveMappingsList);
 
-//    public ProcessedMapping preProcessGroupedBySourceOntology(Set<OntologyDto> sourceOntologySet, int numberOfTargetOntologies,
-//                                                              Set<TargetOntologyObjectSetModel> targetOntologyList);
+    public ProcessedMapping preProcessGroupedBySourceOntology(Set<OntologyDto> sourceOntologySet, int numberOfTargetOntologies,
+                                                              Set<TargetOntologyObjectSetModel> targetOntologyList);
 
 }
