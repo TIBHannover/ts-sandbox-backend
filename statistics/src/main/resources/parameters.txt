@@ -1,0 +1,16 @@
+print_output|false
+output_prop_mappings|true
+instance_matching|true
+output_instance_mappings|true
+#only for statistics
+output_instance_mapping_files|true
+reason_datatypes|true
+reasoner|HermiT
+use_umls_lexicon|true
+allow_bioportal|true
+max_mediating_ontologies|10000000
+allow_interactivity|true
+allow_multilingual|true
+call_online_translator|false
+allowed_individual_type|http://www.w3.org/2004/02/skos/core#Concept
+allowed_individual_type|http://www.w3.org/2002/07/owl#NamedIndividual
