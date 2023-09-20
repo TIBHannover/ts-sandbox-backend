@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface ProcessedMappingService {
 
-public List<MappingDto> getAllMappings();
+//public List<MappingDto> getAllMappings();
 
 public List<MappingGropedBySourceOntologyDto> getAllMappingsGroupedBySourceOntology();
 

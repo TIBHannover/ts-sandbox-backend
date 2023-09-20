@@ -2,6 +2,7 @@ package eu.tib.ts.model.ontology;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.controller.dto.SourceOntologyObjectSetModel;
 import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -47,6 +48,11 @@ private Set<OntologyDto> sourceOntology;
 @CollectionTable(name="sourceOntologySet", joinColumns =   @JoinColumn(name="id"))
 @Field("sourceOntologySet")
 private Set<OntologyDto> sourceOntologySet = new HashSet<>();
+
+@ElementCollection
+@CollectionTable(name="sourceOntologyObjectSetModelSet", joinColumns =   @JoinColumn(name="id"))
+ @Field("sourceOntologyObjectSetModelSet")
+Set<SourceOntologyObjectSetModel> sourceOntologyObjectSetModelSet = new HashSet<>();
 
 @ElementCollection
 @CollectionTable(name="targetOntology", joinColumns =   @JoinColumn(name="id"))

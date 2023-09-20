@@ -2,6 +2,7 @@ package eu.tib.ts.service.impl;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.controller.dto.SourceOntologyObjectSetModel;
 import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
@@ -48,9 +49,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     private final ProcessedMappingService processedMappingService;
 
     OWLOntologyManager ontologyManager;
-
-    OWLOntologyManager sourceOntologyManager;
-    OWLOntologyManager targetOntologyManager;
 
 
     @Autowired
@@ -206,22 +204,24 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         for(int i=0;i<unprocessedOntologies.size();i++) {
 
-            sourceOntologyManager= OWLManager.createOWLOntologyManager();
+//            sourceOntologyManager= OWLManager.createOWLOntologyManager();
 
             Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<TargetOntologyObjectSetModel>();
 
+            Set<SourceOntologyObjectSetModel> sourceOntology = new HashSet<>();
+            SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
+
             int numberOfTargetOntologies = 0;
 
-            Set<OntologyDto> sourceOntologyGrouppedSet = new HashSet<>();
 
             for (int j = i + 1; j < unprocessedOntologies.size() + 1; j++) {
 
-                targetOntologyManager= OWLManager.createOWLOntologyManager();
+                ontologyManager= OWLManager.createOWLOntologyManager();
 
                 try {
 
-                    LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(sourceOntologyManager.loadOntology(IRI.create(
-                            unprocessedOntologies.get(i).getUri())), targetOntologyManager.loadOntology(IRI.create(
+                    LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+                            unprocessedOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(j).getUri())));
 
                     /**
@@ -236,7 +236,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                     if(logmap2Mappings.size() >0 || conflictiveLogmap2Mappings.size()>0) {
 
-                        OntologyDto sourceOntology = OntologyDto.builder()
+                        OntologyDto sourceOnt = OntologyDto.builder()
                                 .ontologyId(unprocessedOntologies.get(i).getOntologyId())
                                 .uri(unprocessedOntologies.get(i).getUri())
                                 .title(unprocessedOntologies.get(i).getTitle())
@@ -244,9 +244,29 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                                 .build();
 
                         Set<OntologyDto> sourceOntologySet = new HashSet<>();
-                        sourceOntologySet.add(sourceOntology);
+                        sourceOntologySet.add(sourceOnt);
 
-                        sourceOntologyGrouppedSet.add(sourceOntology);
+//                     SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
+
+
+//                        if(sourceOntologyObjectSetModel.getOntologyId()!=sourceOntology.getOntologyId()) {
+
+                            sourceOntologyObjectSetModel.setId(sourceOnt.getId());
+                            sourceOntologyObjectSetModel.setCollection(sourceOnt.getCollection());
+                            sourceOntologyObjectSetModel.setOntologyId(sourceOnt.getOntologyId());
+                            sourceOntologyObjectSetModel.setUri(sourceOnt.getUri());
+                            sourceOntologyObjectSetModel.setTitle(sourceOnt.getTitle());
+
+                            sourceOntology.add(sourceOntologyObjectSetModel);
+//                        }
+
+
+
+//                        SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
+//                        sourceOntologyObjectSetModel.setSourceOntology(sourceOntology);
+
+//                        sourceOntologyObjectSetModelSet.add(sourceOntologyObjectSetModel);
+
 
                         OntologyDto targetOntology = OntologyDto.builder()
                                 .ontologyId(unprocessedOntologies.get(j).getOntologyId())
@@ -257,6 +277,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
 
                         Set<OntologyDto> targetOntologySet = new HashSet<>();
+
                         targetOntologySet.add(targetOntology);
 
                         TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
@@ -281,12 +302,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
             }
 
-            for(OntologyDto ontologyDto: sourceOntologyGrouppedSet) {
 
-                log.info("ontologyDto.getId() :" + ontologyDto.getId() );
-                log.info("ontologyDto.getOntologyId() :" + ontologyDto.getOntologyId() );
-
-            }
             log.info("number of target ontologies :" + numberOfTargetOntologies);
 
             log.info("target ontologies:" );
@@ -296,16 +312,15 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                 for(OntologyDto targetOnt: targetOntologyObjectSetModel.getTargetOntology()){
 
                     log.info("targetOnt.getId() : " + targetOnt.getId() );
-                    log.info("targetOnt.getOntologyId() : " + targetOnt.getOntologyId() );
+                    log.info("targetOnt.getTitle() : " + targetOnt.getTitle());
                 }
 
             }
 
-
             if(numberOfTargetOntologies >0) {
 
                 ProcessedMapping processedMappingGroupedBySourceOntology =
-                        preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntologyGrouppedSet, numberOfTargetOntologies, targetOntologyObjectSetModelSet);
+                        preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntology ,numberOfTargetOntologies, targetOntologyObjectSetModelSet);
 
                 processedMappingGroupedBySourceOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
                 processedMappingService.save(processedMappingGroupedBySourceOntology);
