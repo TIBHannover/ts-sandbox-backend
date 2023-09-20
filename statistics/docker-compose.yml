@@ -15,5 +15,3 @@ services:
         - "9191:9191"
       links:
         - mongodb
-
-
