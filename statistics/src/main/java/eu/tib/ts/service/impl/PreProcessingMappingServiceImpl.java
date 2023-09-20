@@ -2,6 +2,7 @@ package eu.tib.ts.service.impl;
 
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.controller.dto.SourceOntologyObjectSetModel;
 import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.service.PreProcessingMappingService;
@@ -38,8 +39,11 @@ public class PreProcessingMappingServiceImpl implements PreProcessingMappingServ
                 .build();
     }
 
+
+
+
     @Override
-    public ProcessedMapping preProcessGroupedBySourceOntology(Set<OntologyDto> sourceOntologySet, int numberOfTargetOntologies, Set<TargetOntologyObjectSetModel> targetOntologyList) {
+    public ProcessedMapping preProcessGroupedBySourceOntology(Set<SourceOntologyObjectSetModel> sourceOntologyObjectSetModels, int numberOfTargetOntologies, Set<TargetOntologyObjectSetModel> targetOntologyList) {
 
         log.info("start pre-processing mapping between ontologies grouped by source ontology: " );
 
@@ -50,7 +54,7 @@ public class PreProcessingMappingServiceImpl implements PreProcessingMappingServ
 
         return ProcessedMapping.builder()
                 .mappingId(uuid)
-                .sourceOntologySet(sourceOntologySet)
+                .sourceOntologyObjectSetModelSet(sourceOntologyObjectSetModels)
                 .numberOfTargetOntologies(numberOfTargetOntologies)
                 .targetOntologyList(targetOntologyList)
                 .build();
