@@ -6,6 +6,8 @@ spring:
       port: 27017
   main:
     lazy-initialization: true
+  resources:
+    static-locations: file:resources/parameters.txt
 
 server:
   port: 9191
