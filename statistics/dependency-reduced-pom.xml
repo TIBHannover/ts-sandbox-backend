@@ -16,6 +16,48 @@
     <finalName>ts-statistics-back</finalName>
     <plugins>
       <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>3.1.1</version>
+        <executions>
+          <execution>
+            <id>install-jar-lib</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <groupId>com.google.api</groupId>
+          <artifactId>google-api-translate-java</artifactId>
+          <version>0.97</version>
+          <packaging>jar</packaging>
+          <file>${project.basedir}/lib/google-api-translate-java-0.97.jar</file>
+          <generatePom>true</generatePom>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>3.1.1</version>
+        <executions>
+          <execution>
+            <id>install-jar-lib</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <groupId>uk.ox.logmap</groupId>
+          <artifactId>logmap-matcher</artifactId>
+          <version>4.0</version>
+          <packaging>jar</packaging>
+          <file>${project.basedir}/lib/logmap-matcher-4.0.jar</file>
+          <generatePom>true</generatePom>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>3.1.2</version>
@@ -56,27 +98,10 @@
   </build>
   <repositories>
     <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>central</id>
-      <name>Central Repository</name>
-      <url>https://develop.tib.eu/nexus/content/groups/public/</url>
+      <id>lib</id>
+      <url>file://${project.basedir}/lib</url>
     </repository>
   </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>central</id>
-      <name>Central Repository</name>
-      <url>https://develop.tib.eu/nexus/content/groups/public/</url>
-    </pluginRepository>
-  </pluginRepositories>
   <dependencies>
     <dependency>
       <groupId>com.memetix</groupId>

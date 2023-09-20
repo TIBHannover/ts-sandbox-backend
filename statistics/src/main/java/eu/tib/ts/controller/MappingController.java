@@ -81,25 +81,25 @@ public class MappingController {
 //
 //    }
 
-    @Operation(summary = "List mappings between a pair of ontologies")
-    @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<MappingDto>> getMappings() {
-
-        System.setProperty("http.agent", "Chrome");
-
-        List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
-
-        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
-
-        for(MappingDto mappingDto: mappingDtoList){
-
-        mappingDtoListFillteredByMappingId.add(mappingDto);
-
-    }
-
-    return HttpUtils.ok(mappingDtoListFillteredByMappingId);
-
-    }
+//    @Operation(summary = "List mappings between a pair of ontologies")
+//    @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<List<MappingDto>> getMappings() {
+//
+//        System.setProperty("http.agent", "Chrome");
+//
+//        List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
+//
+//        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
+//
+//        for(MappingDto mappingDto: mappingDtoList){
+//
+//        mappingDtoListFillteredByMappingId.add(mappingDto);
+//
+//    }
+//
+//    return HttpUtils.ok(mappingDtoListFillteredByMappingId);
+//
+//    }
 
     @Operation(summary="List mappings between a pair of ontologies grouped by source ontology")
     @GetMapping(value = "/groupedmappings", produces = MediaType.APPLICATION_JSON_VALUE)
