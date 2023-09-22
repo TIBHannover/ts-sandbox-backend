@@ -246,27 +246,13 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                         Set<OntologyDto> sourceOntologySet = new HashSet<>();
                         sourceOntologySet.add(sourceOnt);
 
-//                     SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
-
-
-//                        if(sourceOntologyObjectSetModel.getOntologyId()!=sourceOntology.getOntologyId()) {
-
                             sourceOntologyObjectSetModel.setId(sourceOnt.getId());
                             sourceOntologyObjectSetModel.setCollection(sourceOnt.getCollection());
                             sourceOntologyObjectSetModel.setOntologyId(sourceOnt.getOntologyId());
                             sourceOntologyObjectSetModel.setUri(sourceOnt.getUri());
                             sourceOntologyObjectSetModel.setTitle(sourceOnt.getTitle());
 
-                            sourceOntology.add(sourceOntologyObjectSetModel);
-//                        }
-
-
-
-//                        SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
-//                        sourceOntologyObjectSetModel.setSourceOntology(sourceOntology);
-
-//                        sourceOntologyObjectSetModelSet.add(sourceOntologyObjectSetModel);
-
+                        sourceOntology.add(sourceOntologyObjectSetModel);
 
                         OntologyDto targetOntology = OntologyDto.builder()
                                 .ontologyId(unprocessedOntologies.get(j).getOntologyId())
@@ -274,7 +260,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                                 .title(unprocessedOntologies.get(j).getTitle())
                                 .collection(unprocessedOntologies.get(j).getCollection())
                                 .build();
-
 
                         Set<OntologyDto> targetOntologySet = new HashSet<>();
 
@@ -327,7 +312,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             }
         }
     }
-
 
     /**
      * stores information about mapping list (both type of mappings) in a Set of mapping object set model
