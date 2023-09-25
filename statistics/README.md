@@ -10,7 +10,7 @@
 
 * mongo version 3.4.24
 * mongo running on port 27017
-* application is running on port 9191
+* application is running on port 8080
 * spring boot version 2.4.0
 
 ### How to run
@@ -20,9 +20,9 @@ To start a project run following commands in a project directory:
 2. `docker-compose build` to build containers
 3. `docker-compose up -d` create and start the containers in the background and leave them running
 
-Terminology Service Statistics runs on port 9191: `http://localhost:9191`
+Terminology Service Statistics runs on port 8080: `http://localhost:8080`
 
-API documentation: [swagger](http://localhost:9191/swagger-ui/)
+API documentation: [swagger](http://localhost:8080/swagger-ui/)
 
 ### Questions to be answered by statistic
 ***

@@ -1,7 +1,7 @@
 # Terminology Service Sandbox Backend
 
 * Internally Hosted Sandbox Frontend: http://ols4ing01.develop.service.tib.eu/ts/sandbox
-* Internally Hosted Sandbox Backend: http://ols4ing01.develop.service.tib.eu:9191/swagger-ui/index.html
+* Internally Hosted Sandbox Backend: http://ols4ing01.develop.service.tib.eu:8080/swagger-ui/index.html
 * Public URL : not public
 
 ### System requirements
@@ -12,8 +12,8 @@
 
 * mongo version 3.6.23
 * mongo running on port 27017
-* statistics-module is running on port 9191
-* history-module is running on port 9292
+* statistics-module is running on port 8080
+* history-module is running on port 9090
 * spring boot version 3.1.2
 
 ### How to run
@@ -23,13 +23,13 @@ To start a project run following commands in a project directory:
 1. `docker-compose build` to build containers
 2. `docker-compose up -d` create and start the containers in the background and leave them running
 
-Terminology Service Statistics runs on port 9191: `http://localhost:9191`  
+Terminology Service Statistics runs on port 8080: `http://localhost:8080`  
 
-Semantic Diff Service runs on port 9292: `http://localhost:9292`
+Semantic Diff Service runs on port 9090: `http://localhost:9090`
 
-API documentation for statistics module: [swagger-statistics](http://localhost:9191/swagger-ui/index.html)
+API documentation for statistics module: [swagger-statistics](http://localhost:8080/swagger-ui/index.html)
 
-API documentation for history module: [swagger-history](http://localhost:9292/swagger-ui/index.html)
+API documentation for history module: [swagger-history](http://localhost:9090/swagger-ui/index.html)
 ### Questions to be answered by statistic
 ***
 

@@ -10,7 +10,7 @@ spring:
     static-locations: file:resources/parameters.txt
 
 server:
-  port: 9191
+  port: 8080
 
   main:
     allow-bean-definition-overriding: true

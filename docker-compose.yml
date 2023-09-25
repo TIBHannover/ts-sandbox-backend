@@ -12,7 +12,7 @@ services:
       build:
         context: statistics
       ports:
-        - "9191:9191"
+        - "8080:8080"
       links:
         - mongodb
     history-back:
@@ -21,7 +21,7 @@ services:
       build:
         context: history
       ports:
-        - "9292:9292"
+        - "9090:9090"
       links:
         - mongodb
 
