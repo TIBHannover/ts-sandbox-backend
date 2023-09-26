@@ -3,7 +3,7 @@
 #COPY . /opt/sandbox/history
 #RUN cd /opt/sandbox/history && ls && mvn clean package -DskipTests
 #
-#EXPOSE 9292
+#EXPOSE 9090
 #ENTRYPOINT ["java","-Xmx5G", "-Xms1024m","-jar","/opt/sandbox/history/target/history-back.jar"]
 
 FROM eclipse-temurin:17-jre-alpine
