@@ -112,11 +112,11 @@ public class MappingController {
 
         for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
 
-            mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
+        mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
 
         }
 
-        return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
+    return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
 
     }
 
