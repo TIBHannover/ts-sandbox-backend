@@ -64,6 +64,12 @@ deploy to develop:
   extends: .deploy_job
   when: manual
 
+deploy to production:
+  variables:
+    INVENTORY_FILE: inventory/sandbox_production.yml
+  extends: .deploy_job
+  when: manual
+
 .remove_docker_job:
   image: mullnerz/ansible-playbook:2.9.1
   stage: remove_docker

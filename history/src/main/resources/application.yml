@@ -8,4 +8,4 @@ spring:
     lazy-initialization: true
 
 server:
-  port: 9292
+  port: 9090
