@@ -120,4 +120,14 @@ public class MappingController {
 
     }
 
+    @Operation(summary="Filter mappings by selected one or more collection")
+    @GetMapping(value="/gourpedmappings/filterby", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsFilteredByCollectionNames(){
+
+        List<MappingGropedBySourceOntologyDto> mappingFilteredByCollectionNameoList =
+                processedMappingService.getAllMappingsGroupedBySourceOntology();
+
+        return HttpUtils.ok(mappingFilteredByCollectionNameoList);
+    }
+
 }
