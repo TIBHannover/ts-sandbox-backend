@@ -1,0 +1,10 @@
+frontend:
+  hosts:
+    ols4ing21.service.tib.eu:
+      ansible_ssh_user: terminology
+      ansible_become_method: su
+      ansible_become_password: xxxxxxxx
+      sandbox_repo: "https://oath:{{gitlab_token}}@git.tib.eu/terminology/sandbox/tib-terminology-service-statistics.git"
+      sandbox_base_dir: '/home/terminology/SANDBOX'
+      sandbox_version: '78-grouped-mapping-by-source-ontology'
+  #    alternative_dockercomposefile: ../../config/docker-compose.yml

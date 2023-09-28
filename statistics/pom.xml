@@ -28,33 +28,45 @@
 		<owlapi-apibinding.version>5.1.19</owlapi-apibinding.version>
 	</properties>
 
+	<repositories>
+		<repository>
+			<!-- DO NOT set id to "local" because it is reserved by Maven -->
+			<id>lib</id>
+			<url>file://${project.basedir}/lib</url>
+		</repository>
+	</repositories>
+
+
+
+
 	<!-- TIB Nexus repository : https://wiki.tib.eu/confluence/display/tep/Nexus+Repository+Manager-->
+	<!--
+         <repositories>
 
-     <repositories>
+             <repository>
+                 <id>central</id>
+                 <name>Central Repository</name>
+                 <snapshots>
+                     <enabled>false</enabled>
+                 </snapshots>
+                 <url>https://develop.tib.eu/nexus/content/groups/public/</url>
+             </repository>
+         </repositories>
 
-         <repository>
-             <id>central</id>
-             <name>Central Repository</name>
-             <snapshots>
-                 <enabled>false</enabled>
-             </snapshots>
-             <url>https://develop.tib.eu/nexus/content/groups/public/</url>
-         </repository>
-     </repositories>
-
-     <pluginRepositories>
-         <pluginRepository>
-             <id>central</id>
-             <name>Central Repository</name>
-             <releases>
-                 <updatePolicy>never</updatePolicy>
-             </releases>
-             <snapshots>
-                 <enabled>false</enabled>
-             </snapshots>
-             <url>https://develop.tib.eu/nexus/content/groups/public/</url>
-         </pluginRepository>
-     </pluginRepositories>
+         <pluginRepositories>
+             <pluginRepository>
+                 <id>central</id>
+                 <name>Central Repository</name>
+                 <releases>
+                     <updatePolicy>never</updatePolicy>
+                 </releases>
+                 <snapshots>
+                     <enabled>false</enabled>
+                 </snapshots>
+                 <url>https://develop.tib.eu/nexus/content/groups/public/</url>
+             </pluginRepository>
+         </pluginRepositories>
+    -->
 
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/com.memetix/microsoft-translator-java-api -->
@@ -65,25 +77,26 @@
 			<version>0.6.2</version>
 		</dependency>
 
-                   <dependency>
-                   <groupId>com.google.api</groupId>
-                   <artifactId>google-api-translate-java</artifactId>
-                   <version>0.97</version>
-                   </dependency>
+		<dependency>
+			<groupId>com.google.api</groupId>
+			<artifactId>google-api-translate-java</artifactId>
+			<version>0.97</version>
+		</dependency>
 
-                   <dependency>
-                   <groupId>uk.ox.logmap</groupId>
-                   <artifactId>logmap-matcher</artifactId>
-                   <version>4.0</version>
-                   </dependency>
+		<dependency>
+			<groupId>uk.ox.logmap</groupId>
+			<artifactId>logmap-matcher</artifactId>
+			<version>4.0</version>
+		</dependency>
 
-                 <!--
-                   <dependency>
-                   <groupId>eu.sealsproject.omt</groupId>
-                   <artifactId>omt-client</artifactId>
-                   <version>6.0.0</version>
-                   </dependency>
-         -->
+<!--
+          <dependency>
+          <groupId>eu.sealsproject.omt</groupId>
+          <artifactId>omt-client</artifactId>
+          <version>6.0.0</version>
+          </dependency>
+		-->
+
 
 		<dependency>
 			<groupId>org.apache.httpcomponents.client5</groupId>
@@ -176,6 +189,57 @@
 		<finalName>ts-statistics-back</finalName>
 
 		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>3.1.1</version>
+				<configuration>
+					<groupId>com.google.api</groupId>
+					<artifactId>google-api-translate-java</artifactId>
+					<version>0.97</version>
+					<packaging>jar</packaging>
+					<file>${project.basedir}/lib/google-api-translate-java-0.97.jar</file>
+					<generatePom>true</generatePom>
+				</configuration>
+				<executions>
+					<execution>
+						<id>install-jar-lib</id>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<phase>validate</phase>
+					</execution>
+				</executions>
+
+			</plugin>
+
+
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>3.1.1</version>
+				<configuration>
+					<groupId>uk.ox.logmap</groupId>
+					<artifactId>logmap-matcher</artifactId>
+					<version>4.0</version>
+					<packaging>jar</packaging>
+					<file>${project.basedir}/lib/logmap-matcher-4.0.jar</file>
+					<generatePom>true</generatePom>
+				</configuration>
+				<executions>
+					<execution>
+						<id>install-jar-lib</id>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<phase>validate</phase>
+					</execution>
+				</executions>
+
+			</plugin>
+
 
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
