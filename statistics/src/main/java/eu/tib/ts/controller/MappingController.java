@@ -1,6 +1,7 @@
 package eu.tib.ts.controller;
 
 import eu.tib.ts.controller.dto.MappingDto;
+import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 import eu.tib.ts.controller.dto.OntologyDto;
 
 import eu.tib.ts.service.OntologyFilterService;
@@ -42,59 +43,81 @@ public class MappingController {
 
     }
 
-    @Operation(summary = "List of all ontologies within selected collection")
-    @GetMapping(value = "/ontologies", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<OntologyDto>> getMappingList(
-            @Parameter(description = "Collection to filter set of ontologies", example = "CoyPu")
-            @RequestParam(required = true) List<String> collection,
-            Pageable pageable
-    ) {
+//    @Operation(summary = "List of all ontologies within selected collection")
+//    @GetMapping(value = "/ontologies", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<List<OntologyDto>> getMappingList(
+//            @Parameter(description = "Collection to filter set of ontologies", example = "CoyPu")
+//            @RequestParam(required = true) List<String> collection,
+//            Pageable pageable
+//    ) {
+//
+//        System.out.println("List of all ontologies within selected collection");
+//
+//
+//        List<OntologyDto> ontologyList =  processedOntologyService.getMappingOntologies();
+//
+//        List<OntologyDto> ontologyDtoListFilterByCollection = new ArrayList<OntologyDto>();
+//
+//        /**
+//         * Iterates through the collections and extracts only those onologies which belong to
+//         * selected collection.
+//         */
+//
+//        for(OntologyDto dto: ontologyList){
+//
+//            for(String s : collection) {
+//
+//                if (dto.getCollection().contains(s)) {
+//
+//                System.out.println("dto.getCollection(): " + dto.getCollection() + " dto.getUri(): " + dto.getUri());
+//
+//                ontologyDtoListFilterByCollection.add(dto);
+//
+//                }
+//            }
+//        }
+//
+//    return HttpUtils.ok(ontologyDtoListFilterByCollection);
+//
+//    }
 
-        System.out.println("List of all ontologies within selected collection");
+//    @Operation(summary = "List mappings between a pair of ontologies")
+//    @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<List<MappingDto>> getMappings() {
+//
+//        System.setProperty("http.agent", "Chrome");
+//
+//        List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
+//
+//        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
+//
+//        for(MappingDto mappingDto: mappingDtoList){
+//
+//        mappingDtoListFillteredByMappingId.add(mappingDto);
+//
+//    }
+//
+//    return HttpUtils.ok(mappingDtoListFillteredByMappingId);
+//
+//    }
 
+    @Operation(summary="List mappings between a pair of ontologies grouped by source ontology")
+    @GetMapping(value = "/groupedmappings", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsGroupedBySourceOntology() {
 
-        List<OntologyDto> ontologyList =  processedOntologyService.getMappingOntologies();
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
+                processedMappingService.getAllMappingsGroupedBySourceOntology();
 
-        List<OntologyDto> ontologyDtoListFilterByCollection = new ArrayList<OntologyDto>();
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoListFillteredByMappingId = new ArrayList<>();
 
-        /**
-         * Iterates through the collections and extracts only those onologies which belong to
-         * selected collection.
-         */
+        for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
 
-        for(OntologyDto dto: ontologyList){
+        mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
 
-            for(String s : collection) {
-
-                if (dto.getCollection().contains(s)) {
-
-                System.out.println("dto.getCollection(): " + dto.getCollection() + " dto.getUri(): " + dto.getUri());
-
-                ontologyDtoListFilterByCollection.add(dto);
-
-                }
-            }
         }
 
-    return HttpUtils.ok(ontologyDtoListFilterByCollection);
+    return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
 
     }
 
-    @Operation(summary = "List mappings between a pair of ontologies")
-    @GetMapping(value = "/allmappings", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<MappingDto>> getMappings() {
-
-        List<MappingDto> mappingDtoList = processedMappingService.getAllMappings();
-
-        List<MappingDto> mappingDtoListFillteredByMappingId = new ArrayList<>();
-
-        for(MappingDto mappingDto: mappingDtoList){
-
-            mappingDtoListFillteredByMappingId.add(mappingDto);
-
-        }
-
-        return HttpUtils.ok(mappingDtoListFillteredByMappingId);
-
-    }
 }

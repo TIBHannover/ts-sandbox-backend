@@ -2,6 +2,7 @@ package eu.tib.ts.service.impl;
 
 import com.github.jsonldjava.shaded.com.google.common.collect.Lists;
 import eu.tib.ts.controller.dto.MappingDto;
+import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.repository.ProcessedMongoMappingRepository;
 import eu.tib.ts.service.ProcessedMappingService;
@@ -24,12 +25,21 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
     @Autowired
     public SequenceGeneratorService sequenceGeneratorService;
 
+//    @Override
+//    public List<MappingDto> getAllMappings() {
+//        return Lists.newArrayList(repository.findAll()).stream()
+//                .map(MappingDto::getMappingObjectStrDto)
+//                .collect(Collectors.toList());
+//    }
+
     @Override
-    public List<MappingDto> getAllMappings() {
+    public List<MappingGropedBySourceOntologyDto> getAllMappingsGroupedBySourceOntology(){
+
         return Lists.newArrayList(repository.findAll()).stream()
-                .map(MappingDto::getMappingObjectStrDto)
+                .map(MappingGropedBySourceOntologyDto::getMappingGroupedBySourceOntologyObjectStrDto)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public ProcessedMapping save(ProcessedMapping processedMapping) {
