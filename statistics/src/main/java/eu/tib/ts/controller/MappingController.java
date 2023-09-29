@@ -73,13 +73,13 @@ public class MappingController {
             Pageable pageable
     ){
 
-        List<ProcessedMapping> processedMappings =null; // getMappingsFilteredByCollection(collection);
+        List<ProcessedMapping> processedMappings =null ; // getMappingsFilteredByCollection(collection);
 
         List<ProcessedMapping> filteredMappingsByCollection = mappingFilterService.filterMappings(processedMappings, collection);
 
 
         List<MappingGropedBySourceOntologyDto> mappingFilteredByCollectionNameoList =
-                processedMappingService.getAllMappingsGroupedBySourceOntology();
+                processedMappingService.getMappingsFilteredByCollection(collection);
 
         return HttpUtils.ok(mappingFilteredByCollectionNameoList);
     }
