@@ -4,6 +4,9 @@ import eu.tib.ts.controller.dto.MappingDto;
 import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 import eu.tib.ts.controller.dto.OntologyDto;
 
+import eu.tib.ts.model.ontology.ProcessedMapping;
+import eu.tib.ts.model.ontology.ProcessedOntology;
+import eu.tib.ts.service.MappingFilterService;
 import eu.tib.ts.service.OntologyFilterService;
 import eu.tib.ts.service.ProcessedMappingService;
 import eu.tib.ts.service.ProcessedOntologyService;
@@ -26,21 +29,19 @@ import java.util.Optional;
 @RestController
 @RequestMapping("api/ontology")
 public class MappingController {
-    private final ProcessedOntologyService processedOntologyService;
-    private final OntologyFilterService ontologyFilterService;
 
     private final ProcessedMappingService processedMappingService;
 
+    private final MappingFilterService mappingFilterService;
+
     @Autowired
     public MappingController(
-            OntologyFilterService ontologyFilterService,
             ProcessedMappingService processedMappingService,
-            ProcessedOntologyService processedOntologyService
+            MappingFilterService mappingFilterService
     ) {
 
-        this.ontologyFilterService=ontologyFilterService;
-        this.processedOntologyService = processedOntologyService;
         this.processedMappingService = processedMappingService;
+        this.mappingFilterService = mappingFilterService;
 
     }
 
@@ -68,9 +69,14 @@ public class MappingController {
     public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsFilteredByCollectionNames(
             @Parameter(description = "Filter set of mappings for source ontologies that belong " +
                     "to given collections", example = "NFDI4ING")
-            @RequestParam List<String> collection,
+            @RequestParam Optional<String> collection,
             Pageable pageable
     ){
+
+        List<ProcessedMapping> processedMappings =null; // getMappingsFilteredByCollection(collection);
+
+        List<ProcessedMapping> filteredMappingsByCollection = mappingFilterService.filterMappings(processedMappings, collection);
+
 
         List<MappingGropedBySourceOntologyDto> mappingFilteredByCollectionNameoList =
                 processedMappingService.getAllMappingsGroupedBySourceOntology();
