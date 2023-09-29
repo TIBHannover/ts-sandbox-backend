@@ -12,6 +12,6 @@ public class Mapping {
 
     private String name;
 
-    private List<MappingGropedBySourceOntologyDto> mappingDtoList;
+    private List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList;
 
 }

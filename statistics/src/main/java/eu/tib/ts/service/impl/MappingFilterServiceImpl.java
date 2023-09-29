@@ -1,6 +1,8 @@
 package eu.tib.ts.service.impl;
 
 import eu.tib.ts.model.ontology.ProcessedMapping;
+import eu.tib.ts.model.ontology.ProcessedOntology;
+import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.service.MappingFilterService;
 import org.springframework.stereotype.Service;
 
@@ -32,4 +34,6 @@ public class MappingFilterServiceImpl implements MappingFilterService {
                                 .collect(Collectors.toList()))
                 .orElse(processedMappings);
     }
+
+
 }
