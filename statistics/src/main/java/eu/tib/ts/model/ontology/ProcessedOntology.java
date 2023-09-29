@@ -62,7 +62,6 @@ public class ProcessedOntology implements ExtendedOntology {
     @Field("collection")
     private Set<String> collection;
 
-
     @Field
     private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
 

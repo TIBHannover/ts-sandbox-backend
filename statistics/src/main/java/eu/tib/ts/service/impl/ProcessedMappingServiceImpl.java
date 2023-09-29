@@ -25,13 +25,6 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
     @Autowired
     public SequenceGeneratorService sequenceGeneratorService;
 
-//    @Override
-//    public List<MappingDto> getAllMappings() {
-//        return Lists.newArrayList(repository.findAll()).stream()
-//                .map(MappingDto::getMappingObjectStrDto)
-//                .collect(Collectors.toList());
-//    }
-
     @Override
     public List<MappingGropedBySourceOntologyDto> getAllMappingsGroupedBySourceOntology(){
 
@@ -39,7 +32,6 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
                 .map(MappingGropedBySourceOntologyDto::getMappingGroupedBySourceOntologyObjectStrDto)
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public ProcessedMapping save(ProcessedMapping processedMapping) {
