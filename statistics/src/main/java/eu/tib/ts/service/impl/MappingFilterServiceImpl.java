@@ -13,7 +13,7 @@ public class MappingFilterServiceImpl implements MappingFilterService {
 
     /**
      * @author Nenad Krdzavac
-     * 
+     *
      * Filters list of mappings if collection is present, otherwise does not present any mappings.
      * Based on selected one or more collection mappings are filltered for source ontologies
      * that belong to selected collections.
