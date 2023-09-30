@@ -98,9 +98,9 @@ public class MappingController {
     }
 
     /**
-     * 
-     * Returns true if collection names from from parameter list match
-     * collection names in source ontology. Otherwise returns false.
+     *
+     * Returns true if а collection name from parameter list matches
+     * a collection name from collection of source ontology. Otherwise returns false.
      *
      * @param allCollections
      * @param selectedCollection
