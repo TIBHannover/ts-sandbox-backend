@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,8 +26,12 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
     public SequenceGeneratorService sequenceGeneratorService;
 
     @Override
-    public List<MappingGropedBySourceOntologyDto> getMappingsFilteredByCollection(Optional<String> collection) {
-        return null;
+    public List<MappingGropedBySourceOntologyDto> getMappingsFilteredByCollection(List<String> collection) {
+
+        return Lists.newArrayList(repository.findMappingByCollection(collection).stream()
+                .map(MappingGropedBySourceOntologyDto::getMappingGroupedBySourceOntologyObjectStrDto)
+                .collect(Collectors.toSet()));
+
     }
 
     @Override
