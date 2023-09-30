@@ -35,5 +35,4 @@ public class MappingFilterServiceImpl implements MappingFilterService {
                 .orElse(processedMappings);
     }
 
-
 }

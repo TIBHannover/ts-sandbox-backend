@@ -1,17 +1,14 @@
 package eu.tib.ts.controller;
 
-import eu.tib.ts.controller.dto.MappingDto;
 import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
-import eu.tib.ts.controller.dto.OntologyDto;
 
+import eu.tib.ts.controller.dto.SourceOntologyObjectSetModel;
 import eu.tib.ts.model.ontology.ProcessedMapping;
-import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.service.MappingFilterService;
-import eu.tib.ts.service.OntologyFilterService;
+import eu.tib.ts.service.MappingService;
 import eu.tib.ts.service.ProcessedMappingService;
-import eu.tib.ts.service.ProcessedOntologyService;
+import eu.tib.ts.service.impl.MappingServiceImpl;
 import eu.tib.ts.utils.HttpUtils;
-
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/ontology")
@@ -34,15 +31,17 @@ public class MappingController {
 
     private final MappingFilterService mappingFilterService;
 
+    private final MappingServiceImpl mappingService;
+
     @Autowired
     public MappingController(
             ProcessedMappingService processedMappingService,
-            MappingFilterService mappingFilterService
-    ) {
+            MappingFilterService mappingFilterService,
+            MappingServiceImpl mappingService) {
 
         this.processedMappingService = processedMappingService;
         this.mappingFilterService = mappingFilterService;
-
+        this.mappingService = mappingService;
     }
 
     @Operation(summary="List mappings between a pair of ontologies grouped by source ontology")
@@ -64,24 +63,60 @@ public class MappingController {
 
     }
 
-    @Operation(summary="Filter mappings by selected one or more collection")
+    @Operation(summary="Filter mappings by selected one or more ontology collection")
     @GetMapping(value="/gourpedmappings/filterby", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsFilteredByCollectionNames(
             @Parameter(description = "Filter set of mappings for source ontologies that belong " +
                     "to given collections", example = "NFDI4ING")
-            @RequestParam Optional<String> collection,
+            @RequestParam List<String> collection,
             Pageable pageable
     ){
 
-        List<ProcessedMapping> processedMappings =null ; // getMappingsFilteredByCollection(collection);
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
+                processedMappingService.getAllMappingsGroupedBySourceOntology();
 
-        List<ProcessedMapping> filteredMappingsByCollection = mappingFilterService.filterMappings(processedMappings, collection);
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoListFillteredByMappingId = new ArrayList<>();
 
+        for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
 
-        List<MappingGropedBySourceOntologyDto> mappingFilteredByCollectionNameoList =
-                processedMappingService.getMappingsFilteredByCollection(collection);
+            Set<SourceOntologyObjectSetModel> sourceOntologyObjectSetModels = mappingGroupedBySourceOntologyDto.getSourceOntology();
 
-        return HttpUtils.ok(mappingFilteredByCollectionNameoList);
+            for(SourceOntologyObjectSetModel sm: sourceOntologyObjectSetModels){
+
+                Set<String> allCollections = sm.getCollection();
+
+                if(containsCollection(allCollections,collection)){
+
+                    mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
+                }
+
+                }
+
+            }
+
+        return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
     }
 
+    public boolean containsCollection(Set<String> allCollections, List<String> selectedCollection){
+
+        boolean equalStrings = false;
+
+        for(String s1: allCollections ){
+
+            for(String s2: selectedCollection){
+
+                if(s1.equals(s2)){
+
+                    System.out.println("all collections: " + s1 + " collection: " + s2);
+
+                    equalStrings = true;
+
+                    return equalStrings;
+
+                }
+            }
+        }
+
+       return equalStrings;
+    }
 }
