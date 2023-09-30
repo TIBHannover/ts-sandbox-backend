@@ -97,6 +97,15 @@ public class MappingController {
         return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
     }
 
+    /**
+     * 
+     * Returns true if collection names from from parameter list match
+     * collection names in source ontology. Otherwise returns false.
+     *
+     * @param allCollections
+     * @param selectedCollection
+     * @return
+     */
     public boolean containsCollection(Set<String> allCollections, List<String> selectedCollection){
 
         boolean equalStrings = false;
