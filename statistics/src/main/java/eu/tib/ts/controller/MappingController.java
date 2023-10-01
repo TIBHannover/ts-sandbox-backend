@@ -64,7 +64,7 @@ public class MappingController {
     }
 
     @Operation(summary="Filter mappings by selected one or more ontology collection")
-    @GetMapping(value="/gourpedmappings/filterby", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value="/groupedmappings/filterby", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsFilteredByCollectionNames(
             @Parameter(description = "Filter set of mappings for source ontologies that belong " +
                     "to given collections", example = "NFDI4ING")
