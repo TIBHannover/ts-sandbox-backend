@@ -11,13 +11,6 @@ public interface ProcessedOntologyService {
 
     List<ProcessedOntology> findAll();
 
-    /**
-     * author nenad.krdzavac@tib.eu
-     * added: 01.03.2023.
-     * list of all ontologies including collections they belong to
-     * @return
-     */
-    List<OntologyDto> getMappingOntologies();
 
     List<OntologyDto> getOntologies();
 

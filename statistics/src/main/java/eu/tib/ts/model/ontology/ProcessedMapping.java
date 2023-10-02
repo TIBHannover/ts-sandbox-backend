@@ -89,6 +89,11 @@ private int numberOfTargetOntologies;
 @Field("targetOntologyList")
 private Set<TargetOntologyObjectSetModel> targetOntologyList;
 
+ @ElementCollection
+ @CollectionTable(name = "collection", joinColumns = @JoinColumn(name = "id"))
+ @Field("collection")
+ private Set<String> collection;
+
 @Field
 private String createdAt = "ZonedDateTimeToDateConverter.INSTANCE";
 
