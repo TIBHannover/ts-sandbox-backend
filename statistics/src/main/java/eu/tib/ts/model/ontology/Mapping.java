@@ -1,7 +1,7 @@
 package eu.tib.ts.model.ontology;
 
 import eu.tib.ts.controller.dto.MappingDto;
-
+import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 import lombok.Builder;
 import lombok.Value;
 
@@ -16,5 +16,6 @@ public class Mapping {
     private List<MappingDto> mappingDtoList;
 
 
+    private List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList;
 
 }

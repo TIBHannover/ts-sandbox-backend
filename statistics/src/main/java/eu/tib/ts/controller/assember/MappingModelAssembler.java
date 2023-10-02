@@ -23,6 +23,7 @@ public class MappingModelAssembler extends RepresentationModelAssemblerSupport<M
         MappingModel model = instantiateModel(entity);
 
         model.setName(entity.getName());
+
         model.setMappingDtoList(entity.getMappingDtoList());
 
         return model;
