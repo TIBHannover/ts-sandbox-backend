@@ -1,6 +1,7 @@
 package eu.tib.ontologyhistory.model;
 
 import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,7 +10,8 @@ import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
+@Jacksonized
 @Document(collection = "diff")
 public class Diff {
 
@@ -21,16 +23,18 @@ public class Diff {
 
     private Instant timestamp;
 
+    private String sha;
+
     private String parentSha;
 
-    private List<String> children;
+    private Instant shaOffsetDateTime;
 
-    private String sha;
+    private Instant parentOffsetDateTime;
+
+    private List<String> children;
 
     private List<String> value;
 
     private String message;
 
-    public Diff(String s) {
-    }
 }
