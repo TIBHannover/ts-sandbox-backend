@@ -1,21 +1,25 @@
 package eu.tib.ontologyhistory.model;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.util.List;
 
 @Getter
 @Setter
+@Builder
+@Jacksonized
 @Document(collection = "ontologies")
 public class Ontology {
 
     @Id
     @Setter(AccessLevel.NONE)
     private String id;
+
+    private String url;
 
     private String name;
 
@@ -28,4 +32,6 @@ public class Ontology {
     private CommitStatus commitStatus;
 
     private String type;
+
+    private Instant atime;
 }

@@ -2,8 +2,12 @@ package eu.tib.ontologyhistory.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Getter;
+import lombok.Setter;
 
 @JsonSerialize()
+@Getter
+@Setter
 public class CommitStatus {
     @JsonView
     private String status;

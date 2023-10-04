@@ -2,10 +2,9 @@ package eu.tib.ontologyhistory.service;
 
 import eu.tib.ontologyhistory.dto.LeftRightOntologies;
 import eu.tib.ontologyhistory.model.Ontology;
-import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
 import eu.tib.ontologyhistory.repository.OntologyRepository;
-import org.semanticweb.owlapi.model.OWLRuntimeException;
-import org.semanticweb.owlapi.model.UnloadableImportException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,14 +33,20 @@ public class OntologyService {
     }
 
     public Ontology insert(Ontology ontology) {
-        ontologyRepository.insert(ontology);
+        ontology.setAtime(ontology.getDiffs().get(0).getShaOffsetDateTime());
+        ontologyRepository.save(ontology);
         diffService.assignOntologyId(ontology.getDiffs(), ontology.getId());
         apiErrorService.assignOntologyId(ontology.getInvalidDiffs(), ontology.getId());
         return ontology;
     }
 
-    public void deleteById(String id) {
-        ontologyRepository.deleteById(id);
+    public ResponseEntity<String> deleteById(String id) {
+        try {
+            ontologyRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error happened on a server", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     public LeftRightOntologies findLeftAndRightOntologies(String idLeft, String idRight) throws Exception {
