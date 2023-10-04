@@ -1,5 +1,6 @@
 package eu.tib.ontologyhistory.controller;
 
+import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.Ontology;
 import eu.tib.ontologyhistory.service.OntologyService;
 import org.springframework.http.HttpStatus;
@@ -55,9 +56,23 @@ public class OntologyController {
 
     @DeleteMapping("/{id}")
 //    @ApiOperation("Remove ontology by id")
-    public ResponseEntity<Ontology> deleteOntology(@PathVariable String id) {
-        ontologyService.deleteById(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> deleteOntology(@PathVariable String id) {
+        return ontologyService.deleteById(id);
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> updateOntology(@PathVariable String id,
+                                                 @RequestBody List<Diff> diffs) {
+
+        Ontology ontology = ontologyService.findById(id);
+        if (ontology == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<Diff> existingDiffs = ontology.getDiffs();
+        existingDiffs.addAll(0, diffs);
+        ontology.setDiffs(existingDiffs);
+        ontologyService.insert(ontology);
+        return new ResponseEntity<>("Ontology updated successfully", HttpStatus.OK);
+    }
 }

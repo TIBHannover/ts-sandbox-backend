@@ -57,6 +57,8 @@ public class DiffController {
                         ontologyGitDiffRequest.getGitUrlRight(),
                         ontologyGitDiffRequest.getSha(),
                         ontologyGitDiffRequest.getParentSha(),
+                        ontologyGitDiffRequest.getShaOffsetDateTime(),
+                        ontologyGitDiffRequest.getParentOffsetDateTime(),
                         ontologyGitDiffRequest.getCommitDate(),
                         ontologyGitDiffRequest.getMessage());
             } catch (Exception e) {
@@ -81,8 +83,4 @@ public class DiffController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/commits")
-    public List<Diff> commits(@RequestBody DiffRequest diffRequest) {
-        return diffService.calculateCommits(diffRequest.getFirstCommit(), diffRequest.getSecondCommit(), diffRequest.getId());
-    }
 }
