@@ -2,7 +2,6 @@ package eu.tib.ontologyhistory.service;
 
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.repository.DiffRepository;
-import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
 import eu.tib.ontologyhistory.utils.StringOntologyUtils;
 import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.DiffCommand;
@@ -11,7 +10,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -19,11 +17,8 @@ public class DiffService {
 
     private final DiffRepository diffRepository;
 
-    private final InvalidDiffRepository invalidDiffRepository;
-
-    public DiffService(DiffRepository diffRepository, InvalidDiffRepository invalidDiffRepository) {
+    public DiffService(DiffRepository diffRepository) {
         this.diffRepository = diffRepository;
-        this.invalidDiffRepository = invalidDiffRepository;
     }
 
     public List<Diff> findAll() {
@@ -50,9 +45,9 @@ public class DiffService {
                 "--output", outputGit.getName(),
                 "--format", "html"});
 
-        List<String> lines = Files.readAllLines(outputGit.toPath(), StandardCharsets.UTF_8);
+        String lines = Files.readString(outputGit.toPath(), StandardCharsets.UTF_8);
 
-        Map<Boolean, List<String>> addedDeletedMap = StringOntologyUtils.addedDeletedMap(lines);
+        Map<Boolean, List<String>> addedDeletedMap = StringOntologyUtils.addedDeletedMap(Collections.singletonList(lines));
 
         List<String> editedLines = StringOntologyUtils.editedLines(addedDeletedMap);
 

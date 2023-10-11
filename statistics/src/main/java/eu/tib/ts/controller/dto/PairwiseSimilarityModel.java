@@ -1,7 +1,6 @@
 package eu.tib.ts.controller.dto;
 
 import eu.tib.ts.model.ontology.CharacteristicsInfo;
-import eu.tib.ts.model.ontology.Titles;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +10,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
-import java.util.List;
 import java.util.Map;
 
 @Data

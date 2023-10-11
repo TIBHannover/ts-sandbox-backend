@@ -8,6 +8,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class StringOntologyUtils {
+
+    private StringOntologyUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static Map<Boolean, List<String>> addedDeletedMap(List<String> lines) {
         return lines.stream()
                 .filter(line -> (line.startsWith("+")) || (line.startsWith("-")))
@@ -25,6 +30,6 @@ public class StringOntologyUtils {
                             .orElse(Collections.emptyList())
                             .toString().contains(line.substring(line.indexOf("<"), line.indexOf(">") + 1));
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 }

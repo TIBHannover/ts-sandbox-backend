@@ -9,6 +9,6 @@ import lombok.Value;
 @Value
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Objects {
-    String class_uri;
-    String class_label;
+    String classUri;
+    String classLabel;
 }
