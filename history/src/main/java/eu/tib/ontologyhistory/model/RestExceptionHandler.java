@@ -2,12 +2,9 @@ package eu.tib.ontologyhistory.model;
 
 import eu.tib.ontologyhistory.controller.RequestDetails;
 import eu.tib.ontologyhistory.dto.OntologyGitDiffRequest;
-import eu.tib.ontologyhistory.model.exception.OntologyDefinitelyNotInPath;
-import eu.tib.ontologyhistory.model.exception._UnloadableImportException;
-import eu.tib.ontologyhistory.model.exception._UnparsableOntologyException;
+import eu.tib.ontologyhistory.model.exception.UnloadableCustomImportException;
+import eu.tib.ontologyhistory.model.exception.UnparsableCustomOntologyException;
 import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
-import eu.tib.ontologyhistory.utils.ExceptionUtils;
-import org.semanticweb.owlapi.model.UnloadableImportException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -21,13 +18,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.inject.Inject;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final String REQUEST_BODY = "requestBody";
+
+    private static final String DEFAULT_ONTOLOGY_ID = "default";
     private final InvalidDiffRepository invalidDiffRepository;
 
     @Inject
@@ -37,12 +36,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         this.invalidDiffRepository = invalidDiffRepository;
     }
 
-    @ExceptionHandler(_UnloadableImportException.class)
-    protected ResponseEntity<Object> handleUnloadableImport(_UnloadableImportException ex, WebRequest request) {
-        OntologyGitDiffRequest requestBody = (OntologyGitDiffRequest) request.getAttribute("requestBody", RequestAttributes.SCOPE_REQUEST);
+    @ExceptionHandler(UnloadableCustomImportException.class)
+    protected ResponseEntity<Object> handleUnloadableImport(UnloadableCustomImportException ex, WebRequest request) {
+        OntologyGitDiffRequest requestBody = (OntologyGitDiffRequest) request.getAttribute(REQUEST_BODY, RequestAttributes.SCOPE_REQUEST);
         assert requestBody != null;
         ApiError response = ApiError.builder()
-                .ontologyId("default")
+                .ontologyId(DEFAULT_ONTOLOGY_ID)
                 .status(HttpStatus.FAILED_DEPENDENCY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
                 .message("One or more resources were not loaded. Check left- or right- IRI Files")
@@ -55,12 +54,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.FAILED_DEPENDENCY);
     }
 
-    @ExceptionHandler(_UnparsableOntologyException.class)
-    protected ResponseEntity<Object> handleUnparsableOntology(_UnparsableOntologyException ex, WebRequest request) {
-        OntologyGitDiffRequest requestBody = (OntologyGitDiffRequest) request.getAttribute("requestBody", RequestAttributes.SCOPE_REQUEST);
+    @ExceptionHandler(UnparsableCustomOntologyException.class)
+    protected ResponseEntity<Object> handleUnparsableOntology(UnparsableCustomOntologyException ex, WebRequest request) {
+        OntologyGitDiffRequest requestBody = (OntologyGitDiffRequest) request.getAttribute(REQUEST_BODY, RequestAttributes.SCOPE_REQUEST);
         assert requestBody != null;
         ApiError response = ApiError.builder()
-                .ontologyId("default")
+                .ontologyId(DEFAULT_ONTOLOGY_ID)
                 .status(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
                 .message("Error happened while parsing an ontology. Check left- or right- IRI Files")
@@ -75,10 +74,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
-        OntologyGitDiffRequest requestBody = (OntologyGitDiffRequest) request.getAttribute("requestBody", RequestAttributes.SCOPE_REQUEST);
+        OntologyGitDiffRequest requestBody = (OntologyGitDiffRequest) request.getAttribute(REQUEST_BODY, RequestAttributes.SCOPE_REQUEST);
         assert requestBody != null;
         ApiError response = ApiError.builder()
-                .ontologyId("default")
+                .ontologyId(DEFAULT_ONTOLOGY_ID)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .debugMessage(ex.getMessage())
                 .message("Some error happened during diff creation")

@@ -1,5 +1,6 @@
 package eu.tib.ontologyhistory.controller;
 
+import eu.tib.ontologyhistory.dto.OntologyDTO;
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.Ontology;
 import eu.tib.ontologyhistory.service.OntologyService;
@@ -35,12 +36,22 @@ public class OntologyController {
         if (ontology == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<Ontology>(ontology, HttpStatus.OK);
+        return new ResponseEntity<>(ontology, HttpStatus.OK);
     }
 
     @PostMapping
 //    @ApiOperation("Add new ontology")
-    public Ontology addOntology(@RequestBody Ontology ontology) {
+    public Ontology addOntology(@RequestBody OntologyDTO ontologyDTO) {
+        Ontology ontology = Ontology.builder()
+                .url(ontologyDTO.getUrl())
+                .name(ontologyDTO.getName())
+                .description(ontologyDTO.getDescription())
+                .diffs(ontologyDTO.getDiffs())
+                .invalidDiffs(ontologyDTO.getInvalidDiffs())
+                .commitStatus(ontologyDTO.getCommitStatus())
+                .type(ontologyDTO.getType())
+                .atime(ontologyDTO.getAtime())
+                .build();
         return ontologyService.insert(ontology);
     }
 
