@@ -1,14 +1,14 @@
 package eu.tib.ts.listener;
 
 import eu.tib.ts.service.PreProcessingService;
-import org.jfree.util.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @ConditionalOnProperty(prefix = "preprocessing", name = "run")
 public class PreProcessingRunner implements ApplicationListener<ApplicationReadyEvent> {
@@ -16,8 +16,8 @@ public class PreProcessingRunner implements ApplicationListener<ApplicationReady
 
     @Autowired
     public PreProcessingRunner(PreProcessingService preProcessingService) {
-        Log.info("starting PreProcessingRunner");
-        System.out.println("Titled : PreProcessingRunner "  );
+        log.info("starting PreProcessingRunner");
+        log.error("Titled : PreProcessingRunner "  );
 
         this.preProcessingService = preProcessingService;
     }
@@ -25,7 +25,7 @@ public class PreProcessingRunner implements ApplicationListener<ApplicationReady
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
 
-        System.out.println("Titled : Event Executed "  );
+        log.error("Titled : Event Executed "  );
 
         preProcessingService.doPreProcessing();
     }

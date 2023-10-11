@@ -1,10 +1,9 @@
 package eu.tib.ontologyhistory.controller;
 
-import eu.tib.ontologyhistory.dto.DiffRequest;
 import eu.tib.ontologyhistory.dto.OntologyGitDiffRequest;
 import eu.tib.ontologyhistory.model.Diff;
-import eu.tib.ontologyhistory.model.exception._UnloadableImportException;
-import eu.tib.ontologyhistory.model.exception._UnparsableOntologyException;
+import eu.tib.ontologyhistory.model.exception.UnloadableCustomImportException;
+import eu.tib.ontologyhistory.model.exception.UnparsableCustomOntologyException;
 import eu.tib.ontologyhistory.service.DiffService;
 import eu.tib.ontologyhistory.utils.ExceptionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,9 +65,9 @@ public class DiffController {
                 webRequest.setAttribute("requestBody", ontologyGitDiffRequest, RequestAttributes.SCOPE_REQUEST);
                 Throwable throwable = ExceptionUtils.findRootCause(e);
                 if (throwable instanceof UnloadableImportException) {
-                    throw new _UnloadableImportException(throwable.getMessage());
+                    throw new UnloadableCustomImportException(throwable.getMessage());
                 } else if (throwable instanceof UnparsableOntologyException) {
-                    throw new _UnparsableOntologyException(throwable.getMessage());
+                    throw new UnparsableCustomOntologyException(throwable.getMessage());
                 } else {
                     throw e;
                 }

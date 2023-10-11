@@ -34,7 +34,6 @@ public class HistoryRepositoryImpl implements NodeGraphLookupRepository {
                 .as("children");
 
         Aggregation aggregation = Aggregation.newAggregation(matchOperation, graphLookupOperation);
-        List<History> results = mongoTemplate.aggregate(aggregation, "history", History.class).getMappedResults();
-        return results;
+        return mongoTemplate.aggregate(aggregation, "history", History.class).getMappedResults();
     }
 }

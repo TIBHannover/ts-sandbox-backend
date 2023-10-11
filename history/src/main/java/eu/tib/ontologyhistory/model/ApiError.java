@@ -3,10 +3,8 @@ package eu.tib.ontologyhistory.model;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter

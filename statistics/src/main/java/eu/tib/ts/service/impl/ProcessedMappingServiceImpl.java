@@ -1,7 +1,6 @@
 package eu.tib.ts.service.impl;
 
 import com.github.jsonldjava.shaded.com.google.common.collect.Lists;
-import eu.tib.ts.controller.dto.MappingDto;
 import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.repository.ProcessedMongoMappingRepository;
@@ -39,7 +38,7 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
 
         return Lists.newArrayList(repository.findAll()).stream()
                 .map(MappingGropedBySourceOntologyDto::getMappingGroupedBySourceOntologyObjectStrDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

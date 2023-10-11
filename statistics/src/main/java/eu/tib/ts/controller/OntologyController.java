@@ -4,6 +4,7 @@ import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.service.ProcessedOntologyService;
 import eu.tib.ts.utils.HttpUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/ontology")
 public class OntologyController {
@@ -29,7 +31,7 @@ public class OntologyController {
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<OntologyDto>> getOntologyList() {
 
-        System.out.println("List of all ontologies");
+        log.error("List of all ontologies");
         return HttpUtils.ok(ontologyService.getOntologies());
 
     }
@@ -38,7 +40,7 @@ public class OntologyController {
     @GetMapping(value = "/ids", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<String>> getOntologyIdList() {
 
-        System.out.println("List of all ontologies ids");
+        log.error("List of all ontologies ids");
 
         return HttpUtils.ok(ontologyService.getOntologyIds());
     }

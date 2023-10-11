@@ -3,7 +3,7 @@ package eu.tib.ts.repository.impl;
 import eu.tib.ts.model.ontology.TsOntology;
 import eu.tib.ts.repository.TsRepository;
 import eu.tib.ts.repository.exception.TsRepositoryException;
-import org.jfree.util.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Repository
 public class TsRepositoryImpl implements TsRepository {
     private static final String QUERY_PARAM_SIZE = "size";
@@ -44,9 +45,9 @@ public class TsRepositoryImpl implements TsRepository {
 
         uriComponentsBuilder.queryParam(QUERY_PARAM_SIZE, ontologiesListSize);
 
-        System.out.println("Titled before parsing"  );
+        log.error("Titled before parsing"  );
 
-        Log.info("starting getOntologies");
+        log.info("starting getOntologies");
         ResponseEntity<PagedModel<TsOntology>> responseEntity =
             restTemplate
                 .exchange(
@@ -58,10 +59,10 @@ public class TsRepositoryImpl implements TsRepository {
                 );
 
         PagedModel<TsOntology> body = responseEntity.getBody();
-        System.out.println("Titled after parsing"  );
+        log.error("Titled after parsing"  );
 
         if (Objects.isNull(body)) {
-            System.out.println("can not parsing"  );
+            log.error("can not parsing"  );
 
         throw new TsRepositoryException("Could not get response");
 

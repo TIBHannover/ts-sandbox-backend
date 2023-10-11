@@ -1,21 +1,17 @@
 package eu.tib.ts.configuration;
 
 import com.mongodb.MongoCredential;
-import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
-import eu.tib.ts.service.PreProcessingService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoClientFactoryBean;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @EnableMongoRepositories(basePackageClasses = ProcessedMongoOntologyRepository.class)
@@ -28,12 +24,8 @@ public class MongoConfig {
     @Value("${ols.mongo.seedlist:}")
     String seedList = "";
 
-    @Autowired
-    MongoProperties properties;
-
-
     @Bean
-    MongoClientFactoryBean mongoFactory() throws UnknownHostException {
+    MongoClientFactoryBean mongoFactory(MongoProperties properties) {
 
         MongoClientFactoryBean mongoClientFactoryBean = new MongoClientFactoryBean();
 
@@ -44,14 +36,13 @@ public class MongoConfig {
 
 
         if (!("").equals(readPreference) && !("").equals(seedList)) {
-            List<ServerAddress> seedListArray = new ArrayList<ServerAddress>();
+            List<ServerAddress> seedListArray = new ArrayList<>();
 
             for (String seed : seedList.split(",")) {
                 seedListArray.add(new ServerAddress(seed));
             }
 
-            mongoClientFactoryBean.setReplicaSet(seedListArray.toArray(new ServerAddress[seedListArray.size()]).toString());
-            ReadPreference preference = ReadPreference.valueOf(readPreference);
+            mongoClientFactoryBean.setReplicaSet(Arrays.toString(seedListArray.toArray(new ServerAddress[seedListArray.size()])));
 
         } else {
             mongoClientFactoryBean.setHost(properties.getHost());
