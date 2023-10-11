@@ -49,14 +49,4 @@ public class OntologyService {
         }
     }
 
-    public LeftRightOntologies findLeftAndRightOntologies(String idLeft, String idRight) throws Exception {
-        Optional<Ontology> ontologyLeft = ontologyRepository.findById(idLeft);
-        Optional<Ontology> ontologyRight = ontologyRepository.findById(idRight);
-        if (ontologyLeft.isPresent() && ontologyRight.isPresent()) {
-            return new LeftRightOntologies(ontologyLeft.get(), ontologyRight.get());
-        } else  {
-            throw new Exception("One or both ontologies were not found");
-        }
-
-    }
 }

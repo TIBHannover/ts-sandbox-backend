@@ -1,7 +1,6 @@
 package eu.tib.ts.service.impl;
 
 import eu.tib.ts.controller.dto.OntologyDto;
-import eu.tib.ts.model.ontology.Objects;
 import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.service.OntologyFilterService;
@@ -286,7 +285,6 @@ public class SimilarityServiceImpl implements SimilarityService {
         List<Similarity> list = null;
         List<Titles> titles = new ArrayList<>();
 
-        List<Pairs> pair = new ArrayList<>();
         for (CharacteristicsType type : CharacteristicsType.values()) {
             List<Pair<String, ProcessedOntology>> pairs = getCharacteristicsPairs(Arrays.asList(ont1, ont2), type);
             Map<String, List<OntologyDto>> map = getSimilarityMap(pairs);
@@ -363,7 +361,6 @@ public class SimilarityServiceImpl implements SimilarityService {
 
     private List<Similarity> getSimilarityList(Map<String, List<OntologyDto>> map, boolean external) {
 //entry.getValue().get(0).getLabelProperty()
-        AtomicInteger index = new AtomicInteger();
 
         return map.entrySet().stream()
                 .filter(entry -> external || entry.getValue().size() > 1)
@@ -372,7 +369,7 @@ public class SimilarityServiceImpl implements SimilarityService {
                         .ontologies(entry.getValue())
                         .build()
                 )
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -386,7 +383,7 @@ public class SimilarityServiceImpl implements SimilarityService {
 
         return StreamSupport.stream(ProcessedMongoOntologyRepository.findAll().spliterator(), false)
                 .sorted(Comparator.comparing(ProcessedOntology::getOntologyId))
-                .collect(Collectors.toList());
+                .toList();
 
     }
 
@@ -400,7 +397,7 @@ public class SimilarityServiceImpl implements SimilarityService {
                                                 Collectors.toList(),
                                                 list -> list.stream()
                                                         .sorted(Comparator.comparing(OntologyDto::getOntologyId))
-                                                        .collect(Collectors.toList())
+                                                        .toList()
                                         )
                                 )
                         )

@@ -33,7 +33,7 @@ public class Diff {
 
     private List<String> children;
 
-    private List<String> value;
+    private String value;
 
     private String message;
 
