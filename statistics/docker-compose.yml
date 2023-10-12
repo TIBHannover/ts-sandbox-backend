@@ -12,6 +12,6 @@ services:
       build:
         context: .
       ports:
-        - "8080:8080"
+        - "9191:9191"
       links:
         - mongodb
