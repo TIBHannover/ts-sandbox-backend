@@ -87,7 +87,8 @@ public class MappingController {
 
                 if(containsCollection(allCollections,collection)){
 
-                    mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
+                mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
+
                 }
 
                 }
