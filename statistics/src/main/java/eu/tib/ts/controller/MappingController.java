@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -87,7 +88,8 @@ public class MappingController {
 
                 if(containsCollection(allCollections,collection)){
 
-                    mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
+                mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
+
                 }
 
                 }
@@ -95,6 +97,30 @@ public class MappingController {
             }
 
         return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
+    }
+
+    @Operation(summary ="Filter mappings by selected one or more ontology collection and one or more source ontology ids " +
+            "that belong to selected collections")
+    @GetMapping(value="/groupedmappings/filterby", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsFilteredByCollectionsNameAndSourceOntologyName(
+            @Parameter(description = "Filter set of mappings for source ontologies that belong " +
+                    "to given collections", example = "NFDI4ING")
+            @RequestParam List<String> collection,
+            @Parameter(description = "After selecting one or more collections filter set of mappings based on selected set of" +
+                    "source ontologies that belong to selected collections", example = "coy,dir")
+            @RequestParam List<String> sourceontologyids,
+            Pageable pegable
+    ){
+
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
+                processedMappingService.getAllMappingsGroupedBySourceOntology();
+
+        List<MappingGropedBySourceOntologyDto> mappingGropedByCollectionAndSourceOntologyId = new ArrayList<>();
+
+
+
+        return HttpUtils.ok(mappingGropedByCollectionAndSourceOntologyId);
+
     }
 
     /**
