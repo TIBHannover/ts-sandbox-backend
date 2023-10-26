@@ -9,17 +9,17 @@ public class OntologyGitDiffRequest {
 
     private String gitUrlLeft;
 
-
     private String gitUrlRight;
-
 
     private String sha;
 
-
     private String parentSha;
 
-    private String commitDate;
+    private Instant parentOffsetDateTime;
 
+    private Instant shaOffsetDateTime;
+    
+    private Instant commitDate;
 
     private String message;
 }

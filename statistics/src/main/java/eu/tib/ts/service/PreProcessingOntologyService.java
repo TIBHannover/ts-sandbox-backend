@@ -3,7 +3,6 @@ package eu.tib.ts.service;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.TsOntology;
 
-import java.math.BigInteger;
 import java.util.Optional;
 
 public interface PreProcessingOntologyService {

@@ -19,20 +19,14 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ox.krr.logmap2.LogMap2_Matcher;
 import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
 
-import java.io.File;
-import java.io.InputStream;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.util.ResourceUtils;
 @Slf4j
 @Service
 @EnableAutoConfiguration
@@ -84,7 +78,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         List<TsOntology> unprocessedOntologies = tsOntologies.stream()
                 .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
                 .filter(tsOntology -> !skipList.contains(tsOntology.getOntologyId().toLowerCase()))
-                .collect(Collectors.toList());
+                .toList();
 
         int count = 1;
         log.info("Pre-processing starts");
@@ -206,7 +200,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
 //            sourceOntologyManager= OWLManager.createOWLOntologyManager();
 
-            Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<TargetOntologyObjectSetModel>();
+            Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<>();
 
             Set<SourceOntologyObjectSetModel> sourceOntology = new HashSet<>();
             SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
@@ -234,7 +228,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                      */
                     Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
-                    if(logmap2Mappings.size() >0 || conflictiveLogmap2Mappings.size()>0) {
+                    if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
 
                         OntologyDto sourceOnt = OntologyDto.builder()
                                 .ontologyId(unprocessedOntologies.get(i).getOntologyId())
@@ -281,7 +275,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                 }catch(Exception e){
 
-                    e.printStackTrace();
+                    log.error("Exception happened: " + e.getMessage());
 
                 }
 

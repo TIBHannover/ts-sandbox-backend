@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class OntologyFilterServiceImpl implements OntologyFilterService {
@@ -25,7 +24,7 @@ public class OntologyFilterServiceImpl implements OntologyFilterService {
                 processedOntologies.stream()
                     .filter(processedOntology -> processedOntology.getCollection().stream()
                         .anyMatch(s::equalsIgnoreCase))
-                    .collect(Collectors.toList()))
+                    .toList())
             .orElse(processedOntologies);
     }
 

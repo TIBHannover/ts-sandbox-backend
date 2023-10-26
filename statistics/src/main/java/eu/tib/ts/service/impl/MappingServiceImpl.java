@@ -1,6 +1,5 @@
 package eu.tib.ts.service.impl;
-import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
-import eu.tib.ts.model.ontology.Ontology;
+
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.repository.ProcessedMongoMappingRepository;
 import eu.tib.ts.service.MappingService;
@@ -8,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

@@ -85,7 +85,7 @@ public class MostCommonlyUsedServiceImpl implements MostCommonlyUsedService {
 
         List<KeyValueResultDto> list = map.entrySet().stream()
             .map(entry -> KeyValueResultDto.builder().key(entry.getKey()).value(entry.getValue()).build())
-            .collect(Collectors.toList());
+            .toList();
 
         return PageUtils.toPage(list, pageable);
     }
@@ -100,6 +100,6 @@ public class MostCommonlyUsedServiceImpl implements MostCommonlyUsedService {
 
         return StreamSupport.stream(ProcessedMongoOntologyRepository.findAll().spliterator(), false)
             .sorted(Comparator.comparing(ProcessedOntology::getOntologyId))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

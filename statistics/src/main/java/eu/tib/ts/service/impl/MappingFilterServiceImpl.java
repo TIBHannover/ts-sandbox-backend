@@ -31,7 +31,7 @@ public class MappingFilterServiceImpl implements MappingFilterService {
                 .map(s -> processedMappings.stream()
                         .filter(processedMapping -> processedMapping.getCollection().stream()
                                 .anyMatch(s::equalsIgnoreCase))
-                                .collect(Collectors.toList()))
+                                .toList())
                 .orElse(processedMappings);
     }
 
