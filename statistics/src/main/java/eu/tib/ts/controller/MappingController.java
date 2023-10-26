@@ -112,17 +112,67 @@ public class MappingController {
             Pageable pegable
     ){
 
+        /**
+         * Get all mappings grouped by source ontology
+         */
         List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
                 processedMappingService.getAllMappingsGroupedBySourceOntology();
 
         List<MappingGropedBySourceOntologyDto> mappingGropedByCollectionAndSourceOntologyId = new ArrayList<>();
 
 
+        for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
+
+            Set<SourceOntologyObjectSetModel> sourceOntologyObjectSetModels = mappingGroupedBySourceOntologyDto.getSourceOntology();
+
+            for(SourceOntologyObjectSetModel sm: sourceOntologyObjectSetModels){
+
+                Set<String> allCollections = sm.getCollection();
+
+                if(containsCollection(allCollections,collection)){
+
+                    /**
+                     * Checks if current source ontology id is selected
+                     */
+                    if(containsSourceOntologyId(sm.getOntologyId(),sourceontologyids)) {
+
+                    mappingGropedByCollectionAndSourceOntologyId.add(mappingGroupedBySourceOntologyDto);
+
+                    }
+
+                }
+
+            }
+
+        }
 
         return HttpUtils.ok(mappingGropedByCollectionAndSourceOntologyId);
 
     }
 
+    /**
+     *  Checks whether a source ontology id is in the list of selected source ontology ids (sourceontologyids).
+     *
+     * @param sourceOntologyId
+     * @param selectedOntologyIds
+     * @return
+     */
+    public boolean containsSourceOntologyId(String sourceOntologyId, List<String> selectedOntologyIds){
+
+        boolean equalOntologyIdStrings = false;
+
+        for(String sc: selectedOntologyIds){
+
+            if(sc.equals(sourceOntologyId)){
+
+                equalOntologyIdStrings = true;
+
+                return equalOntologyIdStrings;
+            }
+        }
+
+        return equalOntologyIdStrings;
+}
     /**
      *
      * Returns true if а collection name from parameter list matches
