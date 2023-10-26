@@ -21,7 +21,7 @@ preprocessing:
   run: true
 
 ts:
-  ontologies.list.size: 200
+  ontologies.list.size: 50
   base.uri: https://service.tib.eu/ts4tib/api/ontologies
   timeout:
     connect: 10000
