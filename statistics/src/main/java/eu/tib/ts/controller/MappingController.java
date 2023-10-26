@@ -3,15 +3,14 @@ package eu.tib.ts.controller;
 import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 
 import eu.tib.ts.controller.dto.SourceOntologyObjectSetModel;
-import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.service.MappingFilterService;
-import eu.tib.ts.service.MappingService;
 import eu.tib.ts.service.ProcessedMappingService;
 import eu.tib.ts.service.impl.MappingServiceImpl;
 import eu.tib.ts.utils.HttpUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @RestController
 @RequestMapping("api/ontology")
 public class MappingController {
@@ -117,7 +117,7 @@ public class MappingController {
 
                 if(s1.equals(s2)){
 
-                    System.out.println("all collections: " + s1 + " collection: " + s2);
+                    log.info("all collections: " + s1 + " collection: " + s2);
 
                     equalStrings = true;
 

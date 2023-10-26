@@ -1,6 +1,5 @@
 package eu.tib.ts.model.ontology;
 
-import eu.tib.ts.controller.dto.MappingDto;
 import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;

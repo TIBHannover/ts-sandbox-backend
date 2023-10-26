@@ -4,12 +4,14 @@ import eu.tib.ontologyhistory.model.Attributes;
 import eu.tib.ontologyhistory.model.History;
 import eu.tib.ontologyhistory.model.TreeNode;
 import eu.tib.ontologyhistory.repository.HistoryRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class HistoryServiceImpl implements HistoryService {
 
@@ -36,7 +38,7 @@ public class HistoryServiceImpl implements HistoryService {
             try {
                 BeanUtils.copyProperties(node, treeNode, "id", "children");
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Exception happened: " + e.getMessage());
             }
             treeNode.setAttributes(attributes);
             nodes.add(treeNode);

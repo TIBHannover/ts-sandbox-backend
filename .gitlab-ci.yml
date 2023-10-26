@@ -1,4 +1,4 @@
-image: maven:3.6.3-jdk-11
+image: maven:3.9.4-eclipse-temurin-17
 
 variables:
   IMAGE_NAME: $CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
@@ -7,24 +7,7 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - build
   - sonarqube
-  - deploy
-  - remove_docker
 #  - dockerize
-
-.deploy_job:
-  image: mullnerz/ansible-playbook:2.9.1
-  stage: deploy
-  before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | base64 -d | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - git clone https://github.com/aamir9138/TIB-Terminology-Service-Statistics-box.git
-  script:
-    - ansible-playbook -v -i ${INVENTORY_FILE}  --extra-vars "gitlab_token=$GITLAB_TOKEN_CI"  TIB-Terminology-Service-Statistics-box/ansible/playbook.yml
 
 test:
   stage: test
@@ -43,7 +26,7 @@ build:
 
 sonarqube-check:
   stage: sonarqube
-  image: maven:3.6.3-jdk-11
+  image: maven:3.9.4-eclipse-temurin-17
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
@@ -58,38 +41,6 @@ sonarqube-check:
     - main
     - branches
   when: manual
-deploy to develop:
-  variables:
-    INVENTORY_FILE: inventory/sandbox_develop.yml
-  extends: .deploy_job
-  when: manual
-
-deploy to production:
-  variables:
-    INVENTORY_FILE: inventory/sandbox_production.yml
-  extends: .deploy_job
-  when: manual
-
-.remove_docker_job:
-  image: mullnerz/ansible-playbook:2.9.1
-  stage: remove_docker
-  before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | base64 -d | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-  script:
-    - ansible-playbook -v -i ${INVENTORY_FILE} remove_all_docker.yml -e 'ansible_python_interpreter=/usr/bin/python3'
-
-remove_docker to develop:
-  variables:
-    INVENTORY_FILE: inventory/sandbox_develop.yml
-  extends: .remove_docker_job
-  when: manual
-
 
 
 #dockerize:
