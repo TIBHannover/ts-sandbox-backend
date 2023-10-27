@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.*;
 
 @RestController
@@ -71,7 +72,7 @@ public class OntologyController {
         return ontologyService.deleteById(id);
     }
 
-    @PutMapping("/update/{id}")
+    @PostMapping("/update/{id}")
     public ResponseEntity<String> updateOntology(@PathVariable String id,
                                                  @RequestBody List<Diff> diffs) {
 
@@ -86,4 +87,13 @@ public class OntologyController {
         ontologyService.insert(ontology);
         return new ResponseEntity<>("Ontology updated successfully", HttpStatus.OK);
     }
+
+    @PostMapping("/{id}/preview")
+    public ResponseEntity<List<Diff>> getPreview(@PathVariable String id,
+                                                 @RequestParam Instant startDate,
+                                                 @RequestParam Instant endDate) {
+        List<Diff> diffs = ontologyService.getDiffsBetween(id, startDate, endDate);
+        return new ResponseEntity<>(diffs, HttpStatus.OK);
+    }
+
 }

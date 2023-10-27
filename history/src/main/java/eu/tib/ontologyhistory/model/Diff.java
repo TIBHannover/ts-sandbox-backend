@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -31,9 +32,9 @@ public class Diff {
 
     private Instant parentOffsetDateTime;
 
-    private List<String> children;
+    private org.bson.Document markdown;
 
-    private String value;
+    private Map<String, List<Axiom>> axioms;
 
     private String message;
 
