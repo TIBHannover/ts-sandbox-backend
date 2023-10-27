@@ -159,19 +159,19 @@ public class MappingController {
      */
     public boolean containsSourceOntologyId(String sourceOntologyId, List<String> selectedOntologyIds){
 
-        boolean equalOntologyIdStrings = false;
+        boolean equalOntologyIds = false;
 
         for(String sc: selectedOntologyIds){
 
             if(sc.equals(sourceOntologyId)){
 
-                equalOntologyIdStrings = true;
+                equalOntologyIds = true;
 
-                return equalOntologyIdStrings;
+                return equalOntologyIds;
             }
         }
 
-        return equalOntologyIdStrings;
+        return equalOntologyIds;
 }
     /**
      *
