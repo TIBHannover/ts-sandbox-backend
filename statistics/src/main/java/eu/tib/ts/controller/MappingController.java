@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -101,7 +100,7 @@ public class MappingController {
 
     @Operation(summary ="Filter mappings by selected one or more ontology collection and one or more source ontology ids " +
             "that belong to selected collections")
-    @GetMapping(value="/groupedmappings/filterby", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value="/groupedmappings/filterby/source", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsFilteredByCollectionsNameAndSourceOntologyName(
             @Parameter(description = "Filter set of mappings for source ontologies that belong " +
                     "to given collections", example = "NFDI4ING")
@@ -201,7 +200,8 @@ public class MappingController {
                 }
             }
         }
-
+        
        return equalStrings;
+
     }
 }
