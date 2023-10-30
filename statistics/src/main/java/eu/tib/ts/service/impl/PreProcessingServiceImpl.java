@@ -1,5 +1,6 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.configuration.OntologiesProcessingConfig;
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.controller.dto.SourceOntologyObjectSetModel;
@@ -36,13 +37,14 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     private final PreProcessingOntologyService preProcessingOntologyService;
 
     private final SequenceGeneratorService sequenceGeneratorService;
-    private final List<String> skipList;
 
     private final PreProcessingMappingService preProcessingMappingService;
 
     private final ProcessedMappingService processedMappingService;
 
     OWLOntologyManager ontologyManager;
+
+    OntologiesProcessingConfig ontologiesProcessingConfig;
 
 
     @Autowired
@@ -52,15 +54,14 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                                     PreProcessingOntologyService preProcessingOntologyService,
                                     PreProcessingMappingService preProcessingMappingService,
                                     SequenceGeneratorService sequenceGeneratorService,
-                                    @Value("#{'${skip.ontologies.processing}'.split(',')}")
-                                    List<String> skipList) {
+                                    OntologiesProcessingConfig ontologiesProcessingConfig) {
         this.tsRepository = tsRepository;
         this.preProcessingOntologyService = preProcessingOntologyService;
         this.preProcessingMappingService = preProcessingMappingService;
         this.processedOntologyService = processedOntologyService;
         this.processedMappingService = processedMappingService;
         this.sequenceGeneratorService = sequenceGeneratorService;
-        this.skipList = skipList;
+        this.ontologiesProcessingConfig = ontologiesProcessingConfig;
 
         log.info("PreProcessingServiceImpl constructor : ");
 
@@ -69,15 +70,15 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     @Override
     public void doPreProcessing() {
         List<TsOntology> tsOntologies = tsRepository.getOntologies();
-        log.info("Titled doPreProcessing:");
+        
 
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
-        log.info("Titled : third line " + tsOntologies);
+        
 
         List<TsOntology> unprocessedOntologies = tsOntologies.stream()
                 .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
-                .filter(tsOntology -> !skipList.contains(tsOntology.getOntologyId().toLowerCase()))
+                .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
                 .toList();
 
         int count = 1;
