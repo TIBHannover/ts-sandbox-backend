@@ -200,7 +200,7 @@ public class MappingController {
                 }
             }
         }
-        
+
        return equalStrings;
 
     }
