@@ -98,6 +98,80 @@ public class MappingController {
         return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
     }
 
+    @Operation(summary ="Filter mappings by selected one or more ontology collection and one or more source ontology ids " +
+            "that belong to selected collections")
+    @GetMapping(value="/groupedmappings/filterby/source", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<MappingGropedBySourceOntologyDto>> getMappingsFilteredByCollectionsNameAndSourceOntologyName(
+            @Parameter(description = "Filter set of mappings for source ontologies that belong " +
+                    "to given collections", example = "NFDI4ING")
+            @RequestParam List<String> collection,
+            @Parameter(description = "After selecting one or more collections filter set of mappings based on selected set of" +
+                    "source ontologies that belong to selected collections", example = "coy,dir")
+            @RequestParam List<String> sourceontologyids,
+            Pageable pegable
+    ){
+
+        /**
+         * Get all mappings grouped by source ontology
+         */
+        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
+                processedMappingService.getAllMappingsGroupedBySourceOntology();
+
+        List<MappingGropedBySourceOntologyDto> mappingGropedByCollectionAndSourceOntologyId = new ArrayList<>();
+
+
+        for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
+
+            Set<SourceOntologyObjectSetModel> sourceOntologyObjectSetModels = mappingGroupedBySourceOntologyDto.getSourceOntology();
+
+            for(SourceOntologyObjectSetModel sm: sourceOntologyObjectSetModels){
+
+                Set<String> allCollections = sm.getCollection();
+
+                if(containsCollection(allCollections,collection)){
+
+                    /**
+                     * Checks if current source ontology id is selected
+                     */
+                    if(containsSourceOntologyId(sm.getOntologyId(),sourceontologyids)) {
+
+                    mappingGropedByCollectionAndSourceOntologyId.add(mappingGroupedBySourceOntologyDto);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return HttpUtils.ok(mappingGropedByCollectionAndSourceOntologyId);
+
+    }
+
+    /**
+     *  Checks whether a source ontology id is in the list of selected source ontology ids (sourceontologyids).
+     *
+     * @param sourceOntologyId
+     * @param selectedOntologyIds
+     * @return
+     */
+    public boolean containsSourceOntologyId(String sourceOntologyId, List<String> selectedOntologyIds){
+
+        boolean equalOntologyIds = false;
+
+        for(String sc: selectedOntologyIds){
+
+            if(sc.equals(sourceOntologyId)){
+
+                equalOntologyIds = true;
+
+                return equalOntologyIds;
+            }
+        }
+
+        return equalOntologyIds;
+}
     /**
      *
      * Returns true if а collection name from parameter list matches
@@ -128,5 +202,6 @@ public class MappingController {
         }
 
        return equalStrings;
+
     }
 }
