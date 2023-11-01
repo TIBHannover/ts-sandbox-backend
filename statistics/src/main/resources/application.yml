@@ -11,7 +11,7 @@ server:
   port: 9191
 
   main:
-    allow-bean-definition-overriding : true
+    allow-bean-definition-overriding: true
 
   mvc:
     pathmatch:
@@ -22,7 +22,7 @@ preprocessing:
 
 ts:
   ontologies.list.size: 200
-  base.uri: https://service.tib.eu/ts4tib/api/ontologies
+  base.uri: https://service.tib.eu/ts4tib/api/ontologies #https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu
   timeout:
     connect: 10000
     read: 10000

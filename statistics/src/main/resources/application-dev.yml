@@ -10,7 +10,7 @@ spring:
     static-locations: file:resources/parameters.txt
 
 server:
-  port: 8080
+  port: 9191
 
   main:
     allow-bean-definition-overriding: true
@@ -28,7 +28,7 @@ preprocessing:
 
 ts:
   ontologies.list.size: 200
-  base.uri: https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu #https://service.tib.eu/ts4tib/api/ontologies
+  base.uri: https://service.tib.eu/ts4tib/api/ontologies #https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu
   timeout:
     connect: 4000
     read: 4000
