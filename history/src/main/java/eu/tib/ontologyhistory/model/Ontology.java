@@ -1,5 +1,6 @@
 package eu.tib.ontologyhistory.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
@@ -33,5 +34,6 @@ public class Ontology {
 
     private String type;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Instant atime;
 }
