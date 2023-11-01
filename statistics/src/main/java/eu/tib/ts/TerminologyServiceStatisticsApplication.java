@@ -14,6 +14,7 @@ public class TerminologyServiceStatisticsApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(TerminologyServiceStatisticsApplication.class, args);
+        log.info("Mapping is finished");
     }
 
 }
