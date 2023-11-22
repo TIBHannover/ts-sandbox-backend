@@ -4,7 +4,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/ontology")
+@RequestMapping("api/ontology/external/mapping")
 public class ExternalMappingController {
+
+
 
 }
