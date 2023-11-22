@@ -38,7 +38,7 @@ public class ProcessedMappingServiceImpl implements ProcessedMappingService {
 
         return Lists.newArrayList(repository.findAll()).stream()
                 .map(MappingGropedBySourceOntologyDto::getMappingGroupedBySourceOntologyObjectStrDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
