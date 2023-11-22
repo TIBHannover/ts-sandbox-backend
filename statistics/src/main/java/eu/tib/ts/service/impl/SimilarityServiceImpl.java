@@ -369,7 +369,7 @@ public class SimilarityServiceImpl implements SimilarityService {
                         .ontologies(entry.getValue())
                         .build()
                 )
-                .toList();
+                .collect(Collectors.toList());
     }
 
 
@@ -383,7 +383,7 @@ public class SimilarityServiceImpl implements SimilarityService {
 
         return StreamSupport.stream(ProcessedMongoOntologyRepository.findAll().spliterator(), false)
                 .sorted(Comparator.comparing(ProcessedOntology::getOntologyId))
-                .toList();
+                .collect(Collectors.toList());
 
     }
 
@@ -397,7 +397,7 @@ public class SimilarityServiceImpl implements SimilarityService {
                                                 Collectors.toList(),
                                                 list -> list.stream()
                                                         .sorted(Comparator.comparing(OntologyDto::getOntologyId))
-                                                        .toList()
+                                                        .collect(Collectors.toList())
                                         )
                                 )
                         )
