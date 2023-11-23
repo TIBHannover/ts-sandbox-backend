@@ -1,12 +1,19 @@
 package eu.tib.ts.controller;
 
+import eu.tib.ts.controller.assember.ExternalMappingModelAssembler;
 import eu.tib.ts.controller.dto.ExternalMappingModel;
+import eu.tib.ts.controller.dto.PairwiseSimilarityModel;
+import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
+import eu.tib.ts.service.ExternalMappingService;
 import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.utils.HttpUtils;
+import eu.tib.ts.utils.PageUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +30,20 @@ import java.util.Optional;
 public class ExternalMappingController {
 
     private final PreProcessingOntologyService preProcessingOntologyService;
+    private final ExternalMappingService externalMappingService;
+    private final PagedResourcesAssembler<ExternalMapping> externalMappingPagedResourcesAssembler;
+
+    private final ExternalMappingModelAssembler externalMappingModelAssembler;
 
     public ExternalMappingController(
-        PreProcessingOntologyService preProcessingOntologyService
-    ){
+        PreProcessingOntologyService preProcessingOntologyService,
+        ExternalMappingService externalMappingService,
+        PagedResourcesAssembler<ExternalMapping> externalMappingPagedResourcesAssembler,
+        ExternalMappingModelAssembler externalMappingModelAssembler){
         this.preProcessingOntologyService=preProcessingOntologyService;
+        this.externalMappingService=externalMappingService;
+        this.externalMappingPagedResourcesAssembler=externalMappingPagedResourcesAssembler;
+        this.externalMappingModelAssembler = externalMappingModelAssembler;
     }
     @Operation(summary = "Mappings between an external ontology and a set of selected TIB TS ontologies")
     @GetMapping(value = "/mapping", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,13 +54,13 @@ public class ExternalMappingController {
             @RequestParam List<String> tsOntologyList,
             Pageable pageable
     ) {
+        ProcessedOntology externalOntology = null;
 
-        ProcessedOntology eternalOntology = preProcessingOntologyService.preProcess(Optional.empty(), uri,"get mappings between external ontology and " +
-                "selected ontologies from TIB Terminology Service");
+        Page<ExternalMapping> page = externalMappingService.getMappingsForExternalOntology(externalOntology,
+                tsOntologyList, pageable);
 
         PagedModel<ExternalMappingModel> pagedModel = null;
 
         return HttpUtils.ok(pagedModel);
     }
-
 }

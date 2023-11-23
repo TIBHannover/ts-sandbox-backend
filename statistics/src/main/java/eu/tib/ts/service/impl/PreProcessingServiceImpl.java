@@ -79,7 +79,10 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         List<TsOntology> unprocessedOntologies = tsOntologies.stream()
                 .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
                 .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
-                .toList();
+                /**
+                 * changed toList()
+                 */
+                .collect(Collectors.toList());
 
         int count = 1;
         log.info("Pre-processing starts");

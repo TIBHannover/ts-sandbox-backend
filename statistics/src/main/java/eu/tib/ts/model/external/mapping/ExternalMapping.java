@@ -11,14 +11,9 @@ import java.util.Set;
 @Value
 public class ExternalMapping {
 
-    long id;
-
     String mappingId;
-
-    Ontology sourceOntology;
-
+    String sourceOntologyURI;
     int numberOfTargetOntologies;
-
     Set<TargetOntologyObjectSetModel> targetOntologyList;
 
 }

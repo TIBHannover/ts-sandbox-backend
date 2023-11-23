@@ -1,5 +1,7 @@
 package eu.tib.ts.utils;
 
+import eu.tib.ts.controller.dto.ExternalMappingModel;
+import eu.tib.ts.model.external.mapping.ExternalMapping;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,4 +38,6 @@ public class PageUtils {
                 ? (PagedModel<M>) pagedResourcesAssembler.toEmptyModel(page, resourceType)
                 : pagedResourcesAssembler.toModel(page, modelAssembler);
     }
+
+
 }

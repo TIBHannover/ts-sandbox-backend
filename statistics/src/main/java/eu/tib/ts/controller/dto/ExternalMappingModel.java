@@ -14,9 +14,8 @@ import java.util.Set;
 @Relation(collectionRelation = "externalmappings", itemRelation = "externalmapping")
 public class ExternalMappingModel extends RepresentationModel<ExternalMappingModel> {
 
-    long id;
     String mappingId;
-    Set<SourceOntologyObjectSetModel> sourceOntology;
+    String sourceOntologyURI;
     int numberOfTargetOntologies;
     Set<TargetOntologyObjectSetModel> targetOntologyList;
 
