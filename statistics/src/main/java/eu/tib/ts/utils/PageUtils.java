@@ -14,6 +14,7 @@ import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.NONE)
 public class PageUtils {
@@ -22,7 +23,11 @@ public class PageUtils {
         List<T> slice = list.stream()
                 .skip((long) pageable.getPageNumber() * pageable.getPageSize())
                 .limit(pageable.getPageSize())
-                .toList();
+                /**
+                 * added collect instead of toList()
+                 */
+                .collect(Collectors.toList());
+//                .toList();
 
         return new PageImpl<>(slice, pageable, list.size());
     }
