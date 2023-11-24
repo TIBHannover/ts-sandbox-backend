@@ -1,7 +1,6 @@
 package eu.tib.ts.model.external.mapping;
 
 import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
-import eu.tib.ts.model.ontology.Ontology;
 import lombok.Builder;
 import lombok.Value;
 

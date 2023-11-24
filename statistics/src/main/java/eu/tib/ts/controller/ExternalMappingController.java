@@ -4,6 +4,7 @@ import eu.tib.ts.controller.assember.ExternalMappingModelAssembler;
 import eu.tib.ts.controller.dto.ExternalMappingModel;
 import eu.tib.ts.controller.dto.PairwiseSimilarityModel;
 import eu.tib.ts.model.external.mapping.ExternalMapping;
+import eu.tib.ts.model.ontology.PairwiseSimilarity;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.service.ExternalMappingService;
 import eu.tib.ts.service.PreProcessingOntologyService;
@@ -11,6 +12,7 @@ import eu.tib.ts.utils.HttpUtils;
 import eu.tib.ts.utils.PageUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -35,6 +37,7 @@ public class ExternalMappingController {
 
     private final ExternalMappingModelAssembler externalMappingModelAssembler;
 
+    @Autowired
     public ExternalMappingController(
         PreProcessingOntologyService preProcessingOntologyService,
         ExternalMappingService externalMappingService,
@@ -51,15 +54,20 @@ public class ExternalMappingController {
             @Parameter(description = "External resolvable ontology URI")
             @RequestParam String uri,
             @Parameter(description = "Set of selected ontologies from TIB TS", example = "dr,coy,cidoc")
-            @RequestParam List<String> tsOntologyList,
+            @RequestParam Optional<String> tsOntologyList,
             Pageable pageable
     ) {
-        ProcessedOntology externalOntology = null;
+        ProcessedOntology externalOntology = preProcessingOntologyService.preProcess(Optional.empty(), uri,
+                "get mappings between external ontology abd selected ontologies from TIB Terminology Service");
 
-        Page<ExternalMapping> page = externalMappingService.getMappingsForExternalOntology(externalOntology,
-                tsOntologyList, pageable);
+        Page<ExternalMapping> eternalMappingPage = externalMappingService.getMappingsForExternalOntology(externalOntology,tsOntologyList,pageable);
 
-        PagedModel<ExternalMappingModel> pagedModel = null;
+        PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
+                eternalMappingPage,
+                ExternalMappingModel.class,
+                externalMappingPagedResourcesAssembler,
+                externalMappingModelAssembler
+        );
 
         return HttpUtils.ok(pagedModel);
     }

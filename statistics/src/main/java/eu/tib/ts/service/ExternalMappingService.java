@@ -6,12 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 public interface ExternalMappingService {
 
     <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology,
-                                                                             List<String> collection,
+                                                                             Optional<String> collection,
                                                                              Pageable pageable);
 
 }
