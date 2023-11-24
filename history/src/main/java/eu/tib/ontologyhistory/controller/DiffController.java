@@ -52,8 +52,8 @@ public class DiffController {
             @RequestBody OntologyGitDiffRequest ontologyGitDiffRequest, WebRequest webRequest) throws Exception {
         Diff diff;
             try {
-                diff = diffService.makeDiffFromGit(ontologyGitDiffRequest.getGitUrlLeft(),
-                        ontologyGitDiffRequest.getGitUrlRight(),
+                diff = diffService.makeDiffFromGit(ontologyGitDiffRequest.getGitRawFileLeft(),
+                        ontologyGitDiffRequest.getGitRawFileRight(),
                         ontologyGitDiffRequest.getSha(),
                         ontologyGitDiffRequest.getParentSha(),
                         ontologyGitDiffRequest.getShaOffsetDateTime(),

@@ -4,6 +4,8 @@ import com.google.common.collect.Sets;
 import eu.tib.ontologyhistory.model.Axiom;
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.repository.DiffRepository;
+import eu.tib.ontologyhistory.utils.FileUtils;
+import eu.tib.ontologyhistory.utils.OntologyUtils;
 import eu.tib.ontologyhistory.utils.ParserUtils;
 import org.bson.Document;
 import org.geneontology.owl.differ.Differ;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 
@@ -75,23 +78,33 @@ public class DiffService {
 
 
     public Diff makeDiffFromGit(String gitIriLeft, String gitIriRight, String commitSha, String parentCommitSha, Instant parentTime, Instant shaTime, Instant commitDate, String message) throws Exception {
-        File outputGit = new File("withDiffer.txt");
-        File outputGitMD = new File("mdWithDiffer.md");
-        IOHelper ioHelper = new IOHelper();
+        String ontologyLeftFilename = "ontology-left";
+        String ontologyRightFilename = "ontology-right";
 
-        OWLOntology ontology1 = ioHelper.loadOntology(IRI.create(gitIriLeft));
-        OWLOntology ontology2 = ioHelper.loadOntology(IRI.create(gitIriRight));
-        OWLOntologySetProvider ontologySetProvider = new DualOntologySetProvider(ontology1.getOWLOntologyManager(), ontology2.getOWLOntologyManager());
+        Path diffOutputPlainFile = Path.of("diff-output-plain.txt");
+        Path diffOutputPlainMarkdown = Path.of("diff-output-markdown.md");
 
-        Differ.BasicDiff differ = Differ.diff(ontology1, ontology2);
-        Differ.GroupedDiff groupedForMarkfown = Differ.groupedDiff(differ);
+        File ontLeft = FileUtils.createTempFile(ontologyLeftFilename, gitIriLeft);
+        File ontRight = FileUtils.createTempFile(ontologyRightFilename, gitIriRight);
 
-        Files.write(outputGit.toPath(), BasicDiffRenderer.renderPlain(differ).getBytes());
-        Files.write(outputGitMD.toPath(), MarkdownGroupedDiffRenderer.render(groupedForMarkfown, ontologySetProvider).getBytes());
+        OWLOntology loadedOntologyLeft = OntologyUtils.loadOntology(ontLeft);
+        OWLOntology loadedOntologyRight = OntologyUtils.loadOntology(ontRight);
+
+        OWLOntologySetProvider ontologySetProvider = new DualOntologySetProvider(
+                loadedOntologyLeft.getOWLOntologyManager(),
+                loadedOntologyRight.getOWLOntologyManager()
+        );
+
+        Differ.BasicDiff differ = Differ.diff(loadedOntologyLeft, loadedOntologyRight);
+        Differ.GroupedDiff groupedForMarkdown = Differ.groupedDiff(differ);
+
+        Files.write(diffOutputPlainFile, BasicDiffRenderer.renderPlain(differ).getBytes());
+        Files.write(diffOutputPlainMarkdown, MarkdownGroupedDiffRenderer.render(groupedForMarkdown, ontologySetProvider).getBytes());
 
 
-        List<String> lines = Files.readAllLines(outputGit.toPath(), StandardCharsets.UTF_8);
-        String line = Files.readString(outputGitMD.toPath(), StandardCharsets.UTF_8);
+        List<String> lines = Files.readAllLines(diffOutputPlainFile, StandardCharsets.UTF_8);
+        String line = Files.readString(diffOutputPlainMarkdown, StandardCharsets.UTF_8);
+
 
         Map<String, List<Axiom>> axioms = ParserUtils.parseAxioms(lines);
 

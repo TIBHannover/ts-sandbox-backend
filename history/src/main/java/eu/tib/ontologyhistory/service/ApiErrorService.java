@@ -16,12 +16,8 @@ public class ApiErrorService {
         this.invalidDiffRepository = invalidDiffRepository;
     }
     public void assignOntologyId(List<ApiError> apiErrors, String ontologyId) {
-        for (ApiError d : apiErrors) {
-            ApiError apiError = invalidDiffRepository.findById(d.getId()).orElse(null);
-            if (apiError != null) {
-                apiError.setOntologyId(ontologyId);
-                invalidDiffRepository.save(apiError);
-            }
+        for (ApiError apiError : apiErrors) {
+            apiError.setOntologyId(ontologyId);
         }
     }
 }
