@@ -125,7 +125,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         log.info("Mappings between pairs of ontologies start:");
 
-
 //        for(int i=0;i<unprocessedOntologies.size();i++) {
 //
 //            for (int j = i + 1; j < unprocessedOntologies.size()+1; j++) {

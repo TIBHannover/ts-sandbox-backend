@@ -54,11 +54,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         List<ExternalMapping> externalMappings = new ArrayList<>();
 
-
         for(ProcessedOntology processedOntology:filteredOntologies){
 
-            log.info("ontology id: " + processedOntology.getOntologyId()  + " ontology uri: " + processedOntology.getUri());
+        log.info("ontology id: " + processedOntology.getOntologyId()  + " ontology uri: " + processedOntology.getUri());
+
+
         }
+
 
 
 //        @Override

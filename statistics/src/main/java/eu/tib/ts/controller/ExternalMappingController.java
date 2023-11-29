@@ -2,9 +2,7 @@ package eu.tib.ts.controller;
 
 import eu.tib.ts.controller.assember.ExternalMappingModelAssembler;
 import eu.tib.ts.controller.dto.ExternalMappingModel;
-import eu.tib.ts.controller.dto.PairwiseSimilarityModel;
 import eu.tib.ts.model.external.mapping.ExternalMapping;
-import eu.tib.ts.model.ontology.PairwiseSimilarity;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.service.ExternalMappingService;
 import eu.tib.ts.service.PreProcessingOntologyService;
