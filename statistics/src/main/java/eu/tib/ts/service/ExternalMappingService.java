@@ -2,6 +2,7 @@ package eu.tib.ts.service;
 
 import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.ExtendedOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,6 +13,6 @@ public interface ExternalMappingService {
 
     <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology,
                                                                              Optional<String> collection,
-                                                                             Pageable pageable);
+                                                                             Pageable pageable) throws OWLOntologyCreationException;
 
 }

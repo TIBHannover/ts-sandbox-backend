@@ -10,6 +10,7 @@ import eu.tib.ts.utils.HttpUtils;
 import eu.tib.ts.utils.PageUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,7 +55,7 @@ public class ExternalMappingController {
             @Parameter(description = "Set of selected ontologies from TIB TS", example = "dr,coy,cidoc")
             @RequestParam Optional<String> tsOntologyList,
             Pageable pageable
-    ) {
+    ) throws OWLOntologyCreationException {
         ProcessedOntology externalOntology = preProcessingOntologyService.preProcess(Optional.empty(), uri,
                 "get mappings between external ontology abd selected ontologies from TIB Terminology Service");
 
