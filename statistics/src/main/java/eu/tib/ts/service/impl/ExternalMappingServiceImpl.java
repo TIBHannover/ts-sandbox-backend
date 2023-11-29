@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.ac.ox.krr.logmap2.LogMap2_Matcher;
+import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,10 +82,15 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 LogMap2_Matcher logmap2 = new LogMap2_Matcher(externalOWLOntology, terminologyServiceOWLOntology);
 
+                Set<MappingObjectStr> logmap2_mappings= logmap2.getLogmap2_Mappings();
 
+                for(MappingObjectStr mappingObjectStr: logmap2_mappings){
+
+
+
+                }
 
             }
-
 
 //        @Override
 //        public <T extends ExtendedOntology> Page< PairwiseSimilarity > getPairwiseSimilarity(T ontology,
