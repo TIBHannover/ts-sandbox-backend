@@ -34,13 +34,15 @@ public class OntologyService {
         return ontologyRepository.findById(id).orElse(null);
     }
 
+
     public Ontology insert(Ontology ontology) {
-        ontology.setAtime(ontology.getDiffs().get(0).getShaOffsetDateTime());
-        ontologyRepository.save(ontology);
-        diffService.assignOntologyId(ontology.getDiffs(), ontology.getId());
-        apiErrorService.assignOntologyId(ontology.getInvalidDiffs(), ontology.getId());
-        return ontology;
+        Ontology savedOntology = ontologyRepository.save(ontology);
+        diffService.assignOntologyId(ontology.getDiffs(), savedOntology.getId());
+        apiErrorService.assignOntologyId(ontology.getInvalidDiffs(), savedOntology.getId());
+        ontologyRepository.save(savedOntology);
+        return savedOntology;
     }
+
 
     public ResponseEntity<String> deleteById(String id) {
         try {

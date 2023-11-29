@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.inject.Inject;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 
@@ -45,7 +46,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.FAILED_DEPENDENCY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
                 .message("One or more resources were not loaded. Check left- or right- IRI Files")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .leftIriFile(requestBody.getGitUrlLeft())
                 .rightIriFile(requestBody.getGitUrlRight())
                 .build();
@@ -63,7 +64,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
                 .message("Error happened while parsing an ontology. Check left- or right- IRI Files")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .leftIriFile(requestBody.getGitUrlLeft())
                 .rightIriFile(requestBody.getGitUrlRight())
                 .build();
@@ -81,7 +82,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .debugMessage(ex.getMessage())
                 .message("Some error happened during diff creation")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .leftIriFile(requestBody.getGitUrlLeft())
                 .rightIriFile(requestBody.getGitUrlRight())
                 .build();

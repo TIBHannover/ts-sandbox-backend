@@ -11,6 +11,10 @@ public class OntologyGitDiffRequest {
 
     private String gitUrlRight;
 
+    private String gitRawFileLeft;
+
+    private String gitRawFileRight;
+
     private String sha;
 
     private String parentSha;
