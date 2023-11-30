@@ -64,15 +64,30 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         String externalOntologyUri = externalOntology.getUri();
 
+        OntologyDto sourceOnt = OntologyDto.builder()
+                .ontologyId(externalOntology.getOntologyId())
+                .uri(externalOntology.getUri())
+                .title(externalOntology.getTitle())
+                .collection(externalOntology.getCollection())
+                .build();
+
         List<ExternalMapping> externalMappingList = new ArrayList<>();
 
         int numberOfTargetOntologies=filteredOntologies.size();
 
         for (ProcessedOntology processedOntology : filteredOntologies) {
 
-                log.info("ontology id: " + processedOntology.getOntologyId() + " ontology uri: " + processedOntology.getUri());
+                log.info("target ontology id: " + processedOntology.getOntologyId() + " target ontology uri: " + processedOntology.getUri());
 
                 String terminologyServiceOntologyUri = processedOntology.getUri();
+
+                OntologyDto targetOnt = OntologyDto.builder()
+                    .ontologyId(processedOntology.getOntologyId())
+                    .uri(processedOntology.getUri())
+                    .title(processedOntology.getTitle())
+                    .collection(processedOntology.getCollection())
+                    .build();
+
 
                 ontoManagerForExternalOntology  = OWLManager.createOWLOntologyManager();
                 ontoManagerForTerminologyServiceOntology  = OWLManager.createOWLOntologyManager();
@@ -88,19 +103,23 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 ExternalMapping externalMapping = new ExternalMapping();
 
                 Set<MappingObjectStr> logmap2_mappings= logmap2.getLogmap2_Mappings();
+
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2.getLogmap2_ConflictiveMappings();
 
             if(!logmap2_mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
 
+                externalMapping.setNumberOfTargetOntologies(numberOfTargetOntologies);
+
+                externalMapping.setSourceOntologyURI(externalOntologyUri);
+
                 List<TargetOntologyObjectSetModel> targetOntologyObjectSetModelList = new ArrayList<TargetOntologyObjectSetModel>();
+
+                TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
 
                 for (MappingObjectStr mappingObjectStr : logmap2_mappings) {
 
-                    externalMapping.setNumberOfTargetOntologies(numberOfTargetOntologies);
 
-                    externalMapping.setSourceOntologyURI(mappingObjectStr.getIRIStrEnt1());
 
-                    TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
 
 
                 }
