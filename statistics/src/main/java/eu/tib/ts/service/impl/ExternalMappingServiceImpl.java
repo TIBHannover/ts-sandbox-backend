@@ -24,7 +24,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-
 @Slf4j
 @Service
 public class ExternalMappingServiceImpl implements ExternalMappingService {
@@ -47,25 +46,27 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<String> collection, Pageable pageable) throws OWLOntologyCreationException {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, Optional<String> collection, Pageable pageable) throws OWLOntologyCreationException {
 
-        List<ProcessedOntology> processedOntologies  = getProcessedOntologies();
+        List<ProcessedOntology> processedOntologies = ids.isPresent()
+                ? getProcessedOntologies(ids.get())
+                : getProcessedOntologies();
 
-        if(processedOntologies ==null || processedOntologies.isEmpty()){
-
-        return PageUtils.toPage(Collections.emptyList(), pageable);
-
+        if (processedOntologies == null || processedOntologies.isEmpty()) {
+            return PageUtils.toPage(Collections.emptyList(), pageable);
         }
 
         List<ProcessedOntology> filteredOntologies = ontologyFilterService.filter(processedOntologies, collection);
 
-            ProcessedOntology externalOntology = ProcessedOntology.of(ontology);
+        ProcessedOntology externalOntology = ProcessedOntology.of(ontology);
 
-            String exernalOntologyUri = externalOntology.getUri();
+        String exernalOntologyUri = externalOntology.getUri();
 
-            List<ExternalMapping> externalMappings = new ArrayList<>();
+        List<ExternalMapping> externalMappings = new ArrayList<>();
 
-            for (ProcessedOntology processedOntology : filteredOntologies) {
+        int numberOfTargetOntologies=filteredOntologies.size();
+
+        for (ProcessedOntology processedOntology : filteredOntologies) {
 
                 log.info("ontology id: " + processedOntology.getOntologyId() + " ontology uri: " + processedOntology.getUri());
 
@@ -87,43 +88,19 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 for(MappingObjectStr mappingObjectStr: logmap2_mappings){
 
 
-
-                }
-
             }
 
-//        @Override
-//        public <T extends ExtendedOntology> Page< PairwiseSimilarity > getPairwiseSimilarity(T ontology,
-//                Optional<String> collection,
-//                Pageable pageable) {
-//            List<ProcessedOntology> processedOntologies = getProcessedOntologies();
-//            if (processedOntologies == null || processedOntologies.isEmpty()) {
-//                return PageUtils.toPage(Collections.emptyList(), pageable);
-//            }
-//            List<ProcessedOntology> filteredOntologies = filterService.filter(processedOntologies, collection);
-//            ProcessedOntology ont2 = ProcessedOntology.of(ontology);
-//
-//            List<PairwiseSimilarity> pairwiseSimilarities = new ArrayList<>();
-//            Set<OntologyPair> set = new HashSet<>();
-//            for (ProcessedOntology ont1 : filteredOntologies) {
-//                OntologyPair pair = OntologyPair.of(ont1, ont2);
-//                if (ont1.equalsTsOntology(ont2) || set.contains(pair.inverted())) {
-//                    continue;
-//                }
-//                set.add(pair);
-//                PairwiseSimilarity pairwiseSimilarity = processPairs(ont1, ont2);
-//                pairwiseSimilarities.add(pairwiseSimilarity);
-//            }
-//
-//            List<PairwiseSimilarity> sorted = pairwiseSimilarities.stream()
-//                    .filter(aggregatedSimilarity -> aggregatedSimilarity.getSum() > 0)
-//                    .sorted(Comparator.comparing(PairwiseSimilarity::getPercent).reversed())
-//                    .collect(Collectors.toList());
-//
-//            return PageUtils.toPage(sorted, pageable);
-//        }
+
+
+         }
 
         return PageUtils.toPage(externalMappings, pageable);
+
+    }
+
+    private List<ProcessedOntology> getProcessedOntologies(List<String> ids) {
+
+        return ProcessedMongoOntologyRepository.findByOntologyIdIn(ids);
 
     }
 
