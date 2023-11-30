@@ -38,6 +38,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     OWLOntologyManager ontoManagerForExternalOntology;
     OWLOntologyManager ontoManagerForTerminologyServiceOntology;
 
+    OWLOntologyManager ontologyManager;
+
     @Autowired
     protected ExternalMappingServiceImpl(
             ProcessedMongoOntologyRepository processedMongoOntologyRepository,
@@ -73,6 +75,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         for (ProcessedOntology ont1 : filteredTSOntologies) {
 
+            ontologyManager= OWLManager.createOWLOntologyManager();
+
             OntologyPair pair = OntologyPair.of(ont1, ont2);
 
             if (ont1.equalsTsOntology(ont2) || set.contains(pair.inverted())) {
@@ -81,11 +85,28 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             set.add(pair);
 
+            try {
+
+            TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
+
+            LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+                        ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+                        ont1.getUri())));
+
+                Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
+                Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
+
 
             ExternalMapping externalMapping = processExternalMapping(ont1, numberOfTargetOntologies, targetOntologyList);
 
-
             externalMappingList.add(externalMapping);
+
+            }catch(Exception e){
+
+                log.error("Exception happened: " + e.getMessage());
+
+            }
+
 
         }
 
