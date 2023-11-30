@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProcessedOntologyServiceImpl implements ProcessedOntologyService {
@@ -33,7 +34,9 @@ public class ProcessedOntologyServiceImpl implements ProcessedOntologyService {
         return Lists.newArrayList(repository.findAll()).stream()
             .map(OntologyDto::of)
             .sorted(Comparator.comparing(OntologyDto::getOntologyId))
-            .toList();
+//                added collect to list
+                .collect(Collectors.toList());
+//            .toList();
     }
 
     @Override
@@ -41,7 +44,9 @@ public class ProcessedOntologyServiceImpl implements ProcessedOntologyService {
         return Lists.newArrayList(repository.findAll()).stream()
             .map(ProcessedOntology::getOntologyId)
             .sorted()
-            .toList();
+                .collect(Collectors.toList());
+//        added collect to list
+//            .toList();
     }
 
     @Override

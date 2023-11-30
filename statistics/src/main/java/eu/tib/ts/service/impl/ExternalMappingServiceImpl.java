@@ -1,5 +1,7 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.ExtendedOntology;
 import eu.tib.ts.model.ontology.ProcessedOntology;
@@ -60,9 +62,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         ProcessedOntology externalOntology = ProcessedOntology.of(ontology);
 
-        String exernalOntologyUri = externalOntology.getUri();
+        String externalOntologyUri = externalOntology.getUri();
 
-        List<ExternalMapping> externalMappings = new ArrayList<>();
+        List<ExternalMapping> externalMappingList = new ArrayList<>();
 
         int numberOfTargetOntologies=filteredOntologies.size();
 
@@ -75,7 +77,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 ontoManagerForExternalOntology  = OWLManager.createOWLOntologyManager();
                 ontoManagerForTerminologyServiceOntology  = OWLManager.createOWLOntologyManager();
 
-                OWLOntology externalOWLOntology = ontoManagerForExternalOntology.loadOntology(IRI.create(exernalOntologyUri));
+                OWLOntology externalOWLOntology = ontoManagerForExternalOntology.loadOntology(IRI.create(externalOntologyUri));
                 OWLOntology terminologyServiceOWLOntology = ontoManagerForTerminologyServiceOntology.loadOntology(IRI.create(terminologyServiceOntologyUri));
 
                 log.info("externalOWLOntology.getAxiomCount(): " + externalOWLOntology.getAxiomCount() +
@@ -83,18 +85,29 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 LogMap2_Matcher logmap2 = new LogMap2_Matcher(externalOWLOntology, terminologyServiceOWLOntology);
 
+                ExternalMapping externalMapping = new ExternalMapping();
+
                 Set<MappingObjectStr> logmap2_mappings= logmap2.getLogmap2_Mappings();
+                Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2.getLogmap2_ConflictiveMappings();
 
-                for(MappingObjectStr mappingObjectStr: logmap2_mappings){
+            if(!logmap2_mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
+
+                List<TargetOntologyObjectSetModel> targetOntologyObjectSetModelList = new ArrayList<TargetOntologyObjectSetModel>();
+
+                for (MappingObjectStr mappingObjectStr : logmap2_mappings) {
+
+                    externalMapping.setNumberOfTargetOntologies(numberOfTargetOntologies);
+
+                    externalMapping.setSourceOntologyURI(mappingObjectStr.getIRIStrEnt1());
+
+                    TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
 
 
+                }
             }
-
-
-
          }
 
-        return PageUtils.toPage(externalMappings, pageable);
+        return PageUtils.toPage(externalMappingList, pageable);
 
     }
 
