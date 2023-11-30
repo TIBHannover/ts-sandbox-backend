@@ -8,10 +8,10 @@ import lombok.Value;
 
 import java.util.Set;
 
-//@Builder
-//@Value
-@Getter
-@Setter
+@Builder
+@Value
+//@Getter
+//@Setter
 public class ExternalMapping {
 
     String mappingId;

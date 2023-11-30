@@ -254,6 +254,7 @@ public class SimilarityServiceImpl implements SimilarityService {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
         List<ProcessedOntology> filteredOntologies = filterService.filter(processedOntologies, collection);
+
         ProcessedOntology ont2 = ProcessedOntology.of(ontology);
 
         List<PairwiseSimilarity> pairwiseSimilarities = new ArrayList<>();
