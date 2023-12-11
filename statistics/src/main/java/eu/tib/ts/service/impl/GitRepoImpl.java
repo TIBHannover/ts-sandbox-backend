@@ -115,6 +115,7 @@ public class GitRepoImpl {
                 haveReleases = true;
                 releaseVal = 33.33f;
             }else{
+                haveLicense = false;
                 releaseVal = 0.0f;
             }
 
