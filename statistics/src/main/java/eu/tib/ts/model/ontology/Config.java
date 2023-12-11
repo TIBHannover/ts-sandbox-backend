@@ -35,5 +35,6 @@ public class Config {
     boolean allowDownload;
     List<Classification> classifications;
     List<Object> internalMetadataProperties;
+    String repoUrl;
     boolean skos;
 }
