@@ -20,6 +20,7 @@ public class PreProcessingRunner implements ApplicationListener<ApplicationReady
         log.error("Titled : PreProcessingRunner "  );
 
         this.preProcessingService = preProcessingService;
+        preProcessingService.doPreProcessing();
     }
 
     @Override
@@ -27,6 +28,6 @@ public class PreProcessingRunner implements ApplicationListener<ApplicationReady
 
         log.error("Titled : Event Executed "  );
 
-        preProcessingService.doPreProcessing();
+
     }
 }
