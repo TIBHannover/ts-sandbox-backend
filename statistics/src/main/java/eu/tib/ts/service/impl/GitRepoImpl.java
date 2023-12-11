@@ -65,7 +65,6 @@ public class GitRepoImpl {
 
             String watchesUrl = "https://api.github.com/repos" + tsOntology.getRepositoryName() + "/subscribers";
 
-
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth("Github_Token");
             HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
@@ -157,9 +156,9 @@ public class GitRepoImpl {
                 licenseVal = 0.0f;
             }
 
-
             estimatedValue = releaseVal + licenseVal + readMeVal;
-
+            System.out.println("haveLicense :  " + haveLicense + "  haveReadMe :  " + haveReadMe + "  haveReleases :  " + haveReleases + " estimatedValue : "+ estimatedValue);
+            System.out.println("licenseVal :  " + licenseVal + "  readMeVal :  " + readMeVal + "  releaseVal :  " + releaseVal+ " estimatedValue : "+ estimatedValue );
 
             gitFinalResponsesArray.add(GitFinalResponse.builder().ontologyId(tsOntology.getOntologyId()).title(tsOntology.getTitle()).repoUrl(tsOntology.getRepoUrl()).forks(forks.getBody().size()).watches(whatches.getBody().size()).likes(stars.getBody().size()).releases(haveReleases).readMe(haveReadMe).license(haveLicense).booleanEstimation(estimatedValue).build());
             body = whatches.getBody();
@@ -169,6 +168,7 @@ public class GitRepoImpl {
             }
 
         }
+
         return new ArrayList<>(gitFinalResponsesArray);
 
     }

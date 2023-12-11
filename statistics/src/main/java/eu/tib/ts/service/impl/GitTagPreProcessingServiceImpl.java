@@ -46,6 +46,7 @@ public class GitTagPreProcessingServiceImpl implements GitPreProcessingService {
 
             List<GitRepo> gitRepos = gitRepository.findAll();
 
+            System.out.println("GitRepos " + gitRepos);
             if (gitRepos.size() > 0) {
                 gitRepository.deleteAll();
             }
@@ -65,8 +66,7 @@ public class GitTagPreProcessingServiceImpl implements GitPreProcessingService {
             int maxForks = gitFinalResponses.get(0).getForks();
             int maxStars = gitFinalResponses.get(0).getLikes();
 
-
-            System.out.println("maxWatches :  " + maxWatches + "  maxForks :  " + maxForks);
+            System.out.println("maxWatches first value:  " + maxWatches );
 
             float watchesVal = 0.0f;
             float forksVal = 0.0f;
@@ -76,33 +76,36 @@ public class GitTagPreProcessingServiceImpl implements GitPreProcessingService {
             float valEst = 0.0f;
             int count = 0;
 
-
             for (GitFinalResponse gitFinalRespons : gitFinalResponses) {
-                //Compare elements of array with max
+
                 if (gitFinalRespons.getWatches() > maxWatches) {
                     maxWatches = gitFinalRespons.getWatches();
-                    if (maxWatches == gitFinalResponses.get(count).getWatches()) {
-                        watchesVal = 33.33f;
-                    }
-                } else {
-                    watchesVal = 0.0f;
                 }
+
                 if (gitFinalRespons.getLikes() > maxStars) {
                     maxStars = gitFinalRespons.getLikes();
-                    if (maxStars == gitFinalResponses.get(count).getLikes()) {
-                        starsVal = 33.33f;
-                    }
-                } else {
-                    starsVal = 0.0f;
                 }
+
                 if (gitFinalRespons.getForks() > maxForks) {
                     maxForks = gitFinalRespons.getForks();
-                    if (maxForks == gitFinalResponses.get(count).getForks()) {
-                        forksVal = 33.33f;
-                    }
-                } else {
-                    forksVal = 0.0f;
                 }
+                System.out.println("executing first loop");
+
+                count++;
+
+            }
+
+            System.out.println("maxwatch :  " + maxWatches + "  maxstart :  " + maxStars + "  forksVal :  " + maxForks );
+
+            for (GitFinalResponse gitFinalRespons : gitFinalResponses) {
+
+                System.out.println("executing second loop");
+
+                watchesVal = (float) ((gitFinalRespons.getWatches() * 33.33)/maxWatches);
+
+                starsVal = (float) ((gitFinalRespons.getLikes() * 33.33)/maxStars);
+
+                forksVal = (float) ((gitFinalRespons.getForks() * 33.33)/maxForks);
 
                 valEst = watchesVal + forksVal + starsVal;
 
