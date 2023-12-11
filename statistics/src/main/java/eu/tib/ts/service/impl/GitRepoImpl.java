@@ -27,6 +27,8 @@ public class GitRepoImpl {
     @Autowired
     GitRepository gitRepository;
 
+    private ArrayList<GitFinalResponse> gitFinalResponsesArray = new ArrayList<>();
+
 
     @Autowired
     GitMediaCollection gitMediaCollection;
@@ -39,7 +41,7 @@ public class GitRepoImpl {
     }
 
 
-    public List<WatchItem> getOntologies() {
+    public List<GitFinalResponse> getOntologies() {
 
 
         List<GitRepo> gitRepos = gitRepository.findAll();
@@ -65,7 +67,7 @@ public class GitRepoImpl {
 
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth("github_token");
+            headers.setBearerAuth("Github_Token");
             HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
 //            ResponseEntity<String> response = restTemplate.exchange(watchesUrl, HttpMethod.GET, entity, String.class);
             // process response
@@ -82,10 +84,6 @@ public class GitRepoImpl {
                     }
             );
 
-
-            System.out.println(tsOntology.getRepositoryName() + " :: " + "getting number of watches :  " + Objects.requireNonNull(whatches.getBody()).size());
-
-
             ResponseEntity<List<WatchItem>> stars =
                     restTemplate.exchange(
                             "https://api.github.com/repos" + tsOntology.getRepositoryName() + "/stargazers",
@@ -94,9 +92,6 @@ public class GitRepoImpl {
                             new ParameterizedTypeReference<List<WatchItem>>() {
                             }
                     );
-
-            System.out.println(tsOntology.getRepositoryName() + " :: " + "getting number of stars :  " + Objects.requireNonNull(stars.getBody()).size());
-
 
             ResponseEntity<List<WatchItem>> forks =
                     restTemplate.exchange(
@@ -107,9 +102,6 @@ public class GitRepoImpl {
                             }
                     );
 
-            System.out.println(tsOntology.getRepositoryName() + " :: " + "getting number of forks :  " + Objects.requireNonNull(forks.getBody()).size());
-
-
 
             releases =
                     restTemplate.exchange(
@@ -119,8 +111,6 @@ public class GitRepoImpl {
                             new ParameterizedTypeReference<List<Releases>>() {
                             }
                     );
-
-            System.out.println(tsOntology.getRepositoryName() + " :: " + "getting number of releases :  " + Objects.requireNonNull(releases.getBody()).size());
 
             if(releases.getBody().size()>0){
                 haveReleases = true;
@@ -147,8 +137,6 @@ public class GitRepoImpl {
                 haveReadMe = false;
                 readMeVal = 0.0f;
             }
-            System.out.println(tsOntology.getRepositoryName() + " :: " + "haveReadMe :  " + haveReadMe);
-
 
             try{
                 license =
@@ -169,11 +157,11 @@ public class GitRepoImpl {
                 licenseVal = 0.0f;
             }
 
-            System.out.println(tsOntology.getRepositoryName() + " :: " + "haveLicense :  " + haveLicense);
 
             estimatedValue = releaseVal + licenseVal + readMeVal;
 
-            gitMediaCollection.save(GitFinalResponse.builder().ontologyId(tsOntology.getOntologyId()).title(tsOntology.getTitle()).repoUrl(tsOntology.getRepoUrl()).forks(forks.getBody().size()).watches(whatches.getBody().size()).likes(stars.getBody().size()).releases(haveReleases).readMe(haveReadMe).license(haveLicense).booleanEstimation(estimatedValue).build());
+
+            gitFinalResponsesArray.add(GitFinalResponse.builder().ontologyId(tsOntology.getOntologyId()).title(tsOntology.getTitle()).repoUrl(tsOntology.getRepoUrl()).forks(forks.getBody().size()).watches(whatches.getBody().size()).likes(stars.getBody().size()).releases(haveReleases).readMe(haveReadMe).license(haveLicense).booleanEstimation(estimatedValue).build());
             body = whatches.getBody();
 
             if (Objects.isNull(body)) {
@@ -181,10 +169,9 @@ public class GitRepoImpl {
             }
 
         }
-        return new ArrayList<>(body);
+        return new ArrayList<>(gitFinalResponsesArray);
 
     }
-
 
 }
 
