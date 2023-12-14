@@ -6,6 +6,8 @@ import eu.tib.ts.model.tags.*;
 import eu.tib.ts.repository.GitMediaCollection;
 import eu.tib.ts.repository.GitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,11 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
+@Configuration
 @Repository
 public class GitRepoImpl {
 
     private static final String QUERY_PARAM_SIZE = "size";
+
+    @Value("${github.token}")
+    private String myToken;
+
+    public String getMyToken() {
+        return myToken;
+    }
+
 
     @Autowired
     GitRepository gitRepository;
@@ -42,7 +52,6 @@ public class GitRepoImpl {
 
 
     public List<GitFinalResponse> getOntologies() {
-
 
         List<GitRepo> gitRepos = gitRepository.findAll();
         boolean haveReadMe = false;
@@ -66,7 +75,7 @@ public class GitRepoImpl {
             String watchesUrl = "https://api.github.com/repos" + tsOntology.getRepositoryName() + "/subscribers";
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth("Github_Token");
+            headers.setBearerAuth(myToken);
             HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
 //            ResponseEntity<String> response = restTemplate.exchange(watchesUrl, HttpMethod.GET, entity, String.class);
             // process response
