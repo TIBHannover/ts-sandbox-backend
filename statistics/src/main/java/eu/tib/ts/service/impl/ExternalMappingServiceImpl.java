@@ -1,5 +1,6 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import eu.tib.ts.model.external.mapping.ExternalMapping;
@@ -99,6 +100,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  */
                 Random r_1 = SecureRandom.getInstanceStrong();
                 Random r_2 = SecureRandom.getInstanceStrong();
+
                 long id = r_1.nextLong()*r_2.nextLong();
 
                 targetOntologyObjectSetModel.setId(id);
@@ -116,7 +118,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         .title(ont1.getTitle())
                         .build();
                 targetOntologySet.add(targetTSOntDto);
+
                 targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+
+                Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
 
                 /**
                  * Store mappings information in target ontology object set model
@@ -127,15 +132,19 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         + mappingObjectStr.getMappingDirection() + " " + mappingObjectStr.getTypeOfMapping()
                         + " " + mappingObjectStr.getConfidence() + " " + mappingObjectStr.getStructuralConfidenceMapping());
 
+                MappingObjectSetModel mappingObjectSetModel = new MappingObjectSetModel();
 
+                mappingObjectSetModel.setSourceIRI(mappingObjectStr.getIRIStrEnt1());
+                mappingObjectSetModel.setTargetIRI(mappingObjectStr.getIRIStrEnt2());
+                mappingObjectSetModel.setMappingDirection(mappingObjectStr.getMappingDirection());
+                mappingObjectSetModel.setTypeOfMapping(mappingObjectStr.getTypeOfMapping());
+                mappingObjectSetModel.setStructuralConfidenceMapping(mappingObjectStr.getStructuralConfidenceMapping());
+                mappingObjectSetModel.setConfidence(mappingObjectStr.getConfidence());
 
-
-
-
-
-
-
+                mappingList.add(mappingObjectSetModel);
             }
+
+
 
             ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
 
