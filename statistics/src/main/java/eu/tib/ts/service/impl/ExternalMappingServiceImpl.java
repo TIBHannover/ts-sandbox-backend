@@ -7,22 +7,23 @@ import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.service.ExternalMappingService;
 import eu.tib.ts.service.OntologyFilterService;
-import eu.tib.ts.utils.MathUtils;
+
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLOntology;
+
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.util.Pair;
+
 import org.springframework.stereotype.Service;
 import uk.ac.ox.krr.logmap2.LogMap2_Matcher;
 import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -34,10 +35,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     private final ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository;
 
     private final OntologyFilterService ontologyFilterService;
-
-    OWLOntologyManager ontoManagerForExternalOntology;
-    OWLOntologyManager ontoManagerForTerminologyServiceOntology;
-
     OWLOntologyManager ontologyManager;
 
     @Autowired
@@ -97,26 +94,52 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
-            Random r_1= new Random();
+                /**
+                 * generate first random number
+                 */
+                Random r_1 = SecureRandom.getInstanceStrong();
+                Random r_2 = SecureRandom.getInstanceStrong();
+                long id = r_1.nextLong()*r_2.nextLong();
 
-            for(MappingObjectStr mappingObjectStr: logmap2Mappings){
+                targetOntologyObjectSetModel.setId(id);
+                /**
+                 * target ontology data
+                 */
+                Set<OntologyDto> targetOntologySet = new HashSet<>();
+
+                /**
+                 * target ontology dto from terminology service
+                 */
+                OntologyDto targetTSOntDto = OntologyDto.builder()
+                        .ontologyId(ont1.getOntologyId())
+                        .uri(ont1.getUri())
+                        .title(ont1.getTitle())
+                        .build();
+                targetOntologySet.add(targetTSOntDto);
+                targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+
+                /**
+                 * Store mappings information in target ontology object set model
+                 */
+                for(MappingObjectStr mappingObjectStr: logmap2Mappings){
 
                 log.info(mappingObjectStr.getIRIStrEnt1() + " " + mappingObjectStr.getIRIStrEnt2() + " "
                         + mappingObjectStr.getMappingDirection() + " " + mappingObjectStr.getTypeOfMapping()
                         + " " + mappingObjectStr.getConfidence() + " " + mappingObjectStr.getStructuralConfidenceMapping());
+
+
+
+
+
+
+
+
+
             }
 
-            Random r_2 = new Random();
-            r_2.nextLong();
-
-            long id = r_1.nextLong()*r_2.nextLong();
-            targetOntologyObjectSetModel.setId(id);
-            
-
-            ExternalMapping externalMapping = processExternalMapping(ont1, numberOfTargetOntologies, targetOntologyList);
+            ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
 
             externalMappingList.add(externalMapping);
-
 
             }catch(Exception e){
 
