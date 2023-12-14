@@ -77,6 +77,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             OntologyPair pair = OntologyPair.of(ont1, ont2);
 
+            /**
+             * skip to produce mappings between ontologies that have equal ids
+             */
             if (ont1.equalsTsOntology(ont2) || set.contains(pair.inverted())) {
                 continue;
             }
@@ -119,6 +122,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         .build();
                 targetOntologySet.add(targetTSOntDto);
 
+                /**
+                 * target ontology set
+                 */
                 targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
 
                 Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
@@ -145,7 +151,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
 
                 /**
-                 * mapping list for target ontology
+                 * mapping list
                  */
             targetOntologyObjectSetModel.setMappingList(mappingList);
 
@@ -165,6 +171,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                     conflictiveMappingList.add(cmappingObjectSetModel);
                 }
 
+                /**
+                 * conflictive mappings list
+                 */
             targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
 
 
