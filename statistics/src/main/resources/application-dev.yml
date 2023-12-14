@@ -1,4 +1,7 @@
 spring:
+  config:
+    import:
+      - classpath:token.yml
   data:
     mongodb:
       database: ontology_statistics_db

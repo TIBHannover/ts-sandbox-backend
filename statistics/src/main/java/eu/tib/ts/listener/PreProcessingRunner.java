@@ -26,7 +26,7 @@ public class PreProcessingRunner implements ApplicationListener<ApplicationReady
     public void onApplicationEvent(ApplicationReadyEvent event) {
 
         log.error("Titled : Event Executed "  );
-
         preProcessingService.doPreProcessing();
+
     }
 }
