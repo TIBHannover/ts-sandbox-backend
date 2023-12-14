@@ -53,16 +53,17 @@ public class ExternalMappingController {
             @Parameter(description = "External resolvable ontology URI")
             @RequestParam String uri,
             @Parameter(description = "Set of selected ontologies from TIB TS", example = "dr,coy,cidoc")
-            @RequestParam(required = false)  Optional<List<String>> ids,
-            @Parameter(description = "Collection to filter set of ontologies", example = "NFDI4ING")
-            @RequestParam(required = false) Optional<String> collection,
+            @RequestParam(required = true) Optional<List<String>> ids,
+//            commented collection parameter
+//            @Parameter(description = "Collection to filter set of ontologies", example = "NFDI4ING")
+//            @RequestParam(required = false) Optional<String> collection,
             Pageable pageable
     ) throws OWLOntologyCreationException {
 
         ProcessedOntology externalOntology = preProcessingOntologyService.preProcess(Optional.empty(), uri,
                 "get mappings between external ontology and selected ontologies from TIB Terminology Service");
 
-        Page<ExternalMapping> eternalMappingPage = externalMappingService.getMappingsForExternalOntology(externalOntology, ids,collection,pageable);
+        Page<ExternalMapping> eternalMappingPage = externalMappingService.getMappingsForExternalOntology(externalOntology,ids,pageable);
 
         PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
                 eternalMappingPage,

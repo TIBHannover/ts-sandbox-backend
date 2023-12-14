@@ -49,7 +49,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, Optional<String> collection, Pageable pageable) throws OWLOntologyCreationException {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids,  Pageable pageable) throws OWLOntologyCreationException {
 
         List<ProcessedOntology> processedOntologies = ids.isPresent()
                 ? getProcessedOntologies(ids.get())
@@ -58,8 +58,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         if (processedOntologies == null || processedOntologies.isEmpty()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
-
-        List<ProcessedOntology> filteredTSOntologies = ontologyFilterService.filter(processedOntologies, collection);
+//        at the moment we do not need to filter ontologies from TS based on provided collection because collection name is removed from the list of parameters.
+//        List<ProcessedOntology> filteredTSOntologies = ontologyFilterService.filter(processedOntologies, null);
 
         ProcessedOntology ont2 = ProcessedOntology.of(ontology);
 
@@ -67,11 +67,11 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         Set<OntologyPair> set = new HashSet<>();
 
-        int numberOfTargetOntologies = filteredTSOntologies.size();
+        int numberOfTargetOntologies = processedOntologies.size();
 
         Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
 
-        for (ProcessedOntology ont1 : filteredTSOntologies) {
+        for (ProcessedOntology ont1 : processedOntologies) {
 
             ontologyManager= OWLManager.createOWLOntologyManager();
 
@@ -99,7 +99,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
                 /**
-                 * generate first random number
+                 * generate first and second random numbers
                  */
                 Random r_1 = SecureRandom.getInstanceStrong();
                 Random r_2 = SecureRandom.getInstanceStrong();
@@ -107,6 +107,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 long id = r_1.nextLong()*r_2.nextLong();
 
                 targetOntologyObjectSetModel.setId(id);
+                targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
+                targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+
                 /**
                  * target ontology data
                  */
@@ -119,6 +122,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         .ontologyId(ont1.getOntologyId())
                         .uri(ont1.getUri())
                         .title(ont1.getTitle())
+                        .collection(ont1.getCollection())
                         .build();
                 targetOntologySet.add(targetTSOntDto);
 
@@ -146,6 +150,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 mappingObjectSetModel.setTypeOfMapping(mappingObjectStr.getTypeOfMapping());
                 mappingObjectSetModel.setStructuralConfidenceMapping(mappingObjectStr.getStructuralConfidenceMapping());
                 mappingObjectSetModel.setConfidence(mappingObjectStr.getConfidence());
+
 
                 mappingList.add(mappingObjectSetModel);
             }
