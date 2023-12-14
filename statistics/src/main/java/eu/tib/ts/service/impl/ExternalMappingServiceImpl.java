@@ -144,6 +144,31 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 mappingList.add(mappingObjectSetModel);
             }
 
+                /**
+                 * mapping list for target ontology
+                 */
+            targetOntologyObjectSetModel.setMappingList(mappingList);
+
+            Set<MappingObjectSetModel> conflictiveMappingList = new HashSet<MappingObjectSetModel>();
+
+                for(MappingObjectStr cmappingObjectStr:  conflictiveLogmap2Mappings){
+
+                    MappingObjectSetModel cmappingObjectSetModel = new MappingObjectSetModel();
+
+                    cmappingObjectSetModel.setSourceIRI(cmappingObjectStr.getIRIStrEnt1());
+                    cmappingObjectSetModel.setTargetIRI(cmappingObjectStr.getIRIStrEnt2());
+                    cmappingObjectSetModel.setMappingDirection(cmappingObjectStr.getMappingDirection());
+                    cmappingObjectSetModel.setTypeOfMapping(cmappingObjectStr.getTypeOfMapping());
+                    cmappingObjectSetModel.setStructuralConfidenceMapping(cmappingObjectStr.getStructuralConfidenceMapping());
+                    cmappingObjectSetModel.setConfidence(cmappingObjectStr.getConfidence());
+
+                    conflictiveMappingList.add(cmappingObjectSetModel);
+                }
+
+            targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
+
+
+            targetOntologyList.add(targetOntologyObjectSetModel);
 
 
             ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
