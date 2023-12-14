@@ -93,24 +93,39 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         ont2.getUri())), ontologyManager.loadOntology(IRI.create(
                         ont1.getUri())));
 
-                Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
-                Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
+            Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
 
+            Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
+
+            Random r_1= new Random();
+
+            for(MappingObjectStr mappingObjectStr: logmap2Mappings){
+
+                log.info(mappingObjectStr.getIRIStrEnt1() + " " + mappingObjectStr.getIRIStrEnt2() + " "
+                        + mappingObjectStr.getMappingDirection() + " " + mappingObjectStr.getTypeOfMapping()
+                        + " " + mappingObjectStr.getConfidence() + " " + mappingObjectStr.getStructuralConfidenceMapping());
+            }
+
+            Random r_2 = new Random();
+            r_2.nextLong();
+
+            long id = r_1.nextLong()*r_2.nextLong();
+            targetOntologyObjectSetModel.setId(id);
+            
 
             ExternalMapping externalMapping = processExternalMapping(ont1, numberOfTargetOntologies, targetOntologyList);
 
             externalMappingList.add(externalMapping);
+
 
             }catch(Exception e){
 
                 log.error("Exception happened: " + e.getMessage());
 
             }
-
-
         }
 
-        return PageUtils.toPage(externalMappingList, pageable);
+    return PageUtils.toPage(externalMappingList, pageable);
 
     }
 
