@@ -49,7 +49,11 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids,  Pageable pageable) throws OWLOntologyCreationException {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids,  Optional<String> collection, Pageable pageable) throws OWLOntologyCreationException {
+
+        log.info("started mappings computation for the following ontologies: ");
+        log.info("source ontology: " + ontology.getOntologyId());
+
 
         List<ProcessedOntology> processedOntologies = ids.isPresent()
                 ? getProcessedOntologies(ids.get())
@@ -58,8 +62,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         if (processedOntologies == null || processedOntologies.isEmpty()) {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
-//        at the moment we do not need to filter ontologies from TS based on provided collection because collection name is removed from the list of parameters.
-//        List<ProcessedOntology> filteredTSOntologies = ontologyFilterService.filter(processedOntologies, null);
+
+        List<ProcessedOntology> filteredTSOntologies = ontologyFilterService.filter(processedOntologies, collection);
+
+        log.info("target ontologies list:");
+        for(ProcessedOntology po: filteredTSOntologies){
+            log.info(po.getOntologyId());
+        }
 
         ProcessedOntology ont2 = ProcessedOntology.of(ontology);
 
@@ -67,11 +76,11 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         Set<OntologyPair> set = new HashSet<>();
 
-        int numberOfTargetOntologies = processedOntologies.size();
+        int numberOfTargetOntologies = filteredTSOntologies.size();
 
         Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
 
-        for (ProcessedOntology ont1 : processedOntologies) {
+        for (ProcessedOntology ont1 : filteredTSOntologies) {
 
             ontologyManager= OWLManager.createOWLOntologyManager();
 
@@ -138,10 +147,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  */
                 for(MappingObjectStr mappingObjectStr: logmap2Mappings){
 
-                log.info(mappingObjectStr.getIRIStrEnt1() + " " + mappingObjectStr.getIRIStrEnt2() + " "
-                        + mappingObjectStr.getMappingDirection() + " " + mappingObjectStr.getTypeOfMapping()
-                        + " " + mappingObjectStr.getConfidence() + " " + mappingObjectStr.getStructuralConfidenceMapping());
-
                 MappingObjectSetModel mappingObjectSetModel = new MappingObjectSetModel();
 
                 mappingObjectSetModel.setSourceIRI(mappingObjectStr.getIRIStrEnt1());
@@ -150,7 +155,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 mappingObjectSetModel.setTypeOfMapping(mappingObjectStr.getTypeOfMapping());
                 mappingObjectSetModel.setStructuralConfidenceMapping(mappingObjectStr.getStructuralConfidenceMapping());
                 mappingObjectSetModel.setConfidence(mappingObjectStr.getConfidence());
-
 
                 mappingList.add(mappingObjectSetModel);
             }
@@ -181,9 +185,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  */
             targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
 
-
             targetOntologyList.add(targetOntologyObjectSetModel);
-
 
             ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
 

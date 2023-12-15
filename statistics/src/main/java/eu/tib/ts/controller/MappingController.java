@@ -119,7 +119,6 @@ public class MappingController {
 
         List<MappingGropedBySourceOntologyDto> mappingGropedByCollectionAndSourceOntologyId = new ArrayList<>();
 
-
         for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
 
             Set<SourceOntologyObjectSetModel> sourceOntologyObjectSetModels = mappingGroupedBySourceOntologyDto.getSourceOntology();
