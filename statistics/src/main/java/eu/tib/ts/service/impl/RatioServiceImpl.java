@@ -33,7 +33,7 @@ public class RatioServiceImpl implements RatioService {
 
         List<Set<String>> characteristics = processedOntologies.stream()
             .map(characteristicsType::getCharacteristics)
-            .toList();
+            .collect(Collectors.toList());
 
         double distinctCharacteristicsNumber = characteristics.stream()
             .flatMap(Collection::stream)
@@ -54,7 +54,7 @@ public class RatioServiceImpl implements RatioService {
     private <T extends Ontology> List<ProcessedOntology> getProcessedOntologies(List<T> ontologies) {
         List<String> ids = ontologies.stream()
             .map(Ontology::getOntologyId)
-            .toList();
+                .collect(Collectors.toList());   ;
 
         return ProcessedMongoOntologyRepository.findByOntologyIdIn(ids);
     }
