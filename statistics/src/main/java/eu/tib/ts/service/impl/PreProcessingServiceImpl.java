@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @EnableAutoConfiguration
 public class PreProcessingServiceImpl implements PreProcessingService {
+    private GitPreProcessingService gitPreProcessingService;
     private final TsRepository tsRepository;
     private final ProcessedOntologyService processedOntologyService;
     private final PreProcessingOntologyService preProcessingOntologyService;
@@ -54,7 +55,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                                     PreProcessingOntologyService preProcessingOntologyService,
                                     PreProcessingMappingService preProcessingMappingService,
                                     SequenceGeneratorService sequenceGeneratorService,
-                                    OntologiesProcessingConfig ontologiesProcessingConfig) {
+                                    OntologiesProcessingConfig ontologiesProcessingConfig, GitPreProcessingService gitPreProcessingService) {
         this.tsRepository = tsRepository;
         this.preProcessingOntologyService = preProcessingOntologyService;
         this.preProcessingMappingService = preProcessingMappingService;
@@ -62,6 +63,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         this.processedMappingService = processedMappingService;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.ontologiesProcessingConfig = ontologiesProcessingConfig;
+        this.gitPreProcessingService = gitPreProcessingService;
 
         log.info("PreProcessingServiceImpl constructor : ");
 
@@ -306,6 +308,8 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                 processedMappingService.save(processedMappingGroupedBySourceOntology);
             }
         }
+
+        gitPreProcessingService.doGitPreProcessing();
     }
 
     /**
