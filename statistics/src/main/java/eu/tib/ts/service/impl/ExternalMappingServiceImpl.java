@@ -76,7 +76,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         Set<OntologyPair> set = new HashSet<>();
 
-        int numberOfTargetOntologies = filteredTSOntologies.size();
+        int numberOfTargetOntologies = processedOntologies.size();
 
         Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
 
