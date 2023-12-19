@@ -66,13 +66,13 @@ public class GitRepoImpl {
         List<WatchItem> body = new ArrayList<>();
 
         List<GitFinalResponse> gitFinalResponses = gitMediaCollection.findAll();
-        if (gitFinalResponses.size() > 0) {
+        if (!gitFinalResponses.isEmpty()) {
             gitMediaCollection.deleteAll();
         }
 
         for (GitRepo tsOntology : gitRepos) {
 
-            String watchesUrl = "https://api.github.com/repos" + tsOntology.getRepositoryName() + "/subscribers";
+            String watchesUrl = "https://api.github.com/repos/" + tsOntology.getRepositoryName() + "/subscribers";
 
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(myToken);
@@ -94,7 +94,7 @@ public class GitRepoImpl {
 
             ResponseEntity<List<WatchItem>> stars =
                     restTemplate.exchange(
-                            "https://api.github.com/repos" + tsOntology.getRepositoryName() + "/stargazers",
+                            "https://api.github.com/repos/" + tsOntology.getRepositoryName() + "/stargazers",
                             HttpMethod.GET,
                             entity,
                             new ParameterizedTypeReference<List<WatchItem>>() {
@@ -103,7 +103,7 @@ public class GitRepoImpl {
 
             ResponseEntity<List<WatchItem>> forks =
                     restTemplate.exchange(
-                            "https://api.github.com/repos" + tsOntology.getRepositoryName() + "/forks",
+                            "https://api.github.com/repos/" + tsOntology.getRepositoryName() + "/forks",
                             HttpMethod.GET,
                             entity,
                             new ParameterizedTypeReference<List<WatchItem>>() {
@@ -113,7 +113,7 @@ public class GitRepoImpl {
 
             releases =
                     restTemplate.exchange(
-                            "https://api.github.com/repos" + tsOntology.getRepositoryName() + "/releases",
+                            "https://api.github.com/repos/" + tsOntology.getRepositoryName() + "/releases",
                             HttpMethod.GET,
                             entity,
                             new ParameterizedTypeReference<List<Releases>>() {
@@ -131,7 +131,7 @@ public class GitRepoImpl {
             try{
                 ResponseEntity<ReadMeItem> readme =
                         restTemplate.exchange(
-                                "https://api.github.com/repos" + tsOntology.getRepositoryName() + "/readme",
+                                "https://api.github.com/repos/" + tsOntology.getRepositoryName() + "/readme",
                                 HttpMethod.GET,
                                 entity,
                                 new ParameterizedTypeReference<ReadMeItem>() {}
@@ -150,7 +150,7 @@ public class GitRepoImpl {
             try{
                 license =
                         restTemplate.exchange(
-                                "https://api.github.com/repos" + tsOntology.getRepositoryName() + "/license",
+                                "https://api.github.com/repos/" + tsOntology.getRepositoryName() + "/license",
                                 HttpMethod.GET,
                                 entity,
                                 new ParameterizedTypeReference<LicenseItem>() {}

@@ -41,6 +41,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     private final PreProcessingMappingService preProcessingMappingService;
 
     private final ProcessedMappingService processedMappingService;
+    private GitPreProcessingService gitPreProcessingService;
 
     OWLOntologyManager ontologyManager;
 
@@ -54,7 +55,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                                     PreProcessingOntologyService preProcessingOntologyService,
                                     PreProcessingMappingService preProcessingMappingService,
                                     SequenceGeneratorService sequenceGeneratorService,
-                                    OntologiesProcessingConfig ontologiesProcessingConfig) {
+                                    OntologiesProcessingConfig ontologiesProcessingConfig, GitPreProcessingService gitPreProcessingService) {
         this.tsRepository = tsRepository;
         this.preProcessingOntologyService = preProcessingOntologyService;
         this.preProcessingMappingService = preProcessingMappingService;
@@ -62,6 +63,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         this.processedMappingService = processedMappingService;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.ontologiesProcessingConfig = ontologiesProcessingConfig;
+        this.gitPreProcessingService = gitPreProcessingService;
 
         log.info("PreProcessingServiceImpl constructor : ");
 
@@ -306,6 +308,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                 processedMappingService.save(processedMappingGroupedBySourceOntology);
             }
         }
+        gitPreProcessingService.doGitPreProcessing();
     }
 
     /**

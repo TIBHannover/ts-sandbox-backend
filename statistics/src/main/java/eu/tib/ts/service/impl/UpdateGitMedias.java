@@ -12,7 +12,7 @@ public class UpdateGitMedias {
     @Autowired
     private GitPreProcessingService preProcessingService;
 
-    @Scheduled(fixedDelay = 7 * 86400000)
+    @Scheduled(initialDelay = 7 * 86400000, fixedDelay = 7 * 86400000)
     public void doSomething() {
 
         System.out.println("executing once in a week");
