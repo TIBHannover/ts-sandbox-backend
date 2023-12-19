@@ -41,7 +41,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     private final PreProcessingMappingService preProcessingMappingService;
 
     private final ProcessedMappingService processedMappingService;
-    private GitPreProcessingService gitPreProcessingService;
 
     OWLOntologyManager ontologyManager;
 
@@ -55,7 +54,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                                     PreProcessingOntologyService preProcessingOntologyService,
                                     PreProcessingMappingService preProcessingMappingService,
                                     SequenceGeneratorService sequenceGeneratorService,
-                                    OntologiesProcessingConfig ontologiesProcessingConfig, GitPreProcessingService gitPreProcessingService) {
+                                    OntologiesProcessingConfig ontologiesProcessingConfig) {
         this.tsRepository = tsRepository;
         this.preProcessingOntologyService = preProcessingOntologyService;
         this.preProcessingMappingService = preProcessingMappingService;
@@ -63,7 +62,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         this.processedMappingService = processedMappingService;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.ontologiesProcessingConfig = ontologiesProcessingConfig;
-        this.gitPreProcessingService = gitPreProcessingService;
 
         log.info("PreProcessingServiceImpl constructor : ");
 
@@ -72,11 +70,11 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     @Override
     public void doPreProcessing() {
         List<TsOntology> tsOntologies = tsRepository.getOntologies();
-        
+
 
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
-        
+
 
         List<TsOntology> unprocessedOntologies = tsOntologies.stream()
                 .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
@@ -243,11 +241,11 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                         Set<OntologyDto> sourceOntologySet = new HashSet<>();
                         sourceOntologySet.add(sourceOnt);
 
-                            sourceOntologyObjectSetModel.setId(sourceOnt.getId());
-                            sourceOntologyObjectSetModel.setCollection(sourceOnt.getCollection());
-                            sourceOntologyObjectSetModel.setOntologyId(sourceOnt.getOntologyId());
-                            sourceOntologyObjectSetModel.setUri(sourceOnt.getUri());
-                            sourceOntologyObjectSetModel.setTitle(sourceOnt.getTitle());
+                        sourceOntologyObjectSetModel.setId(sourceOnt.getId());
+                        sourceOntologyObjectSetModel.setCollection(sourceOnt.getCollection());
+                        sourceOntologyObjectSetModel.setOntologyId(sourceOnt.getOntologyId());
+                        sourceOntologyObjectSetModel.setUri(sourceOnt.getUri());
+                        sourceOntologyObjectSetModel.setTitle(sourceOnt.getTitle());
 
                         sourceOntology.add(sourceOntologyObjectSetModel);
 
@@ -308,7 +306,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                 processedMappingService.save(processedMappingGroupedBySourceOntology);
             }
         }
-        gitPreProcessingService.doGitPreProcessing();
     }
 
     /**

@@ -52,14 +52,7 @@ public class GitTagPreProcessingServiceImpl implements GitPreProcessingService {
             }
 
             tsOntologies.stream().filter(ts -> !ts.getConfig().getRepoUrl().equals("") && ts.getConfig().getRepoUrl().contains("github.com")).forEach(watchItem -> {
-
-                String repoUrl = watchItem.getConfig().getRepoUrl();
-
-                String extractRepoName = extractRepositoryPath(repoUrl);
-
-                gitRepository.save(GitRepo.builder().ontologyId(watchItem.getOntologyId()).title(watchItem.getTitle()).repoUrl(repoUrl).repositoryName(extractRepoName).build());
-
-
+                gitRepository.save(GitRepo.builder().ontologyId(watchItem.getOntologyId()).title(watchItem.getTitle()).repoUrl(watchItem.getConfig().getRepoUrl()).repositoryName(watchItem.getConfig().getRepoUrl().substring(18)).build());
                 System.out.println("single processing : ontology_id " + watchItem.getOntologyId() + "\n title : " + watchItem.getTitle() + "\n repo_url : " + watchItem.getConfig().getRepoUrl());
             });
 
@@ -127,29 +120,6 @@ public class GitTagPreProcessingServiceImpl implements GitPreProcessingService {
             System.out.println("Titled : after loop");
 
         }
-    }
-
-    private static String extractRepositoryPath(String url) {
-        // Find the index after "github.com/"
-        int startIndex = url.indexOf("github.com/") + "github.com/".length();
-
-        // Find the index of the next slash '/'
-        int firstSlashIndex = url.indexOf('/', startIndex);
-
-        // If the first slash is found, find the index of the next slash
-        if (firstSlashIndex != -1) {
-            int secondSlashIndex = url.indexOf('/', firstSlashIndex + 1);
-
-            // Extract the repository path until the second slash
-            if (secondSlashIndex != -1) {
-                return url.substring(startIndex, secondSlashIndex);
-            } else {
-                // If there is no second slash, extract the path until the end of the URL
-                return url.substring(startIndex);
-            }
-        }
-
-        return null; // Handle the case where the format is unexpected
     }
 
 }
