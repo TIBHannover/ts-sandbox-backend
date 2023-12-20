@@ -1,7 +1,4 @@
 spring:
-  config:
-    import:
-      - classpath:token.yml
   data:
     mongodb:
       database: ontology_statistics_db
@@ -24,8 +21,8 @@ preprocessing:
   run: true
 
 ts:
-  ontologies.list.size: 200
-  base.uri: https://service.tib.eu/ts4tib/api/ontologies #https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu
+  ontologies.list.size: 20
+  base.uri: https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu #https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu
   timeout:
     connect: 10000
     read: 10000
