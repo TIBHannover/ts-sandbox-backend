@@ -2,16 +2,12 @@ package eu.tib.ts.model.external.mapping;
 
 import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.Value;
 
 import java.util.Set;
 
 @Builder
 @Value
-//@Getter
-//@Setter
 public class ExternalMapping {
 
     String mappingId;

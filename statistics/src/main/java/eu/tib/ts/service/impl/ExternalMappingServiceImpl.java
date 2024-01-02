@@ -49,11 +49,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids,  Optional<String> collection, Pageable pageable) throws OWLOntologyCreationException {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids,  Optional<String> collection, Pageable pageable) {
 
         log.info("started mappings computation for the following ontologies: ");
         log.info("source ontology: " + ontology.getOntologyId());
-
 
         List<ProcessedOntology> processedOntologies = ids.isPresent()
                 ? getProcessedOntologies(ids.get())
@@ -66,6 +65,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         List<ProcessedOntology> filteredTSOntologies = ontologyFilterService.filter(processedOntologies, collection);
 
         log.info("target ontologies list:");
+
         for(ProcessedOntology po: filteredTSOntologies){
             log.info(po.getOntologyId());
         }
@@ -80,11 +80,15 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
 
+        int numberOfMappingsProcessed = 0;
+
         for (ProcessedOntology ont1 : filteredTSOntologies) {
+
+            log.info("mapping for ontology : " + ont1.getOntologyId());
 
             ontologyManager= OWLManager.createOWLOntologyManager();
 
-            OntologyPair pair = OntologyPair.of(ont1, ont2);
+            OntologyPair pair = OntologyPair.of(ont2, ont1);
 
             /**
              * skip to produce mappings between ontologies that have equal ids
@@ -187,18 +191,25 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             targetOntologyList.add(targetOntologyObjectSetModel);
 
-            ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
-
-            externalMappingList.add(externalMapping);
+//          ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
+//          externalMappingList.add(externalMapping);
 
             }catch(Exception e){
 
                 log.error("Exception happened: " + e.getMessage());
 
             }
+
+        numberOfMappingsProcessed++;
+
         }
 
-    return PageUtils.toPage(externalMappingList, pageable);
+        ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
+        externalMappingList.add(externalMapping);
+
+        log.info("number of mappings processed: " + numberOfMappingsProcessed);
+
+         return PageUtils.toPage(externalMappingList, pageable);
 
     }
 
