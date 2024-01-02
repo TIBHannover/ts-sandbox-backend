@@ -13,6 +13,7 @@ public class ExternalMapping {
     String mappingId;
     String sourceOntologyURI;
     int numberOfTargetOntologies;
+    int mappingStatus;
     Set<TargetOntologyObjectSetModel> targetOntologyList;
 
 }

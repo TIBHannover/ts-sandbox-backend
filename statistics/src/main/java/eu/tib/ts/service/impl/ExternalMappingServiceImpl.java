@@ -81,6 +81,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
 
         int numberOfMappingsProcessed = 0;
+        int mappingStatus = 1;
 
         for (ProcessedOntology ont1 : filteredTSOntologies) {
 
@@ -99,29 +100,25 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             set.add(pair);
 
-            try {
+//            try {
 
             TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
 
-            LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
-                        ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                        ont1.getUri())));
+                        try {
+                            /**
+                             * generate first and second random numbers
+                             */
+                            Random r_1 = SecureRandom.getInstanceStrong();
+                            Random r_2 = SecureRandom.getInstanceStrong();
 
-            Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
+                            long id = r_1.nextLong() * r_2.nextLong();
+                            targetOntologyObjectSetModel.setId(id);
 
-            Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
+                        }catch (Exception e) {
 
-                /**
-                 * generate first and second random numbers
-                 */
-                Random r_1 = SecureRandom.getInstanceStrong();
-                Random r_2 = SecureRandom.getInstanceStrong();
+                            log.info("Source random get instance exception: " + e.getMessage());
 
-                long id = r_1.nextLong()*r_2.nextLong();
-
-                targetOntologyObjectSetModel.setId(id);
-                targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
-                targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+                        }
 
                 /**
                  * target ontology data
@@ -137,6 +134,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         .title(ont1.getTitle())
                         .collection(ont1.getCollection())
                         .build();
+
+                log.info("target ontology id: " + ont1.getOntologyId());
                 targetOntologySet.add(targetTSOntDto);
 
                 /**
@@ -145,6 +144,25 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
 
                 Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
+
+                try {
+
+                LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+                        ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+                        ont1.getUri())));
+
+                Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
+
+                Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
+
+                /**
+                 *
+                 * Number of mappings
+                 * Number of conflictive mappings
+                 */
+                targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
+                targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+
 
                 /**
                  * Store mappings information in target ontology object set model
@@ -191,12 +209,20 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             targetOntologyList.add(targetOntologyObjectSetModel);
 
-//          ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
-//          externalMappingList.add(externalMapping);
-
             }catch(Exception e){
 
-                log.error("Exception happened: " + e.getMessage());
+                /**
+                 * Mapping exception
+                 */
+            mappingStatus=0;
+
+            log.info("targetOntologyList.isEmpty(): " + targetOntologyList.isEmpty());
+            ExternalMapping externalMappingIssue = processExternalMapping(ont2, numberOfTargetOntologies, mappingStatus, targetOntologyList);
+            externalMappingList.add(externalMappingIssue);
+
+            log.error("Exception happened: " + e.getMessage());
+
+            return PageUtils.toPage(externalMappingList, pageable);
 
             }
 
@@ -204,7 +230,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         }
 
-        ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
+        mappingStatus = 1;
+        ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, mappingStatus, targetOntologyList);
         externalMappingList.add(externalMapping);
 
         log.info("number of mappings processed: " + numberOfMappingsProcessed);
@@ -214,16 +241,16 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     }
 
     private ExternalMapping processExternalMapping(ProcessedOntology ont1,
-                                            int numberOfTargetOntologies,
+                                            int numberOfTargetOntologies, int mappingStatus,
                                             Set<TargetOntologyObjectSetModel> targetOntologyList) {
         return ExternalMapping.builder()
                 .mappingId(UUID.randomUUID().toString())
                 .sourceOntologyURI(ont1.getUri())
                 .numberOfTargetOntologies(numberOfTargetOntologies)
+                .mappingStatus(mappingStatus)
                 .targetOntologyList(targetOntologyList)
                 .build();
     }
-
 
     private List<ProcessedOntology> getProcessedOntologies(List<String> ids) {
 
