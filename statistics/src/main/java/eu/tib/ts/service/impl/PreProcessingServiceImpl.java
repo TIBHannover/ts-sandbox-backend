@@ -69,12 +69,10 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
     @Override
     public void doPreProcessing() {
+
         List<TsOntology> tsOntologies = tsRepository.getOntologies();
-        
 
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
-
-        
 
         List<TsOntology> unprocessedOntologies = tsOntologies.stream()
                 .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
