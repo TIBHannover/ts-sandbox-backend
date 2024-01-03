@@ -126,6 +126,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  */
                 Set<OntologyDto> targetOntologySet = new HashSet<>();
 
+            log.info("target ontology id: " + ont1.getOntologyId());
+            log.info("target ontology uri: " + ont1.getUri());
+            log.info("target ontology title: " + ont1.getTitle());
+            log.info("target ontology collection: " + ont1.getCollection());
                 /**
                  * target ontology dto from terminology service (localhost: Docker)
                  */
@@ -136,8 +140,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         .collection(ont1.getCollection())
                         .build();
 
-                log.info("target ontology id: " + ont1.getOntologyId());
-                
                 targetOntologySet.add(targetTSOntDto);
 
                 /**
@@ -191,10 +193,23 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                      */
                     targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
 
-                    targetOntologyList.add(targetOntologyObjectSetModel);
+
 
                 } else {
 
+                    OntologyDto targetTSOntDtoNew = OntologyDto.builder()
+                            .ontologyId(ont1.getOntologyId())
+                            .uri(ont1.getUri())
+                            .title(ont1.getTitle())
+                            .collection(ont1.getCollection())
+                            .build();
+
+                    targetOntologySet.add(targetTSOntDtoNew);
+
+                    /**
+                     * target ontology set
+                     */
+                    targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
                     targetOntologyList.add(targetOntologyObjectSetModel);
                 }
 
@@ -203,6 +218,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             log.error("Mapping exception: " + e.getMessage());
 
             }
+
+            targetOntologyList.add(targetOntologyObjectSetModel);
 
         numberOfMappingsProcessed++;
 
