@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -62,11 +61,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
 
-            List<ProcessedOntology> filteredTSOntologies = ontologyFilterService.filter(processedOntologies, collection);
-
         log.info("target ontologies list:");
 
-        for(ProcessedOntology po: filteredTSOntologies){
+        for(ProcessedOntology po: processedOntologies){
             log.info(po.getOntologyId());
         }
 
@@ -87,6 +84,11 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             log.info("mapping for ontology : " + ont1.getOntologyId());
             log.info("target ontology uri: " + ont1.getUri());
+
+            /**
+             * disallow mapping computation between the same URLs
+             */
+            if(ont1.getUri().equals(ont2.getUri())) continue;
 
             ontologyManager= OWLManager.createOWLOntologyManager();
 
@@ -205,11 +207,23 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                             .build();
 
                     targetOntologySet.add(targetTSOntDtoNew);
+                    /**
+                     *
+                     */
+                    Set<MappingObjectSetModel> emptyMappingList = Collections.emptySet();
+                    Set<MappingObjectSetModel> emptyConflictiveMappingList = Collections.emptySet();;
 
                     /**
                      * target ontology set
                      */
                     targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+
+                    /**
+                     * if mappings and conflictive mappings set are null then we set these sets as empty
+                     */
+                    targetOntologyObjectSetModel.setMappingList(emptyMappingList);
+                    targetOntologyObjectSetModel.setMappingList(emptyConflictiveMappingList);
+
                     targetOntologyList.add(targetOntologyObjectSetModel);
                 }
 
@@ -227,6 +241,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
 
         ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
+
         externalMappingList.add(externalMapping);
 
         log.info("number of mappings processed: " + numberOfMappingsProcessed);
