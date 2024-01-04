@@ -16,6 +16,7 @@ import org.semanticweb.owlapi.model.IRI;
 
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -30,6 +31,7 @@ import java.util.stream.StreamSupport;
 
 @Slf4j
 @Service
+@EnableAutoConfiguration
 public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     private final ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository;
@@ -48,7 +50,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids,  Optional<String> collection, Pageable pageable) {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, Pageable pageable) {
 
         log.info("started mappings computation for the following ontologies: ");
         log.info("source ontology: " + ontology.getOntologyId());
