@@ -199,35 +199,36 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
 
 
-                } else {
-
-                    OntologyDto targetTSOntDtoNew = OntologyDto.builder()
-                            .ontologyId(ont1.getOntologyId())
-                            .uri(ont1.getUri())
-                            .title(ont1.getTitle())
-                            .collection(ont1.getCollection())
-                            .build();
-
-                    targetOntologySet.add(targetTSOntDtoNew);
-                    /**
-                     *
-                     */
-                    Set<MappingObjectSetModel> emptyMappingList = Collections.emptySet();
-                    Set<MappingObjectSetModel> emptyConflictiveMappingList = Collections.emptySet();;
-
-                    /**
-                     * target ontology set
-                     */
-                    targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
-
-                    /**
-                     * if mappings and conflictive mappings set are null then we set these sets as empty
-                     */
-                    targetOntologyObjectSetModel.setMappingList(emptyMappingList);
-                    targetOntologyObjectSetModel.setMappingList(emptyConflictiveMappingList);
-
-                    targetOntologyList.add(targetOntologyObjectSetModel);
                 }
+//                else {
+//
+//                    OntologyDto targetTSOntDtoNew = OntologyDto.builder()
+//                            .ontologyId(ont1.getOntologyId())
+//                            .uri(ont1.getUri())
+//                            .title(ont1.getTitle())
+//                            .collection(ont1.getCollection())
+//                            .build();
+//
+//                    targetOntologySet.add(targetTSOntDtoNew);
+//                    /**
+//                     *
+//                     */
+//                    Set<MappingObjectSetModel> emptyMappingList = Collections.emptySet();
+//                    Set<MappingObjectSetModel> emptyConflictiveMappingList = Collections.emptySet();;
+//
+//                    /**
+//                     * target ontology set
+//                     */
+//                    targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+//
+//                    /**
+//                     * if mappings and conflictive mappings set are null then we set these sets as empty
+//                     */
+//                    targetOntologyObjectSetModel.setMappingList(emptyMappingList);
+//                    targetOntologyObjectSetModel.setMappingList(emptyConflictiveMappingList);
+//
+//                    targetOntologyList.add(targetOntologyObjectSetModel);
+//                }
 
             }catch(Exception e){
 
