@@ -73,8 +73,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
 
-//        Set<OntologyPair> set = new HashSet<>();
-
         int numberOfTargetOntologies = processedOntologies.size();
 
         Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
@@ -93,19 +91,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             if(ont1.getUri().equals(ont2.getUri())) continue;
 
             ontologyManager= OWLManager.createOWLOntologyManager();
-
-//            OntologyPair pair = OntologyPair.of(ont2, ont1);
-
-            /**
-             * Skips to produce mappings between ontologies that have equal ids
-             */
-//            if (ont1.equalsTsOntology(ont2) || set.contains(pair.inverted())) {
-//                continue;
-//            }
-
-//            set.add(pair);
-
-//            try {
 
             TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
 
@@ -151,8 +136,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  */
                 targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
 
-
-
                 try {
 
                 LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
@@ -196,39 +179,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                      * conflictive mappings list
                      */
                     targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
-
-
-
                 }
-//                else {
-//
-//                    OntologyDto targetTSOntDtoNew = OntologyDto.builder()
-//                            .ontologyId(ont1.getOntologyId())
-//                            .uri(ont1.getUri())
-//                            .title(ont1.getTitle())
-//                            .collection(ont1.getCollection())
-//                            .build();
-//
-//                    targetOntologySet.add(targetTSOntDtoNew);
-//                    /**
-//                     *
-//                     */
-//                    Set<MappingObjectSetModel> emptyMappingList = Collections.emptySet();
-//                    Set<MappingObjectSetModel> emptyConflictiveMappingList = Collections.emptySet();;
-//
-//                    /**
-//                     * target ontology set
-//                     */
-//                    targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
-//
-//                    /**
-//                     * if mappings and conflictive mappings set are null then we set these sets as empty
-//                     */
-//                    targetOntologyObjectSetModel.setMappingList(emptyMappingList);
-//                    targetOntologyObjectSetModel.setMappingList(emptyConflictiveMappingList);
-//
-//                    targetOntologyList.add(targetOntologyObjectSetModel);
-//                }
+
 
             }catch(Exception e){
 
@@ -241,7 +193,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         numberOfMappingsProcessed++;
 
         }
-
 
         ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
 
