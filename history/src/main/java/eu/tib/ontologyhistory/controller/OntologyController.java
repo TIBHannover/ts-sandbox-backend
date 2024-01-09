@@ -84,6 +84,7 @@ public class OntologyController {
         List<Diff> existingDiffs = ontology.getDiffs();
         existingDiffs.addAll(0, diffs);
         ontology.setDiffs(existingDiffs);
+        ontology.setAtime(existingDiffs.get(0).getShaOffsetDateTime());
         ontologyService.insert(ontology);
         return new ResponseEntity<>("Ontology updated successfully", HttpStatus.OK);
     }

@@ -13,6 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 public class TerminologyServiceStatisticsApplication {
 
     public static void main(String[] args) {
+        log.info("starting main");
         SpringApplication.run(TerminologyServiceStatisticsApplication.class, args);
         log.info("Mapping is finished");
     }
