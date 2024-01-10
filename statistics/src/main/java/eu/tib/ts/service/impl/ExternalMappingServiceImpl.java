@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 
+import org.semanticweb.owlapi.model.OWLAxiom;
+import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -23,7 +25,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.ac.ox.krr.logmap2.LogMap2_Matcher;
 import uk.ac.ox.krr.logmap2.Parameters;
+import uk.ac.ox.krr.logmap2.io.LogOutput;
+import uk.ac.ox.krr.logmap2.io.OWLAlignmentFormat;
 import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
+import uk.ac.ox.krr.logmap2.reasoning.SatisfiabilityIntegration;
+import uk.ac.ox.krr.logmap2.utilities.Utilities;
 
 import java.security.SecureRandom;
 import java.util.*;
@@ -147,18 +153,64 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                     if(reasoner) {
 
                         Parameters.reasoner = Parameters.hermit;
-                        logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+
+                        logmap2GroupedBySourceOntology = new LogMap2_Matcher(
+                                ontologyManager.loadOntology(IRI.create(
                                 ont2.getUri())), ontologyManager.loadOntology(IRI.create(
                                 ont1.getUri())), Parameters.hermit);
 
+                        log.info("HermiT reasoner is selected: " + reasoner);
+
                     } else {
-                        logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+
+                        logmap2GroupedBySourceOntology = new LogMap2_Matcher(
+                                ontologyManager.loadOntology(IRI.create(
                                 ont2.getUri())), ontologyManager.loadOntology(IRI.create(
                                 ont1.getUri())));
+
+                        log.info("HermiT reasoner is selected: " + reasoner);
+
                     }
+
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
 
+                OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
+
+                OWLOntology mergedOntologiesWithMappings = createMergedOntology(
+                        ontologyManager.loadOntology(IRI.create(
+                        ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+                        ont1.getUri())),
+                        mappingsToOWLOntology);
+
+                SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
+                                    ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+                                    ontologyManager.loadOntology(IRI.create(ont1.getUri())),
+                                    mergedOntologiesWithMappings,
+                                   true,//checks classes satisfiability
+                                    false,//Time_Out_Class
+                                    false); //use factory
+
+
+                log.info("Number of unsatisfiable classes in mappings lead by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
+
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
+
+                    OWLOntology conflictiveMappingsToOWLOntology = getOWLOntology4GivenMappings(conflictiveLogmap2Mappings);
+
+                    OWLOntology mergedOntologiesWithConflictiveMappings = createMergedOntology(
+                            ontologyManager.loadOntology(IRI.create(
+                                    ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+                                    ont1.getUri())),
+                            conflictiveMappingsToOWLOntology);
+
+                    SatisfiabilityIntegration conflictiveMappingsSatChecker = new SatisfiabilityIntegration(
+                            ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+                            ontologyManager.loadOntology(IRI.create(ont1.getUri())),
+                            mergedOntologiesWithConflictiveMappings,
+                            true,//checks classes satisfiability
+                            false,//Time_Out_Class
+                            false); //use factory
+
 
 
                 if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
@@ -170,6 +222,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                      */
                     targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
                     targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+                    targetOntologyObjectSetModel.setNumbweOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
+                    targetOntologyObjectSetModel.setNumbweOfUnsatisfiableClassesInConflictiveMapping( conflictiveMappingsSatChecker.getNumUnsatClasses());
 
                     Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
 
@@ -216,6 +270,84 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         log.info("number of mappings processed: " + numberOfMappingsProcessed);
 
          return PageUtils.toPage(externalMappingList, pageable);
+
+    }
+
+    private OWLOntology createMergedOntology(OWLOntology O1, OWLOntology O2, OWLOntology M) throws Exception{
+        Set<OWLAxiom> axioms = new HashSet<OWLAxiom>();
+        axioms.addAll(O1.getAxioms());
+        axioms.addAll(O2.getAxioms());
+        axioms.addAll(M.getAxioms());
+
+        OWLOntologyManager managerMerged = OWLManager.createOWLOntologyManager();
+        OWLOntology mergedOntology = managerMerged.createOntology(axioms, IRI.create("http://doi.org/mappings/Integration.owl"));
+
+        //System.out.println("Storing merged ontology: ");
+//        managerMerged.saveOntology(mergedOntology, new RDFXMLOntologyFormat(), IRI.create("file:/usr/local/data/ConfOntosOAEI/cmt_cocus.owl")); //RDFXMLOntologyFormat
+        log.info("Number of classes integration: " + mergedOntology.getClassesInSignature().size());
+
+        return mergedOntology;
+    }
+
+
+    /**
+     * The method is taken from LogMap Matcher
+     * @param mappings
+     * @return
+     * @throws Exception
+     */
+    private OWLOntology getOWLOntology4GivenMappings(Set<MappingObjectStr> mappings) throws Exception {
+
+        OWLAlignmentFormat owlformat = new OWLAlignmentFormat("");
+
+
+        for (MappingObjectStr mapping : mappings){
+
+
+            if (mapping.getTypeOfMapping() == Utilities.INSTANCE){
+
+                owlformat.addInstanceMapping2Output(
+                        mapping.getIRIStrEnt1(),
+                        mapping.getIRIStrEnt2(),
+                        mapping.getConfidence());
+            }
+
+
+            else if (mapping.getTypeOfMapping() == Utilities.CLASSES){
+
+
+                owlformat.addClassMapping2Output(
+                        mapping.getIRIStrEnt1(),
+                        mapping.getIRIStrEnt2(),
+                        mapping.getMappingDirection(),
+                        mapping.getConfidence());
+            }
+
+            else if (mapping.getTypeOfMapping() == Utilities.OBJECTPROPERTIES){
+
+                owlformat.addObjPropMapping2Output(
+                        mapping.getIRIStrEnt1(),
+                        mapping.getIRIStrEnt2(),
+                        mapping.getMappingDirection(),
+                        mapping.getConfidence());
+            }
+
+            else if (mapping.getTypeOfMapping() == Utilities.DATAPROPERTIES){
+
+                owlformat.addDataPropMapping2Output(
+                        mapping.getIRIStrEnt1(),
+                        mapping.getIRIStrEnt2(),
+                        mapping.getMappingDirection(),
+                        mapping.getConfidence());
+
+            }
+
+
+        }//end for mappings
+
+
+        return owlformat.getOWLOntology();
+
 
     }
 
