@@ -191,7 +191,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                                     false); //use factory
 
 
-                log.info("Number of unsatisfiable classes in mappings lead by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
+                log.info("Number of unsatisfiable classes in mappings computed by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
 
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
@@ -211,7 +211,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                             false,//Time_Out_Class
                             false); //use factory
 
-
+                    log.info("Number of unsatisfiable classes in conflictive mappings computed by LogMap: " + conflictiveMappingsSatChecker.getNumUnsatClasses());
 
                 if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
 
