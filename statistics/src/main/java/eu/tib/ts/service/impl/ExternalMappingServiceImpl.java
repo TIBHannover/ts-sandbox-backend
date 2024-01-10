@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 import uk.ac.ox.krr.logmap2.LogMap2_Matcher;
+import uk.ac.ox.krr.logmap2.Parameters;
 import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
 
 import java.security.SecureRandom;
@@ -50,7 +51,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, Pageable pageable) {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, boolean reasoner, Pageable pageable) {
 
         log.info("started mappings computation for the following ontologies: ");
         log.info("source ontology: " + ontology.getOntologyId());
@@ -136,15 +137,29 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  */
                 targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
 
+            LogMap2_Matcher logmap2GroupedBySourceOntology = null;
+
                 try {
 
-                LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
-                        ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                        ont1.getUri())));
+                    /**
+                     * enables HermiT reasoner during mappings
+                     */
+                    if(reasoner) {
 
+                        Parameters.reasoner = Parameters.hermit;
+                        logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+                                ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+                                ont1.getUri())), Parameters.hermit);
+
+                    } else {
+                        logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+                                ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+                                ont1.getUri())));
+                    }
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
 
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
+
 
                 if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
 
