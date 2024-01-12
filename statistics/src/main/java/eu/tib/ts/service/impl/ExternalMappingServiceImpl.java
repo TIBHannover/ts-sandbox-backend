@@ -312,7 +312,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         OWLOntologyManager managerMerged = OWLManager.createOWLOntologyManager();
 
-        OWLOntology mergedOntology = managerMerged.createOntology(axioms, IRI.create("http://doi.org/mappings/"+
+        OWLOntology mergedOntology = managerMerged.createOntology(axioms, IRI.create("https://service.tib.eu/ts4tib/api/ontologies"+
                 O1.getOntologyID()+"_"+ O2.getOntologyID()+"_"+M.getOntologyID()+"_merged.owl"));
 
 //      managerMerged.saveOntology(mergedOntology, new RDFXMLOntologyFormat(), IRI.create("file:/usr/local/data/ConfOntosOAEI/cmt_cocus.owl")); //RDFXMLOntologyFormat
