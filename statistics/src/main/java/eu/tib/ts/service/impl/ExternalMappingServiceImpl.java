@@ -12,11 +12,8 @@ import eu.tib.ts.service.OntologyFilterService;
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.*;
 
-import org.semanticweb.owlapi.model.OWLAxiom;
-import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.data.domain.Page;
@@ -148,7 +145,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 try {
 
                     /**
-                     * enables HermiT reasoner during mappings
+                     * enables HermiT reasoner in computing mappings
+                     * This is HermiT reasoner from
                      */
 //                    if(reasoner) {
 
@@ -274,6 +272,39 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
          return PageUtils.toPage(externalMappingList, pageable);
 
     }
+
+    /**
+     * returns logmap2 matcher object depends on including or excluding reasoning
+     * in the process of producing mappings
+     * @param ont2
+     * @param ont1
+     * @param reasoner
+     * @return
+     * @throws OWLOntologyCreationException
+     */
+    private LogMap2_Matcher getLogmap2MatherMappings(
+            ProcessedOntology ont2 ,
+            ProcessedOntology ont1,
+            boolean reasoner) throws OWLOntologyCreationException {
+
+        if(reasoner){
+
+            return new LogMap2_Matcher(
+                    ontologyManager.loadOntology(IRI.create(
+                    ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+                    ont1.getUri())), Parameters.hermit
+            );
+
+        } else {
+
+            return new LogMap2_Matcher(
+                    ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+                    ontologyManager.loadOntology(IRI.create(ont1.getUri()))
+            );
+
+        }
+
+    };
 
     private OWLOntology createMergedOntology(OWLOntology O1, OWLOntology O2, OWLOntology M) throws Exception{
         Set<OWLAxiom> axioms = new HashSet<OWLAxiom>();
