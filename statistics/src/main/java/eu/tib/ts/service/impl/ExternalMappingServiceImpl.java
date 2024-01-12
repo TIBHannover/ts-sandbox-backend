@@ -148,7 +148,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                      * enables HermiT reasoner in computing mappings
                      * This is HermiT reasoner from
                      */
-//                    if(reasoner) {
+
+//                   if(reasoner) {
 
 //                        Parameters.reasoner = Parameters.hermit;
 //
@@ -162,14 +163,16 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 //
 //                    } else {
 
-                        LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(
-                                ontologyManager.loadOntology(IRI.create(
-                                ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                                ont1.getUri())));
+//                        LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(
+//                                ontologyManager.loadOntology(IRI.create(
+//                                ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+//                                ont1.getUri())));
 
 //                        log.info("HermiT reasoner is selected: " + reasoner);
 
 //                    }
+
+                LogMap2_Matcher logmap2GroupedBySourceOntology = getLogmap2MatherMappings(ont2,ont1,true);
 
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
 
@@ -274,8 +277,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     }
 
     /**
-     * returns logmap2 matcher object depends on including or excluding reasoning
-     * in the process of producing mappings
+     * Returns logmap2 matcher object depends on including or excluding reasoning
+     * in the process of producing mappings. Otherwise it throws exception.
+     *
      * @param ont2
      * @param ont1
      * @param reasoner
@@ -288,6 +292,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             boolean reasoner) throws OWLOntologyCreationException {
 
         if(reasoner){
+
+            Parameters.reasoner = Parameters.hermit;
 
             return new LogMap2_Matcher(
                     ontologyManager.loadOntology(IRI.create(
