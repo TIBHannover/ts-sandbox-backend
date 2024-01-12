@@ -54,7 +54,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, Pageable pageable) {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, boolean reasoner, Pageable pageable) {
 
         log.info("started mappings computation for the following ontologies: ");
         log.info("source ontology: " + ontology.getOntologyId());
@@ -172,7 +172,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
 //                    }
 
-                LogMap2_Matcher logmap2GroupedBySourceOntology = getLogmap2MatherMappings(ont2,ont1,true);
+                LogMap2_Matcher logmap2GroupedBySourceOntology = getLogmap2MatherMappings(ont2,ont1,reasoner);
 
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
 
