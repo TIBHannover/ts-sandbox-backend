@@ -141,8 +141,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  */
             targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
 
-//          LogMap2_Matcher logmap2GroupedBySourceOntology = null;
-
                 try {
 
                     /**
@@ -154,36 +152,46 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
 
-                OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
+                if(!logmap2Mappings.isEmpty()) {
 
-                OWLOntology mergedOntologiesWithMappings = createMergedOntology(
-                        ontologyManager.loadOntology(IRI.create(
-                        ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                        ont1.getUri())),
-                        mappingsToOWLOntology);
+                    OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
 
-                SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
-                                    ontologyManager.loadOntology(IRI.create(ont2.getUri())),
-                                    ontologyManager.loadOntology(IRI.create(ont1.getUri())),
-                                    mergedOntologiesWithMappings,
-                                   true,//checks classes satisfiability
-                                    false,//Time_Out_Class
-                                    false); //use factory
+                    OWLOntology mergedOntologiesWithMappings = createMergedOntology(
+                            ontologyManager.loadOntology(IRI.create(
+                                    ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+                                    ont1.getUri())),
+                            mappingsToOWLOntology);
 
+                    SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
+                            ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+                            ontologyManager.loadOntology(IRI.create(ont1.getUri())),
+                            mergedOntologiesWithMappings,
+                            true,//checks classes satisfiability
+                            false,//Time_Out_Class
+                            false); //use factory
 
-                log.info("Number of unsatisfiable classes in mappings computed by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
+                    log.info("Number of unsatisfiable classes in mappings computed by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
+
+                    /**
+                     * number of unsatisfiable classes
+                     */
+                    targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
+                }
+
 
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
-                OWLOntology conflictiveMappingsToOWLOntology = getOWLOntology4GivenMappings(conflictiveLogmap2Mappings);
+                if(!conflictiveLogmap2Mappings.isEmpty()) {
 
-                OWLOntology mergedOntologiesWithConflictiveMappings = createMergedOntology(
+                    OWLOntology conflictiveMappingsToOWLOntology = getOWLOntology4GivenMappings(conflictiveLogmap2Mappings);
+
+                    OWLOntology mergedOntologiesWithConflictiveMappings = createMergedOntology(
                             ontologyManager.loadOntology(IRI.create(
                                     ont2.getUri())), ontologyManager.loadOntology(IRI.create(
                                     ont1.getUri())),
                             conflictiveMappingsToOWLOntology);
 
-                SatisfiabilityIntegration conflictiveMappingsSatChecker = new SatisfiabilityIntegration(
+                    SatisfiabilityIntegration conflictiveMappingsSatChecker = new SatisfiabilityIntegration(
                             ontologyManager.loadOntology(IRI.create(ont2.getUri())),
                             ontologyManager.loadOntology(IRI.create(ont1.getUri())),
                             mergedOntologiesWithConflictiveMappings,
@@ -191,7 +199,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                             false,//Time_Out_Class
                             false); //use factory
 
-                log.info("Number of unsatisfiable classes in conflictive mappings computed by LogMap: " + conflictiveMappingsSatChecker.getNumUnsatClasses());
+                    log.info("Number of unsatisfiable classes in conflictive mappings computed by LogMap: " + conflictiveMappingsSatChecker.getNumUnsatClasses());
+
+                    /**
+                     * number of unsatisfiable classes
+                     */
+                    targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInConflictiveMapping( conflictiveMappingsSatChecker.getNumUnsatClasses());
+                }
 
                 if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
 
@@ -203,8 +217,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                     targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
                     targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
 
-                    targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
-                    targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInConflictiveMapping( conflictiveMappingsSatChecker.getNumUnsatClasses());
+//                    targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
+
 
                     Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
 
