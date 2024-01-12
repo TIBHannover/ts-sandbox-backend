@@ -1,10 +1,13 @@
 package eu.tib.ontologyhistory.service;
 
+import eu.tib.ontologyhistory.dto.ontology.OntologyDto;
+import eu.tib.ontologyhistory.dto.ontology.OntologySwaggerDto;
+import eu.tib.ontologyhistory.mapper.OntologyMapper;
+import eu.tib.ontologyhistory.model.ApiError;
 import eu.tib.ontologyhistory.model.Diff;
-import eu.tib.ontologyhistory.model.Ontology;
 import eu.tib.ontologyhistory.repository.OntologyRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.AllArgsConstructor;
+import lombok.val;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -12,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class OntologyService {
 
     private final OntologyRepository ontologyRepository;
@@ -20,41 +24,63 @@ public class OntologyService {
 
     private final ApiErrorService apiErrorService;
 
-    public OntologyService(OntologyRepository ontologyRepository, DiffService diffService, ApiErrorService apiErrorService) {
-        this.ontologyRepository = ontologyRepository;
-        this.diffService = diffService;
-        this.apiErrorService = apiErrorService;
+    private final OntologyMapper ontologyMapper;
+
+    public List<OntologyDto> findAll() {
+        val ontologies = ontologyRepository.findAll();
+        return ontologyMapper.entityToDto(ontologies);
     }
 
-    public List<Ontology> findAll() {
-        return ontologyRepository.findAll();
+    public List<OntologySwaggerDto> findAllSwagger() {
+        val ontologies = ontologyRepository.findAll();
+        return ontologyMapper.entityToSwaggerDto(ontologies);
     }
 
-    public Ontology findById(String id) {
-        return ontologyRepository.findById(id).orElse(null);
+    public OntologyDto findById(String id) {
+        val ontology = ontologyRepository.findById(id).orElse(null);
+        return ontologyMapper.entityToDto(ontology);
     }
 
+    public OntologySwaggerDto findSwaggerById(String id) {
+        val ontology = ontologyRepository.findById(id).orElse(null);
+        return ontologyMapper.entityToSwaggerDto(ontology);
+    }
 
-    public Ontology insert(Ontology ontology) {
-        Ontology savedOntology = ontologyRepository.save(ontology);
+    public void insert(OntologyDto ontologyDto) {
+        val ontology = ontologyMapper.dtoToEntity(ontologyDto);
+        val savedOntology = ontologyRepository.save(ontology);
         diffService.assignOntologyId(ontology.getDiffs(), savedOntology.getId());
         apiErrorService.assignOntologyId(ontology.getInvalidDiffs(), savedOntology.getId());
         ontologyRepository.save(savedOntology);
-        return savedOntology;
     }
 
+    public void update(String id, OntologyDto ontologyDto) {
+        val ontology = ontologyRepository.findById(id).orElse(null);
+        assert ontology != null;
+        ontologyMapper.updateEntityFromDto(ontologyDto, ontology);
+        val latestDiffTime = calculateLatestDiffTime(ontology.getDiffs(), ontology.getInvalidDiffs());
+        ontology.setAtime(latestDiffTime);
+        ontologyRepository.save(ontology);
+    }
 
-    public ResponseEntity<String> deleteById(String id) {
-        try {
-            ontologyRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error happened on a server", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public void edit(String id, OntologyDto ontologyDto) {
+        val ontology = ontologyRepository.findById(id).orElse(null);
+        assert ontology != null;
+        ontologyMapper.editEntityFromDto(ontologyDto, ontology);
+        ontologyRepository.save(ontology);
+    }
+    private Instant calculateLatestDiffTime(List<Diff> diffs, List<ApiError> invalidDiffs) {
+        Instant latestDiffTime = diffs.isEmpty() ? Instant.MIN : diffs.get(0).getShaOffsetDateTime();
+        Instant latestInvalidDiffTime = invalidDiffs.isEmpty() ? Instant.MIN : invalidDiffs.get(0).getTimestamp();
+        return latestDiffTime.isAfter(latestInvalidDiffTime) ? latestDiffTime : latestInvalidDiffTime;
+    }
+
+    public void deleteById(String id) {
+        ontologyRepository.deleteById(id);
     }
 
     public List<Diff> getDiffsBetween(String ontologyId, Instant startDate, Instant endDate) {
-        Ontology ontology = ontologyRepository.findById(ontologyId).orElseThrow();
+        val ontology = ontologyRepository.findById(ontologyId).orElse(null);
         List<Diff> filteredDiffs = new ArrayList<>();
         for (Diff diff : ontology.getDiffs()) {
             if (diff.getShaOffsetDateTime().isAfter(startDate) && diff.getParentOffsetDateTime().isBefore(endDate)) {

@@ -1,4 +1,4 @@
-package eu.tib.ontologyhistory.dto;
+package eu.tib.ontologyhistory.dto.ontology;
 
 import lombok.Getter;
 

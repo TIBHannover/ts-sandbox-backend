@@ -1,12 +1,17 @@
 package eu.tib.ontologyhistory.service;
 
 import com.google.common.collect.Sets;
+import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.dto.diff.DiffDto;
+import eu.tib.ontologyhistory.mapper.DiffMapper;
 import eu.tib.ontologyhistory.model.Axiom;
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.repository.DiffRepository;
 import eu.tib.ontologyhistory.utils.FileUtils;
 import eu.tib.ontologyhistory.utils.OntologyUtils;
 import eu.tib.ontologyhistory.utils.ParserUtils;
+import lombok.AllArgsConstructor;
+import lombok.val;
 import org.bson.Document;
 import org.geneontology.owl.differ.Differ;
 import org.geneontology.owl.differ.render.BasicDiffRenderer;
@@ -27,20 +32,21 @@ import java.time.Instant;
 import java.util.*;
 
 @Service
+@AllArgsConstructor
 public class DiffService {
 
     private final DiffRepository diffRepository;
 
-    public DiffService(DiffRepository diffRepository) {
-        this.diffRepository = diffRepository;
+    private final DiffMapper diffMapper;
+
+    public List<DiffDto> findAll() {
+        val diff = diffRepository.findAll();
+        return diffMapper.entityToDto(diff);
     }
 
-    public List<Diff> findAll() {
-        return diffRepository.findAll();
-    }
-
-    public Diff findById(String id) {
-        return diffRepository.findById(id).orElse(null);
+    public DiffDto findById(String id) {
+        val diff = diffRepository.findById(id).orElse(null);
+        return diffMapper.entityToDto(diff);
     }
 
     public void deleteById(String id) {
@@ -77,15 +83,15 @@ public class DiffService {
     }
 
 
-    public Diff makeDiffFromGit(String gitIriLeft, String gitIriRight, String commitSha, String parentCommitSha, Instant parentTime, Instant shaTime, Instant commitDate, String message) throws Exception {
+    public Diff makeDiffFromGit(DiffAdd diffAdd) throws Exception {
         String ontologyLeftFilename = "ontology-left";
         String ontologyRightFilename = "ontology-right";
 
         Path diffOutputPlainFile = Path.of("diff-output-plain.txt");
         Path diffOutputPlainMarkdown = Path.of("diff-output-markdown.md");
 
-        File ontLeft = FileUtils.createTempFile(ontologyLeftFilename, gitIriLeft);
-        File ontRight = FileUtils.createTempFile(ontologyRightFilename, gitIriRight);
+        File ontLeft = FileUtils.createTempFile(ontologyLeftFilename, diffAdd.gitRawFileLeft());
+        File ontRight = FileUtils.createTempFile(ontologyRightFilename, diffAdd.gitRawFileRight());
 
         OWLOntology loadedOntologyLeft = OntologyUtils.loadOntology(ontLeft);
         OWLOntology loadedOntologyRight = OntologyUtils.loadOntology(ontRight);
@@ -113,13 +119,13 @@ public class DiffService {
         Diff diff = Diff.builder()
                 .ontologyId("default")
                 .markdown(markdown)
-                .timestamp(commitDate)
-                .sha(commitSha)
-                .parentSha(parentCommitSha)
-                .parentOffsetDateTime(parentTime)
-                .shaOffsetDateTime(shaTime)
+                .timestamp(diffAdd.commitDate())
+                .sha(diffAdd.sha())
+                .parentSha(diffAdd.parentSha())
+                .parentOffsetDateTime(diffAdd.parentOffsetDateTime())
+                .shaOffsetDateTime(diffAdd.shaOffsetDateTime())
                 .axioms(axioms)
-                .message(message)
+                .message(diffAdd.message())
                 .build();
 
         if (diff != null) {
