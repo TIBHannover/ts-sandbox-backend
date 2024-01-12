@@ -54,15 +54,13 @@ public class ExternalMappingController {
             @RequestParam String uri,
             @Parameter(description = "Set of selected ontologies from TIB TS", example = "dr,coy,cidoc")
             @RequestParam Optional<List<String>> ids,
-            @Parameter(description = "Set HermiT reasoner of or on", example = "true")
-            @RequestParam boolean reasoner,
             Pageable pageable
     ) throws OWLOntologyCreationException {
 
         ProcessedOntology externalOntology = preProcessingOntologyService.preProcess(Optional.empty(), uri,
                 "get mappings between external ontology and selected ontologies from TIB Terminology Service");
 
-        Page<ExternalMapping> eternalMappingPage = externalMappingService.getMappingsForExternalOntology(externalOntology,ids,reasoner,pageable);
+        Page<ExternalMapping> eternalMappingPage = externalMappingService.getMappingsForExternalOntology(externalOntology,ids,pageable);
 
         PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
                 eternalMappingPage,

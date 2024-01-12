@@ -20,8 +20,8 @@ public class TargetOntologyObjectSetModel {
     long id;
     int numberOfMappings;
     int numberOfConflictiveMappings;
-    int numbweOfUnsatisfiableClassesInMapping;
-    int numbweOfUnsatisfiableClassesInConflictiveMapping;
+//    int numberOfUnsatisfiableClassesInMapping;
+//    int numberOfUnsatisfiableClassesInConflictiveMapping;
 
     Set<OntologyDto> targetOntology;
     Set<MappingObjectSetModel> mappingList;

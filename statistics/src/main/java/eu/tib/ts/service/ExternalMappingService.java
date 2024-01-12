@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface ExternalMappingService {
 
     <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology,
-                                                                             Optional<List<String>> ids, boolean reasoner,
+                                                                             Optional<List<String>> ids,
                                                                              Pageable pageable) throws OWLOntologyCreationException;
 
 }

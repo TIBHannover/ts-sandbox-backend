@@ -57,7 +57,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, boolean reasoner, Pageable pageable) {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, Pageable pageable) {
 
         log.info("started mappings computation for the following ontologies: ");
         log.info("source ontology: " + ontology.getOntologyId());
@@ -143,75 +143,76 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  */
                 targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
 
-            LogMap2_Matcher logmap2GroupedBySourceOntology = null;
+//            LogMap2_Matcher logmap2GroupedBySourceOntology = null;
 
                 try {
 
                     /**
                      * enables HermiT reasoner during mappings
                      */
-                    if(reasoner) {
+//                    if(reasoner) {
 
-                        Parameters.reasoner = Parameters.hermit;
+//                        Parameters.reasoner = Parameters.hermit;
+//
+//                        LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(
+//                                ontologyManager.loadOntology(IRI.create(
+//                                ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+//                                ont1.getUri())), Parameters.hermit);
+//
+//                        log.info("HermiT reasoner is selected: " + reasoner);
+//
+//
+//                    } else {
 
-                        logmap2GroupedBySourceOntology = new LogMap2_Matcher(
-                                ontologyManager.loadOntology(IRI.create(
-                                ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                                ont1.getUri())), Parameters.hermit);
-
-                        log.info("HermiT reasoner is selected: " + reasoner);
-
-                    } else {
-
-                        logmap2GroupedBySourceOntology = new LogMap2_Matcher(
+                        LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(
                                 ontologyManager.loadOntology(IRI.create(
                                 ont2.getUri())), ontologyManager.loadOntology(IRI.create(
                                 ont1.getUri())));
 
-                        log.info("HermiT reasoner is selected: " + reasoner);
+//                        log.info("HermiT reasoner is selected: " + reasoner);
 
-                    }
+//                    }
 
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
 
-                OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
+//                OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
 
-                OWLOntology mergedOntologiesWithMappings = createMergedOntology(
-                        ontologyManager.loadOntology(IRI.create(
-                        ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                        ont1.getUri())),
-                        mappingsToOWLOntology);
-
-                SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
-                                    ontologyManager.loadOntology(IRI.create(ont2.getUri())),
-                                    ontologyManager.loadOntology(IRI.create(ont1.getUri())),
-                                    mergedOntologiesWithMappings,
-                                   true,//checks classes satisfiability
-                                    false,//Time_Out_Class
-                                    false); //use factory
-
-
-                log.info("Number of unsatisfiable classes in mappings computed by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
+//                OWLOntology mergedOntologiesWithMappings = createMergedOntology(
+//                        ontologyManager.loadOntology(IRI.create(
+//                        ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+//                        ont1.getUri())),
+//                        mappingsToOWLOntology);
+//
+//                SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
+//                                    ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+//                                    ontologyManager.loadOntology(IRI.create(ont1.getUri())),
+//                                    mergedOntologiesWithMappings,
+//                                   true,//checks classes satisfiability
+//                                    false,//Time_Out_Class
+//                                    false); //use factory
+//
+//
+//                log.info("Number of unsatisfiable classes in mappings computed by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
 
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
-                    OWLOntology conflictiveMappingsToOWLOntology = getOWLOntology4GivenMappings(conflictiveLogmap2Mappings);
-
-                    OWLOntology mergedOntologiesWithConflictiveMappings = createMergedOntology(
-                            ontologyManager.loadOntology(IRI.create(
-                                    ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                                    ont1.getUri())),
-                            conflictiveMappingsToOWLOntology);
-
-                    SatisfiabilityIntegration conflictiveMappingsSatChecker = new SatisfiabilityIntegration(
-                            ontologyManager.loadOntology(IRI.create(ont2.getUri())),
-                            ontologyManager.loadOntology(IRI.create(ont1.getUri())),
-                            mergedOntologiesWithConflictiveMappings,
-                            true,//checks classes satisfiability
-                            false,//Time_Out_Class
-                            false); //use factory
-
-                    log.info("Number of unsatisfiable classes in conflictive mappings computed by LogMap: " + conflictiveMappingsSatChecker.getNumUnsatClasses());
+//                    OWLOntology conflictiveMappingsToOWLOntology = getOWLOntology4GivenMappings(conflictiveLogmap2Mappings);
+//
+//                    OWLOntology mergedOntologiesWithConflictiveMappings = createMergedOntology(
+//                            ontologyManager.loadOntology(IRI.create(
+//                                    ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+//                                    ont1.getUri())),
+//                            conflictiveMappingsToOWLOntology);
+//
+//                    SatisfiabilityIntegration conflictiveMappingsSatChecker = new SatisfiabilityIntegration(
+//                            ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+//                            ontologyManager.loadOntology(IRI.create(ont1.getUri())),
+//                            mergedOntologiesWithConflictiveMappings,
+//                            true,//checks classes satisfiability
+//                            false,//Time_Out_Class
+//                            false); //use factory
+//
+//                    log.info("Number of unsatisfiable classes in conflictive mappings computed by LogMap: " + conflictiveMappingsSatChecker.getNumUnsatClasses());
 
                 if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
 
@@ -222,8 +223,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                      */
                     targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
                     targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
-                    targetOntologyObjectSetModel.setNumbweOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
-                    targetOntologyObjectSetModel.setNumbweOfUnsatisfiableClassesInConflictiveMapping( conflictiveMappingsSatChecker.getNumUnsatClasses());
+
+//                    targetOntologyObjectSetModel.setNumbweOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
+//                    targetOntologyObjectSetModel.setNumbweOfUnsatisfiableClassesInConflictiveMapping( conflictiveMappingsSatChecker.getNumUnsatClasses());
 
                     Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
 
@@ -283,7 +285,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         OWLOntology mergedOntology = managerMerged.createOntology(axioms, IRI.create("http://doi.org/mappings/Integration.owl"));
 
         //System.out.println("Storing merged ontology: ");
-//        managerMerged.saveOntology(mergedOntology, new RDFXMLOntologyFormat(), IRI.create("file:/usr/local/data/ConfOntosOAEI/cmt_cocus.owl")); //RDFXMLOntologyFormat
+//      managerMerged.saveOntology(mergedOntology, new RDFXMLOntologyFormat(), IRI.create("file:/usr/local/data/ConfOntosOAEI/cmt_cocus.owl")); //RDFXMLOntologyFormat
         log.info("Number of classes integration: " + mergedOntology.getClassesInSignature().size());
 
         return mergedOntology;
@@ -381,17 +383,14 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     private List<ProcessedOntology> getProcessedOntologies(List<String> ids) {
 
-        return ProcessedMongoOntologyRepository.findByOntologyIdIn(ids);
+    return ProcessedMongoOntologyRepository.findByOntologyIdIn(ids);
 
     }
 
     private List<ProcessedOntology> getProcessedOntologies() {
 
-        return StreamSupport.stream(ProcessedMongoOntologyRepository.findAll().spliterator(), false)
+    return StreamSupport.stream(ProcessedMongoOntologyRepository.findAll().spliterator(), false)
                 .sorted(Comparator.comparing(ProcessedOntology::getOntologyId))
                 .collect(Collectors.toList());
-
     }
-
-
 }

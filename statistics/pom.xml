@@ -69,6 +69,22 @@
     -->
 
 	<dependencies>
+
+		<!-- https://mvnrepository.com/artifact/net.sourceforge.owlapi/org.semanticweb.hermit -->
+		<dependency>
+			<groupId>net.sourceforge.owlapi</groupId>
+			<artifactId>org.semanticweb.hermit</artifactId>
+			<version>1.4.5.519</version>
+
+			<exclusions>
+				<exclusion>
+					<groupId>net.sourceforge.owlapi</groupId>
+					<artifactId>owlapi-distribution</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
 		<!-- https://mvnrepository.com/artifact/com.memetix/microsoft-translator-java-api -->
 
 		<dependency>
