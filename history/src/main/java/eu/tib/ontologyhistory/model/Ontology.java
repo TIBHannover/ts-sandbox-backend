@@ -2,7 +2,6 @@ package eu.tib.ontologyhistory.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,8 +10,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
-@Jacksonized
 @Document(collection = "ontologies")
 public class Ontology {
 
