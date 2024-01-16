@@ -113,7 +113,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                             log.info("Source random get instance exception: " + e.getMessage());
 
                         }
-
             /**
             * target ontology hashset
             */
@@ -143,26 +142,25 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 try {
 
-                    /**
-                     * enables HermiT reasoner in computing mappings
-                     * This is HermiT reasoner from
-                     */
-
+/**
+ * Enable / disable the HermiT reasoner to compute mappings
+ *
+ */
                 LogMap2_Matcher logmap2GroupedBySourceOntology = getLogmap2MatherMappings(ont2,ont1,reasoner);
 
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
 
-                if(!logmap2Mappings.isEmpty()) {
+                if(!logmap2Mappings.isEmpty() && reasoner) {
 
-                    OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
+                OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
 
-                    OWLOntology mergedOntologiesWithMappings = createMergedOntology(
-                            ontologyManager.loadOntology(IRI.create(
+                OWLOntology mergedOntologiesWithMappings = createMergedOntology(
+                           ontologyManager.loadOntology(IRI.create(
                                     ont2.getUri())), ontologyManager.loadOntology(IRI.create(
                                     ont1.getUri())),
                             mappingsToOWLOntology);
 
-                    SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
+                SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
                             ontologyManager.loadOntology(IRI.create(ont2.getUri())),
                             ontologyManager.loadOntology(IRI.create(ont1.getUri())),
                             mergedOntologiesWithMappings,
@@ -170,18 +168,18 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                             false,//Time_Out_Class
                             false); //use factory
 
-                    log.info("Number of unsatisfiable classes in mappings computed by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
+               log.info("Number of unsatisfiable classes in mappings computed by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
 
                     /**
                      * number of unsatisfiable classes
                      */
-                    targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
-                }
+               targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
 
+                }
 
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
-                if(!conflictiveLogmap2Mappings.isEmpty()) {
+                if(!conflictiveLogmap2Mappings.isEmpty() && reasoner) {
 
                     OWLOntology conflictiveMappingsToOWLOntology = getOWLOntology4GivenMappings(conflictiveLogmap2Mappings);
 
@@ -217,7 +215,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                     targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
                     targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
 
-//                    targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
+//                  targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
 
 
                     Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
@@ -245,7 +243,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                     targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
                 }
 
-
             }catch(Exception e){
 
             log.error("Mapping exception: " + e.getMessage());
@@ -254,7 +251,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             targetOntologyList.add(targetOntologyObjectSetModel);
 
-        numberOfMappingsProcessed++;
+            numberOfMappingsProcessed++;
 
         }
 
@@ -332,9 +329,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         OWLAlignmentFormat owlformat = new OWLAlignmentFormat("");
 
-
         for (MappingObjectStr mapping : mappings){
-
 
             if (mapping.getTypeOfMapping() == Utilities.INSTANCE){
 
@@ -342,10 +337,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         mapping.getIRIStrEnt1(),
                         mapping.getIRIStrEnt2(),
                         mapping.getConfidence());
-            }
-
-
-            else if (mapping.getTypeOfMapping() == Utilities.CLASSES){
+            } else if (mapping.getTypeOfMapping() == Utilities.CLASSES){
 
 
                 owlformat.addClassMapping2Output(
@@ -353,34 +345,23 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         mapping.getIRIStrEnt2(),
                         mapping.getMappingDirection(),
                         mapping.getConfidence());
-            }
-
-            else if (mapping.getTypeOfMapping() == Utilities.OBJECTPROPERTIES){
+            } else if (mapping.getTypeOfMapping() == Utilities.OBJECTPROPERTIES){
 
                 owlformat.addObjPropMapping2Output(
                         mapping.getIRIStrEnt1(),
                         mapping.getIRIStrEnt2(),
                         mapping.getMappingDirection(),
                         mapping.getConfidence());
-            }
-
-            else if (mapping.getTypeOfMapping() == Utilities.DATAPROPERTIES){
+            }  else if (mapping.getTypeOfMapping() == Utilities.DATAPROPERTIES){
 
                 owlformat.addDataPropMapping2Output(
                         mapping.getIRIStrEnt1(),
                         mapping.getIRIStrEnt2(),
                         mapping.getMappingDirection(),
                         mapping.getConfidence());
-
             }
-
-
         }//end for mappings
-
-
-        return owlformat.getOWLOntology();
-
-
+    return owlformat.getOWLOntology();
     }
 
     private void getExternalMappings(Set<MappingObjectSetModel> mappingList, Set<MappingObjectStr> logmap2Mappings) {
