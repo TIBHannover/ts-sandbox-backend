@@ -146,64 +146,20 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
  * Enable / disable the HermiT reasoner to compute mappings
  *
  */
-                LogMap2_Matcher logmap2GroupedBySourceOntology = getLogmap2MatherMappings(ont2,ont1,reasoner);
+                LogMap2_Matcher logmap2GroupedBySourceOntology = getLogmap2MatherMappings(ont2, ont1, reasoner);
 
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
-
-                if(!logmap2Mappings.isEmpty() && reasoner) {
-
-                OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
-
-                OWLOntology mergedOntologiesWithMappings = createMergedOntology(
-                           ontologyManager.loadOntology(IRI.create(
-                                    ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                                    ont1.getUri())),
-                            mappingsToOWLOntology);
-
-                SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
-                            ontologyManager.loadOntology(IRI.create(ont2.getUri())),
-                            ontologyManager.loadOntology(IRI.create(ont1.getUri())),
-                            mergedOntologiesWithMappings,
-                            true,//checks classes satisfiability
-                            false,//Time_Out_Class
-                            false); //use factory
-
-               log.info("Number of unsatisfiable classes in mappings computed by LogMap: " + mappingsSatChecker.getNumUnsatClasses());
-
-                    /**
-                     * number of unsatisfiable classes
-                     */
-               targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
-
-                }
-
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
-                if(!conflictiveLogmap2Mappings.isEmpty() && reasoner) {
+                if(reasoner) {
 
-                    OWLOntology conflictiveMappingsToOWLOntology = getOWLOntology4GivenMappings(conflictiveLogmap2Mappings);
+                    targetOntologyObjectSetModel.setReasoningExplanation(getSatisfiabilityOfMergedMappingsWithOntologies(logmap2Mappings, ont2, ont1 ));
 
-                    OWLOntology mergedOntologiesWithConflictiveMappings = createMergedOntology(
-                            ontologyManager.loadOntology(IRI.create(
-                                    ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                                    ont1.getUri())),
-                            conflictiveMappingsToOWLOntology);
+                } else {
 
-                    SatisfiabilityIntegration conflictiveMappingsSatChecker = new SatisfiabilityIntegration(
-                            ontologyManager.loadOntology(IRI.create(ont2.getUri())),
-                            ontologyManager.loadOntology(IRI.create(ont1.getUri())),
-                            mergedOntologiesWithConflictiveMappings,
-                            true,//checks classes satisfiability
-                            false,//Time_Out_Class
-                            false); //use factory
-
-                    log.info("Number of unsatisfiable classes in conflictive mappings computed by LogMap: " + conflictiveMappingsSatChecker.getNumUnsatClasses());
-
-                    /**
-                     * number of unsatisfiable classes
-                     */
-                    targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInConflictiveMapping( conflictiveMappingsSatChecker.getNumUnsatClasses());
+                    targetOntologyObjectSetModel.setReasoningExplanation("Checking classes satisfiability of merged mappings and ontologies is not selected");
                 }
+
 
                 if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
 
@@ -214,9 +170,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                      */
                     targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
                     targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
-
-//                  targetOntologyObjectSetModel.setNumberOfUnsatisfiableClassesInMapping(mappingsSatChecker.getNumUnsatClasses());
-
 
                     Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
 
@@ -266,6 +219,50 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     }
 
     /**
+     * If reasoning is selected then classes satisfiability is checked in merged mappings and input ontologies.
+     * Short explanation is provided if exception occurs.
+     * @param logmap2Mappings
+     * @param ont2
+     * @param ont1
+     * @return satisfiability of classes in merged mappings and input ontologies. Explanation is provided if exception
+     * occurs,
+     */
+    private String getSatisfiabilityOfMergedMappingsWithOntologies(Set<MappingObjectStr> logmap2Mappings, ProcessedOntology ont2, ProcessedOntology ont1 ){
+
+        try{
+
+             OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
+
+            SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
+                        ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+                        ontologyManager.loadOntology(IRI.create(ont1.getUri())),
+                        mappingsToOWLOntology,
+                        true,//checks classes satisfiability
+                        false,//Time_Out_Class
+                        false); //use factory
+
+            if (mappingsSatChecker.hasUnsatClasses()) {
+
+                    return "yes";
+
+                } else {
+
+                    return "no";
+
+                }
+
+
+        }catch (OWLOntologyCreationException owlOntologyCreationException){
+
+            return owlOntologyCreationException.getMessage();
+
+        } catch (Exception e) {
+
+            return new RuntimeException(e).getMessage();
+        }
+
+    }
+    /**
      * Returns logmap2 matcher object depends on including or excluding reasoning
      * in the process of producing mappings. Otherwise it throws exception.
      *
@@ -287,7 +284,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             return new LogMap2_Matcher(
                     ontologyManager.loadOntology(IRI.create(
                     ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                    ont1.getUri())), Parameters.hermit
+                    ont1.getUri())), Parameters.reasoner
             );
 
         } else {
@@ -313,7 +310,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 O1.getOntologyID()+"_"+ O2.getOntologyID()+"_"+M.getOntologyID()+"_merged.owl"));
 
 //      managerMerged.saveOntology(mergedOntology, new RDFXMLOntologyFormat(), IRI.create("file:/usr/local/data/ConfOntosOAEI/cmt_cocus.owl")); //RDFXMLOntologyFormat
-        log.info("Number of classes in integrated ontology: " + mergedOntology.getClassesInSignature().size());
+        log.info("Number of classes in merged ontologies: " + mergedOntology.getClassesInSignature().size());
 
         return mergedOntology;
     }
