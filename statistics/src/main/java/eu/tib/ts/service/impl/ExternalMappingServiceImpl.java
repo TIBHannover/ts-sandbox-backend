@@ -274,30 +274,30 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 if (mappingsSatChecker.hasUnsatClasses()) {
 
-                    log.info("merged "+ ont2.getOntologyId()+ " ontology "+ ont1.getOntologyId() + " ontology and mappings ontology has unsatisfiable classes");
+                    log.info("merged "+ ont2.getUri()+ " ontology, "+ ont1.getOntologyId() + " ontology and mappings ontology has unsatisfiable classes");
 
-                    return "merged "+ ont2.getOntologyId() + " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology has unsatisfiable classes";
+                    return "merged "+ ont2.getUri() + " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology has unsatisfiable classes";
 
                 } else {
 
-                    log.info("merged "+ ont2.getOntologyId() + " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology does not have unsatisfiable classes");
+                    log.info("merged "+ ont2.getUri() + " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology does not have unsatisfiable classes");
 
-                    return "merged "+ ont2.getOntologyId() + " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology does not have unsatisfiable classes";
+                    return "merged "+ ont2.getUri() + " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology does not have unsatisfiable classes";
 
                 }
 
             } catch(InconsistentOntologyException e){
 
-            log.info("merged "+ ont2.getOntologyId()+ " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology is consystent: " + getExeptionMessage(e,""));
+            log.info("merged "+ ont2.getUri()+ " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology inconsistency: " + getExeptionMessage(e,""));
 
-                return getExeptionMessage(e, "merged "+ ont2.getOntologyId()+ " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology consistency: ");
+                return getExeptionMessage(e, "merged "+ ont2.getUri()+ " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology inconsistency is detected: ");
             }
 
         }catch (OWLOntologyCreationException owlOntologyCreationException){
 
             log.info("owlOntologyCreationException.getLocalizedMessage(): " +  getExeptionMessage(owlOntologyCreationException,""));
 
-            return getExeptionMessage(owlOntologyCreationException, "OWL ontology creation exception \n");
+            return getExeptionMessage(owlOntologyCreationException, "OWL ontology creation exception");
 
         } catch (Exception e) {
 
@@ -317,6 +317,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         sb.append(message);
         sb.append(System.getProperty("line.separator"));
         sb.append(e.getLocalizedMessage());
+
         return sb.toString();
     }
 
