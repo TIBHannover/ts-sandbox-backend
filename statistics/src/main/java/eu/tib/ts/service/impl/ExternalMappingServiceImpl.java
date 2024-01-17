@@ -11,6 +11,7 @@ import eu.tib.ts.service.OntologyFilterService;
 
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.semanticweb.HermiT.Reasoner;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
@@ -40,8 +41,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     private final ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository;
 
-    private final OntologyFilterService ontologyFilterService;
+
     OWLOntologyManager ontologyManager;
+
 
     @Autowired
     protected ExternalMappingServiceImpl(
@@ -50,14 +52,14 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     ){
 
         this.ProcessedMongoOntologyRepository=processedMongoOntologyRepository;
-        this.ontologyFilterService=ontologyFilterService;
+
 
     }
     @Override
     public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, boolean reasoner, Pageable pageable) {
 
         log.info("started mappings computation for the following ontologies: ");
-        log.info("source ontology: " + ontology.getOntologyId());
+        log.info("source ontology: " + ontology.getUri());
 
         List<ProcessedOntology> processedOntologies = ids.isPresent()
                 ? getProcessedOntologies(ids.get())
@@ -70,7 +72,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         log.info("target ontologies list:");
 
         for(ProcessedOntology po: processedOntologies){
-            log.info(po.getOntologyId());
+            log.info(po.getUri());
         }
 
         ProcessedOntology ont2 = ProcessedOntology.of(ontology);
@@ -104,10 +106,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                             /**
                              * generate first and second random numbers
                              */
-                            Random r_1 = SecureRandom.getInstanceStrong();
-                            Random r_2 = SecureRandom.getInstanceStrong();
+                            Random r1 = SecureRandom.getInstanceStrong();
+                            Random r2 = SecureRandom.getInstanceStrong();
 
-                            long id = r_1.nextLong() * r_2.nextLong();
+                            long id = r1.nextLong() * r2.nextLong();
                             targetOntologyObjectSetModel.setId(id);
 
                         }catch (Exception e) {
@@ -162,8 +164,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 } else {
 
-                    targetOntologyObjectSetModel.setReasoningExplanation("Checking unsatisfiability in merged "+
-                            ont2.getTitle() + " ontology "+ ont1.getTitle()+" ontology and mappings ontology is not selected");
+                    targetOntologyObjectSetModel.setReasoningExplanation("Checking unsatisfiability of merged external "+
+                            ont2.getUri() + " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology is not selected");
                 }
 
                 if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
@@ -238,55 +240,64 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         try{
 
-             OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
+            OWLOntologyManager ontoManager1;
+            OWLOntologyManager ontoManager2;
 
-            /**
-             * Merge source ontology, target ontology and mappings ontology.
-             */
-            OWLOntology mergedOntology = createMergedOntology(ontologyManager.loadOntology(IRI.create(ont2.getUri())),
-                    ontologyManager.loadOntology(IRI.create(ont1.getUri())),
-                    mappingsToOWLOntology);
+            OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
+
+            ontoManager1  = OWLManager.createOWLOntologyManager();
+            ontoManager2  = OWLManager.createOWLOntologyManager();
+
+            OWLOntology onto1 = ontoManager1.loadOntology(IRI.create(ont1.getUri()));
+            OWLOntology onto2 = ontoManager2.loadOntology(IRI.create(ont2.getUri()));
+
+
+                 /**
+                  * Merge source ontology, target ontology and mappings ontology.
+                  */
+//                 OWLOntology mergedOntology = createMergedOntology(ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+//                         ontologyManager.loadOntology(IRI.create(ont1.getUri())),
+//                         mappingsToOWLOntology);
+
             try {
 
                 /**
                  * this classs is taken from LogMap matcher library (API)
                  */
                 SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
-                        ontologyManager.loadOntology(IRI.create(ont2.getUri())),
-                        ontologyManager.loadOntology(IRI.create(ont1.getUri())),
-                        mergedOntology,
+                        onto2,
+                        onto1,
+                        mappingsToOWLOntology,//mappingsToOWLOntology , //mergedOntology,
                         true,//checks classes satisfiability
                         false,//Time_Out_Class
                         false); //use factory
 
                 if (mappingsSatChecker.hasUnsatClasses()) {
 
-                    log.info("merged "+ ont2.getTitle() + " ontology "+ ont1.getTitle()+" ontology and mappings ontology has unsatisfiable classes");
+                    log.info("merged "+ ont2.getOntologyId()+ " ontology "+ ont1.getOntologyId() + " ontology and mappings ontology has unsatisfiable classes");
 
-                    return "merged "+ ont2.getTitle() + " ontology "+ ont1.getTitle()+" ontology and mappings ontology has unsatisfiable classes";
+                    return "merged "+ ont2.getOntologyId() + " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology has unsatisfiable classes";
 
                 } else {
 
-                    log.info("merged "+ ont2.getTitle() + " ontology "+ ont1.getTitle()+" ontology and mappings ontology does not have unsatisfiable classes");
+                    log.info("merged "+ ont2.getOntologyId() + " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology does not have unsatisfiable classes");
 
-                    return "merged "+ ont2.getTitle() + " ontology "+ ont1.getTitle()+" ontology and mappings ontology does not have unsatisfiable classes";
+                    return "merged "+ ont2.getOntologyId() + " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology does not have unsatisfiable classes";
 
                 }
 
             } catch(InconsistentOntologyException e){
 
-                log.info("merged "+ ont2.getTitle() + " ontology "+ ont1.getTitle()+" ontology and mappings ontology is consystent: " + e.getMessage());
+            log.info("merged "+ ont2.getOntologyId()+ " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology is consystent: " + getExeptionMessage(e,""));
 
-                return "merged "+ ont2.getTitle() + " ontology "+ ont1.getTitle()+" ontology and mappings ontology is consystent: " + e.getMessage();
+                return getExeptionMessage(e, "merged "+ ont2.getOntologyId()+ " ontology "+ ont1.getOntologyId()+" ontology and mappings ontology consistency: ");
             }
-
-
 
         }catch (OWLOntologyCreationException owlOntologyCreationException){
 
-            log.info("owlOntologyCreationException.getLocalizedMessage(): " +  owlOntologyCreationException.getLocalizedMessage());
+            log.info("owlOntologyCreationException.getLocalizedMessage(): " +  getExeptionMessage(owlOntologyCreationException,""));
 
-            return owlOntologyCreationException.getMessage();
+            return getExeptionMessage(owlOntologyCreationException, "OWL ontology creation exception \n");
 
         } catch (Exception e) {
 
@@ -294,9 +305,19 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             log.info("runtime exception message: " + message);
 
-            return new RuntimeException(e).getMessage();
+            return getExeptionMessage(e,message);
         }
+    }
 
+    private String getExeptionMessage(Throwable e, String message) {
+
+        StringBuilder sb = new StringBuilder();
+
+//      sb.append(e.toString()).append(System.getProperty("line.separator"));
+        sb.append(message);
+        sb.append(System.getProperty("line.separator"));
+        sb.append(e.getLocalizedMessage());
+        return sb.toString();
     }
 
     private OWLOntology createMergedOntology(OWLOntology O1, OWLOntology O2, OWLOntology M) throws Exception{
@@ -312,8 +333,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         managerMerged = OWLManager.createOWLOntologyManager();
         mergedOntology = managerMerged.createOntology(axioms, IRI.create("https://terminology.nfdi4ing.de/ts/sandbox/generatemapping/"+O1.getOntologyID()+"_"+ O2.getOntologyID()+"_mappings_merged.owl"));
 
-//      log.info("Storing merged ontology: ");
-//      managerMerged.saveOntology(mergedOntology, new RDFXMLOntologyFormat(), IRI.create("file:/usr/local/data/ConfOntosOAEI/cmt_cocus.owl")); //RDFXMLOntologyFormat
         log.info("Number of classes integration in merged ontology: " + mergedOntology.getClassesInSignature().size());
 
         return mergedOntology;
@@ -403,5 +422,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     return StreamSupport.stream(ProcessedMongoOntologyRepository.findAll().spliterator(), false)
                 .sorted(Comparator.comparing(ProcessedOntology::getOntologyId))
                 .collect(Collectors.toList());
+
+
     }
 }
