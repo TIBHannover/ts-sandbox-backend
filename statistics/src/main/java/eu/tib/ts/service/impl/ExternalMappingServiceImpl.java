@@ -298,24 +298,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     };
 
-    private OWLOntology createMergedOntology(OWLOntology O1, OWLOntology O2, OWLOntology M) throws Exception{
-        Set<OWLAxiom> axioms = new HashSet<OWLAxiom>();
-        axioms.addAll(O1.getAxioms());
-        axioms.addAll(O2.getAxioms());
-        axioms.addAll(M.getAxioms());
-
-        OWLOntologyManager managerMerged = OWLManager.createOWLOntologyManager();
-
-        OWLOntology mergedOntology = managerMerged.createOntology(axioms, IRI.create("https://service.tib.eu/ts4tib/api/ontologies"+
-                O1.getOntologyID()+"_"+ O2.getOntologyID()+"_"+M.getOntologyID()+"_merged.owl"));
-
-//      managerMerged.saveOntology(mergedOntology, new RDFXMLOntologyFormat(), IRI.create("file:/usr/local/data/ConfOntosOAEI/cmt_cocus.owl")); //RDFXMLOntologyFormat
-        log.info("Number of classes in merged ontologies: " + mergedOntology.getClassesInSignature().size());
-
-        return mergedOntology;
-    }
-
-
     /**
      * The method is taken from LogMap Matcher
      * @param mappings
