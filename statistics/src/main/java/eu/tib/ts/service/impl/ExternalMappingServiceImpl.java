@@ -289,7 +289,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             log.info("merged "+ ont2.getUri()+ " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology inconsistency: " + getExeptionMessage(e,""));
 
-                return getExeptionMessage(e, "merged ontology inconsistency is detected: ");
+                return getExeptionMessage(e, " ");
             }
 
         }catch (OWLOntologyCreationException owlOntologyCreationException){
