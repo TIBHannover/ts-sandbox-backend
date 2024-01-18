@@ -1,7 +1,7 @@
 package eu.tib.ontologyhistory.mapper;
 
 import eu.tib.ontologyhistory.dto.ontology.OntologyDto;
-import eu.tib.ontologyhistory.dto.ontology.OntologySwaggerDto;
+import eu.tib.ontologyhistory.model.CommitStatus;
 import eu.tib.ontologyhistory.model.Ontology;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -15,13 +15,10 @@ public interface OntologyMapper {
 
     OntologyDto entityToDto(Ontology ontology);
 
-    OntologySwaggerDto entityToSwaggerDto(Ontology ontology);
-
     List<OntologyDto> entityToDto(Iterable<Ontology> ontologies);
 
-    List<OntologySwaggerDto> entityToSwaggerDto(Iterable<Ontology> ontologies);
-
     Ontology dtoToEntity(OntologyDto ontology);
+
     List<Ontology> dtoToEntity(Iterable<OntologyDto> ontologies);
 
     @BeanMapping(ignoreByDefault = true)

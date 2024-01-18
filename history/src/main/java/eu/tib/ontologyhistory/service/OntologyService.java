@@ -1,17 +1,22 @@
 package eu.tib.ontologyhistory.service;
 
 import eu.tib.ontologyhistory.dto.ontology.OntologyDto;
-import eu.tib.ontologyhistory.dto.ontology.OntologySwaggerDto;
 import eu.tib.ontologyhistory.mapper.OntologyMapper;
 import eu.tib.ontologyhistory.model.ApiError;
+import eu.tib.ontologyhistory.model.CommitStatus;
 import eu.tib.ontologyhistory.model.Diff;
+import eu.tib.ontologyhistory.model.Ontology;
+import eu.tib.ontologyhistory.model.github.Commit;
 import eu.tib.ontologyhistory.repository.OntologyRepository;
+import eu.tib.ontologyhistory.service.network.GithubService;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -26,24 +31,16 @@ public class OntologyService {
 
     private final OntologyMapper ontologyMapper;
 
+    private final GithubService githubService;
+
     public List<OntologyDto> findAll() {
         val ontologies = ontologyRepository.findAll();
         return ontologyMapper.entityToDto(ontologies);
     }
 
-    public List<OntologySwaggerDto> findAllSwagger() {
-        val ontologies = ontologyRepository.findAll();
-        return ontologyMapper.entityToSwaggerDto(ontologies);
-    }
-
     public OntologyDto findById(String id) {
         val ontology = ontologyRepository.findById(id).orElse(null);
         return ontologyMapper.entityToDto(ontology);
-    }
-
-    public OntologySwaggerDto findSwaggerById(String id) {
-        val ontology = ontologyRepository.findById(id).orElse(null);
-        return ontologyMapper.entityToSwaggerDto(ontology);
     }
 
     public void insert(OntologyDto ontologyDto) {
@@ -52,6 +49,27 @@ public class OntologyService {
         diffService.assignOntologyId(ontology.getDiffs(), savedOntology.getId());
         apiErrorService.assignOntologyId(ontology.getInvalidDiffs(), savedOntology.getId());
         ontologyRepository.save(savedOntology);
+    }
+
+    public void create(OntologyDto ontologyDto) throws Exception {
+        val diffs = githubService.create(ontologyDto);
+        if (!diffs.isEmpty()) {
+            val ontology = Ontology.builder()
+                    .url(ontologyDto.url())
+                    .name(ontologyDto.name())
+                    .description(ontologyDto.description())
+                    .diffs(diffs)
+                    .invalidDiffs(Collections.EMPTY_LIST)
+                    .atime(diffs.get(0).getTimestamp())
+                    .commitStatus(new CommitStatus("latest", "0", "main"))
+                    .type("github")
+                    .build();
+
+            val savedOntology = ontologyRepository.save(ontology);
+//            diffService.assignOntologyId(ontology.getDiffs(), savedOntology.getId());
+//            apiErrorService.assignOntologyId(ontology.getInvalidDiffs(), savedOntology.getId());
+            ontologyRepository.save(savedOntology);
+        }
     }
 
     public void update(String id, OntologyDto ontologyDto) {

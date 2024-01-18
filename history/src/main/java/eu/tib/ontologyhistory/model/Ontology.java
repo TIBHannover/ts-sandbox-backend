@@ -10,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @Document(collection = "ontologies")
 public class Ontology {
 

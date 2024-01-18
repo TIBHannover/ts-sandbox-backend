@@ -6,7 +6,9 @@ public class Views {
 
     public static interface Update {}
 
-    public static interface Swagger {}
+    public static interface Short {}
 
-    public static interface Full extends Edit, Update, Swagger {}
+    public static interface Add extends Edit {}
+
+    public static interface Full extends Short, Update, Add {}
 }
