@@ -330,7 +330,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         axioms.addAll(M.getAxioms());
 
         managerMerged = OWLManager.createOWLOntologyManager();
-        mergedOntology = managerMerged.createOntology(axioms, IRI.create("https://terminology.nfdi4ing.de/ts/sandbox/generatemapping/merged.owl"));
+        mergedOntology = managerMerged.createOntology(axioms, IRI.create("https://terminology.nfdi4ing.de/ts/sandbox/generatemapping/mappings.owl"));
 
         log.info("Number of classes integration in merged ontology: " + mergedOntology.getClassesInSignature().size());
 
