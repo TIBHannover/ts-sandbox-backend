@@ -54,7 +54,7 @@ public class ExternalMappingController {
             @RequestParam String uri,
             @Parameter(description = "Set of selected ontologies from TIB TS", example = "dr,coy,cidoc")
             @RequestParam Optional<List<String>> ids,
-            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT resoner", example = "true, false")
+            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
             Pageable pageable
     ) throws OWLOntologyCreationException {
