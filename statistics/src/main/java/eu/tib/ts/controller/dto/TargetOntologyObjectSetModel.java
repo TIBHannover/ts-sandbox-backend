@@ -21,7 +21,7 @@ public class TargetOntologyObjectSetModel {
     int numberOfMappings;
     int numberOfConflictiveMappings;
 
-    String reasoningExplanation;
+    String mappingException;
 
     Set<OntologyDto> targetOntology;
     Set<MappingObjectSetModel> mappingList;

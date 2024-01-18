@@ -11,7 +11,6 @@ import eu.tib.ts.service.OntologyFilterService;
 
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.semanticweb.HermiT.Reasoner;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
@@ -85,7 +84,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         int numberOfMappingsProcessed = 0;
 
-        log.info("SAT selected : " + sat);
+        log.info("unSAT selected : " + sat);
 
         //filteredTSOntologies
         for (ProcessedOntology ont1 : processedOntologies) {
@@ -160,11 +159,11 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 if(sat) {
 
-                    targetOntologyObjectSetModel.setReasoningExplanation(getReasoningExplanation(logmap2Mappings, ont2, ont1 ));
+                    targetOntologyObjectSetModel.setMappingException(getReasoningExplanation(logmap2Mappings, ont2, ont1 ));
 
                 } else {
 
-                    targetOntologyObjectSetModel.setReasoningExplanation("Checking unsatisfiability of merged ontology is not selected");
+                    targetOntologyObjectSetModel.setMappingException("Checking classes satisfiability is off");
                 }
 
                 if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
@@ -204,7 +203,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             }catch(Exception e){
 
+            targetOntologyObjectSetModel.setMappingException(getExeptionMessage(e, " "));
+
             log.error("Mapping exception: " + e.getMessage());
+
 
             }
 
@@ -302,7 +304,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             String message =  new RuntimeException(e).getMessage();
 
-            log.info("runtime exception message: " + message);
+            log.info("runtime exception occurs: " + message);
 
             return getExeptionMessage(e,message);
         }
