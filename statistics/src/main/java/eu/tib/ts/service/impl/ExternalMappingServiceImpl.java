@@ -59,6 +59,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         log.info("started mappings computation for the following ontologies: ");
         log.info("source ontology: " + ontology.getUri());
+        log.info("SAT selected : " + sat);
 
         List<ProcessedOntology> processedOntologies = ids.isPresent()
                 ? getProcessedOntologies(ids.get())
@@ -84,7 +85,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         int numberOfMappingsProcessed = 0;
 
-        log.info("unSAT selected : " + sat);
+
 
         //filteredTSOntologies
         for (ProcessedOntology ont1 : processedOntologies) {
@@ -206,7 +207,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             targetOntologyObjectSetModel.setMappingException(getExeptionMessage(e, " "));
 
             log.error("Mapping exception: " + e.getMessage());
-
 
             }
 
