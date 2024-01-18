@@ -56,7 +56,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, boolean reasoner, Pageable pageable) {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, boolean sat, Pageable pageable) {
 
         log.info("started mappings computation for the following ontologies: ");
         log.info("source ontology: " + ontology.getUri());
@@ -85,7 +85,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         int numberOfMappingsProcessed = 0;
 
-        log.info("reasoner : " + reasoner);
+        log.info("SAT selected : " + sat);
 
         //filteredTSOntologies
         for (ProcessedOntology ont1 : processedOntologies) {
@@ -158,14 +158,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
-                if(reasoner) {
+                if(sat) {
 
                     targetOntologyObjectSetModel.setReasoningExplanation(getReasoningExplanation(logmap2Mappings, ont2, ont1 ));
 
                 } else {
 
-                    targetOntologyObjectSetModel.setReasoningExplanation("Checking unsatisfiability of merged external "+
-                            ont2.getUri() + " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology is not selected");
+                    targetOntologyObjectSetModel.setReasoningExplanation("Checking unsatisfiability of merged ontology is not selected");
                 }
 
                 if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
@@ -274,15 +273,15 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 if (mappingsSatChecker.hasUnsatClasses()) {
 
-                    log.info("merged "+ ont2.getUri()+ " ontology, "+ ont1.getOntologyId() + " ontology and mappings ontology has unsatisfiable classes");
+                    log.info("merged "+ ont2.getUri() + " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology does not have unsatisfiable classes");
 
-                    return "merged "+ ont2.getUri() + " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology has unsatisfiable classes";
+                    return "unsatisfiable classes: " + mappingsSatChecker.hasUnsatClasses() ;
 
                 } else {
 
                     log.info("merged "+ ont2.getUri() + " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology does not have unsatisfiable classes");
 
-                    return "merged "+ ont2.getUri() + " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology does not have unsatisfiable classes";
+                    return "unsatisfiable classes: " + mappingsSatChecker.hasUnsatClasses();
 
                 }
 
@@ -290,14 +289,14 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             log.info("merged "+ ont2.getUri()+ " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology inconsistency: " + getExeptionMessage(e,""));
 
-                return getExeptionMessage(e, "merged "+ ont2.getUri()+ " ontology, "+ ont1.getOntologyId()+" ontology and mappings ontology inconsistency is detected: ");
+                return getExeptionMessage(e, "merged ontology inconsistency is detected: ");
             }
 
         }catch (OWLOntologyCreationException owlOntologyCreationException){
 
             log.info("owlOntologyCreationException.getLocalizedMessage(): " +  getExeptionMessage(owlOntologyCreationException,""));
 
-            return getExeptionMessage(owlOntologyCreationException, "OWL ontology creation exception");
+            return getExeptionMessage(owlOntologyCreationException, "OWL ontology creation exception is detected:");
 
         } catch (Exception e) {
 
@@ -309,11 +308,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         }
     }
 
+
     private String getExeptionMessage(Throwable e, String message) {
 
         StringBuilder sb = new StringBuilder();
-
-//      sb.append(e.toString()).append(System.getProperty("line.separator"));
         sb.append(message);
         sb.append(System.getProperty("line.separator"));
         sb.append(e.getLocalizedMessage());
@@ -326,13 +324,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         OWLOntologyManager managerMerged;
         OWLOntology mergedOntology;
 
-        Set<OWLAxiom> axioms = new HashSet<OWLAxiom>();
+        Set<OWLAxiom> axioms = new HashSet<>();
         axioms.addAll(O1.getAxioms());
         axioms.addAll(O2.getAxioms());
         axioms.addAll(M.getAxioms());
 
         managerMerged = OWLManager.createOWLOntologyManager();
-        mergedOntology = managerMerged.createOntology(axioms, IRI.create("https://terminology.nfdi4ing.de/ts/sandbox/generatemapping/"+O1.getOntologyID()+"_"+ O2.getOntologyID()+"_mappings_merged.owl"));
+        mergedOntology = managerMerged.createOntology(axioms, IRI.create("https://terminology.nfdi4ing.de/ts/sandbox/generatemapping/merged.owl"));
 
         log.info("Number of classes integration in merged ontology: " + mergedOntology.getClassesInSignature().size());
 
@@ -347,7 +345,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
      */
     private OWLOntology getOWLOntology4GivenMappings(Set<MappingObjectStr> mappings) throws Exception {
 
-        OWLAlignmentFormat owlformat = new OWLAlignmentFormat("");
+        OWLAlignmentFormat owlformat = new OWLAlignmentFormat("mappings.owl");
 
         for (MappingObjectStr mapping : mappings){
 
@@ -381,6 +379,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         mapping.getConfidence());
             }
         }//end for mappings
+
     return owlformat.getOWLOntology();
     }
 
