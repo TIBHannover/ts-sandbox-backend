@@ -302,20 +302,26 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         } catch (Exception e) {
 
-            String message =  new RuntimeException(e).getMessage();
+            String message =  new RuntimeException(e).getLocalizedMessage();
 
             log.info("runtime exception occurs: " + message);
 
-            return getExeptionMessage(e,message);
+            return getExeptionMessage(e," ");
         }
     }
 
+    /**
+     * Create a String object that contains explanation in case of throwing runtime exception or reasoning inconsistency
+     * (un)satisfiability occurs.
+     * @param e
+     * @param message
+     * @return
+     */
 
     private String getExeptionMessage(Throwable e, String message) {
 
         StringBuilder sb = new StringBuilder();
         sb.append(message);
-        sb.append(System.getProperty("line.separator"));
         sb.append(e.getLocalizedMessage());
 
         return sb.toString();
