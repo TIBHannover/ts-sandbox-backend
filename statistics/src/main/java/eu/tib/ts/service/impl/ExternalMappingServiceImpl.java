@@ -85,8 +85,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         int numberOfMappingsProcessed = 0;
 
-
-
         //filteredTSOntologies
         for (ProcessedOntology ont1 : processedOntologies) {
 
@@ -146,7 +144,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 try {
 /**
- * Enable  HermiT reasoner during the computation of mappings
+ * Enable  HermiT reasoner during the computation of mappings. In Parameters class reasoning is set to HermiT.
  *
  */
                 LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(
