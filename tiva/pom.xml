@@ -12,7 +12,7 @@
 	<artifactId>tiva-statistics</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>tiva-statistics</name>
-	<description>Trade in Value Added </description>
+	<description>Trade in Value Added Statistics</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
