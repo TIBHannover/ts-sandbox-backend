@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>eu.tib</groupId>
-	<artifactId>tiva</artifactId>
+	<artifactId>tiva-statistics</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>tiva</name>
+	<name>tiva-statistics</name>
 	<description>Trade in Value Added </description>
 	<properties>
 		<java.version>17</java.version>
