@@ -6,8 +6,13 @@ import java.util.List;
 
 public interface ProcessedTivaService {
 
-    List<ProcessedTiva> findAll();
+    public List<ProcessedTiva> findAll();
 
-List<String> getAllCountryCodes();
+public List<String> getAllCountryCodes();
+
+
+
+    ProcessedTiva save (ProcessedTiva processedTiva);
+
 
 }

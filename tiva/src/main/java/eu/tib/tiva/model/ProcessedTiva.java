@@ -33,4 +33,12 @@ public class ProcessedTiva {
     @Field("countryCode")
     private Set<String> countryCode;
 
+    public static <T extends ProcessedTiva>  ProcessedTiva of(T tiva){
+
+        return ProcessedTiva.builder()
+                .id(tiva.getId())
+                .countryCode(tiva.getCountryCode())
+                .build();
+    }
+
 }

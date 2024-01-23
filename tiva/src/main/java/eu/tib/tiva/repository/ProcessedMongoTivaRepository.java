@@ -8,5 +8,5 @@ import java.util.List;
 public interface ProcessedMongoTivaRepository  extends MongoRepository<ProcessedTiva, Integer> {
 
     List<ProcessedTiva> findByTivaIdIn(List<String> ids);
-    
+
 }
