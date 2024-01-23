@@ -20,7 +20,7 @@ import java.util.Set;
 public class ProcessedTiva {
 
     @Transient
-    public static final String SQUENCE_NAME="user_sequence";
+    public static final String SEQUENCE_NAME="user_sequence";
 
     @Id
     private int id;
