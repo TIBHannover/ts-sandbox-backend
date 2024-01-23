@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface ProcessedTivaService {
 
-public List<String> getAllCountryCode();
+public List<String> getAllCountryCodes();
 
 }
