@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface PreProcessingTivaService {
 
-    ProcessedTiva preProcess(Optional TsTiva, String queryFileLocation, String title);
+    ProcessedTiva preProcess(Optional TsTiva, String queryFilePath, String title);
 }

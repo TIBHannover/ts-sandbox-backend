@@ -8,8 +8,12 @@ import java.util.Optional;
 public class PreProcessingTivaServiceImpl implements PreProcessingTivaService {
 
     @Override
-    public ProcessedTiva preProcess(Optional TsTiva, String queryFileLocation, String title) {
+    public ProcessedTiva preProcess(Optional TsTiva, String queryFilePath, String title) {
+
+
         return null;
+
+
     }
 
 
