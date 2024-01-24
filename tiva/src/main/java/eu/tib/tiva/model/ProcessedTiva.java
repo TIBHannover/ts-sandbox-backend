@@ -9,8 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.JoinColumn;
-import java.util.List;
 import java.util.Set;
+
 
 @Getter
 @Setter
@@ -33,6 +33,11 @@ public class ProcessedTiva {
     @CollectionTable(name="countryCode",joinColumns= @JoinColumn(name="id"))
     @Field("countryCode")
     private String countryCode;
+
+    @ElementCollection
+    @CollectionTable(name = "collection", joinColumns = @JoinColumn(name = "id"))
+    @Field("collection")
+    private Set<String> collection;
 
     public static <T extends ProcessedTiva>  ProcessedTiva of(T tiva){
 

@@ -11,8 +11,6 @@ public interface ProcessedTivaService {
 
      public List<TivaDto> getCountryCodes();
 
-
-
     ProcessedTiva save (ProcessedTiva processedTiva);
 
 
