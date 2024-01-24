@@ -3,6 +3,8 @@ package eu.tib.tiva.controller.dto;
 import lombok.*;
 import org.springframework.hateoas.server.core.Relation;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -12,5 +14,5 @@ import org.springframework.hateoas.server.core.Relation;
 public class CountryCodeModel {
 
     int id;
-    String countryCodeId;
+    List<String> countryCodeList;
 }
