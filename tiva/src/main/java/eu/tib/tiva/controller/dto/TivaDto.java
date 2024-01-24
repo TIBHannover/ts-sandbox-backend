@@ -15,7 +15,9 @@ public class TivaDto {
 
     String tivaId;
 
-    Set<String> countryCode;
+    String countryCode;
+
+    Set<String> collection;
 
     public static TivaDto getCountryCodes(ProcessedTiva processedTiva){
 
@@ -26,4 +28,13 @@ public class TivaDto {
                 .build();
 
     }
+    public static TivaDto of(ProcessedTiva processedTiva) {
+
+        return TivaDto.builder()
+                .id(processedTiva.getId())
+                .tivaId(processedTiva.getTivaId())
+                .countryCode(processedTiva.getCountryCode())
+                .build();
+    }
+
 }

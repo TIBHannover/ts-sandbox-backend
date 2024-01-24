@@ -1,12 +1,18 @@
 package eu.tib.tiva.service.impl;
 
+import com.github.jsonldjava.shaded.com.google.common.collect.Lists;
+import eu.tib.tiva.controller.dto.TivaDto;
 import eu.tib.tiva.model.ProcessedTiva;
 import eu.tib.tiva.repository.ProcessedMongoTivaRepository;
 import eu.tib.tiva.service.ProcessedTivaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Service
 public class ProcessedTivaServiceImpl implements ProcessedTivaService {
 
     private final ProcessedMongoTivaRepository repository;
@@ -18,13 +24,15 @@ public class ProcessedTivaServiceImpl implements ProcessedTivaService {
 
     @Override
     public List<ProcessedTiva> findAll() {
-        return null;
+        return  Lists.newArrayList(repository.findAll());
     }
 
     @Override
-    public List<String> getAllCountryCodes() {
-        return null;
-
+    public List<TivaDto> getCountryCodes() {
+                return Lists.newArrayList(repository.findAll()).stream()
+                .map(TivaDto::of)
+                .sorted(Comparator.comparing(TivaDto::getTivaId))
+                .collect(Collectors.toList());
     }
 
     @Override
