@@ -18,12 +18,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/tiva")
-public class TivaCountryController {
+public class TivaController {
 
     private final ProcessedTivaService processedTivaService;
 
     @Autowired
-    public TivaCountryController(ProcessedTivaService processedTivaService){
+    public TivaController(ProcessedTivaService processedTivaService){
 
         this.processedTivaService=processedTivaService;
     }

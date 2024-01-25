@@ -1,6 +1,7 @@
 package eu.tib.tiva.controller.dto;
 
 import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Relation(collectionRelation = "countrycodes", itemRelation = "countrycodes")
-public class CountryCodeModel {
+public class CountryCodeModel extends RepresentationModel<CountryCodeModel> {
 
     int id;
     List<String> countryCodeList;
