@@ -6,6 +6,16 @@ services:
       container_name: "mongodb"
       ports:
         - "27017:27017"
+    ts-tiva-statistics-back:
+      image: ts-tiva-statistics-back:1.0
+      container_name: ts-tiva-statistics-back
+      build:
+        context: tiva-statistics
+      ports:
+        - "9393:9393"
+      links:
+        - mongodb
+        -
     ts-statistics-back:
       image: ts-statistics-back:1.0
       container_name: ts-statistics-back
