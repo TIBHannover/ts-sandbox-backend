@@ -17,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/tiva")
+@RequestMapping("/api/")
 public class TivaController {
 
     private final ProcessedTivaService processedTivaService;
@@ -32,7 +32,7 @@ public class TivaController {
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TivaDto>> getCountryCodeList() {
 
-        log.error("List of all country codes");
+        log.info("List of all country codes");
         return HttpUtils.ok(processedTivaService.getCountryCodes());
 
     }
