@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 
 import org.apache.jena.atlas.web.auth.PreemptiveBasicAuthenticator;
 import org.apache.jena.atlas.web.auth.SimpleAuthenticator;
-import org.apache.jena.atlas.web.auth.HttpAuthenticator;
+
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+
 import java.util.UUID;
 
 @Slf4j
@@ -34,7 +34,7 @@ public class CountryCodeServiceImpl implements CountryCodeService {
      * Tiva graph name used in this query string
      * can be also passes as a parameter in the rest call
      */
-    private String queryCountryCode =
+    private static final String queryCountryCode =
             "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
             "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
             "SELECT DISTINCT ?countryCode  WHERE { " +
@@ -50,15 +50,17 @@ public class CountryCodeServiceImpl implements CountryCodeService {
                                                                               String password,
                                                                               Pageable pageable) {
         /**
+         * @author Nenad.Krdzavac@tib.eu
+         *
          * Simple authentication to SkyNet server.
          * Users should add user name and password in rest call parameters.
          */
         org.apache.jena.atlas.web.auth.HttpAuthenticator authenticator =
                 new PreemptiveBasicAuthenticator(new SimpleAuthenticator(userName, password.toCharArray()), true);
 
-        List<String> countryCodeStringList = new ArrayList<String>();
+        List<String> countryCodeStringList = new ArrayList<>();
 
-        List<CountryCode> countryCodeList = new ArrayList<CountryCode>();
+        List<CountryCode> countryCodeList = new ArrayList<>();
 
         try(QueryExecution queryExecution = QueryExecutionFactory.sparqlService(sparqlEndpoint, queryCountryCode, authenticator)){
 
@@ -75,7 +77,9 @@ public class CountryCodeServiceImpl implements CountryCodeService {
 
         }catch(Exception e) {
 
+            log.info("e.getMessage(): " + e.getMessage());
             e.printStackTrace();
+
         };
 
         CountryCode countryCode = processCountryCode(UUID.randomUUID().toString(), countryCodeStringList);

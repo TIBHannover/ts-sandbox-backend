@@ -14,6 +14,6 @@ import java.util.List;
 @Relation(collectionRelation = "countrycodes", itemRelation = "countrycodes")
 public class CountryCodeModel extends RepresentationModel<CountryCodeModel> {
 
-    int id;
+    String id;
     List<String> countryCodeList;
 }
