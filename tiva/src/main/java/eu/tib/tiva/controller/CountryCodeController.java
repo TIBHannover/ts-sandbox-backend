@@ -3,7 +3,6 @@ package eu.tib.tiva.controller;
 import eu.tib.tiva.controller.assembler.CountryCodeModelAssembler;
 import eu.tib.tiva.controller.dto.CountryCodeModel;
 import eu.tib.tiva.model.CountryCode;
-import eu.tib.tiva.model.CountryCodesModel;
 import eu.tib.tiva.service.CountryCodeService;
 import eu.tib.tiva.utils.HttpUtils;
 import eu.tib.tiva.utils.PageUtils;
@@ -55,7 +54,7 @@ public class CountryCodeController {
             Pageable pageable
     ){
 
-        Page<CountryCode> countryCodePage = countryCodeService.queryCountryCodes(skyNetTivaSparqlEndpoint,userName,password,pageable);
+        Page<CountryCode> countryCodePage = countryCodeService.getCountryCodeList(skyNetTivaSparqlEndpoint,userName,password,pageable);
 
         PagedModel<CountryCodeModel> pagedModel = PageUtils.toPagedModel(
                 countryCodePage,

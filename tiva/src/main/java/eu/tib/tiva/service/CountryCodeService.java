@@ -7,8 +7,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface CountryCodeService {
 
-    <T extends CountryCodesModel> Page<CountryCode> queryCountryCodes(String skyNetTivaSparqlEndpoint,
-                                                                      String userName,
-                                                                      String password,
-                                                                      Pageable pageable);
+    <T extends CountryCodesModel> Page<CountryCode> getCountryCodeList(String sparqlEndpoint,
+                                                                       String userName,
+                                                                       String password,
+                                                                       Pageable pageable);
 }
