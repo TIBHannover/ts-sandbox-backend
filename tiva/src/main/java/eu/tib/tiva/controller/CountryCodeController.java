@@ -46,7 +46,7 @@ public class CountryCodeController {
     @GetMapping(value = "/countrycodes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<CountryCodeModel>> getAllCountryCodes(
             @Parameter(description = "TiVA (Trade in Value Added) SPARQL endpoint")
-            @RequestParam String skyNetTivaSparqlEndpoint,
+            @RequestParam String sparqlEndpoint,
             @Parameter(description = "A user name to acceess the Skynet server (SPARLQ endpoint) ", example = "skynet-user")
             @RequestParam String userName,
             @Parameter(description = "Password", example = "abc123")
@@ -54,7 +54,7 @@ public class CountryCodeController {
             Pageable pageable
     ){
 
-        Page<CountryCode> countryCodePage = countryCodeService.getCountryCodeList(skyNetTivaSparqlEndpoint,userName,password,pageable);
+        Page<CountryCode> countryCodePage = countryCodeService.getCountryCodeList(sparqlEndpoint,userName,password,pageable);
 
         PagedModel<CountryCodeModel> pagedModel = PageUtils.toPagedModel(
                 countryCodePage,
