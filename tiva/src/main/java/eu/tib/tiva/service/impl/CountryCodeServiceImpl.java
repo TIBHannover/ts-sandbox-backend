@@ -29,26 +29,29 @@ import java.util.UUID;
 @EnableAutoConfiguration
 public class CountryCodeServiceImpl implements CountryCodeService {
 
-    /**
-     * S
-     * Tiva graph name used in this query string
-     * can be also passes as a parameter in the rest call
-     */
-    private static final String queryCountryCode =
-            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
-            "SELECT DISTINCT ?countryCode  WHERE { " +
-            "GRAPH <https://data.coypu.org/trade/tiva/> " +
-            "{ " +
-            "?countryCode rdf:type <https://schema.coypu.org/global#Country>  . " +
-            "} " +
-            "} LIMIT 200 ";
+    public static String query() {
+
+        String queryCountryCode =
+
+                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                        "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+                        "SELECT DISTINCT ?countryCode  " +
+                        "WHERE { " +
+                        "GRAPH ?g " +
+                        "{ " +
+                        "?countryCode rdf:type <https://schema.coypu.org/global#Country>  . " +
+                        "} " +
+                        "} LIMIT 200 ";
+
+        return queryCountryCode;
+    }
 
     @Override
     public <T extends CountryCodesModel> Page<CountryCode> getCountryCodeList(String sparqlEndpoint,
                                                                               String userName,
                                                                               String password,
                                                                               Pageable pageable) {
+        log.info("query started");
         /**
          * @author Nenad.Krdzavac@tib.eu
          *
@@ -62,7 +65,7 @@ public class CountryCodeServiceImpl implements CountryCodeService {
 
         List<CountryCode> countryCodeList = new ArrayList<>();
 
-        try(QueryExecution queryExecution = QueryExecutionFactory.sparqlService(sparqlEndpoint, queryCountryCode, authenticator)){
+        try(QueryExecution queryExecution = QueryExecutionFactory.sparqlService(sparqlEndpoint, query(), authenticator)){
 
         ResultSet resultSet = queryExecution.execSelect();
 
@@ -71,6 +74,8 @@ public class CountryCodeServiceImpl implements CountryCodeService {
                 QuerySolution querySolution = resultSet.next() ;
 
                 RDFNode countryCodeRDFNode = querySolution.get("countryCode") ;
+
+                log.info("countryCodeRDFNode.toString(): " + countryCodeRDFNode.toString());
 
                 countryCodeStringList.add(countryCodeRDFNode.toString());
             }
