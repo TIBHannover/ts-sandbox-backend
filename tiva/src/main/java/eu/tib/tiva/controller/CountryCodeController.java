@@ -45,9 +45,9 @@ public class CountryCodeController {
     @Operation(summary = "List all country codes available in tiva knowledge graph")
     @GetMapping(value = "/countrycodes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<CountryCodeModel>> getAllCountryCodes(
-            @Parameter(description = "Skynet TiVA SPARQL endpoint")
+            @Parameter(description = "TiVA (Trade in Value Added) SPARQL endpoint")
             @RequestParam String skyNetTivaSparqlEndpoint,
-            @Parameter(description = "A user name for acceessing Skynet server (SPARLQ endpoint) ", example = "skynet-user")
+            @Parameter(description = "A user name to acceess the Skynet server (SPARLQ endpoint) ", example = "skynet-user")
             @RequestParam String userName,
             @Parameter(description = "Password", example = "abc123")
             @RequestParam String password,

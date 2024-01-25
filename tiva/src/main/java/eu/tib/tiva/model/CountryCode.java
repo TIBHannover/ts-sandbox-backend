@@ -9,6 +9,6 @@ import java.util.List;
 @Value
 public class CountryCode {
 
-    int id;
+    String id;
     List<String> countryCodeList;
 }
