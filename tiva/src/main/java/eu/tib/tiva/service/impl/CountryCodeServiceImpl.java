@@ -18,10 +18,8 @@ import org.springframework.stereotype.Service;
 import org.apache.jena.atlas.web.auth.PreemptiveBasicAuthenticator;
 import org.apache.jena.atlas.web.auth.SimpleAuthenticator;
 
-
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.UUID;
 
 @Slf4j
