@@ -29,23 +29,6 @@ import java.util.UUID;
 @EnableAutoConfiguration
 public class CountryCodeServiceImpl implements CountryCodeService {
 
-    public static String query() {
-
-        String queryCountryCode =
-
-                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-                        "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
-                        "SELECT DISTINCT ?countryCode  " +
-                        "WHERE { " +
-                        "GRAPH ?g " +
-                        "{ " +
-                        "?countryCode rdf:type <https://schema.coypu.org/global#Country>  . " +
-                        "} " +
-                        "} LIMIT 200 ";
-
-        return queryCountryCode;
-    }
-
     @Override
     public <T extends CountryCodesModel> Page<CountryCode> getCountryCodeList(String sparqlEndpoint,
                                                                               String userName,
@@ -101,6 +84,16 @@ public class CountryCodeServiceImpl implements CountryCodeService {
                 .countryCodeList(countryCodeList)
                 .build();
     }
+    public static String query() {
 
-
+        return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                        "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+                        "SELECT DISTINCT ?countryCode  " +
+                        "WHERE { " +
+                        "GRAPH ?g " +
+                        "{ " +
+                        "?countryCode rdf:type <https://schema.coypu.org/global#Country>  . " +
+                        "} " +
+                        "} LIMIT 300 ";
+    }
 }
