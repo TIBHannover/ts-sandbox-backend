@@ -31,8 +31,7 @@ public class CountryCodeServiceImpl implements CountryCodeService {
     public <T extends CountryCodesModel> Page<CountryCode> getCountryCodeList(String sparqlEndpoint,
                                                                               String userName,
                                                                               String password,
-                                                                              Pageable pageable) {
-        log.info("query started");
+                                                                              Pageable pageable) {        log.info("query started");
         /**
          * @author Nenad.Krdzavac@tib.eu
          *

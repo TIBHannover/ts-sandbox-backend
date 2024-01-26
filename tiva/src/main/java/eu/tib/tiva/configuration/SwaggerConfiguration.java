@@ -15,6 +15,5 @@ public class SwaggerConfiguration {
                 .info(new Info().title("Trade in Value Added Statistics API")
                         .description("API paths used in visualization Trade in Value Added data")
                         .version("v0.0.1"));
-
     }
 }

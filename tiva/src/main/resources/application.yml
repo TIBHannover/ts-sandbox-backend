@@ -9,21 +9,11 @@ spring:
 
 server:
   port: 9393
-
   main:
     allow-bean-definition-overriding: true
-
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
 
 preprocessing:
-  run: false
-
-similarity:
-  weight:
-    property: 0.2
-    class: 0.2
-    namespace: 0.2
-    import: 0.2
-    individual: 0.2
+  run: true

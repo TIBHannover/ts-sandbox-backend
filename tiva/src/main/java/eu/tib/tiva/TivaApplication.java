@@ -13,6 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 public class TivaApplication {
 
 	public static void main(String[] args) {
+		log.info("starting main");
 		SpringApplication.run(TivaApplication.class, args);
 		log.info("tiva application started");
 	}

@@ -15,11 +15,11 @@ public class TivaProcessingConfig {
     public TivaProcessingConfig() {
     }
 
-    public List<String> getTiva() {
+    public List<String> getTivaList() {
         return tivaList;
     }
 
-    public void setTiva(List<String> tivaList) {
+    public void setTivaList(List<String> tivaList) {
         this.tivaList = tivaList;
     }
 }
