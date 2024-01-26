@@ -24,4 +24,12 @@ services:
         - "9090:9090"
       links:
         - mongodb
-
+    tiva-statistics-back:
+      image: tiva-statistics-back:1.0
+      container_name: tiva-statistics-back
+      build:
+        context: tiva
+      ports:
+       - "9393:9393"
+      links:
+       - mongodb

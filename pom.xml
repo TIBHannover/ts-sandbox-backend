@@ -11,6 +11,7 @@
     <modules>
         <module>history</module>
         <module>statistics</module>
+        <module>tiva</module>
     </modules>
 
     <properties>

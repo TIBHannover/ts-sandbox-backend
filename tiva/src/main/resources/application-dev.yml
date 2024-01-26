@@ -1,0 +1,29 @@
+spring:
+  data:
+    mongodb:
+      database: tiva_statistics_db
+      host: mongodb
+      port: 27017
+  main:
+    lazy-initialization: true
+
+server:
+  port: 9393
+
+  main:
+    allow-bean-definition-overriding: true
+    web-application-type: none
+
+logging:
+  level:
+    org.springframework.web: TRACE
+    eu.tib.ts: DEBUG
+
+
+similarity:
+  weight:
+    property: 0.2
+    class: 0.2
+    namespace: 0.2
+    import: 0.2
+    individual: 0.2

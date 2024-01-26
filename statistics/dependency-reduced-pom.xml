@@ -104,6 +104,18 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>net.sourceforge.owlapi</groupId>
+      <artifactId>org.semanticweb.hermit</artifactId>
+      <version>1.4.5.519</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>owlapi-distribution</artifactId>
+          <groupId>net.sourceforge.owlapi</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>com.memetix</groupId>
       <artifactId>microsoft-translator-java-api</artifactId>
       <version>0.6.2</version>
