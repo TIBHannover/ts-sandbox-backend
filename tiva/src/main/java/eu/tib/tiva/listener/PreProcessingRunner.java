@@ -26,8 +26,8 @@ public class PreProcessingRunner implements ApplicationListener<ApplicationReady
     public void onApplicationEvent(ApplicationReadyEvent event) {
 
         log.info("start pre processing:");
-        log.info("-----> running queries");
-        log.info("-----> storing query results into MongoDB");
+        log.info("-----> run SPARQL queries");
+        log.info("-----> store query results into MongoDB");
 
         preProcessingService.doPreProcessing();
     }
