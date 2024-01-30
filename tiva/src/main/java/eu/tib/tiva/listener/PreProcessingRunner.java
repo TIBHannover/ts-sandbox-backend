@@ -29,7 +29,7 @@ public class PreProcessingRunner implements ApplicationListener<ApplicationReady
         log.info("-----> run SPARQL queries");
         log.info("-----> store query results into MongoDB");
 
-//      preProcessingService.doPreProcessing();
+      preProcessingService.doPreProcessing();
 
     }
 

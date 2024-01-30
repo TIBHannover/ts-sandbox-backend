@@ -17,5 +17,4 @@ public interface OriginOfValueAddedService {
 
     <T extends OriginOfValueAddedModel> Page<OriginOfValueAddedModel> getOriginOfValueAddeInGrossExports(String sparqlEndpoint,
                                                                                                          Pageable pageable);
-
 }
