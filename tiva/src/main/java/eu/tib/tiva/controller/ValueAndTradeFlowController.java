@@ -64,13 +64,10 @@ public class ValueAndTradeFlowController {
 
     }
 
-    @Operation(summary = "List of country codes, industry codes, values and dates based " +
-            "on selected value added origin country, industry codes, and selected type of vale and trade flows.")
-    @GetMapping(value = "/vao", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PagedModel<ValueAndTradeFlowModel>> getOriginOfValueAddedInFinalDemandOrGrossExports(
-            @Parameter(description = "Type of value and trade flows (final demand, gross exports)",
-                    example = "final demand or gross exports")
-            @RequestParam String type,
+    @Operation(summary = "List of country codes, industry codes in final demand, values and dates based " +
+            "on selected value added origin country and industry codes.")
+    @GetMapping(value = "/vao/finaldemand", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<ValueAndTradeFlowModel>> getOriginOfValueAddedInFinalDemand(
             @Parameter(description = "Trade location code for value added origin", example = "DEU, EU19")
             @RequestParam String location,
             @Parameter(description = "Industry code for value added origin", example = "D62T63, D20")
@@ -78,16 +75,16 @@ public class ValueAndTradeFlowController {
             Pageable pageable
     ){
 
-        Page<ValueAndTradeFlowCode> countryCodePage = valueAndTradeFlowService.getValueAndTradeFlowCodeList(sparqlEndPoint,location,pageable);
+    Page<ValueAndTradeFlowCode> countryCodePage = valueAndTradeFlowService.getValueAndTradeFlowCodeList(sparqlEndPoint,location,pageable);
 
-        PagedModel<ValueAndTradeFlowModel> pagedModel = PageUtils.toPagedModel(
+    PagedModel<ValueAndTradeFlowModel> pagedModel = PageUtils.toPagedModel(
                 countryCodePage,
                 ValueAndTradeFlowModel.class,
                 countryCodePagedResourcesAssembler,
                 tradeLocationCodeModelAssembler
-        );
+    );
 
-        return HttpUtils.ok(pagedModel);
+    return HttpUtils.ok(pagedModel);
 
     }
 }
