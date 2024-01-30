@@ -30,7 +30,7 @@ public class CountryCodeServiceImpl implements CountryCodeService {
     @Override
     public <T extends CountryCodesModel> Page<CountryCode> getCountryCodeList(String sparqlEndpoint,
                                                                               Pageable pageable) {
-        log.info("query started");
+        log.info("query country codes started");
 
         Repository repo = new SPARQLRepository(sparqlEndpoint);
 
@@ -41,7 +41,7 @@ public class CountryCodeServiceImpl implements CountryCodeService {
 
         try (RepositoryConnection conn = repo.getConnection()) {
 
-            TupleQuery tupleQuery = conn.prepareTupleQuery(query());
+            TupleQuery tupleQuery = conn.prepareTupleQuery(getCountryCodes());
 
             try (TupleQueryResult result = tupleQuery.evaluate()) {
 
@@ -75,7 +75,7 @@ public class CountryCodeServiceImpl implements CountryCodeService {
                 .countryCodeList(countryCodeList)
                 .build();
     }
-    public static String query() {
+    public static String getCountryCodes() {
 
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
