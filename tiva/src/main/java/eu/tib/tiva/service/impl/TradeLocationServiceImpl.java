@@ -1,8 +1,8 @@
 package eu.tib.tiva.service.impl;
 
-import eu.tib.tiva.model.CountryCode;
+import eu.tib.tiva.model.TradeLocationCode;
 import eu.tib.tiva.model.CountryCodesModel;
-import eu.tib.tiva.service.CountryCodeService;
+import eu.tib.tiva.service.TradeLocationService;
 import eu.tib.tiva.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.Value;
@@ -25,11 +25,11 @@ import java.util.UUID;
 @Slf4j
 @Service
 @EnableAutoConfiguration
-public class CountryCodeServiceImpl implements CountryCodeService {
+public class TradeLocationServiceImpl implements TradeLocationService {
 
     @Override
-    public <T extends CountryCodesModel> Page<CountryCode> getCountryCodeList(String sparqlEndpoint,
-                                                                              Pageable pageable) {
+    public <T extends CountryCodesModel> Page<TradeLocationCode> getCountryCodeList(String sparqlEndpoint,
+                                                                                    Pageable pageable) {
         log.info("query country codes started");
 
         Repository repo = new SPARQLRepository(sparqlEndpoint);
@@ -37,7 +37,7 @@ public class CountryCodeServiceImpl implements CountryCodeService {
         repo.initialize();
 
         List<String> countryCodeStringList = new ArrayList<>();
-        List<CountryCode> countryCodeList = new ArrayList<>();
+        List<TradeLocationCode> tradeLocationCodeList = new ArrayList<>();
 
         try (RepositoryConnection conn = repo.getConnection()) {
 
@@ -61,18 +61,18 @@ public class CountryCodeServiceImpl implements CountryCodeService {
         e.printStackTrace();
         }
 
-        CountryCode countryCode = processCountryCode(UUID.randomUUID().toString(), countryCodeStringList);
-        countryCodeList.add(countryCode);
+        TradeLocationCode tradeLocationCode = processCountryCode(UUID.randomUUID().toString(), countryCodeStringList);
+        tradeLocationCodeList.add(tradeLocationCode);
         repo.shutDown();
 
-        return PageUtils.toPage(countryCodeList, pageable);
+        return PageUtils.toPage(tradeLocationCodeList, pageable);
     }
 
-    private CountryCode processCountryCode(String id,
-                                           List<String> countryCodeList) {
-        return CountryCode.builder()
+    private TradeLocationCode processCountryCode(String id,
+                                                 List<String> countryCodeList) {
+        return TradeLocationCode.builder()
                 .id(id)
-                .countryCodeList(countryCodeList)
+                .tradeLocationList(countryCodeList)
                 .build();
     }
     public static String getCountryCodes() {
