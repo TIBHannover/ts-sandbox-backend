@@ -9,5 +9,5 @@ import java.util.List;
 @Value
 public class OriginOfValueAddedGrossExportModel extends OriginOfValueAddedModel{
 
-    List<ValueAndTradeFlow> grossExport;
+    List<ValueAndTradeFlow> grossExports;
 }
