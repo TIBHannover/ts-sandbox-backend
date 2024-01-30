@@ -7,7 +7,7 @@ import java.util.List;
 
 @Builder
 @Value
-public class OriginOfValueAddedInFinalDemandModel extends OriginOfValueAddedModel{
+public class OriginOfValueAddedInFinalDemand extends OriginOfValueAdded {
 
     List<ValueAndTradeFlow> finalDemand;
 

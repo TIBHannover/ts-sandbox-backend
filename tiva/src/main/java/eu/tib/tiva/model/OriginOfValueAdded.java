@@ -1,15 +1,13 @@
 package eu.tib.tiva.model;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Value;
 
 import java.util.List;
 
 @Setter
 @Getter
-public class OriginOfValueAddedModel {
+public class OriginOfValueAdded {
 
     String id;
     String value;

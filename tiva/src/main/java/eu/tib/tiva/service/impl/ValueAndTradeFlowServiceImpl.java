@@ -1,5 +1,6 @@
 package eu.tib.tiva.service.impl;
 
+import eu.tib.tiva.model.OriginOfValueAddedInFinalDemand;
 import eu.tib.tiva.model.ValueAndTradeFlowCode;
 import eu.tib.tiva.model.ValueAndTradeFlowCodesModel;
 import eu.tib.tiva.service.ValueAndTradeFlowService;
@@ -66,6 +67,15 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
         repo.shutDown();
 
         return PageUtils.toPage(valueAndTradeFlowCodeList, pageable);
+    }
+
+    @Override
+    public <T extends ValueAndTradeFlowCodesModel> Page<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemandList(String sparqlEndpoint,
+                                                                                                                                String location,
+                                                                                                                                String industry,
+                                                                                                                                Pageable pageable) {
+        return null;
+
     }
 
     private List<String> getTradeCodeStringList(RepositoryConnection conn , String queryString){
