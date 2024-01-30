@@ -10,6 +10,8 @@ import java.util.List;
 public class OriginOfValueAddedModel {
 
     String id;
+    String value;
+    String year;
     List<ValueAndTradeFlow> valueAndTradeFlowList;
-    
+
 }
