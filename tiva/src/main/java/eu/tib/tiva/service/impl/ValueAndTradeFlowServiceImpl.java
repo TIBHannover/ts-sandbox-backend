@@ -113,7 +113,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                "WHERE { " +
                "?s  <https://schema.coypu.org/vtf#hasTradeLocation> ?code . " +
                "?code rdf:type <https://schema.coypu.org/global#"+type+"> . " +
-               "} LIMIT 1000 ";
+               "} LIMIT 5000 ";
     }
 
     public static String getIndustryCodes(){
