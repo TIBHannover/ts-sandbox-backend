@@ -7,14 +7,14 @@ import lombok.Value;
 @Value
 public class ValueAndTradeFlow {
 
-    String countryCode;
+    String tradeLocationCode;
     String industryCode;
-    String internationalOrganizationCode;
 
-    public ValueAndTradeFlow(String countryCode, String internationalOrganizationCode, String industryCode){
 
-        this.countryCode=countryCode;
-        this.internationalOrganizationCode=internationalOrganizationCode;
+    public ValueAndTradeFlow(String tradeLocationCode, String industryCode){
+
+        this.tradeLocationCode = tradeLocationCode;
+
         this.industryCode=industryCode;
     }
 }

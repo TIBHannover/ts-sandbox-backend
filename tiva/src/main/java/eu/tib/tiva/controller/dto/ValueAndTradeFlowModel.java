@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@Relation(collectionRelation = "valueandtradeflowcodes", itemRelation = "valueandtradeflowcodes")
+@Relation(collectionRelation = "codes", itemRelation = "codes")
 public class ValueAndTradeFlowModel extends RepresentationModel<ValueAndTradeFlowModel> {
 
     String id;

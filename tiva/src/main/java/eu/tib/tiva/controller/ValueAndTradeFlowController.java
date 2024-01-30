@@ -43,7 +43,7 @@ public class ValueAndTradeFlowController {
     }
     @Operation(summary = "List all trade location codes available in tiva knowledge graph dependes on selected type of trade location")
     @GetMapping(value = "/codes", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PagedModel<ValueAndTradeFlowModel>> getAllCountryCodes(
+    public ResponseEntity<PagedModel<ValueAndTradeFlowModel>> getCodes(
             @Parameter(description = "Type of trade location", example = "Country, InetrnationalOrganization, IndustryCode")
             @RequestParam String type,
             Pageable pageable

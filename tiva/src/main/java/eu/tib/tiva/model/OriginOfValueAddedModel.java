@@ -12,6 +12,7 @@ public class OriginOfValueAddedModel {
     String id;
     String value;
     String year;
-    List<ValueAndTradeFlow> valueAndTradeFlowList;
+    List<ValueAndTradeFlow> valueAddeOrigin;
+    List<ValueAndTradeFlow> finalDemand;
 
 }

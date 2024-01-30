@@ -125,4 +125,6 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                "?s <https://schema.coypu.org/vtf#hasIndustryCode> ?code . " +
                "} LIMIT 5000 ";
     }
+
+
 }
