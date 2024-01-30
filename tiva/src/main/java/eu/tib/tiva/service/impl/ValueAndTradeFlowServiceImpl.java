@@ -136,5 +136,28 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                "} LIMIT 5000 ";
     }
 
+    public static String getValueAddedOriginInFinalDemand(){
+
+
+        return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+               "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+               "SELECT DISTINCT ?vao_fd_value  ?vao_fd_year ?fdIndustryCode ?fdTradeLocation " +
+               "WHERE { " +
+               "?vao_fd rdf:type <https://schema.coypu.org/vtf#FdVaBsci> . " +
+               "?vao_fd <https://schema.coypu.org/global#hasValue> ?vao_fd_value . " +
+               "?vao_fd <https://schema.coypu.org/global#hasYear> ?vao_fd_year . " +
+               "?vao_fd <https://schema.coypu.org/vtf#hasValueAddedOrigin> ?vao . " +
+               "?vao rdf:type <https://schema.coypu.org/vtf#Vao> . " +
+               "?vao <https://schema.coypu.org/vtf#hasIndustryCode> <https://data.coypu.org/classification/tiva-21/D90T93> . " +
+               "?vao  <https://schema.coypu.org/vtf#hasTradeLocation> <https://data.coypu.org/country/SVN> . " +
+//             "?vaoTradeLocation rdf:type ?vaoTradeLocationType  . " +
+               "?vao_fd <https://schema.coypu.org/vtf#hasFinalDemand> ?fd . " +
+               "?fd rdf:type <https://schema.coypu.org/vtf#Fd> . " +
+               "?fd <https://schema.coypu.org/vtf#hasIndustryCode> ?fdIndustryCode . " +
+               "?fd <https://schema.coypu.org/vtf#hasTradeLocation> ?fdTradeLocation . " +
+               "?fdTradeLocation rdf:type   ?fdTradeLocationType . " +
+               "} LIMIT 5000000 ";
+    }
+
 
 }
