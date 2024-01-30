@@ -12,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Relation(collectionRelation = "countrycodes", itemRelation = "countrycodes")
-public class CountryCodeModel extends RepresentationModel<CountryCodeModel> {
+public class TradeLocationModel extends RepresentationModel<TradeLocationModel> {
 
     String id;
-    List<String> countryCodeList;
+    List<String> tradeLocationCodeList;
 }

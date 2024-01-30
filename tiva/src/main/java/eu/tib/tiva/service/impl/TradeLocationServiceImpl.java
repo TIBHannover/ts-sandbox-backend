@@ -29,19 +29,20 @@ public class TradeLocationServiceImpl implements TradeLocationService {
 
     @Override
     public <T extends CountryCodesModel> Page<TradeLocationCode> getCountryCodeList(String sparqlEndpoint,
+                                                                                    String type,
                                                                                     Pageable pageable) {
-        log.info("query country codes started");
+        log.info("query trade location codes started");
 
         Repository repo = new SPARQLRepository(sparqlEndpoint);
 
         repo.initialize();
 
-        List<String> countryCodeStringList = new ArrayList<>();
+        List<String> tradeCodeStringList = new ArrayList<>();
         List<TradeLocationCode> tradeLocationCodeList = new ArrayList<>();
 
         try (RepositoryConnection conn = repo.getConnection()) {
 
-            TupleQuery tupleQuery = conn.prepareTupleQuery(getCountryCodes());
+            TupleQuery tupleQuery = conn.prepareTupleQuery(getTradeLocationCodes(type));
 
             try (TupleQueryResult result = tupleQuery.evaluate()) {
 
@@ -49,40 +50,45 @@ public class TradeLocationServiceImpl implements TradeLocationService {
 
                 for (BindingSet bindingSet : resultList) {
 
-                Value tradeLocation  = bindingSet.getValue("tradeLocation");
-                countryCodeStringList.add(tradeLocation.stringValue());
+                Value tradeLocationCode  = bindingSet.getValue("tradeLocationCode");
+                tradeCodeStringList.add(tradeLocationCode.stringValue());
 
                 }
 
             }catch (Exception e ){
-            e.printStackTrace();
+
+                e.printStackTrace();
+
             }
+
         }catch (Exception e){
+
         e.printStackTrace();
+
         }
 
-        TradeLocationCode tradeLocationCode = processCountryCode(UUID.randomUUID().toString(), countryCodeStringList);
+        TradeLocationCode tradeLocationCode = processTradeLocationCode(UUID.randomUUID().toString(), tradeCodeStringList);
         tradeLocationCodeList.add(tradeLocationCode);
         repo.shutDown();
 
         return PageUtils.toPage(tradeLocationCodeList, pageable);
     }
 
-    private TradeLocationCode processCountryCode(String id,
-                                                 List<String> countryCodeList) {
+    private TradeLocationCode processTradeLocationCode(String id,
+                                                       List<String> tradeLocationCodeList) {
         return TradeLocationCode.builder()
                 .id(id)
-                .tradeLocationList(countryCodeList)
+                .tradeLocationCodeList(tradeLocationCodeList)
                 .build();
     }
-    public static String getCountryCodes() {
+    public static String getTradeLocationCodes(String type) {
 
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
                "SELECT DISTINCT ?tradeLocation  " +
                "WHERE { " +
-               "?s  <https://schema.coypu.org/vtf#hasTradeLocation> ?tradeLocation . " +
-               "?tradeLocation rdf:type <https://schema.coypu.org/global#Country> . " +
+               "?s  <https://schema.coypu.org/vtf#hasTradeLocation> ?tradeLocationCode . " +
+               "?tradeLocationCode rdf:type <https://schema.coypu.org/global#"+type+" . " +
                "} LIMIT 1000 ";
     }
 }

@@ -10,5 +10,5 @@ import java.util.List;
 public class TradeLocationCode {
 
     String id;
-    List<String> tradeLocationList;
+    List<String> tradeLocationCodeList;
 }

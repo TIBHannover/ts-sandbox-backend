@@ -1,24 +1,24 @@
 package eu.tib.tiva.controller.assembler;
 
 import eu.tib.tiva.controller.TradeLocationController;
-import eu.tib.tiva.controller.dto.CountryCodeModel;
+import eu.tib.tiva.controller.dto.TradeLocationModel;
 import eu.tib.tiva.model.TradeLocationCode;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CountryCodeModelAssembler extends RepresentationModelAssemblerSupport<TradeLocationCode, CountryCodeModel> {
+public class CountryCodeModelAssembler extends RepresentationModelAssemblerSupport<TradeLocationCode, TradeLocationModel> {
 
-    public CountryCodeModelAssembler(){ super(TradeLocationController.class,CountryCodeModel.class); }
+    public CountryCodeModelAssembler(){ super(TradeLocationController.class, TradeLocationModel.class); }
 
     @Override
-    public CountryCodeModel toModel(TradeLocationCode entity) {
+    public TradeLocationModel toModel(TradeLocationCode entity) {
 
-        CountryCodeModel countryCodeModel = instantiateModel(entity);
+        TradeLocationModel tradeLocationModel = instantiateModel(entity);
 
-        countryCodeModel.setId(entity.getId());
-        countryCodeModel.setCountryCodeList(entity.getTradeLocationList());
+        tradeLocationModel.setId(entity.getId());
+        tradeLocationModel.setTradeLocationCodeList(entity.getTradeLocationCodeList());
 
-        return countryCodeModel;
+        return tradeLocationModel;
     }
 }

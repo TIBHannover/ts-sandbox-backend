@@ -8,5 +8,6 @@ import org.springframework.data.domain.Pageable;
 public interface TradeLocationService {
 
     <T extends CountryCodesModel> Page<TradeLocationCode> getCountryCodeList(String sparqlEndpoint,
+                                                                             String type,
                                                                              Pageable pageable);
 }
