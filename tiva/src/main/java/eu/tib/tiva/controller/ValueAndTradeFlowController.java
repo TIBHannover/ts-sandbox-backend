@@ -49,7 +49,7 @@ public class ValueAndTradeFlowController {
         this.originOfValueAddedInFinalDemandAssembler=originOfValueAddedInFinalDemandAssembler;
     }
 
-    @Operation(summary = "List all trade location codes available in tiva knowledge graph dependes on selected type of trade location")
+    @Operation(summary = "List all codes available in tiva knowledge graph depends on selected type of code")
     @GetMapping(value = "/codes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<ValueAndTradeFlowModel>> getCodes(
             @Parameter(description = "Type of trade location", example = "Country,InetrnationalOrganization,IndustryCode")
@@ -154,8 +154,8 @@ public class ValueAndTradeFlowController {
 
         }
 
-        queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+        queryString =  "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                       "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
                 "SELECT DISTINCT ?fdTradeLocation ?fdIndustryCode ?vao_fd_value  ?vao_fd_year " +
                 "WHERE { " +
                 "?vao_fd rdf:type <https://schema.coypu.org/vtf#FdVaBsci> . " +
