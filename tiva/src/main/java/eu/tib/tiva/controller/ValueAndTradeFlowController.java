@@ -144,11 +144,13 @@ public class ValueAndTradeFlowController {
 
         localtionUri="<https://data.coypu.org/organization/"+location+">";
 
-        log.info("selected location code: " + localtionUri);
+        log.info("selected location code in final demand: " + localtionUri);
 
         } else {
 
         localtionUri ="<https://data.coypu.org/country/"+location+">";
+
+        log.info("selected location code in final demand: " + localtionUri);
 
         }
 
@@ -187,10 +189,13 @@ public class ValueAndTradeFlowController {
 
             localtionUri="<https://data.coypu.org/organization/"+location+">";
 
+            log.info("selected location code in exports: " + localtionUri);
 
         } else {
 
             localtionUri ="<https://data.coypu.org/country/"+location+">";
+
+            log.info("selected location code in exports: " + localtionUri);
 
         }
 
@@ -213,7 +218,4 @@ public class ValueAndTradeFlowController {
 
         return queryString;
     }
-
-
-
 }
