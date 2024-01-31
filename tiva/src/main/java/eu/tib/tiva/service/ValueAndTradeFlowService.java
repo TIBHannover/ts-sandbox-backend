@@ -13,8 +13,9 @@ public interface ValueAndTradeFlowService {
                                                                                                      String type,
                                                                                                      Pageable pageable);
 
-    <T extends OriginOfValueAddedInFinalDemandModel> Page<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemandList(String sparqlEndpoint,
-                                                                                                                                  String location,
-                                                                                                                                  String industry,
-                                                                                                                                  Pageable pageable);
+    <T extends OriginOfValueAddedInFinalDemandModel> Page<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedList(String sparqlEndpoint,
+                                                                                                                     String location,
+                                                                                                                     String industry,
+                                                                                                                     String queryString,
+                                                                                                                     Pageable pageable);
 }

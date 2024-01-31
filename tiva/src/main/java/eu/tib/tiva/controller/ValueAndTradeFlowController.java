@@ -72,7 +72,7 @@ public class ValueAndTradeFlowController {
     }
 
     @Operation(summary = "List of country codes, industry codes in final demand, values and dates based " +
-            "on selected value added origin country and industry codes.")
+            "on selected value added origin country and industry codes. Results are limited up to 5000000 n-tuples.")
     @GetMapping(value = "/vao/finaldemand", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<OriginOfValueAddedInFinalDemandModel>> getOriginOfValueAddedInFinalDemand(
             @Parameter(description = "Trade location code for value added origin", example = "DEU, EU19")
@@ -83,7 +83,11 @@ public class ValueAndTradeFlowController {
     ){
 
     Page<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPage = valueAndTradeFlowService.
-            getOriginOfValueAddedInFinalDemandList(sparqlEndPoint,location,industry,pageable);
+            getOriginOfValueAddedList(sparqlEndPoint,
+                    location,
+                    industry,
+                    getValueAddedOriginInFinalDemandQuery(location, industry),
+                    pageable);
 
     PagedModel<OriginOfValueAddedInFinalDemandModel> pagedModel = PageUtils.toPagedModel(
                 originOfValueAddedInFinalDemandPage,
@@ -95,4 +99,121 @@ public class ValueAndTradeFlowController {
     return HttpUtils.ok(pagedModel);
 
     }
+
+    @Operation(summary = "List of country codes, industry codes in gross exports, values and dates based " +
+            "on selected value added origin country and industry codes. Results are limited up to 5000000 n-tuples.")
+    @GetMapping(value = "/vao/exports", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<OriginOfValueAddedInFinalDemandModel>> getOriginOfValueAddedInGrossExports(
+            @Parameter(description = "Trade location code for value added origin", example = "DEU,EU19")
+            @RequestParam String location,
+            @Parameter(description = "Industry code for value added origin", example = "D62T63,D20")
+            @RequestParam String industry,
+            Pageable pageable
+    ){
+
+        Page<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPage = valueAndTradeFlowService.
+                getOriginOfValueAddedList(sparqlEndPoint,
+                        location,
+                        industry,
+                        getValueAddedOriginInGrossExportsQuery(location, industry) ,
+                        pageable);
+
+        PagedModel<OriginOfValueAddedInFinalDemandModel> pagedModel = PageUtils.toPagedModel(
+                originOfValueAddedInFinalDemandPage,
+                OriginOfValueAddedInFinalDemandModel.class,
+                originOfValueAddedInFinalDemandPagedResourcesAssembler,
+                originOfValueAddedInFinalDemandAssembler
+        );
+
+        return HttpUtils.ok(pagedModel);
+
+    }
+
+    public static String getValueAddedOriginInFinalDemandQuery(String location, String industryCode) {
+
+        String queryString = "";
+        String localtionUri="";
+
+        if (location.equals("APEC") || location.equals("ECD") || location.equals("EU13") ||
+            location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
+            location.equals("EU15") || location.equals("ZASI") || location.equals("EA19") ||
+            location.equals("ZSCA") || location.equals("WLD") || location.equals("DXD") ||
+            location.equals("ZEUR") || location.equals("ZOTH") || location.equals("ZNAM") ||
+            location.equals("NONOECD") || location.equals("ASEAN") || location.equals("EU27_2020")
+        ) {
+
+        localtionUri="<https://data.coypu.org/organization/"+location+">";
+
+        log.info("selected location code: " + localtionUri);
+
+        } else {
+
+        localtionUri ="<https://data.coypu.org/country/"+location+">";
+
+        }
+
+        queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+                "SELECT DISTINCT ?fdTradeLocation ?fdIndustryCode ?vao_fd_value  ?vao_fd_year " +
+                "WHERE { " +
+                "?vao_fd rdf:type <https://schema.coypu.org/vtf#FdVaBsci> . " +
+                "?vao_fd <https://schema.coypu.org/global#hasValue> ?vao_fd_value . " +
+                "?vao_fd <https://schema.coypu.org/global#hasYear> ?vao_fd_year . " +
+                "?vao_fd <https://schema.coypu.org/vtf#hasValueAddedOrigin> ?vao . " +
+                "?vao rdf:type <https://schema.coypu.org/vtf#Vao> . " +
+                "?vao <https://schema.coypu.org/vtf#hasIndustryCode> <https://data.coypu.org/classification/tiva-21/" + industryCode + "> . " +
+                "?vao  <https://schema.coypu.org/vtf#hasTradeLocation> " + localtionUri + " . " +
+                "?vao_fd <https://schema.coypu.org/vtf#hasFinalDemand> ?fd . " +
+                "?fd rdf:type <https://schema.coypu.org/vtf#Fd> . " +
+                "?fd <https://schema.coypu.org/vtf#hasIndustryCode> ?fdIndustryCode . " +
+                "?fd <https://schema.coypu.org/vtf#hasTradeLocation> ?fdTradeLocation . " +
+                "} LIMIT 5000000 ";
+
+        return queryString;
+    }
+
+    public static String getValueAddedOriginInGrossExportsQuery(String location, String industryCode) {
+
+        String queryString = "";
+        String localtionUri="";
+
+        if (location.equals("APEC") || location.equals("ECD") || location.equals("EU13") ||
+                location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
+                location.equals("EU15") || location.equals("ZASI") || location.equals("EA19") ||
+                location.equals("ZSCA") || location.equals("WLD") || location.equals("DXD") ||
+                location.equals("ZEUR") || location.equals("ZOTH") || location.equals("ZNAM") ||
+                location.equals("NONOECD") || location.equals("ASEAN") || location.equals("EU27_2020")
+        ) {
+
+            localtionUri="<https://data.coypu.org/organization/"+location+">";
+
+
+        } else {
+
+            localtionUri ="<https://data.coypu.org/country/"+location+">";
+
+        }
+
+        queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+                "SELECT DISTINCT ?fdTradeLocation ?fdIndustryCode ?vao_fd_value  ?vao_fd_year " +
+                "WHERE { " +
+                "?vao_ex rdf:type <https://schema.coypu.org/vtf#ExgrBsci> . " +
+                "?vao_ex <https://schema.coypu.org/global#hasValue> ?vao_fd_value . " +
+                "?vao_ex <https://schema.coypu.org/global#hasYear> ?vao_fd_year . " +
+                "?vao_ex <https://schema.coypu.org/vtf#hasValueAddedOrigin> ?vao . " +
+                "?vao rdf:type <https://schema.coypu.org/vtf#Vao> . " +
+                "?vao <https://schema.coypu.org/vtf#hasIndustryCode> <https://data.coypu.org/classification/tiva-21/" + industryCode + "> . " +
+                "?vao  <https://schema.coypu.org/vtf#hasTradeLocation> " + localtionUri + " . " +
+                "?vao_ex <https://schema.coypu.org/vtf#hasExport> ?ex . " +
+                "?ex rdf:type <https://schema.coypu.org/vtf#Export> . " +
+                "?ex <https://schema.coypu.org/vtf#hasIndustryCode> ?fdIndustryCode . " +
+                "?ex <https://schema.coypu.org/vtf#hasTradeLocation> ?fdTradeLocation . " +
+                "} LIMIT 5000000 ";
+
+        return queryString;
+    }
+
+
+
 }

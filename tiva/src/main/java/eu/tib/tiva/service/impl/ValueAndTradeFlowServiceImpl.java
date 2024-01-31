@@ -72,11 +72,12 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
     }
 
     @Override
-    public <T extends OriginOfValueAddedInFinalDemandModel> Page<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemandList(String sparqlEndpoint,
-                                                                                                                                         String location,
-                                                                                                                                         String industry,
-                                                                                                                                         Pageable pageable) {
-        log.info("query origin of value aded in final demand started: ");
+    public <T extends OriginOfValueAddedInFinalDemandModel> Page<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedList(String sparqlEndpoint,
+                                                                                                                            String location,
+                                                                                                                            String industry,
+                                                                                                                            String queryString,
+                                                                                                                            Pageable pageable) {
+        log.info("query origin of value aded in (final demand or exports) ");
 
         Repository repo = new SPARQLRepository(sparqlEndpoint);
 
@@ -87,18 +88,18 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
         try (RepositoryConnection conn = repo.getConnection()) {
 
             originOfValueAddedInFinalDemandList = getOriginOfValueAddedInFinalDemand(conn,
-                    getValueAddedOriginInFinalDemandQuery(location,industry));
+                    queryString);
 
         }catch (Exception e){
 
-            e.printStackTrace();
+        e.printStackTrace();
 
         }
 
-
         repo.shutDown();
 
-        return PageUtils.toPage(originOfValueAddedInFinalDemandList, pageable);
+    return PageUtils.toPage(originOfValueAddedInFinalDemandList, pageable);
+
     }
 
     private List<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemand(RepositoryConnection conn,
@@ -143,17 +144,14 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                     originOfValueAddedList
             ));
 
-
-            return originOfValueAddedInFinalDemandList;
+        return originOfValueAddedInFinalDemandList;
 
         } catch (Exception e) {
 
             e.printStackTrace();
 
         }
-
-        return originOfValueAddedInFinalDemandList;
-
+    return originOfValueAddedInFinalDemandList;
     }
 
     private List<String> getCodeStringList(RepositoryConnection conn , String queryString){
@@ -190,7 +188,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                                                                                    List<OriginOfValueAdded> originOfValueAddedInFinalDemandList){
         return OriginOfValueAddedInFinalDemand.builder()
                 .id(id)
-                .originOfValueAddedInFinalDemandList(originOfValueAddedInFinalDemandList)
+                .originOfValueAddedList(originOfValueAddedInFinalDemandList)
                 .build();
 
     }
@@ -243,6 +241,4 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                "?fd <https://schema.coypu.org/vtf#hasTradeLocation> ?fdTradeLocation . " +
                "} LIMIT 5000000 ";
     }
-
-
 }

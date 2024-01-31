@@ -18,7 +18,7 @@ public class OriginOfValueAddedInFinalDemandAssembler extends RepresentationMode
                 instantiateModel(entity);
 
         originOfValueAddedInFinalDemandModel.setId(entity.getId());
-        originOfValueAddedInFinalDemandModel.setOriginOfValueAddedInFinalDemandList(entity.getOriginOfValueAddedInFinalDemandList());
+        originOfValueAddedInFinalDemandModel.setOriginOfValueAddedList(entity.getOriginOfValueAddedList());
 
         return originOfValueAddedInFinalDemandModel;
 

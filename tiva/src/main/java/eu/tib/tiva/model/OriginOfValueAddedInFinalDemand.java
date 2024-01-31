@@ -10,6 +10,6 @@ import java.util.List;
 public class OriginOfValueAddedInFinalDemand {
 
     String id;
-    List<OriginOfValueAdded> originOfValueAddedInFinalDemandList;
+    List<OriginOfValueAdded> originOfValueAddedList;
 
 }

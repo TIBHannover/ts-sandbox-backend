@@ -11,10 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@Relation(collectionRelation = "finaldemand", itemRelation = "finaldemand")
+@Relation(collectionRelation = "results", itemRelation = "results")
 public class OriginOfValueAddedInFinalDemandModel extends RepresentationModel<OriginOfValueAddedInFinalDemandModel> {
 
     String id;
-    List<OriginOfValueAdded> originOfValueAddedInFinalDemandList;
+    List<OriginOfValueAdded> originOfValueAddedList;
 
 }
