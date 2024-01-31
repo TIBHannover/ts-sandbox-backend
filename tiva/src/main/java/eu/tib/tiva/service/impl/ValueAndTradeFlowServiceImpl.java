@@ -74,7 +74,59 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                                                                                                                                 String location,
                                                                                                                                 String industry,
                                                                                                                                 Pageable pageable) {
+        log.info("query origin of value aded in final demand started: ");
+
+        Repository repo = new SPARQLRepository(sparqlEndpoint);
+        repo.initialize();
+
+        List<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandList = new ArrayList<>();
+
+
+
         return null;
+
+    }
+
+    private List<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemand(RepositoryConnection conn,
+                                                                                     String queryString){
+
+        List<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandList = new ArrayList<>();
+
+        TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+
+        try (TupleQueryResult result = tupleQuery.evaluate()) {
+
+            Set<BindingSet> resultList = QueryResults.asSet(result);
+
+            for (BindingSet bindingSet : resultList) {
+
+                //?fdTradeLocation ?fdIndustryCode ?vao_fd_value  ?vao_fd_year
+                Value  fdTradeLocation = bindingSet.getValue("fdTradeLocation");
+                Value  fdIndustryCode = bindingSet.getValue("fdIndustryCode");
+                Value  vao_fd_value = bindingSet.getValue("vao_fd_value");
+                Value  vao_fd_year = bindingSet.getValue("vao_fd_year");
+
+                OriginOfValueAddedInFinalDemand originOfValueAddedInFinalDemand = processOriginOfValueAddedInFinalDemand(
+                        UUID.randomUUID().toString(),
+                        fdTradeLocation.stringValue(),
+                        fdIndustryCode.stringValue(),
+                        vao_fd_value.stringValue(),
+                        vao_fd_year.stringValue()
+                );
+
+                originOfValueAddedInFinalDemandList.add(originOfValueAddedInFinalDemand);
+
+            }
+
+            return originOfValueAddedInFinalDemandList;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return originOfValueAddedInFinalDemandList;
 
     }
 
@@ -122,7 +174,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                 .build();
 
     }
-    
+
     private ValueAndTradeFlowCode processValueAndTradeFlowCode(String id,
                                                                List<String> tradeCodeList) {
         return ValueAndTradeFlowCode.builder()
@@ -130,7 +182,6 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                 .valueAndTradeFlowCodeList(tradeCodeList)
                 .build();
     }
-
 
     public static String getTradeLocationCodes(String type) {
 
@@ -170,7 +221,6 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                "?fd rdf:type <https://schema.coypu.org/vtf#Fd> . " +
                "?fd <https://schema.coypu.org/vtf#hasIndustryCode> ?fdIndustryCode . " +
                "?fd <https://schema.coypu.org/vtf#hasTradeLocation> ?fdTradeLocation . " +
-               "?fdTradeLocation rdf:type   ?fdTradeLocationType . " +
                "} LIMIT 5000000 ";
     }
 
