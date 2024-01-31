@@ -177,7 +177,7 @@ public class ValueAndTradeFlowController {
     public static String getValueAddedOriginInGrossExportsQuery(String location, String industryCode) {
 
         String queryString = "";
-        String localtionUri="";
+        String locationIri="";
 
         if (location.equals("APEC") || location.equals("ECD") || location.equals("EU13") ||
                 location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
@@ -187,15 +187,15 @@ public class ValueAndTradeFlowController {
                 location.equals("NONOECD") || location.equals("ASEAN") || location.equals("EU27_2020")
         ) {
 
-            localtionUri="<https://data.coypu.org/organization/"+location+">";
+            locationIri="<https://data.coypu.org/organization/"+location+">";
 
-            log.info("selected location code in exports: " + localtionUri);
+            log.info("selected location code in exports: " + locationIri);
 
         } else {
 
-            localtionUri ="<https://data.coypu.org/country/"+location+">";
+            locationIri ="<https://data.coypu.org/country/"+location+">";
 
-            log.info("selected location code in exports: " + localtionUri);
+            log.info("selected location code in exports: " + locationIri);
 
         }
 
@@ -209,7 +209,7 @@ public class ValueAndTradeFlowController {
                 "?vao_ex <https://schema.coypu.org/vtf#hasValueAddedOrigin> ?vao . " +
                 "?vao rdf:type <https://schema.coypu.org/vtf#Vao> . " +
                 "?vao <https://schema.coypu.org/vtf#hasIndustryCode> <https://data.coypu.org/classification/tiva-21/" + industryCode + "> . " +
-                "?vao  <https://schema.coypu.org/vtf#hasTradeLocation> " + localtionUri + " . " +
+                "?vao  <https://schema.coypu.org/vtf#hasTradeLocation> " + locationIri + " . " +
                 "?vao_ex <https://schema.coypu.org/vtf#hasExport> ?ex . " +
                 "?ex rdf:type <https://schema.coypu.org/vtf#Export> . " +
                 "?ex <https://schema.coypu.org/vtf#hasIndustryCode> ?fdIndustryCode . " +
@@ -218,4 +218,52 @@ public class ValueAndTradeFlowController {
 
         return queryString;
     }
+
+    public static String getOriginOfValueAddedInGrossImportQuery(String location) {
+
+        String queryString = "";
+        String locationIri="";
+
+        if (location.equals("APEC") || location.equals("ECD") || location.equals("EU13") ||
+                location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
+                location.equals("EU15") || location.equals("ZASI") || location.equals("EA19") ||
+                location.equals("ZSCA") || location.equals("WLD") || location.equals("DXD") ||
+                location.equals("ZEUR") || location.equals("ZOTH") || location.equals("ZNAM") ||
+                location.equals("NONOECD") || location.equals("ASEAN") || location.equals("EU27_2020")
+        ) {
+
+            locationIri="<https://data.coypu.org/organization/"+location+">";
+
+            log.info("selected location code in exports: " + locationIri);
+
+        } else {
+
+            locationIri ="<https://data.coypu.org/country/"+location+">";
+
+            log.info("selected location code in exports: " + locationIri);
+
+        }
+
+        queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+                "SELECT DISTINCT ?exTradeLocation ?exIndustryCode ?importTradeLocation ?vao_import_value ?vao_import_year " +
+                "WHERE { " +
+                "?vao_import rdf:type <https://schema.coypu.org/vtf#ImgrBsci> . " +
+                "?vao_import <https://schema.coypu.org/global#hasValue> ?vao_import_value . " +
+                "?vao_import <https://schema.coypu.org/global#hasYear> ?vao_import_year . " +
+                "?vao_import <https://schema.coypu.org/vtf#hasValueAddedOrigin> ?vao . " +
+                "?vao rdf:type <https://schema.coypu.org/vtf#Vao> . " +
+                "?vao  <https://schema.coypu.org/vtf#hasTradeLocation> "+locationIri+ " . " +
+                "?vao_import <https://schema.coypu.org/vtf#hasExport> ?ex . " +
+                "?ex rdf:type <https://schema.coypu.org/vtf#Export> . " +
+                "?ex <https://schema.coypu.org/vtf#hasIndustryCode> ?exIndustryCode . " +
+                "?ex <https://schema.coypu.org/vtf#hasTradeLocation> ?exTradeLocation . " +
+                "?vao_import <https://schema.coypu.org/vtf#hasImport> ?import . " +
+                "?import rdf:type <https://schema.coypu.org/vtf#Import> . " +
+                "?import <https://schema.coypu.org/vtf#hasTradeLocation> ?importTradeLocation . " +
+                "} LIMIT 5000000 ";
+
+        return queryString;
+    }
+
 }
