@@ -3,12 +3,14 @@ package eu.tib.tiva.model;
 import lombok.Builder;
 import lombok.Value;
 
-import java.util.List;
-
 @Builder
 @Value
-public class OriginOfValueAddedInFinalDemand extends OriginOfValueAdded {
+public class OriginOfValueAddedInFinalDemand {
 
-    List<ValueAndTradeFlow> finalDemand;
+    String id;
+    String countryCode;
+    String industryCode;
+    String value;
+    String year;
 
 }

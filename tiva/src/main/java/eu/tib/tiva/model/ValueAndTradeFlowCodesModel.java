@@ -8,5 +8,4 @@ public interface ValueAndTradeFlowCodesModel {
     Set<String> getCountryCodes();
     Set<String> getInternationalOrganizationCodes();
     Set<String> getIndustryCodes();
-
 }

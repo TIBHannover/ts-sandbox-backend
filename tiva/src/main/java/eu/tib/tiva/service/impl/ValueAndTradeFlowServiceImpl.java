@@ -48,11 +48,11 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
              */
             if(type.equals("Country") || type.equals("InetrnationalOrganization")) {
 
-            tradeCodeStringList=getTradeCodeStringList(conn,getTradeLocationCodes(type));
+            tradeCodeStringList= getCodeStringList(conn,getTradeLocationCodes(type));
 
             } else if(type.equals("IndustryCode")){
 
-            tradeCodeStringList=getTradeCodeStringList(conn,getIndustryCodes());
+            tradeCodeStringList= getCodeStringList(conn,getIndustryCodes());
 
             }
 
@@ -78,7 +78,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
     }
 
-    private List<String> getTradeCodeStringList(RepositoryConnection conn , String queryString){
+    private List<String> getCodeStringList(RepositoryConnection conn , String queryString){
 
         List<String> tradeCodeStringListTemp = new ArrayList<>();
 
@@ -108,6 +108,21 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
     }
 
+    private OriginOfValueAddedInFinalDemand processOriginOfValueAddedInFinalDemand(String id,
+                                                                                   String countryCode,
+                                                                                   String industryCode,
+                                                                                   String value,
+                                                                                   String year){
+        return OriginOfValueAddedInFinalDemand.builder()
+                .id(id)
+                .countryCode(countryCode)
+                .industryCode(industryCode)
+                .value(value)
+                .year(year)
+                .build();
+
+    }
+    
     private ValueAndTradeFlowCode processValueAndTradeFlowCode(String id,
                                                                List<String> tradeCodeList) {
         return ValueAndTradeFlowCode.builder()
@@ -115,6 +130,8 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                 .valueAndTradeFlowCodeList(tradeCodeList)
                 .build();
     }
+
+
     public static String getTradeLocationCodes(String type) {
 
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
