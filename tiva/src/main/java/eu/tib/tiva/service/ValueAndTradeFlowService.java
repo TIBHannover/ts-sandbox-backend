@@ -1,6 +1,6 @@
 package eu.tib.tiva.service;
 
-import eu.tib.tiva.model.OriginOfValueAdded;
+import eu.tib.tiva.model.OriginOfValueAddedInFinalDemandModel;
 import eu.tib.tiva.model.OriginOfValueAddedInFinalDemand;
 import eu.tib.tiva.model.ValueAndTradeFlowCode;
 import eu.tib.tiva.model.ValueAndTradeFlowCodesModel;
@@ -13,8 +13,8 @@ public interface ValueAndTradeFlowService {
                                                                                                      String type,
                                                                                                      Pageable pageable);
 
-    <T extends ValueAndTradeFlowCodesModel> Page<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemandList(String sparqlEndpoint,
-                                                                                                               String location,
-                                                                                                               String industry,
-                                                                                                               Pageable pageable);
+    <T extends OriginOfValueAddedInFinalDemandModel> Page<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemandList(String sparqlEndpoint,
+                                                                                                                                  String location,
+                                                                                                                                  String industry,
+                                                                                                                                  Pageable pageable);
 }

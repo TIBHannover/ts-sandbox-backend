@@ -30,13 +30,9 @@ public class ValueAndTradeFlowController {
 
     private final ValueAndTradeFlowService valueAndTradeFlowService;
     private final PagedResourcesAssembler<ValueAndTradeFlowCode> countryCodePagedResourcesAssembler;
-
-    private final PagedResourcesAssembler<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPagedResourcesAssembler;
-
     private final TradeLocationCodeModelAssembler tradeLocationCodeModelAssembler;
-
+    private final PagedResourcesAssembler<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPagedResourcesAssembler;
     private final OriginOfValueAddedInFinalDemandAssembler originOfValueAddedInFinalDemandAssembler;
-
     private final String sparqlEndPoint = "https://tiva.coypu.org/tiva";
 
     @Autowired
@@ -61,7 +57,8 @@ public class ValueAndTradeFlowController {
             Pageable pageable
     ){
 
-        Page<ValueAndTradeFlowCode> countryCodePage = valueAndTradeFlowService.getValueAndTradeFlowCodeList(sparqlEndPoint,type,pageable);
+        Page<ValueAndTradeFlowCode> countryCodePage = valueAndTradeFlowService.
+                getValueAndTradeFlowCodeList(sparqlEndPoint,type,pageable);
 
         PagedModel<ValueAndTradeFlowModel> pagedModel = PageUtils.toPagedModel(
                 countryCodePage,
@@ -85,7 +82,8 @@ public class ValueAndTradeFlowController {
             Pageable pageable
     ){
 
-    Page<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPage = valueAndTradeFlowService.getOriginOfValueAddedInFinalDemandList(sparqlEndPoint,location,industry,pageable);
+    Page<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPage = valueAndTradeFlowService.
+            getOriginOfValueAddedInFinalDemandList(sparqlEndPoint,location,industry,pageable);
 
     PagedModel<OriginOfValueAddedInFinalDemandModel> pagedModel = PageUtils.toPagedModel(
                 originOfValueAddedInFinalDemandPage,

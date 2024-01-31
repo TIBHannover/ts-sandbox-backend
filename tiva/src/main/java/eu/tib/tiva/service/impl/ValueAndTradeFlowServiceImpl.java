@@ -1,5 +1,6 @@
 package eu.tib.tiva.service.impl;
 
+import eu.tib.tiva.model.OriginOfValueAddedInFinalDemandModel;
 import eu.tib.tiva.model.OriginOfValueAdded;
 import eu.tib.tiva.model.OriginOfValueAddedInFinalDemand;
 import eu.tib.tiva.model.ValueAndTradeFlowCode;
@@ -71,10 +72,10 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
     }
 
     @Override
-    public <T extends ValueAndTradeFlowCodesModel> Page<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemandList(String sparqlEndpoint,
-                                                                                                                                String location,
-                                                                                                                                String industry,
-                                                                                                                                Pageable pageable) {
+    public <T extends OriginOfValueAddedInFinalDemandModel> Page<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemandList(String sparqlEndpoint,
+                                                                                                                                         String location,
+                                                                                                                                         String industry,
+                                                                                                                                         Pageable pageable) {
         log.info("query origin of value aded in final demand started: ");
 
         Repository repo = new SPARQLRepository(sparqlEndpoint);
@@ -94,6 +95,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
         }
 
+
         repo.shutDown();
 
         return PageUtils.toPage(originOfValueAddedInFinalDemandList, pageable);
@@ -102,6 +104,8 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
     private List<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemand(RepositoryConnection conn,
                                                                                      String queryString){
 
+        List<OriginOfValueAdded> originOfValueAddedList = new ArrayList<>();
+
         List<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandList = new ArrayList<>();
 
         TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
@@ -109,8 +113,6 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
         try (TupleQueryResult result = tupleQuery.evaluate()) {
 
             Set<BindingSet> resultList = QueryResults.asSet(result);
-
-            List<OriginOfValueAdded> originOfValueAddedList = new ArrayList<>();
 
             for (BindingSet bindingSet : resultList) {
 
@@ -130,12 +132,16 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                 originOfValueAddedList.add(originOfValueAdded);
 
             }
+
             OriginOfValueAddedInFinalDemand originOfValueAddedInFinalDemand = processOriginOfValueAddedInFinalDemand(
                     UUID.randomUUID().toString(),
                     originOfValueAddedList
             );
 
-            originOfValueAddedInFinalDemandList.add(originOfValueAddedInFinalDemand);
+            originOfValueAddedInFinalDemandList.add(processOriginOfValueAddedInFinalDemand(
+                    UUID.randomUUID().toString(),
+                    originOfValueAddedList
+            ));
 
 
             return originOfValueAddedInFinalDemandList;
