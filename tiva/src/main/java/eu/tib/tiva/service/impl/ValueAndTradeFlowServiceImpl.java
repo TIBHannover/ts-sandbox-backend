@@ -1,5 +1,6 @@
 package eu.tib.tiva.service.impl;
 
+import eu.tib.tiva.model.OriginOfValueAdded;
 import eu.tib.tiva.model.OriginOfValueAddedInFinalDemand;
 import eu.tib.tiva.model.ValueAndTradeFlowCode;
 import eu.tib.tiva.model.ValueAndTradeFlowCodesModel;
@@ -48,11 +49,11 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
              */
             if(type.equals("Country") || type.equals("InetrnationalOrganization")) {
 
-            tradeCodeStringList= getCodeStringList(conn,getTradeLocationCodes(type));
+            tradeCodeStringList= getCodeStringList(conn, getTradeLocationCodesQuery(type));
 
             } else if(type.equals("IndustryCode")){
 
-            tradeCodeStringList= getCodeStringList(conn,getIndustryCodes());
+            tradeCodeStringList= getCodeStringList(conn, getIndustryCodesQuery());
 
             }
 
@@ -77,14 +78,25 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
         log.info("query origin of value aded in final demand started: ");
 
         Repository repo = new SPARQLRepository(sparqlEndpoint);
+
         repo.initialize();
 
         List<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandList = new ArrayList<>();
 
+        try (RepositoryConnection conn = repo.getConnection()) {
 
+            originOfValueAddedInFinalDemandList = getOriginOfValueAddedInFinalDemand(conn,
+                    getValueAddedOriginInFinalDemandQuery(location,industry));
 
-        return null;
+        }catch (Exception e){
 
+            e.printStackTrace();
+
+        }
+
+        repo.shutDown();
+
+        return PageUtils.toPage(originOfValueAddedInFinalDemandList, pageable);
     }
 
     private List<OriginOfValueAddedInFinalDemand> getOriginOfValueAddedInFinalDemand(RepositoryConnection conn,
@@ -98,6 +110,8 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
             Set<BindingSet> resultList = QueryResults.asSet(result);
 
+            List<OriginOfValueAdded> originOfValueAddedList = new ArrayList<>();
+
             for (BindingSet bindingSet : resultList) {
 
                 //?fdTradeLocation ?fdIndustryCode ?vao_fd_value  ?vao_fd_year
@@ -106,17 +120,23 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                 Value  vao_fd_value = bindingSet.getValue("vao_fd_value");
                 Value  vao_fd_year = bindingSet.getValue("vao_fd_year");
 
-                OriginOfValueAddedInFinalDemand originOfValueAddedInFinalDemand = processOriginOfValueAddedInFinalDemand(
-                        UUID.randomUUID().toString(),
-                        fdTradeLocation.stringValue(),
-                        fdIndustryCode.stringValue(),
-                        vao_fd_value.stringValue(),
-                        vao_fd_year.stringValue()
-                );
+                OriginOfValueAdded originOfValueAdded = new OriginOfValueAdded();
 
-                originOfValueAddedInFinalDemandList.add(originOfValueAddedInFinalDemand);
+                originOfValueAdded.setLocationCode(fdTradeLocation.stringValue());
+                originOfValueAdded.setIndustryCode(fdIndustryCode.stringValue());
+                originOfValueAdded.setValue(vao_fd_value.stringValue());
+                originOfValueAdded.setYear(vao_fd_year.stringValue());
+
+                originOfValueAddedList.add(originOfValueAdded);
 
             }
+            OriginOfValueAddedInFinalDemand originOfValueAddedInFinalDemand = processOriginOfValueAddedInFinalDemand(
+                    UUID.randomUUID().toString(),
+                    originOfValueAddedList
+            );
+
+            originOfValueAddedInFinalDemandList.add(originOfValueAddedInFinalDemand);
+
 
             return originOfValueAddedInFinalDemandList;
 
@@ -161,16 +181,10 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
     }
 
     private OriginOfValueAddedInFinalDemand processOriginOfValueAddedInFinalDemand(String id,
-                                                                                   String countryCode,
-                                                                                   String industryCode,
-                                                                                   String value,
-                                                                                   String year){
+                                                                                   List<OriginOfValueAdded> originOfValueAddedInFinalDemandList){
         return OriginOfValueAddedInFinalDemand.builder()
                 .id(id)
-                .countryCode(countryCode)
-                .industryCode(industryCode)
-                .value(value)
-                .year(year)
+                .originOfValueAddedInFinalDemandList(originOfValueAddedInFinalDemandList)
                 .build();
 
     }
@@ -183,7 +197,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                 .build();
     }
 
-    public static String getTradeLocationCodes(String type) {
+    public static String getTradeLocationCodesQuery(String type) {
 
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
@@ -194,7 +208,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                "} LIMIT 5000 ";
     }
 
-    public static String getIndustryCodes(){
+    public static String getIndustryCodesQuery(){
 
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
@@ -204,7 +218,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
                "} LIMIT 5000 ";
     }
 
-    public static String getValueAddedOriginInFinalDemand(String location, String industryCode){
+    public static String getValueAddedOriginInFinalDemandQuery(String location, String industryCode){
 
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +

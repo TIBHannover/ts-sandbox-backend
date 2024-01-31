@@ -7,7 +7,7 @@ import java.util.List;
 
 @Builder
 @Value
-public class OriginOfValueAddedGrossExport extends OriginOfValueAdded {
+public class OriginOfValueAddedGrossExport {
 
     List<ValueAndTradeFlow> grossExports;
 }
