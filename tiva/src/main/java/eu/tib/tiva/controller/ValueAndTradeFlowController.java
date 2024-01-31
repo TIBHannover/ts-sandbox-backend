@@ -52,7 +52,7 @@ public class ValueAndTradeFlowController {
     @Operation(summary = "List all trade location codes available in tiva knowledge graph dependes on selected type of trade location")
     @GetMapping(value = "/codes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<ValueAndTradeFlowModel>> getCodes(
-            @Parameter(description = "Type of trade location", example = "Country, InternationalOrganization, IndustryCode")
+            @Parameter(description = "Type of trade location", example = "Country,InetrnationalOrganization,IndustryCode")
             @RequestParam String type,
             Pageable pageable
     ){
@@ -75,7 +75,7 @@ public class ValueAndTradeFlowController {
             "on selected value added origin country and industry codes. Results are limited up to 5000000 n-tuples.")
     @GetMapping(value = "/vao/finaldemand", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<OriginOfValueAddedInFinalDemandModel>> getOriginOfValueAddedInFinalDemand(
-            @Parameter(description = "Trade location code for value added origin", example = "DEU, EU19")
+            @Parameter(description = "Trade location code for value added origin", example = "DEU, G20")
             @RequestParam String location,
             @Parameter(description = "Industry code for value added origin", example = "D62T63, D20")
             @RequestParam String industry,
@@ -104,7 +104,7 @@ public class ValueAndTradeFlowController {
             "on selected value added origin country and industry codes. Results are limited up to 5000000 n-tuples.")
     @GetMapping(value = "/vao/exports", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<OriginOfValueAddedInFinalDemandModel>> getOriginOfValueAddedInGrossExports(
-            @Parameter(description = "Trade location code for value added origin", example = "DEU,EU19")
+            @Parameter(description = "Trade location code for value added origin", example = "DEU,")
             @RequestParam String location,
             @Parameter(description = "Industry code for value added origin", example = "D62T63,D20")
             @RequestParam String industry,

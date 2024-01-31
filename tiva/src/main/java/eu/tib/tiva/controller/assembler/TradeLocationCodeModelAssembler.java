@@ -17,7 +17,7 @@ public class TradeLocationCodeModelAssembler extends RepresentationModelAssemble
         ValueAndTradeFlowModel valueAndTradeFlowModel = instantiateModel(entity);
 
         valueAndTradeFlowModel.setId(entity.getId());
-        valueAndTradeFlowModel.setValueAndTradeFlowCodeList(entity.getValueAndTradeFlowCodeList());
+        valueAndTradeFlowModel.setTivaCodeList(entity.getValueAndTradeFlowCodeList());
 
         return valueAndTradeFlowModel;
     }

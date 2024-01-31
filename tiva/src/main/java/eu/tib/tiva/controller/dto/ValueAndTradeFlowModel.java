@@ -15,5 +15,5 @@ import java.util.List;
 public class ValueAndTradeFlowModel extends RepresentationModel<ValueAndTradeFlowModel> {
 
     String id;
-    List<String> valueAndTradeFlowCodeList;
+    List<String> tivaCodeList;
 }
