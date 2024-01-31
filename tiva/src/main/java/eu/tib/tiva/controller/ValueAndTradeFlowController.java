@@ -52,7 +52,7 @@ public class ValueAndTradeFlowController {
     @Operation(summary = "List all trade location codes available in tiva knowledge graph dependes on selected type of trade location")
     @GetMapping(value = "/codes", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<ValueAndTradeFlowModel>> getCodes(
-            @Parameter(description = "Type of trade location", example = "Country, InetrnationalOrganization, IndustryCode")
+            @Parameter(description = "Type of trade location", example = "Country, InternationalOrganization, IndustryCode")
             @RequestParam String type,
             Pageable pageable
     ){
@@ -131,8 +131,8 @@ public class ValueAndTradeFlowController {
 
     public static String getValueAddedOriginInFinalDemandQuery(String location, String industryCode) {
 
-        String queryString = "";
-        String localtionUri="";
+        String queryString =  "";
+        String localtionUri = "";
 
         if (location.equals("APEC") || location.equals("ECD") || location.equals("EU13") ||
             location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
