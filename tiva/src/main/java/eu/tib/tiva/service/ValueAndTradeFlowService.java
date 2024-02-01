@@ -19,5 +19,4 @@ public interface ValueAndTradeFlowService {
                                                                                                                                String location,
                                                                                                                                String queryString,
                                                                                                                                Pageable pageable);
-
 }

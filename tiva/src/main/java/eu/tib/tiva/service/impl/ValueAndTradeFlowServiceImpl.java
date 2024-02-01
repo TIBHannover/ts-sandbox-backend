@@ -112,7 +112,85 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
     public <T extends OriginOfValueAddedInGrossImportModel> Page<OriginOfValueAddedInGrossImports>
     getOriginOfValueAddedInGrossImports(String sparqlEndpoint, String location, String queryString, Pageable pageable) {
 
-        return null;
+
+        log.info("query origin of value aded in gross imports");
+
+        Repository repo = new SPARQLRepository(sparqlEndpoint);
+
+        repo.initialize();
+
+        List<OriginOfValueAddedInGrossImports>  originOfValueAddedInGrossImportsList = new ArrayList<>();
+
+        try (RepositoryConnection conn = repo.getConnection()) {
+
+            originOfValueAddedInGrossImportsList = getOriginOfValueAddedInGrossImportQuery(conn,
+                    queryString);
+
+        }catch (Exception e){
+
+            e.printStackTrace();
+
+        }
+
+    repo.shutDown();
+
+    return PageUtils.toPage(originOfValueAddedInGrossImportsList, pageable);
+
+    }
+
+    private List<OriginOfValueAddedInGrossImports> getOriginOfValueAddedInGrossImportQuery(
+            RepositoryConnection conn,
+            String queryString){
+
+        List<OriginOfValueAddedInGrossImport> originOfValueAddedInGrossImportList = new ArrayList<>();
+
+        List<OriginOfValueAddedInGrossImports>  originOfValueAddedInGrossImportsList = new ArrayList<>();
+
+        TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+
+        try (TupleQueryResult result = tupleQuery.evaluate()) {
+
+        Set<BindingSet> resultList = QueryResults.asSet(result);
+
+        for (BindingSet bindingSet : resultList) {
+
+            List<ValueAndTradeFlow> grossExports = new ArrayList<>();
+
+            //?exTradeLocation ?exIndustryCode ?importTradeLocation ?vao_import_value ?vao_import_year
+
+            Value  exTradeLocation = bindingSet.getValue("exTradeLocation");
+            Value  exIndustryCode = bindingSet.getValue("exIndustryCode");
+            Value  importTradeLocation = bindingSet.getValue("importTradeLocation");
+            Value  vao_import_value = bindingSet.getValue("vao_import_value");
+            Value  vao_import_year = bindingSet.getValue("vao_import_year");
+
+            ValueAndTradeFlow valueAndTradeFlow = new ValueAndTradeFlow(
+                    exTradeLocation.stringValue(),
+                    exIndustryCode.stringValue());
+
+            grossExports.add(valueAndTradeFlow);
+
+            OriginOfValueAddedInGrossImport originOfValueAddedInGrossImport = new OriginOfValueAddedInGrossImport();
+
+            originOfValueAddedInGrossImport.setGrossExports(grossExports);
+            originOfValueAddedInGrossImport.setValue(vao_import_value.stringValue());
+            originOfValueAddedInGrossImport.setYear(vao_import_year.stringValue());
+            originOfValueAddedInGrossImport.setImportCountryCode(importTradeLocation.stringValue());
+
+            originOfValueAddedInGrossImportList.add(originOfValueAddedInGrossImport);
+
+            }
+
+            OriginOfValueAddedInGrossImports originOfValueAddedInGrossImports = processOriginOfValueAddedInGrossImports(
+                    UUID.randomUUID().toString(),
+                    originOfValueAddedInGrossImportList
+            );
+
+            originOfValueAddedInGrossImportsList.add(originOfValueAddedInGrossImports);
+
+        }
+
+    return  originOfValueAddedInGrossImportsList;
 
     }
 
@@ -198,6 +276,14 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
     }
 
+    private  OriginOfValueAddedInGrossImports processOriginOfValueAddedInGrossImports(String id,
+                                                                                      List<OriginOfValueAddedInGrossImport> originOfValueAddedInGrossImportList){
+
+        return OriginOfValueAddedInGrossImports.builder()
+                .id(id)
+                .originOfValueAddedInGrossImportList(originOfValueAddedInGrossImportList)
+                .build();
+    }
     private OriginOfValueAddedInFinalDemand processOriginOfValueAddedInFinalDemand(String id,
                                                                                    List<OriginOfValueAdded> originOfValueAddedInFinalDemandList){
         return OriginOfValueAddedInFinalDemand.builder()
