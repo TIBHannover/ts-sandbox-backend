@@ -4,7 +4,6 @@ import eu.tib.tiva.model.ProcessedTiva;
 import lombok.Builder;
 import lombok.Value;
 
-import java.util.List;
 import java.util.Set;
 
 @Builder

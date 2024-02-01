@@ -1,8 +1,9 @@
 package eu.tib.tiva.controller;
 
+import eu.tib.tiva.controller.dto.OriginOfValueAddedInFinalDemandModel;
+import eu.tib.tiva.controller.dto.ValueAndTradeFlowModel;
 import eu.tib.tiva.controller.assembler.OriginOfValueAddedInFinalDemandAssembler;
 import eu.tib.tiva.controller.assembler.TradeLocationCodeModelAssembler;
-import eu.tib.tiva.controller.dto.ValueAndTradeFlowModel;
 import eu.tib.tiva.model.OriginOfValueAddedInFinalDemand;
 import eu.tib.tiva.model.ValueAndTradeFlowCode;
 import eu.tib.tiva.service.ValueAndTradeFlowService;
