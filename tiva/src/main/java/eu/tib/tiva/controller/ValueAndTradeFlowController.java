@@ -263,7 +263,8 @@ public class ValueAndTradeFlowController {
                 "?import <https://schema.coypu.org/vtf#hasTradeLocation> ?importTradeLocation . " +
                 "} LIMIT 5000000 ";
 
-        return queryString;
+    return queryString;
+
     }
 
 }

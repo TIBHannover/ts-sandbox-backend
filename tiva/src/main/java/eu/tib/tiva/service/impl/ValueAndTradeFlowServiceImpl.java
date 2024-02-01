@@ -48,7 +48,17 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
             /**
              * InetrnationalOrganization should be written as InternationalOrganization in Python code
              */
-            if(type.equals("Country") || type.equals("InetrnationalOrganization")) {
+            if(type.equals("Country") || type.equals("InetrnationalOrganization") || type.equals("InternationalOrganization") ) {
+
+                /**
+                 * Because of syntax typo that is made in Python code for class name InternationalOrganization
+                 * we added this if statement to fix it.
+                 */
+            if(type.equals("InternationalOrganization")){
+
+            type="InetrnationalOrganization";
+
+            }
 
             tradeCodeStringList= getCodeStringList(conn, getTradeLocationCodesQuery(type));
 
