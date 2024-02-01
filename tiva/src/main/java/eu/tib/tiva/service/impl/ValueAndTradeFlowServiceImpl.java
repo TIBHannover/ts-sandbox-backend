@@ -152,11 +152,11 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
         Set<BindingSet> resultList = QueryResults.asSet(result);
 
+        log.info("result set size: " + resultList.size());
+
         for (BindingSet bindingSet : resultList) {
 
             List<ValueAndTradeFlow> grossExports = new ArrayList<>();
-
-            //?exTradeLocation ?exIndustryCode ?importTradeLocation ?vao_import_value ?vao_import_year
 
             Value  exTradeLocation = bindingSet.getValue("exTradeLocation");
             Value  exIndustryCode = bindingSet.getValue("exIndustryCode");
