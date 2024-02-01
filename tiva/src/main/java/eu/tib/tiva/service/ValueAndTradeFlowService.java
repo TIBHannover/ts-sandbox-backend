@@ -1,9 +1,6 @@
 package eu.tib.tiva.service;
 
-import eu.tib.tiva.model.OriginOfValueAddedInFinalDemandModel;
-import eu.tib.tiva.model.OriginOfValueAddedInFinalDemand;
-import eu.tib.tiva.model.ValueAndTradeFlowCode;
-import eu.tib.tiva.model.ValueAndTradeFlowCodesModel;
+import eu.tib.tiva.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,4 +15,9 @@ public interface ValueAndTradeFlowService {
                                                                                                                      String industry,
                                                                                                                      String queryString,
                                                                                                                      Pageable pageable);
+    <T extends OriginOfValueAddedInGrossImportModel> Page<OriginOfValueAddedInGrossImports> getOriginOfValueAddedInGrossImports(String sparqlEndpoint,
+                                                                                                                               String location,
+                                                                                                                               String queryString,
+                                                                                                                               Pageable pageable);
+
 }

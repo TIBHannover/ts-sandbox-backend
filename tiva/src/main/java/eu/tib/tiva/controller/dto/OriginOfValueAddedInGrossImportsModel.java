@@ -16,6 +16,6 @@ import java.util.List;
 public class OriginOfValueAddedInGrossImportsModel extends RepresentationModel<OriginOfValueAddedInGrossImportsModel> {
 
     String id;
-    List<OriginOfValueAddedInGrossImport> originOfValueAddedInGrossImports;
+    List<OriginOfValueAddedInGrossImport> originOfValueAddedInGrossImportList;
 
 }

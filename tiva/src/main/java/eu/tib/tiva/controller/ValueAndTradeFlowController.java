@@ -1,11 +1,12 @@
 package eu.tib.tiva.controller;
 
+import eu.tib.tiva.controller.assembler.OriginOfValueAddedInGrossImportsAssembler;
 import eu.tib.tiva.controller.dto.OriginOfValueAddedInFinalDemandModel;
+import eu.tib.tiva.controller.dto.OriginOfValueAddedInGrossImportsModel;
 import eu.tib.tiva.controller.dto.ValueAndTradeFlowModel;
 import eu.tib.tiva.controller.assembler.OriginOfValueAddedInFinalDemandAssembler;
 import eu.tib.tiva.controller.assembler.TradeLocationCodeModelAssembler;
-import eu.tib.tiva.model.OriginOfValueAddedInFinalDemand;
-import eu.tib.tiva.model.ValueAndTradeFlowCode;
+import eu.tib.tiva.model.*;
 import eu.tib.tiva.service.ValueAndTradeFlowService;
 import eu.tib.tiva.utils.HttpUtils;
 import eu.tib.tiva.utils.PageUtils;
@@ -28,12 +29,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/tiva")
 public class ValueAndTradeFlowController {
-
     private final ValueAndTradeFlowService valueAndTradeFlowService;
     private final PagedResourcesAssembler<ValueAndTradeFlowCode> countryCodePagedResourcesAssembler;
     private final TradeLocationCodeModelAssembler tradeLocationCodeModelAssembler;
     private final PagedResourcesAssembler<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPagedResourcesAssembler;
     private final OriginOfValueAddedInFinalDemandAssembler originOfValueAddedInFinalDemandAssembler;
+
+    private final PagedResourcesAssembler<OriginOfValueAddedInGrossImports> originOfValueAddedInGrossImportsPagedResourcesAssembler;
+
+    private final OriginOfValueAddedInGrossImportsAssembler originOfValueAddedInGrossImportsAssembler;
+
     private final String sparqlEndPoint = "https://tiva.coypu.org/tiva";
 
     @Autowired
@@ -42,12 +47,16 @@ public class ValueAndTradeFlowController {
             PagedResourcesAssembler<ValueAndTradeFlowCode> countryCodePagedResourcesAssembler,
             PagedResourcesAssembler<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPagedResourcesAssembler,
             TradeLocationCodeModelAssembler tradeLocationCodeModelAssembler,
-            OriginOfValueAddedInFinalDemandAssembler originOfValueAddedInFinalDemandAssembler){
+            OriginOfValueAddedInFinalDemandAssembler originOfValueAddedInFinalDemandAssembler,
+            PagedResourcesAssembler<OriginOfValueAddedInGrossImports> originOfValueAddedInGrossImportsPagedResourcesAssembler,
+            OriginOfValueAddedInGrossImportsAssembler originOfValueAddedInGrossImportsAssembler){
         this.valueAndTradeFlowService = valueAndTradeFlowService;
         this.countryCodePagedResourcesAssembler=countryCodePagedResourcesAssembler;
         this.originOfValueAddedInFinalDemandPagedResourcesAssembler=originOfValueAddedInFinalDemandPagedResourcesAssembler;
         this.tradeLocationCodeModelAssembler = tradeLocationCodeModelAssembler;
         this.originOfValueAddedInFinalDemandAssembler=originOfValueAddedInFinalDemandAssembler;
+        this.originOfValueAddedInGrossImportsPagedResourcesAssembler=originOfValueAddedInGrossImportsPagedResourcesAssembler;
+        this.originOfValueAddedInGrossImportsAssembler=originOfValueAddedInGrossImportsAssembler;
     }
 
     @Operation(summary = "List all codes available in tiva knowledge graph depends on selected type of code")
@@ -129,6 +138,33 @@ public class ValueAndTradeFlowController {
         return HttpUtils.ok(pagedModel);
 
     }
+
+    @Operation(summary = "List of country codes, industry codes within gross exports, country code wuthin imports, " +
+            "value and year in origin of value added in gross imports")
+    @GetMapping(value="/vao/imports", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<OriginOfValueAddedInGrossImportsModel>> getOriginOfValueAddedinGrossImports(
+            @Parameter(description = "Trade location code for value added origin", example = "DEU")
+            @RequestParam String location,
+            Pageable pageable
+    ){
+
+        Page<OriginOfValueAddedInGrossImports> originOfValueAddedInGrossImportsPage =
+                valueAndTradeFlowService.getOriginOfValueAddedInGrossImports(
+                        sparqlEndPoint,
+                        location,
+                        getOriginOfValueAddedInGrossImportQuery(location),
+                        pageable);
+
+        PagedModel<OriginOfValueAddedInGrossImportsModel> pagedModel = PageUtils.toPagedModel(
+                originOfValueAddedInGrossImportsPage,
+                OriginOfValueAddedInGrossImportsModel.class,
+                originOfValueAddedInGrossImportsPagedResourcesAssembler,
+                originOfValueAddedInGrossImportsAssembler
+        );
+
+        return HttpUtils.ok(pagedModel);
+    }
+
 
     public static String getValueAddedOriginInFinalDemandQuery(String location, String industryCode) {
 

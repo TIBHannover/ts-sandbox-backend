@@ -1,10 +1,6 @@
 package eu.tib.tiva.service.impl;
 
-import eu.tib.tiva.model.OriginOfValueAddedInFinalDemandModel;
-import eu.tib.tiva.model.OriginOfValueAdded;
-import eu.tib.tiva.model.OriginOfValueAddedInFinalDemand;
-import eu.tib.tiva.model.ValueAndTradeFlowCode;
-import eu.tib.tiva.model.ValueAndTradeFlowCodesModel;
+import eu.tib.tiva.model.*;
 import eu.tib.tiva.service.ValueAndTradeFlowService;
 import eu.tib.tiva.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -109,6 +105,14 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
         repo.shutDown();
 
     return PageUtils.toPage(originOfValueAddedInFinalDemandList, pageable);
+
+    }
+
+    @Override
+    public <T extends OriginOfValueAddedInGrossImportModel> Page<OriginOfValueAddedInGrossImports>
+    getOriginOfValueAddedInGrossImports(String sparqlEndpoint, String location, String queryString, Pageable pageable) {
+
+        return null;
 
     }
 
