@@ -164,6 +164,10 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
             Value  vao_import_value = bindingSet.getValue("vao_import_value");
             Value  vao_import_year = bindingSet.getValue("vao_import_year");
 
+            log.info(" (" +exTradeLocation.stringValue() +" , "+ exIndustryCode.stringValue() +
+                    " , "+importTradeLocation.stringValue() +" , "+ vao_import_value.stringValue() +
+                    " , "+ vao_import_year.stringValue() + " )");
+
             ValueAndTradeFlow valueAndTradeFlow = new ValueAndTradeFlow(
                     exTradeLocation.stringValue(),
                     exIndustryCode.stringValue());

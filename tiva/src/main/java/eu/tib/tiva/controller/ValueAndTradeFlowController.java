@@ -140,7 +140,7 @@ public class ValueAndTradeFlowController {
     }
 
     @Operation(summary = "List of country codes, industry codes within gross exports, country code wuthin imports, " +
-            "value and year in origin of value added in gross imports. Number of results is limited up to 100000 n-tuples")
+            "value and year in origin of value added in gross imports. Number of results is limited up to 5000000 n-tuples")
     @GetMapping(value="/vao/imports", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<OriginOfValueAddedInGrossImportsModel>> getOriginOfValueAddedinGrossImports(
             @Parameter(description = "Trade location code for value added origin", example = "DEU")
@@ -298,7 +298,7 @@ public class ValueAndTradeFlowController {
                 "?vao_import <https://schema.coypu.org/vtf#hasImport> ?import . " +
                 "?import rdf:type <https://schema.coypu.org/vtf#Import> . " +
                 "?import <https://schema.coypu.org/vtf#hasTradeLocation> ?importTradeLocation . " +
-                "} LIMIT 100000 ";
+                "} LIMIT 5000000 ";
 
     return queryString;
 
