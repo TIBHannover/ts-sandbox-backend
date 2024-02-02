@@ -163,6 +163,34 @@ public class ValueAndTradeFlowController {
         );
 
         return HttpUtils.ok(pagedModel);
+
+    }
+
+    @Operation(summary = "List of country codes, industry codes within gross exports, country code wuthin final demand, " +
+            "value and year in  gross exports of vao and final destination. Number of results is limited up to 1000000 n-tuples")
+    @GetMapping(value="/vao/finaldestination", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<OriginOfValueAddedInGrossImportsModel>> getGrossExportsByOriginOfValueAddedAndFinalDestination(
+            @Parameter(description = "Trade location code for value added origin", example = "DEU")
+            @RequestParam String location,
+            Pageable pageable
+    ){
+
+        Page<OriginOfValueAddedInGrossImports> originOfValueAddedInGrossImportsPage =
+                valueAndTradeFlowService.getOriginOfValueAddedInGrossImports(
+                        sparqlEndPoint,
+                        location,
+                        getOriginOfValueAddedInGrossImportQuery(location),
+                        pageable);
+
+        PagedModel<OriginOfValueAddedInGrossImportsModel> pagedModel = PageUtils.toPagedModel(
+                originOfValueAddedInGrossImportsPage,
+                OriginOfValueAddedInGrossImportsModel.class,
+                originOfValueAddedInGrossImportsPagedResourcesAssembler,
+                originOfValueAddedInGrossImportsAssembler
+        );
+
+        return HttpUtils.ok(pagedModel);
+
     }
 
 
@@ -304,7 +332,7 @@ public class ValueAndTradeFlowController {
 
     }
 
-    public static String getGrossExportsByOriginOfValueAddedAndFinalDestination(String location) {
+    public static String getGrossExportsByOriginOfValueAddedAndFinalDestinationQuey(String location) {
 
         String queryString = "";
         String locationIri="";
