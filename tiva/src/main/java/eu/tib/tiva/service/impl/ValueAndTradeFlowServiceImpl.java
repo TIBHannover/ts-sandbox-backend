@@ -134,6 +134,8 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
     repo.shutDown();
 
+        log.info("query is completed: ");
+
     return PageUtils.toPage(originOfValueAddedInGrossImportsList, pageable);
 
     }
@@ -262,9 +264,8 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
             for (BindingSet bindingSet : resultList) {
 
-                Value code = bindingSet.getValue("code");
-
-                tradeCodeStringListTemp.add(code.stringValue());
+            Value code = bindingSet.getValue("code");
+            tradeCodeStringListTemp.add(code.stringValue());
 
             }
 
@@ -282,7 +283,6 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
     private  OriginOfValueAddedInGrossImports processOriginOfValueAddedInGrossImports(String id,
                                                                                       List<OriginOfValueAddedInGrossImport> originOfValueAddedInGrossImportList){
-
         return OriginOfValueAddedInGrossImports.builder()
                 .id(id)
                 .originOfValueAddedInGrossImportList(originOfValueAddedInGrossImportList)
