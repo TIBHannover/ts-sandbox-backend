@@ -179,7 +179,7 @@ public class ValueAndTradeFlowController {
                 valueAndTradeFlowService.getOriginOfValueAddedInGrossImports(
                         sparqlEndPoint,
                         location,
-                        getOriginOfValueAddedInGrossImportQuery(location),
+                        getGrossExportsByOriginOfValueAddedAndFinalDestinationQuey(location),
                         pageable);
 
         PagedModel<OriginOfValueAddedInGrossImportsModel> pagedModel = PageUtils.toPagedModel(
