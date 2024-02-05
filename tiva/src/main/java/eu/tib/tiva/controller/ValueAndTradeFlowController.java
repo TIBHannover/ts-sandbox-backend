@@ -1,6 +1,7 @@
 package eu.tib.tiva.controller;
 
 import eu.tib.tiva.controller.assembler.OriginOfValueAddedInGrossImportsAssembler;
+import eu.tib.tiva.controller.dto.GrossExportByOriginOfValueAddedAndFinalDestinationModel;
 import eu.tib.tiva.controller.dto.OriginOfValueAddedInFinalDemandModel;
 import eu.tib.tiva.controller.dto.OriginOfValueAddedInGrossImportsModel;
 import eu.tib.tiva.controller.dto.ValueAndTradeFlowModel;
@@ -169,13 +170,14 @@ public class ValueAndTradeFlowController {
     @Operation(summary = "List of country codes, industry codes within gross exports, country code wuthin final demand, " +
             "value and year in  gross exports of vao and final destination. Number of results is limited up to 1000000 n-tuples")
     @GetMapping(value="/vao/finaldestination", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PagedModel<OriginOfValueAddedInGrossImportsModel>> getGrossExportsByOriginOfValueAddedAndFinalDestination(
+    public ResponseEntity<PagedModel<GrossExportByOriginOfValueAddedAndFinalDestinationModel>>
+    getGrossExportsByOriginOfValueAddedAndFinalDestination(
             @Parameter(description = "Trade location code for value added origin", example = "DEU")
             @RequestParam String location,
             Pageable pageable
     ){
 
-        Page<OriginOfValueAddedInGrossImports> originOfValueAddedInGrossImportsPage =
+        Page<GrossExportByOriginOfValueAddedAndFinalDestination> originOfValueAddedInGrossImportsPage =
                 valueAndTradeFlowService.getOriginOfValueAddedInGrossImports(
                         sparqlEndPoint,
                         location,

@@ -19,4 +19,10 @@ public interface ValueAndTradeFlowService {
                                                                                                                                String location,
                                                                                                                                String queryString,
                                                                                                                                Pageable pageable);
+
+    <T extends OriginOfValueAddedInGrossImportModel> Page<OriginOfValueAddedInGrossImports>
+    getGrossExportsByOriginOfValueAddedAndFinalDestination(String sparqlEndpoint,
+                                                                  String location,
+                                                                  String queryString,
+                                                                  Pageable pageable);
 }
