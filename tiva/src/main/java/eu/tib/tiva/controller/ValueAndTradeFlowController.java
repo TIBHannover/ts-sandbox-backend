@@ -209,7 +209,6 @@ public class ValueAndTradeFlowController {
 
     }
 
-
     public static String getValueAddedOriginInFinalDemandQuery(String location, String industryCode) {
 
         String queryString =  "";
