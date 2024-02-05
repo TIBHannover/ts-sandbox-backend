@@ -140,6 +140,102 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
     }
 
+
+    @Override
+    public <T extends GrossExportsByOriginOfValueAddedAndFinalDestinationsModel> Page<GrossExportByOriginOfValueAddedAndFinalDestinations>
+    getGrossExportsByOriginOfValueAddedAndFinalDestination(String sparqlEndpoint, String location, String queryString, Pageable pageable) {
+
+        log.info("query gross exports by origin of value added and final destination");
+
+        Repository repo = new SPARQLRepository(sparqlEndpoint);
+
+        repo.initialize();
+
+        List<GrossExportByOriginOfValueAddedAndFinalDestinations> grossExportByOriginOfValueAddedAndFinalDestinations =
+                new ArrayList<>();
+
+        try (RepositoryConnection conn = repo.getConnection()) {
+
+            grossExportByOriginOfValueAddedAndFinalDestinations = getrossExportByOriginOfValueAddedAndFinalDestinationsQuery(
+                    conn,
+                    queryString);
+
+        }catch (Exception e){
+
+            e.printStackTrace();
+
+        }
+
+        repo.shutDown();
+
+        log.info("query is completed: ");
+
+        return PageUtils.toPage(grossExportByOriginOfValueAddedAndFinalDestinations, pageable);
+
+    }
+
+    private List<GrossExportByOriginOfValueAddedAndFinalDestinations> getrossExportByOriginOfValueAddedAndFinalDestinationsQuery(RepositoryConnection conn,
+                                                                                                                                 String queryString){
+
+    List<GrossExportByOriginOfValueAddedAndFinalDestinations> grossExportByOriginOfValueAddedAndFinalDestinationsList =
+    new ArrayList<>();
+
+    List<GrossExportByOriginOfValueAddedAndFinalDestination> grossExportByOriginOfValueAddedAndFinalDestinationList =
+    new ArrayList<>();
+
+    TupleQuery tupleQuery = conn.prepareTupleQuery(queryString);
+
+    try (TupleQueryResult result = tupleQuery.evaluate()) {
+
+        Set<BindingSet> resultList = QueryResults.asSet(result);
+
+        log.info("result set size: " + resultList.size());
+
+        for (BindingSet bindingSet : resultList) {
+
+            List<ValueAndTradeFlow> grossExports = new ArrayList<>();
+
+            Value  exTradeLocation = bindingSet.getValue("exTradeLocation");
+            Value  exIndustryCode = bindingSet.getValue("exIndustryCode");
+            Value  fdTradeLocation = bindingSet.getValue("fdTradeLocation");
+            Value  fd_exgr_va_value = bindingSet.getValue("fd_exgr_va_value");
+            Value  fd_exgr_va_year = bindingSet.getValue("fd_exgr_va_year");
+
+            log.info(" (" +exTradeLocation.stringValue() +" , "+ exIndustryCode.stringValue() +
+                    " , "+fdTradeLocation.stringValue() +" , "+ fd_exgr_va_value.stringValue() +
+                    " , "+ fd_exgr_va_year.stringValue() + " )");
+
+            ValueAndTradeFlow valueAndTradeFlow = new ValueAndTradeFlow(
+                    exTradeLocation.stringValue(),
+                    exIndustryCode.stringValue());
+
+            grossExports.add(valueAndTradeFlow);
+
+            GrossExportByOriginOfValueAddedAndFinalDestination grossExportByOriginOfValueAddedAndFinalDestination =
+                    new GrossExportByOriginOfValueAddedAndFinalDestination();
+
+            grossExportByOriginOfValueAddedAndFinalDestination.setFinalDemandCountryCode(fdTradeLocation.stringValue());
+            grossExportByOriginOfValueAddedAndFinalDestination.setGrossExports(grossExports);
+            grossExportByOriginOfValueAddedAndFinalDestination.setValue(fd_exgr_va_value.stringValue());
+            grossExportByOriginOfValueAddedAndFinalDestination.setYear(fd_exgr_va_year.stringValue());
+
+            grossExportByOriginOfValueAddedAndFinalDestinationList.add(grossExportByOriginOfValueAddedAndFinalDestination);
+
+        }
+
+        GrossExportByOriginOfValueAddedAndFinalDestinations grossExportByOriginOfValueAddedAndFinalDestinations =
+                processGrossExportByOriginOfValueAddedAndFinalDestinations(UUID.randomUUID().toString(),
+                        grossExportByOriginOfValueAddedAndFinalDestinationList
+                        );
+
+        grossExportByOriginOfValueAddedAndFinalDestinationsList.add(grossExportByOriginOfValueAddedAndFinalDestinations);
+    }
+
+    return grossExportByOriginOfValueAddedAndFinalDestinationsList;
+
+    }
+
+
     private List<OriginOfValueAddedInGrossImports> getOriginOfValueAddedInGrossImportQuery(
             RepositoryConnection conn,
             String queryString){
@@ -281,6 +377,14 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
     }
 
+    private GrossExportByOriginOfValueAddedAndFinalDestinations processGrossExportByOriginOfValueAddedAndFinalDestinations(String id,
+                                                                List<GrossExportByOriginOfValueAddedAndFinalDestination> originOfValueAddedAndFinalDestinationList){
+
+        return GrossExportByOriginOfValueAddedAndFinalDestinations.builder()
+                .id(id)
+                .grossExportByOriginOfValueAddedAndFinalDestinationList(originOfValueAddedAndFinalDestinationList)
+                .build();
+    }
     private  OriginOfValueAddedInGrossImports processOriginOfValueAddedInGrossImports(String id,
                                                                                       List<OriginOfValueAddedInGrossImport> originOfValueAddedInGrossImportList){
         return OriginOfValueAddedInGrossImports.builder()
