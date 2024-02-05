@@ -1,5 +1,6 @@
 package eu.tib.tiva.controller;
 
+import eu.tib.tiva.controller.assembler.GrossExportsByOriginOfValueAddedAndFinalDestinationAssembler;
 import eu.tib.tiva.controller.assembler.OriginOfValueAddedInGrossImportsAssembler;
 import eu.tib.tiva.controller.dto.GrossExportByOriginOfValueAddedAndFinalDestinationModel;
 import eu.tib.tiva.controller.dto.OriginOfValueAddedInFinalDemandModel;
@@ -40,6 +41,10 @@ public class ValueAndTradeFlowController {
 
     private final OriginOfValueAddedInGrossImportsAssembler originOfValueAddedInGrossImportsAssembler;
 
+    private final PagedResourcesAssembler<GrossExportByOriginOfValueAddedAndFinalDestinations>
+    grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler;
+
+    private final GrossExportsByOriginOfValueAddedAndFinalDestinationAssembler grossExportsByOriginOfValueAddedAndFinalDestinationAssembler;
     private final String sparqlEndPoint = "https://tiva.coypu.org/tiva";
 
     @Autowired
@@ -50,7 +55,12 @@ public class ValueAndTradeFlowController {
             TradeLocationCodeModelAssembler tradeLocationCodeModelAssembler,
             OriginOfValueAddedInFinalDemandAssembler originOfValueAddedInFinalDemandAssembler,
             PagedResourcesAssembler<OriginOfValueAddedInGrossImports> originOfValueAddedInGrossImportsPagedResourcesAssembler,
-            OriginOfValueAddedInGrossImportsAssembler originOfValueAddedInGrossImportsAssembler){
+            OriginOfValueAddedInGrossImportsAssembler originOfValueAddedInGrossImportsAssembler,
+            PagedResourcesAssembler<GrossExportByOriginOfValueAddedAndFinalDestinations>
+                    grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler,
+            GrossExportsByOriginOfValueAddedAndFinalDestinationAssembler
+                    grossExportsByOriginOfValueAddedAndFinalDestinationAssembler
+            ){
         this.valueAndTradeFlowService = valueAndTradeFlowService;
         this.countryCodePagedResourcesAssembler=countryCodePagedResourcesAssembler;
         this.originOfValueAddedInFinalDemandPagedResourcesAssembler=originOfValueAddedInFinalDemandPagedResourcesAssembler;
@@ -58,6 +68,10 @@ public class ValueAndTradeFlowController {
         this.originOfValueAddedInFinalDemandAssembler=originOfValueAddedInFinalDemandAssembler;
         this.originOfValueAddedInGrossImportsPagedResourcesAssembler=originOfValueAddedInGrossImportsPagedResourcesAssembler;
         this.originOfValueAddedInGrossImportsAssembler=originOfValueAddedInGrossImportsAssembler;
+        this.grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler=
+                grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler;
+        this.grossExportsByOriginOfValueAddedAndFinalDestinationAssembler=
+                 grossExportsByOriginOfValueAddedAndFinalDestinationAssembler;
     }
 
     @Operation(summary = "List all codes available in tiva knowledge graph depends on selected type of code")
@@ -177,18 +191,18 @@ public class ValueAndTradeFlowController {
             Pageable pageable
     ){
 
-        Page<GrossExportByOriginOfValueAddedAndFinalDestination> originOfValueAddedInGrossImportsPage =
-                valueAndTradeFlowService.getOriginOfValueAddedInGrossImports(
+        Page<GrossExportByOriginOfValueAddedAndFinalDestinations> grossExportsByOriginOfValueAddedAndFinalDestinationPage =
+                valueAndTradeFlowService.getGrossExportsByOriginOfValueAddedAndFinalDestination(
                         sparqlEndPoint,
                         location,
                         getGrossExportsByOriginOfValueAddedAndFinalDestinationQuey(location),
                         pageable);
 
-        PagedModel<OriginOfValueAddedInGrossImportsModel> pagedModel = PageUtils.toPagedModel(
-                originOfValueAddedInGrossImportsPage,
-                OriginOfValueAddedInGrossImportsModel.class,
-                originOfValueAddedInGrossImportsPagedResourcesAssembler,
-                originOfValueAddedInGrossImportsAssembler
+        PagedModel<GrossExportByOriginOfValueAddedAndFinalDestinationModel> pagedModel = PageUtils.toPagedModel(
+                grossExportsByOriginOfValueAddedAndFinalDestinationPage,
+                GrossExportByOriginOfValueAddedAndFinalDestinationModel.class,
+                grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler,
+                grossExportsByOriginOfValueAddedAndFinalDestinationAssembler
         );
 
         return HttpUtils.ok(pagedModel);

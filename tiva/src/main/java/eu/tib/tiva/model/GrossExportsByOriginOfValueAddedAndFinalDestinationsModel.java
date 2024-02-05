@@ -6,7 +6,7 @@ public interface GrossExportsByOriginOfValueAddedAndFinalDestinationsModel {
 
     String getId();
     String getFinalDemandCountryCode();
-    List<ValueAndTradeFlow> getFrossExports();
+    List<ValueAndTradeFlow> getGrossExports();
     String getValue();
     String getYear();
 
