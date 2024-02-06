@@ -7,8 +7,8 @@ import java.util.List;
 
 @Builder
 @Value
-public class CountryCode {
+public class ValueAndTradeFlowCode {
 
     String id;
-    List<String> countryCodeList;
+    List<String> valueAndTradeFlowCodeList;
 }

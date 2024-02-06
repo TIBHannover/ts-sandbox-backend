@@ -30,26 +30,7 @@ Semantic Diff Service runs on port 9090: `http://localhost:9090`
 API documentation for statistics module: [swagger-statistics](http://localhost:9191/swagger-ui/index.html)
 
 API documentation for history module: [swagger-history](http://localhost:9090/swagger-ui/index.html)
-### Questions to be answered by statistic
-***
 
-#### How many ontologies share this property?
-`/api/ontology/similarity/property/{name}`
-
-#### Which properties are shared within a set of ontologies?
-`/api/ontology/similarity/property/internal`
-
-#### Which namespaces are shared within a set of ontologies?
-`/api/ontology/similarity/namespace/internal`
-
-#### Which classes are shared within a set of ontologies?
-`/api/ontology/similarity/class/internal`
-
-#### Which imports are shared within a set of ontologies?
-`/api/ontology/similarity/import/internal`
-
-#### What is a commonly used ontology in the collection XYZ?
-`/api/ontology/similarity/collection/{name}`
 
 ## How to develop
 ***

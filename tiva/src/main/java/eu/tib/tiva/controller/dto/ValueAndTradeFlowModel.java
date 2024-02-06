@@ -11,9 +11,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@Relation(collectionRelation = "countrycodes", itemRelation = "countrycodes")
-public class CountryCodeModel extends RepresentationModel<CountryCodeModel> {
+@Relation(collectionRelation = "codes", itemRelation = "codes")
+public class ValueAndTradeFlowModel extends RepresentationModel<ValueAndTradeFlowModel> {
 
     String id;
-    List<String> countryCodeList;
+    List<String> tivaCodeList;
 }
