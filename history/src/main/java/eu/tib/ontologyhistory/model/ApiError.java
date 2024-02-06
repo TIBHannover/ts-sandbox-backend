@@ -1,6 +1,7 @@
 package eu.tib.ontologyhistory.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.view.Views;
 import lombok.*;
@@ -13,6 +14,7 @@ import java.time.Instant;
 @Setter
 @Builder
 @Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiError {
 
     @Id

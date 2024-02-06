@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.ontology.OntologyDto;
-import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.github.Commit;
-import eu.tib.ontologyhistory.service.DiffService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -20,6 +18,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -27,20 +26,17 @@ import java.util.*;
 @AllArgsConstructor
 public class GithubService {
 
-    private DiffService diffService;
-
-    public List<Diff> create(OntologyDto ontologyDto) throws Exception {
+    public List<DiffAdd> getDiffAdds(OntologyDto ontologyDto) {
         val uri = checkUriValidity(ontologyDto.url());
+        val diffAdds = new ArrayList<DiffAdd>();
         if (uri.isPresent()) {
             val user = getUserFromUrl(uri.get());
             val repo = getRepoFromUrl(uri.get());
             val encodedPath = getEncodedPath(uri.get().getPath());
 
             val commits = getCommits(uri.get(), user, repo, encodedPath);
-
             if (commits.isPresent()) {
                 Iterator<Commit> iterator = commits.get().iterator();
-                val diffs = new ArrayList<Diff>();
                 while (iterator.hasNext()) {
                     val commit = iterator.next();
                     if (iterator.hasNext()) {
@@ -51,7 +47,7 @@ public class GithubService {
 
                         if (rawFile.isPresent() && parentRawFile.isPresent()) {
                             val diffAdd = new DiffAdd(String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, commit.sha(), encodedPath),
-                                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, commit.sha(), encodedPath),
+                                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentCommit.sha(), encodedPath),
                                     rawFile.get(),
                                     parentRawFile.get(),
                                     commit.sha(),
@@ -61,19 +57,55 @@ public class GithubService {
                                     commit.commit().committer().date(),
                                     commit.commit().message()
                             );
-
-                            val diff = diffService.makeDiffFromGit(diffAdd);
-                            if (diff != null) {
-                                diffs.add(diff);
-                            }
+                            diffAdds.add(diffAdd);
                         }
-
                     }
                 }
-                return diffs;
+                return diffAdds;
             }
-         }
-        return Collections.emptyList();
+        }
+        return diffAdds;
+    }
+
+    public List<DiffAdd> getDiffAdds(String link, Instant datetime) {
+        val uri = checkUriValidity(link);
+        val diffAdds = new ArrayList<DiffAdd>();
+        if (uri.isPresent()) {
+            val user = getUserFromUrl(uri.get());
+            val repo = getRepoFromUrl(uri.get());
+            val encodedPath = getEncodedPath(uri.get().getPath());
+
+            val commits = getCommitsByURISinceDatetime(uri.get(), datetime);
+            if (commits.isPresent()) {
+                Iterator<Commit> iterator = commits.get().iterator();
+                while (iterator.hasNext()) {
+                    val commit = iterator.next();
+                    if (iterator.hasNext()) {
+                        val parentCommit = iterator.next();
+
+                        val rawFile = getRawFileUrl(uri.get(), user, repo, commit.sha(), encodedPath);
+                        val parentRawFile = getRawFileUrl(uri.get(), user, repo, parentCommit.sha(), encodedPath);
+
+                        if (rawFile.isPresent() && parentRawFile.isPresent()) {
+                            val diffAdd = new DiffAdd(String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, commit.sha(), encodedPath),
+                                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentCommit.sha(), encodedPath),
+                                    rawFile.get(),
+                                    parentRawFile.get(),
+                                    commit.sha(),
+                                    commit.sha(),
+                                    commit.commit().committer().date(),
+                                    parentCommit.commit().committer().date(),
+                                    commit.commit().committer().date(),
+                                    commit.commit().message()
+                            );
+                            diffAdds.add(diffAdd);
+                        }
+                    }
+                }
+                return diffAdds;
+            }
+        }
+        return diffAdds;
     }
 
     public Optional<String> getRawFileUrl(URI uri, String owner, String repo, String sha, String path) {
@@ -124,6 +156,37 @@ public class GithubService {
                 Thread.currentThread().interrupt();
             } catch (IOException e) { log.error("IOException happened: " + e); }
         return Optional.empty();
+    }
+
+    public Optional<List<Commit>> getCommitsByURISinceDatetime(URI uri, Instant datetime) {
+            val owner = getUserFromUrl(uri);
+            val repo = getRepoFromUrl(uri);
+            val encodedPath = getEncodedPath(uri.getPath());
+
+            URI githubApiUri = UriComponentsBuilder.fromUri(uri)
+                    .host("api.github.com")
+                    .replacePath("/repos/{owner}/{repo}/commits")
+                    .queryParam("path", encodedPath)
+                    .queryParam("since", datetime)
+                    .buildAndExpand(owner, repo)
+                    .toUri();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(githubApiUri)
+                    .header("Authorization", "Bearer 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")
+                    .build();
+
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+                return Optional.of(objectMapper.readValue(response.body(), new TypeReference<>() {}));
+            } catch (InterruptedException e) {
+                log.error("Interrupted with the response: " + e);
+                Thread.currentThread().interrupt();
+            } catch (IOException e) { log.error("IOException happened: " + e); }
+            return Optional.of(Collections.emptyList());
     }
 
     public Optional<URI> checkUriValidity(String url) {

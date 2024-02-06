@@ -2,6 +2,7 @@ package eu.tib.ontologyhistory.dto.diff;
 
 import java.time.Instant;
 
+
 public record DiffAdd (
         String gitUrlLeft,
 

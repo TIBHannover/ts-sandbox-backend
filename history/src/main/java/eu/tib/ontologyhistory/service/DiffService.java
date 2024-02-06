@@ -2,11 +2,14 @@ package eu.tib.ontologyhistory.service;
 
 import com.google.common.collect.Sets;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.dto.diff.DiffAndApiError;
 import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.mapper.DiffMapper;
+import eu.tib.ontologyhistory.model.ApiError;
 import eu.tib.ontologyhistory.model.Axiom;
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.repository.DiffRepository;
+import eu.tib.ontologyhistory.service.network.GithubService;
 import eu.tib.ontologyhistory.utils.FileUtils;
 import eu.tib.ontologyhistory.utils.OntologyUtils;
 import eu.tib.ontologyhistory.utils.ParserUtils;
@@ -17,10 +20,11 @@ import org.bson.Document;
 import org.geneontology.owl.differ.Differ;
 import org.geneontology.owl.differ.render.BasicDiffRenderer;
 import org.geneontology.owl.differ.render.MarkdownGroupedDiffRenderer;
-import org.obolibrary.robot.IOHelper;
-import org.semanticweb.owlapi.model.IRI;
+import org.obolibrary.robot.CommandState;
+import org.obolibrary.robot.DiffCommand;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologySetProvider;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -41,6 +45,8 @@ public class DiffService {
     private final DiffRepository diffRepository;
 
     private final DiffMapper diffMapper;
+
+    private final GithubService githubService;
 
     public List<DiffDto> findAll() {
         val diff = diffRepository.findAll();
@@ -85,6 +91,52 @@ public class DiffService {
         }
     }
 
+    public DiffAndApiError makeDiffExternal(String url, Instant datetime) {
+        val diffAdds = githubService.getDiffAdds(url, datetime);
+        val diffs = new ArrayList<DiffDto>();
+        val apiErrors = new ArrayList<ApiError>();
+            for (val diffAdd : diffAdds) {
+                val outputDiff = new File("outputDiff.txt");
+                val diffCommand = new DiffCommand();
+                try {
+                    diffCommand.execute(new CommandState(), new String[]
+                            {
+                                    "--left-iri", diffAdd.gitUrlLeft(),
+                                    "--right-iri", diffAdd.gitUrlRight(),
+                                    "--output", outputDiff.getName(),
+                                    "--format", "markdown"
+                            });
+
+                    String line = Files.readString(outputDiff.toPath(), StandardCharsets.UTF_8);
+                    Document markdown = new Document().append("file", line);
+
+                    val diff = DiffDto.builder()
+                            .timestamp(diffAdd.commitDate())
+                            .sha(diffAdd.sha())
+                            .parentSha(diffAdd.parentSha())
+                            .parentOffsetDateTime(diffAdd.parentOffsetDateTime())
+                            .shaOffsetDateTime(diffAdd.shaOffsetDateTime())
+                            .message(diffAdd.message())
+                            .markdown(markdown)
+                            .build();
+
+                    diffs.add(diff);
+                } catch (Exception e) {
+                    log.error("Exception happened: " + e);
+                    val apiError = ApiError.builder()
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                            .message("Some error happened during diff creation")
+                            .timestamp(diffAdd.commitDate())
+                            .leftIriFile(diffAdd.gitUrlLeft())
+                            .rightIriFile(diffAdd.gitUrlRight())
+                            .build();
+
+                    apiErrors.add(apiError);
+                }
+
+            }
+            return new DiffAndApiError(diffs, apiErrors);
+    }
 
     public Diff makeDiffFromGit(DiffAdd diffAdd) {
         String ontologyLeftFilename = "ontology-left";

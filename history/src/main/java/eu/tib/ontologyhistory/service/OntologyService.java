@@ -6,14 +6,12 @@ import eu.tib.ontologyhistory.model.ApiError;
 import eu.tib.ontologyhistory.model.CommitStatus;
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.Ontology;
-import eu.tib.ontologyhistory.model.github.Commit;
 import eu.tib.ontologyhistory.repository.OntologyRepository;
 import eu.tib.ontologyhistory.service.network.GithubService;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +50,15 @@ public class OntologyService {
     }
 
     public void create(OntologyDto ontologyDto) throws Exception {
-        val diffs = githubService.create(ontologyDto);
+        val diffAdds = githubService.getDiffAdds(ontologyDto);
+        val diffs = new ArrayList<Diff>();
+        for (val diffAdd : diffAdds) {
+            val diff = diffService.makeDiffFromGit(diffAdd);
+            if (diff != null) {
+                diffs.add(diff);
+            }
+        }
+
         if (!diffs.isEmpty()) {
             val ontology = Ontology.builder()
                     .url(ontologyDto.url())
