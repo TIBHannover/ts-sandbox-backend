@@ -104,6 +104,6 @@ public class ExternalMappingController {
         );
 
     return HttpUtils.ok(pagedModel);
-    
+
     }
 }
