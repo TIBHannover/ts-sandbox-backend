@@ -47,6 +47,7 @@ public class ExternalMappingController {
         this.externalMappingPagedResourcesAssembler=externalMappingPagedResourcesAssembler;
         this.externalMappingModelAssembler = externalMappingModelAssembler;
     }
+    
     @Operation(summary = "Mappings between an external ontology and a set of selected TIB TS ontologies")
     @GetMapping(value = "/external/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsForExternalOntologyUri(
