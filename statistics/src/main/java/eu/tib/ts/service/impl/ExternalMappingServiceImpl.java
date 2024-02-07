@@ -253,18 +253,45 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         int numberOfMappingsProcessed = 0;
 
+        ontologyManager= OWLManager.createOWLOntologyManager();
+
+        TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
+
         /**
          * Returns empty mapping result when source and target ontologies have equal URIs
          */
         if(ont1.getUri().equals(ont2.getUri())){
 
-        return PageUtils.toPage(externalMappingList, pageable);
+            Exception e = new Exception();
+
+            OntologyDto targetTSOntDto = OntologyDto.builder()
+                    .ontologyId("")
+                    .uri(ont1.getUri())
+                    .title("")
+                    .build();
+
+            Set<OntologyDto> targetOntologySet = new HashSet<>();
+
+            targetOntologySet.add(targetTSOntDto);
+
+            /**
+             * target ontology set
+             */
+            targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+
+            targetOntologyObjectSetModel.setMappingException(getExeptionMessage(e, "ontologies " +
+                    ont2.getUri().toString() +" and " + ont1.getUri() + " have equal URLs."));
+
+            targetOntologyList.add(targetOntologyObjectSetModel);
+
+            ExternalMapping externalMapping = processExternalMapping(ont2, 1, targetOntologyList);
+
+            externalMappingList.add(externalMapping);
+
+            return PageUtils.toPage(externalMappingList, pageable);
 
         };
 
-        ontologyManager= OWLManager.createOWLOntologyManager();
-
-        TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
 
         try {
             /**
