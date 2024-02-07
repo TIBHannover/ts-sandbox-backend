@@ -15,4 +15,8 @@ public interface ExternalMappingService {
                                                                              Optional<List<String>> ids, boolean sat,
                                                                              Pageable pageable) throws OWLOntologyCreationException;
 
+    <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenTwoExternalOntologies(T sourceOntology,
+                                                                                               T targetOntology, boolean sat,
+                                                                                      Pageable pageable) throws OWLOntologyCreationException;
+
 }
