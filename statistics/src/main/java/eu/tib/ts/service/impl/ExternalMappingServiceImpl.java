@@ -234,14 +234,14 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
      * @param pageable
      * @return
      * @param <T>
-     * @throws OWLOntologyCreationException
+     *
      */
     @Override
     public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenTwoExternalOntologies(T sourceOntology,
                                                                                                       T targetOntology,
                                                                                                       boolean sat,
                                                                                                       Pageable pageable
-    ) throws OWLOntologyCreationException {
+    )  {
 
         ProcessedOntology ont2 = ProcessedOntology.of(sourceOntology);
 
