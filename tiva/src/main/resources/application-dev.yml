@@ -8,7 +8,7 @@ spring:
     lazy-initialization: true
 
 server:
-  port: 9393
+  port: 9494
 
   main:
     allow-bean-definition-overriding: true
