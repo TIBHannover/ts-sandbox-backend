@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,11 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -113,19 +116,66 @@ public class ExternalMappingController {
 
     }
 
-    @PostMapping("/uploadOneOntologyFile")
-    public ResponseEntity<Map<String,String>> handleUploadSingleOntologyFiles(
-            @RequestParam("file") MultipartFile file) {
+    @Operation(summary = "Mappings between multiple uploaded ontology files")
+    @Async
+    @PostMapping("/test/upload")
+    public ResponseEntity<Map<String, String>> getMappingsUploadOntologyFiles(
+            @Parameter(description = "Source ontology file paths", example = "a file path")
+            @RequestParam("file") MultipartFile file,
+            @Parameter(description = "List of target ontology file paths", example = "file paths")
+            @RequestParam("files") MultipartFile[] files,
+            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
+            @RequestParam boolean sat
+            ) throws IOException {
 
-    Map<String, String> fileMap = new HashMap<>();
+        Map<String, String> filesMap = new HashMap<>();
 
-    fileMap.put("original file name ", file.getOriginalFilename());
-    fileMap.put("file size", String.valueOf(file.getSize()));
-    fileMap.put("file content type: ", file.getContentType());
-    fileMap.put("message: ", "file upload is done");
+        filesMap.put("source file name: ",file.getOriginalFilename()+ " - sat: " + sat);
 
-    
+        if(files.length==0){
 
-        return ResponseEntity.ok(fileMap);
+        filesMap.put("no files submitted", "no files submitted");
+        return ResponseEntity.badRequest().body(filesMap);
+
+        } else {
+
+        int i = 0;
+
+        for(MultipartFile f: files){
+
+        filesMap.put(i++ +". -" + f.getName(),f.getOriginalFilename() + " - sat: " + sat);
+
+            }
+        }
+
+    return ResponseEntity.ok(filesMap);
+
     }
+
+    @Operation(summary = "Mappings between multiple uploaded ontology files")
+    @Async
+    @PostMapping("/external/upload")
+    public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsLoadOntologyFiles(
+            @Parameter(description = "Source ontology file paths", example = "a file path")
+            @RequestParam("file") MultipartFile file,
+            @Parameter(description = "List of target ontology file paths", example = "file paths")
+            @RequestParam("files") MultipartFile[] files,
+            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
+            @RequestParam boolean sat,
+            Pageable pageable
+    ) throws IOException {
+
+    Page<ExternalMapping> eternalMappingPage = null;
+
+    PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
+                eternalMappingPage,
+                ExternalMappingModel.class,
+                externalMappingPagedResourcesAssembler,
+                externalMappingModelAssembler
+    );
+
+    return ResponseEntity.ok(pagedModel);
+
+    }
+
 }
