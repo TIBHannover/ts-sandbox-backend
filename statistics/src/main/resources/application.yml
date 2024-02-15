@@ -21,7 +21,7 @@ preprocessing:
   run: true
 
 ts:
-  ontologies.list.size: 5
+  ontologies.list.size: 2
   base.uri: https://service.tib.eu/ts4tib/api/ontologies #https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu #https://service.tib.eu/ts4tib/api/ontologies #
   timeout:
     connect: 10000

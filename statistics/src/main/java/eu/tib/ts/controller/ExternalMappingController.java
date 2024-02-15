@@ -10,20 +10,26 @@ import eu.tib.ts.utils.HttpUtils;
 import eu.tib.ts.utils.PageUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.val;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -105,5 +111,21 @@ public class ExternalMappingController {
 
     return HttpUtils.ok(pagedModel);
 
+    }
+
+    @PostMapping("/uploadOneOntologyFile")
+    public ResponseEntity<Map<String,String>> handleUploadSingleOntologyFiles(
+            @RequestParam("file") MultipartFile file) {
+
+    Map<String, String> fileMap = new HashMap<>();
+
+    fileMap.put("original file name ", file.getOriginalFilename());
+    fileMap.put("file size", String.valueOf(file.getSize()));
+    fileMap.put("file content type: ", file.getContentType());
+    fileMap.put("message: ", "file upload is done");
+
+    
+
+        return ResponseEntity.ok(fileMap);
     }
 }
