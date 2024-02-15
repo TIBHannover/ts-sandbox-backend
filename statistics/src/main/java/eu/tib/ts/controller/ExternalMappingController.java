@@ -28,6 +28,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
@@ -121,29 +122,28 @@ public class ExternalMappingController {
     @PostMapping("/test/upload")
     public ResponseEntity<Map<String, String>> getMappingsUploadOntologyFiles(
             @Parameter(description = "Source ontology file paths", example = "a file path")
-            @RequestParam("file") MultipartFile file,
+            @RequestParam("sourceFiles") MultipartFile[] sourceFiles,
             @Parameter(description = "List of target ontology file paths", example = "file paths")
-            @RequestParam("files") MultipartFile[] files,
+            @RequestParam("targetFiles") MultipartFile[] targetFiles,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat
             ) throws IOException {
 
         Map<String, String> filesMap = new HashMap<>();
 
-        filesMap.put("source file name: ",file.getOriginalFilename()+ " - sat: " + sat);
-
-        if(files.length==0){
+        if(sourceFiles.length==0){
 
         filesMap.put("no files submitted", "no files submitted");
+
         return ResponseEntity.badRequest().body(filesMap);
 
         } else {
 
-        int i = 0;
+        int i = 1;
 
-        for(MultipartFile f: files){
+        for(MultipartFile f: sourceFiles){
 
-        filesMap.put(i++ +". -" + f.getName(),f.getOriginalFilename() + " - sat: " + sat);
+        filesMap.put(i++ +". - source: " + f.getName(),f.getOriginalFilename() + " - sat: " + sat);
 
             }
         }
@@ -156,10 +156,10 @@ public class ExternalMappingController {
     @Async
     @PostMapping("/external/upload")
     public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsLoadOntologyFiles(
-            @Parameter(description = "Source ontology file paths", example = "a file path")
-            @RequestParam("file") MultipartFile file,
+            @Parameter(description = "List of source ontology file paths", example = "file path")
+            @RequestParam("sourceFiles") MultipartFile[] sourceFiles,
             @Parameter(description = "List of target ontology file paths", example = "file paths")
-            @RequestParam("files") MultipartFile[] files,
+            @RequestParam("targetFiles") MultipartFile[] targetFiles,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
             Pageable pageable
@@ -177,5 +177,4 @@ public class ExternalMappingController {
     return ResponseEntity.ok(pagedModel);
 
     }
-
 }
