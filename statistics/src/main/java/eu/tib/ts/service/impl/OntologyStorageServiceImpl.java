@@ -2,6 +2,7 @@ package eu.tib.ts.service.impl;
 
 import eu.tib.ts.service.OntologyStorageService;
 
+import org.apache.jena.ontology.OntModel;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -73,6 +74,13 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
     return owlOntology;
 
     }
+
+    @Override
+    public OntModel getOntModelFromMultipartFile(MultipartFile file) throws IOException {
+        
+        return null;
+    }
+
 
     /**
      * copy input streamn to a file

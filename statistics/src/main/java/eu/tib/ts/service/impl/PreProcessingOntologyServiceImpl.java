@@ -25,8 +25,6 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
     private final OntologyReadService ontologyReadService;
     private final OntologyTraverseService ontologyTraverseService;
 
-    long idd = 0;
-
     @Autowired
     public PreProcessingOntologyServiceImpl(OntologyReadService ontologyReadService,
                                             OntologyTraverseService ontologyTraverseService) {
