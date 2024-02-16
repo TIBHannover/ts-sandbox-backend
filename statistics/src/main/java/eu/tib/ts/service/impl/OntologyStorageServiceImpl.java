@@ -3,6 +3,7 @@ package eu.tib.ts.service.impl;
 import eu.tib.ts.model.ontology.OntologyType;
 import eu.tib.ts.service.OntologyStorageService;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -11,6 +12,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -20,7 +22,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
+@Slf4j
+@Service
 public class OntologyStorageServiceImpl implements OntologyStorageService {
 
     private final Path path;
@@ -93,8 +96,6 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
         return model;
 
     }
-
-
     /**
      * copy input streamn to a file
      *

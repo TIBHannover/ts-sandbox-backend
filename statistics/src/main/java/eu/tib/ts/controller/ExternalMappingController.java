@@ -121,6 +121,36 @@ public class ExternalMappingController {
 
     @Operation(summary = "Mappings between multiple uploaded ontology files")
     @Async
+    @PostMapping("/external/upload")
+    public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsLoadOntologyFiles(
+            @Parameter(description = "Source ontology file path", example = "file path")
+            @RequestParam("sourceFile") MultipartFile sourceFile,
+            @Parameter(description = "List of target ontology file paths", example = "file paths")
+            @RequestParam("targetFiles") MultipartFile[] targetFiles,
+            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
+            @RequestParam boolean sat,
+            Pageable pageable
+    ) throws IOException {
+
+        ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), sourceFile,
+                "external source ontology as a file");
+
+
+        Page<ExternalMapping> eternalMappingPage = null;
+
+        PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
+                eternalMappingPage,
+                ExternalMappingModel.class,
+                externalMappingPagedResourcesAssembler,
+                externalMappingModelAssembler
+        );
+
+        return ResponseEntity.ok(pagedModel);
+
+    }
+
+    @Operation(summary = "Mappings between multiple uploaded ontology files")
+    @Async
     @PostMapping("/test/upload")
     public ResponseEntity<Map<String, String>> getMappingsUploadOntologyFiles(
             @RequestParam("files") MultipartFile[] files,
@@ -142,29 +172,5 @@ public class ExternalMappingController {
 
     }
 
-    @Operation(summary = "Mappings between multiple uploaded ontology files")
-    @Async
-    @PostMapping("/external/upload")
-    public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsLoadOntologyFiles(
-            @Parameter(description = "Source ontology file path", example = "file path")
-            @RequestParam("sourceFile") MultipartFile sourceFile,
-            @Parameter(description = "List of target ontology file paths", example = "file paths")
-            @RequestParam("targetFiles") MultipartFile[] targetFiles,
-            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
-            @RequestParam boolean sat,
-            Pageable pageable
-    ) throws IOException {
 
-    Page<ExternalMapping> eternalMappingPage = null;
-
-    PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
-                eternalMappingPage,
-                ExternalMappingModel.class,
-                externalMappingPagedResourcesAssembler,
-                externalMappingModelAssembler
-    );
-
-    return ResponseEntity.ok(pagedModel);
-
-    }
 }

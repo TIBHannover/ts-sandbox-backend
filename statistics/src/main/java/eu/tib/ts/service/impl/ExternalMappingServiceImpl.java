@@ -40,9 +40,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     private final ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository;
 
-
     OWLOntologyManager ontologyManager;
-
 
     @Autowired
     protected ExternalMappingServiceImpl(
@@ -50,7 +48,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             OntologyFilterService ontologyFilterService
     ){
 
-        this.ProcessedMongoOntologyRepository=processedMongoOntologyRepository;
+    this.ProcessedMongoOntologyRepository=processedMongoOntologyRepository;
+    
     }
 
     @Override
