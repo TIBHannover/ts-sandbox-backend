@@ -3,6 +3,7 @@ package eu.tib.ts.service.impl;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.TsOntology;
 import eu.tib.ts.service.OntologyReadService;
+import eu.tib.ts.service.OntologyStorageService;
 import eu.tib.ts.service.OntologyTraverseService;
 import eu.tib.ts.service.PreProcessingOntologyService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +26,15 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
     private final OntologyReadService ontologyReadService;
     private final OntologyTraverseService ontologyTraverseService;
 
+    private final OntologyStorageService ontologyStorageService;
+
     @Autowired
     public PreProcessingOntologyServiceImpl(OntologyReadService ontologyReadService,
-                                            OntologyTraverseService ontologyTraverseService) {
+                                            OntologyTraverseService ontologyTraverseService,
+                                            OntologyStorageService ontologyStorageService) {
         this.ontologyReadService = ontologyReadService;
         this.ontologyTraverseService = ontologyTraverseService;
+        this.ontologyStorageService=ontologyStorageService;
     }
 
     @Override
@@ -68,13 +73,32 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
     public ProcessedOntology preProcessMultipartFile(Optional<TsOntology> tsOntology, MultipartFile multipartFile, String title) {
 
         OntModel ontModel = null;
+
         OWLOntology owlOntology = null;
-        String fileLocation= null;
+
+        try {
+
+            ontModel = ontologyStorageService.loadOntologyIntoOntModelFromMultipartFile(multipartFile);
+
+        } catch (Exception e) {
+
+            log.error("Could not read with Jena API {} {}", multipartFile.getOriginalFilename(), e.getLocalizedMessage());
+
+        }
+
+        try {
+
+            owlOntology = ontologyStorageService.loadOntologyIntoOWLOntologyFromMultipartFile(multipartFile);
+
+        } catch (Exception e) {
+
+            log.error("Could not read with OWL API {} {}", multipartFile.getOriginalFilename(), e.getLocalizedMessage());
+
+        }
 
 
 
-
-        return buildOntology(tsOntology, owlOntology, ontModel, fileLocation, title);
+        return buildOntology(tsOntology, owlOntology, ontModel, multipartFile.getOriginalFilename(), title);
 
     }
 
