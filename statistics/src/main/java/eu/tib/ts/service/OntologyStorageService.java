@@ -8,8 +8,8 @@ import java.io.IOException;
 
 public interface OntologyStorageService {
 
-OWLOntology getOWLOntologyFromMultipartFile(MultipartFile file) throws IOException;
+OWLOntology loadOntologyIntoOWLOntologyFromMultipartFile(MultipartFile file) throws IOException;
 
-OntModel getOntModelFromMultipartFile(MultipartFile file) throws IOException;
+OntModel loadOntologyIntoOntModelFromMultipartFile(MultipartFile file) throws IOException;
 
 }

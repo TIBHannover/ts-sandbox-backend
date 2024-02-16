@@ -1,23 +1,25 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.model.ontology.OntologyType;
 import eu.tib.ts.service.OntologyStorageService;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ontology.OntModel;
+import org.apache.jena.rdf.model.ModelFactory;
+
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+
 
 public class OntologyStorageServiceImpl implements OntologyStorageService {
 
@@ -30,7 +32,7 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
     }
 
     @Override
-    public OWLOntology getOWLOntologyFromMultipartFile(MultipartFile file) throws IOException {
+    public OWLOntology loadOntologyIntoOWLOntologyFromMultipartFile(MultipartFile file) throws IOException {
 
         OWLOntology owlOntology;
 
@@ -76,9 +78,20 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
     }
 
     @Override
-    public OntModel getOntModelFromMultipartFile(MultipartFile file) throws IOException {
-        
-        return null;
+    public OntModel loadOntologyIntoOntModelFromMultipartFile(MultipartFile file) throws IOException {
+
+        OntModel model = null;
+
+        try (InputStream inputStream = file.getInputStream()) {
+
+            model = ModelFactory.createOntologyModel();
+
+            model.read(inputStream, file.getOriginalFilename());
+
+        }
+
+        return model;
+
     }
 
 
