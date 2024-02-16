@@ -134,7 +134,7 @@ public class ExternalMappingController {
 
     for(MultipartFile file: files) {
 
-    filesMap.put(i++ + ".",  " file name: " + file.getOriginalFilename()+ " file resource: " + file.getResource() + "sat: " + sat);
+    filesMap.put(i++ + ".",  " file name: " + file.getName() + " file resource: " + file.getResource() + "sat: " + sat);
 
     }
 
