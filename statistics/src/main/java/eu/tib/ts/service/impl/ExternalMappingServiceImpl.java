@@ -49,7 +49,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     ){
 
     this.ProcessedMongoOntologyRepository=processedMongoOntologyRepository;
-    
+
     }
 
     @Override
