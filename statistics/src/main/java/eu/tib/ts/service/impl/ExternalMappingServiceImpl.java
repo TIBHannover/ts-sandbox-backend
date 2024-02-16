@@ -51,10 +51,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     ){
 
         this.ProcessedMongoOntologyRepository=processedMongoOntologyRepository;
-
-
     }
-
 
     @Override
     public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, boolean sat, Pageable pageable) {

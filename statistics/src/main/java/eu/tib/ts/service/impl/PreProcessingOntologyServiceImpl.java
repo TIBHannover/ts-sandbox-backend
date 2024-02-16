@@ -11,6 +11,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -31,7 +32,6 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
                                             OntologyTraverseService ontologyTraverseService) {
         this.ontologyReadService = ontologyReadService;
         this.ontologyTraverseService = ontologyTraverseService;
-
     }
 
     @Override
@@ -44,25 +44,38 @@ public class PreProcessingOntologyServiceImpl implements PreProcessingOntologySe
 
         try {
 
-            ontModel = ontologyReadService.readOntologyWithJenaApi(fileLocation);
+        ontModel = ontologyReadService.readOntologyWithJenaApi(fileLocation);
 
         } catch (Exception e) {
 
-            log.error("Could not read with Jena API {} {}", fileLocation, e.getLocalizedMessage());
+        log.error("Could not read with Jena API {} {}", fileLocation, e.getLocalizedMessage());
 
         }
 
         try {
 
-            owlOntology = ontologyReadService.readOntologyWithOwlApi(fileLocation);
+        owlOntology = ontologyReadService.readOntologyWithOwlApi(fileLocation);
 
         } catch (Exception e) {
 
-            log.error("Could not read with OWL API {} {}", fileLocation, e.getLocalizedMessage());
+        log.error("Could not read with OWL API {} {}", fileLocation, e.getLocalizedMessage());
 
         }
 
     return buildOntology(tsOntology, owlOntology, ontModel, fileLocation, title);
+
+    }
+
+    @Override
+    public ProcessedOntology preProcessMultipartFile(Optional<TsOntology> tsOntology, MultipartFile multipartFile, String title) {
+
+        OntModel ontModel = null;
+        OWLOntology owlOntology = null;
+        String fileLocation= null;
+
+
+
+        return buildOntology(tsOntology, owlOntology, ontModel, fileLocation, title);
 
     }
 
