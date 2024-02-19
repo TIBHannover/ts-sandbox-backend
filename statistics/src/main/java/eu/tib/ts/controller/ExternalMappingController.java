@@ -47,6 +47,7 @@ public class ExternalMappingController {
         this.externalMappingPagedResourcesAssembler=externalMappingPagedResourcesAssembler;
         this.externalMappingModelAssembler = externalMappingModelAssembler;
     }
+
     @Operation(summary = "Mappings between an external ontology and a set of selected TIB TS ontologies")
     @GetMapping(value = "/external/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsForExternalOntologyUri(
@@ -72,5 +73,37 @@ public class ExternalMappingController {
         );
 
         return HttpUtils.ok(pagedModel);
+    }
+
+    @Operation(summary = "Mappings between two external ontologies given by URLs")
+    @GetMapping(value = "/external/pairwise", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsBetweenTwoExternalOntologyUrls(
+            @Parameter(description = "The first external resolvable ontology URL (raw file)")
+            @RequestParam String sourceUrl,
+            @Parameter(description = "The second external resolvable ontology URL (raw file)")
+            @RequestParam String targetUrl,
+            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
+            @RequestParam boolean sat,
+            Pageable pageable
+    ) throws OWLOntologyCreationException {
+
+        ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcess(Optional.empty(), sourceUrl,
+                "processed source ontology");
+
+        ProcessedOntology targetProcessedOntology = preProcessingOntologyService.preProcess(Optional.empty(), targetUrl,
+                "processed target ontology");
+
+        Page<ExternalMapping> eternalMappingPage = externalMappingService.getMappingsBetweenTwoExternalOntologies(sourceProcessedOntology,
+                targetProcessedOntology, sat, pageable);
+
+        PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
+                eternalMappingPage,
+                ExternalMappingModel.class,
+                externalMappingPagedResourcesAssembler,
+                externalMappingModelAssembler
+        );
+
+    return HttpUtils.ok(pagedModel);
+
     }
 }
