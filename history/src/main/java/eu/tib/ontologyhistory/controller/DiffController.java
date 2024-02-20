@@ -73,8 +73,8 @@ public class DiffController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping(value = "/external")
-    public ResponseEntity<DiffAndApiError> calcExternalDiffs(
+    @GetMapping(value = "/external")
+    public ResponseEntity<DiffAndApiError> external(
             @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/tibonto/dr/master/DigitalReference.ttl")
             @RequestParam String ontologyURL,
             @Parameter(description = "ISO 8601 datetime", example = "2024-01-20T16:00:49Z")
