@@ -1,46 +1,40 @@
 package eu.tib.ontologyhistory.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.tib.ontologyhistory.dto.ontology.OntologyDto;
-import eu.tib.ontologyhistory.dto.ontology.OntologySwaggerDto;
 import eu.tib.ontologyhistory.model.Diff;
+import eu.tib.ontologyhistory.model.JsonApiWrapper;
 import eu.tib.ontologyhistory.service.OntologyService;
 import eu.tib.ontologyhistory.view.Views;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
 import lombok.val;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
-@RequestMapping("/api/history/ontology")
+@RequestMapping("/api/history/ontologies")
 @AllArgsConstructor
 public class OntologyController {
 
     private final OntologyService ontologyService;
-
-    @GetMapping("/swagger")
-    @Operation(summary = "Get all ontologies - without diffs and invalid diffs")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the ontologies"),
-            @ApiResponse(responseCode = "404", description = "No ontologies found", content = @Content)
-    })
-    public ResponseEntity<List<OntologySwaggerDto>> getSwaggerOntologies() {
-        val ontologies = ontologyService.findAllSwagger();
-
-        if (ontologies.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(ontologies, HttpStatus.OK);
-    }
 
     @GetMapping
     @Operation(summary = "Get all ontologies full request (may be lagging)")
@@ -48,40 +42,41 @@ public class OntologyController {
             @ApiResponse(responseCode = "200", description = "Found the ontologies"),
             @ApiResponse(responseCode = "404", description = "No ontologies found", content = @Content)
     })
-    public ResponseEntity<List<OntologyDto>> getOntologies() {
+    @Parameter(
+            name = "view",
+            schema = @Schema(
+                    type = "string",
+                    defaultValue = "full",
+                    allowableValues = { "short", "full"}
+            )
+    )
+    public ResponseEntity<List<OntologyDto>> getOntologies(@RequestParam(required = false, defaultValue = "full") String view) {
         val ontologies = ontologyService.findAll();
 
         if (ontologies.isEmpty()) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
         }
+
         return new ResponseEntity<>(ontologies, HttpStatus.OK);
     }
 
-    @GetMapping("/swagger/{id}")
+    @GetMapping(value = "/{id}")
     @Operation(summary = "Get ontology by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the ontology"),
             @ApiResponse(responseCode = "404", description = "Ontology not found", content = @Content)
     })
-    public ResponseEntity<OntologySwaggerDto> getSwaggerOntology(
-            @PathVariable String id) {
-        val ontologyDto = ontologyService.findSwaggerById(id);
-
-        if (ontologyDto == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>(ontologyDto, HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Get ontology by id", hidden = true)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the ontology"),
-            @ApiResponse(responseCode = "404", description = "Ontology not found", content = @Content)
-    })
+    @Parameter(
+            name = "view",
+            schema = @Schema(
+                    type = "string",
+                    defaultValue = "short",
+                    allowableValues = { "short", "full"}
+            )
+    )
     public ResponseEntity<OntologyDto> getOntology(
-            @PathVariable String id) {
+            @PathVariable String id,
+            @RequestParam(required = false, defaultValue = "short") String view) {
         val ontologyDto = ontologyService.findById(id);
 
         if (ontologyDto == null) {
@@ -100,6 +95,17 @@ public class OntologyController {
     public ResponseEntity<String> addOntology(@RequestBody OntologyDto ontologyDTO) {
         ontologyService.insert(ontologyDTO);
         return new ResponseEntity<>("Ontology created successfully", HttpStatus.CREATED);
+    }
+
+    @PostMapping("/swagger")
+    @Operation(summary = "Add new ontology by URL link")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Ontology created"),
+            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
+    })
+    public ResponseEntity<String> createOntology(@JsonView(Views.Add.class) @RequestBody OntologyDto ontologyDTO) throws Exception {
+        ontologyService.create(ontologyDTO);
+        return new ResponseEntity<>("Ontology manually added", HttpStatus.CREATED);
     }
 
     @DeleteMapping

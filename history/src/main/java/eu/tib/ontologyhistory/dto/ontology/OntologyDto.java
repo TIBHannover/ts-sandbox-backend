@@ -11,31 +11,31 @@ import java.time.Instant;
 import java.util.List;
 
 public record OntologyDto(
-        @JsonView(Views.Swagger.class)
+        @JsonView({Views.Short.class})
         String id,
 
-        @JsonView(Views.Swagger.class)
+        @JsonView({Views.Short.class, Views.Add.class})
         String url,
 
-        @JsonView(Views.Edit.class)
+        @JsonView({Views.Edit.class})
         String name,
 
-        @JsonView(Views.Edit.class)
+        @JsonView({Views.Edit.class})
         String description,
 
-        @JsonView(Views.Update.class)
+        @JsonView({Views.Update.class, Views.Full.class})
         List<Diff> diffs,
 
-        @JsonView(Views.Swagger.class)
+        @JsonView(Views.Full.class)
         List<ApiError> invalidDiffs,
 
-        @JsonView(Views.Swagger.class)
+        @JsonView({Views.Short.class})
         CommitStatus commitStatus,
 
-        @JsonView(Views.Swagger.class)
+        @JsonView({Views.Short.class})
         String type,
 
-        @JsonView(Views.Swagger.class)
+        @JsonView({Views.Short.class})
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
         Instant atime
 ) {}

@@ -2,24 +2,29 @@ package eu.tib.ontologyhistory.service;
 
 import com.google.common.collect.Sets;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.dto.diff.DiffAndApiError;
 import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.mapper.DiffMapper;
+import eu.tib.ontologyhistory.model.ApiError;
 import eu.tib.ontologyhistory.model.Axiom;
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.repository.DiffRepository;
+import eu.tib.ontologyhistory.service.network.GithubService;
 import eu.tib.ontologyhistory.utils.FileUtils;
 import eu.tib.ontologyhistory.utils.OntologyUtils;
 import eu.tib.ontologyhistory.utils.ParserUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bson.Document;
 import org.geneontology.owl.differ.Differ;
 import org.geneontology.owl.differ.render.BasicDiffRenderer;
 import org.geneontology.owl.differ.render.MarkdownGroupedDiffRenderer;
-import org.obolibrary.robot.IOHelper;
-import org.semanticweb.owlapi.model.IRI;
+import org.obolibrary.robot.CommandState;
+import org.obolibrary.robot.DiffCommand;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologySetProvider;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -31,13 +36,17 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 
-@Service
+
+@Slf4j
 @AllArgsConstructor
+@Service
 public class DiffService {
 
     private final DiffRepository diffRepository;
 
     private final DiffMapper diffMapper;
+
+    private final GithubService githubService;
 
     public List<DiffDto> findAll() {
         val diff = diffRepository.findAll();
@@ -82,57 +91,109 @@ public class DiffService {
         }
     }
 
+    public DiffAndApiError makeDiffExternal(String url, Instant datetime) {
+        val diffAdds = githubService.getDiffAdds(url, datetime);
+        val diffs = new ArrayList<DiffDto>();
+        val apiErrors = new ArrayList<ApiError>();
+            for (val diffAdd : diffAdds) {
+                val outputDiff = new File("outputDiff.txt");
+                val diffCommand = new DiffCommand();
+                try {
+                    diffCommand.execute(new CommandState(), new String[]
+                            {
+                                    "--left-iri", diffAdd.gitUrlLeft(),
+                                    "--right-iri", diffAdd.gitUrlRight(),
+                                    "--output", outputDiff.getName(),
+                                    "--format", "markdown"
+                            });
 
-    public Diff makeDiffFromGit(DiffAdd diffAdd) throws Exception {
+                    String line = Files.readString(outputDiff.toPath(), StandardCharsets.UTF_8);
+                    Document markdown = new Document().append("file", line);
+
+                    val diff = DiffDto.builder()
+                            .timestamp(diffAdd.commitDate())
+                            .sha(diffAdd.sha())
+                            .parentSha(diffAdd.parentSha())
+                            .parentOffsetDateTime(diffAdd.parentOffsetDateTime())
+                            .shaOffsetDateTime(diffAdd.shaOffsetDateTime())
+                            .message(diffAdd.message())
+                            .markdown(markdown)
+                            .build();
+
+                    diffs.add(diff);
+                } catch (Exception e) {
+                    log.error("Exception happened: " + e);
+                    val apiError = ApiError.builder()
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                            .message("Some error happened during diff creation")
+                            .timestamp(diffAdd.commitDate())
+                            .leftIriFile(diffAdd.gitUrlLeft())
+                            .rightIriFile(diffAdd.gitUrlRight())
+                            .build();
+
+                    apiErrors.add(apiError);
+                }
+
+            }
+            return new DiffAndApiError(diffs, apiErrors);
+    }
+
+    public Diff makeDiffFromGit(DiffAdd diffAdd) {
         String ontologyLeftFilename = "ontology-left";
         String ontologyRightFilename = "ontology-right";
 
         Path diffOutputPlainFile = Path.of("diff-output-plain.txt");
         Path diffOutputPlainMarkdown = Path.of("diff-output-markdown.md");
 
-        File ontLeft = FileUtils.createTempFile(ontologyLeftFilename, diffAdd.gitRawFileLeft());
-        File ontRight = FileUtils.createTempFile(ontologyRightFilename, diffAdd.gitRawFileRight());
+        try {
+            File ontLeft = FileUtils.createTempFile(ontologyLeftFilename, diffAdd.gitRawFileLeft());
+            File ontRight = FileUtils.createTempFile(ontologyRightFilename, diffAdd.gitRawFileRight());
 
-        OWLOntology loadedOntologyLeft = OntologyUtils.loadOntology(ontLeft);
-        OWLOntology loadedOntologyRight = OntologyUtils.loadOntology(ontRight);
+            OWLOntology loadedOntologyLeft = OntologyUtils.loadOntology(ontLeft);
+            OWLOntology loadedOntologyRight = OntologyUtils.loadOntology(ontRight);
 
-        OWLOntologySetProvider ontologySetProvider = new DualOntologySetProvider(
-                loadedOntologyLeft.getOWLOntologyManager(),
-                loadedOntologyRight.getOWLOntologyManager()
-        );
+            OWLOntologySetProvider ontologySetProvider = new DualOntologySetProvider(
+                    loadedOntologyLeft.getOWLOntologyManager(),
+                    loadedOntologyRight.getOWLOntologyManager()
+            );
 
-        Differ.BasicDiff differ = Differ.diff(loadedOntologyLeft, loadedOntologyRight);
-        Differ.GroupedDiff groupedForMarkdown = Differ.groupedDiff(differ);
+            Differ.BasicDiff differ = Differ.diff(loadedOntologyLeft, loadedOntologyRight);
+            Differ.GroupedDiff groupedForMarkdown = Differ.groupedDiff(differ);
 
-        Files.write(diffOutputPlainFile, BasicDiffRenderer.renderPlain(differ).getBytes());
-        Files.write(diffOutputPlainMarkdown, MarkdownGroupedDiffRenderer.render(groupedForMarkdown, ontologySetProvider).getBytes());
-
-
-        List<String> lines = Files.readAllLines(diffOutputPlainFile, StandardCharsets.UTF_8);
-        String line = Files.readString(diffOutputPlainMarkdown, StandardCharsets.UTF_8);
+            Files.write(diffOutputPlainFile, BasicDiffRenderer.renderPlain(differ).getBytes());
+            Files.write(diffOutputPlainMarkdown, MarkdownGroupedDiffRenderer.render(groupedForMarkdown, ontologySetProvider).getBytes());
 
 
-        Map<String, List<Axiom>> axioms = ParserUtils.parseAxioms(lines);
+            List<String> lines = Files.readAllLines(diffOutputPlainFile, StandardCharsets.UTF_8);
+            String line = Files.readString(diffOutputPlainMarkdown, StandardCharsets.UTF_8);
 
-        Document markdown = new Document().append("file", line);
 
-        Diff diff = Diff.builder()
-                .ontologyId("default")
-                .markdown(markdown)
-                .timestamp(diffAdd.commitDate())
-                .sha(diffAdd.sha())
-                .parentSha(diffAdd.parentSha())
-                .parentOffsetDateTime(diffAdd.parentOffsetDateTime())
-                .shaOffsetDateTime(diffAdd.shaOffsetDateTime())
-                .axioms(axioms)
-                .message(diffAdd.message())
-                .build();
+            Map<String, List<Axiom>> axioms = ParserUtils.parseAxioms(lines);
 
-        if (diff != null) {
-            return diffRepository.insert(diff);
-        } else {
-            return null;
+            Document markdown = new Document().append("file", line);
+
+            Diff diff = Diff.builder()
+                    .ontologyId("default")
+                    .markdown(markdown)
+                    .timestamp(diffAdd.commitDate())
+                    .sha(diffAdd.sha())
+                    .parentSha(diffAdd.parentSha())
+                    .parentOffsetDateTime(diffAdd.parentOffsetDateTime())
+                    .shaOffsetDateTime(diffAdd.shaOffsetDateTime())
+                    .axioms(axioms)
+                    .message(diffAdd.message())
+                    .build();
+
+            if (diff != null) {
+                return diffRepository.insert(diff);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("Error happened during diff creation: " + e.getMessage());
         }
+
+        return null;
     }
 
     public void assignOntologyId(List<Diff> diffIds, String ontologyId) {
