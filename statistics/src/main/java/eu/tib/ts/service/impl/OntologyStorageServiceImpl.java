@@ -26,16 +26,17 @@ import java.nio.file.Paths;
 @Service
 public class OntologyStorageServiceImpl implements OntologyStorageService {
 
-    private final Path path;
+    private final Path path=null;
 
-    public OntologyStorageServiceImpl(Path path) throws IOException {
-
-        this.path = path;
-
-    }
+//    public OntologyStorageServiceImpl(Path path) throws IOException {
+//
+//        this.path = path;
+//
+//    }
 
     @Override
     public OWLOntology loadOntologyIntoOWLOntologyFromMultipartFile(MultipartFile file) throws IOException {
+
 
         OWLOntology owlOntology;
 

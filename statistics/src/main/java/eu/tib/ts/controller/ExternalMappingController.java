@@ -10,31 +10,19 @@ import eu.tib.ts.utils.HttpUtils;
 import eu.tib.ts.utils.PageUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.springframework.core.io.Resource;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +49,6 @@ public class ExternalMappingController {
         this.externalMappingPagedResourcesAssembler=externalMappingPagedResourcesAssembler;
         this.externalMappingModelAssembler = externalMappingModelAssembler;
     }
-
     @Operation(summary = "Mappings between an external ontology and a set of selected TIB TS ontologies")
     @GetMapping(value = "/external/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsForExternalOntologyUri(
@@ -121,12 +108,12 @@ public class ExternalMappingController {
 
     @Operation(summary = "Mappings between multiple uploaded ontology files")
     @Async
-    @PostMapping("/external/upload")
+    @PostMapping(value="/external/upload", produces= MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsLoadOntologyFiles(
             @Parameter(description = "Source ontology file path", example = "file path")
             @RequestParam("sourceFile") MultipartFile sourceFile,
             @Parameter(description = "List of target ontology file paths", example = "file paths")
-            @RequestParam("targetFiles") MultipartFile[] targetFiles,
+            @RequestParam("targetFiles") List<MultipartFile> targetFiles,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
             Pageable pageable
@@ -151,9 +138,9 @@ public class ExternalMappingController {
 
     @Operation(summary = "Mappings between multiple uploaded ontology files")
     @Async
-    @PostMapping("/test/upload")
+    @PostMapping(value="/test/upload", produces= MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, String>> getMappingsUploadOntologyFiles(
-            @RequestParam("files") MultipartFile[] files,
+            @RequestParam("files") List<MultipartFile> files,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat
             ) throws IOException {

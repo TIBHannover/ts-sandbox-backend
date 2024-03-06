@@ -91,11 +91,12 @@ public class MappingController {
 
                 }
 
-                }
+            }
 
             }
 
-        return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
+    return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
+
     }
 
     @Operation(summary ="Filter mappings by selected one or more ontology collection and one or more source ontology ids " +
