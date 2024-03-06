@@ -108,53 +108,54 @@ public class ExternalMappingController {
     return HttpUtils.ok(pagedModel);
     }
 
-    @Operation(summary = "Mappings between multiple uploaded ontology files")
-    @Async
-    @PostMapping(value="/eccenca", produces= MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsLoadOntologyFiles(
-            @Parameter(description = "Source ontology file path", example = "one file path")
-            @RequestParam("sourceFile") MultipartFile sourceFile,
-            @Parameter(description = "List of target ontology file paths", example = "one or more file paths")
-            @RequestParam("targetFiles") MultipartFile[] targetFiles,
-            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
-            @RequestParam boolean sat,
-            Pageable pageable
-    ) {
+//    @Operation(summary = "Mappings between multiple uploaded ontology files from local machine")
+//    @Async
+//    @PostMapping(value="/eccenca", produces= MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsLoadOntologyFiles(
+//            @Parameter(description = "Source ontology file path", example = "one file path")
+//            @RequestParam("sourceFile") MultipartFile sourceFile,
+//            @Parameter(description = "List of target ontology file paths", example = "one or more file paths")
+//            @RequestParam("targetFiles") MultipartFile[] targetFiles,
+//            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
+//            @RequestParam boolean sat,
+//            Pageable pageable
+//    ) {
+//
+//        log.info("satisfiability : " + sat);
+//
+//        log.info("source file name: [" + sourceFile.getOriginalFilename() + "] source file content type: [ " + sourceFile.getContentType()+ " ]");
+//
+//        int i=1;
+//
+//        log.info("number of target files: " + targetFiles.length);
+//
+//        for(MultipartFile file: targetFiles) {
+//
+//        log.info(i++ + ".",  " target file name: [ " + file.getOriginalFilename() + " ] target file content type: [ " + file.getContentType()+ " ]");
+//
+//        }
+//
+//        ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), sourceFile,
+//                "external source ontology as a file");
+//
+//        Page<ExternalMapping> eternalMappingPage = null;
+//
+//        PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
+//                eternalMappingPage,
+//                ExternalMappingModel.class,
+//                externalMappingPagedResourcesAssembler,
+//                externalMappingModelAssembler
+//        );
+//
+//    return ResponseEntity.ok(pagedModel);
+//
+//    }
 
-        ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), sourceFile,
-                "external source ontology as a file");
-
-        log.info("satisfiability : " + sat);
-
-        log.info(" source file name: " + sourceFile.getOriginalFilename() + "source file content type: " + sourceFile.getContentType());
-
-        int i=1;
-
-        log.info("number of target files: " + targetFiles.length);
-
-        for(MultipartFile file: targetFiles) {
-
-        log.info(i++ + ".",  " target file name: " + file.getOriginalFilename() + "target file content type: " + file.getContentType());
-
-        }
-
-
-
-        Page<ExternalMapping> eternalMappingPage = null;
-
-        PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
-                eternalMappingPage,
-                ExternalMappingModel.class,
-                externalMappingPagedResourcesAssembler,
-                externalMappingModelAssembler
-        );
-
-    return ResponseEntity.ok(pagedModel);
-
-    }
-
-    @PostMapping(value="/test/upload")
+    @Operation(summary = "Mappings between uploaded ontology files from local machine")
+    @PostMapping(value="/eccenca")
     public ResponseEntity<Map<String, String>> produceMultipartFileMapping(
+            @Parameter(description = "Source ontology file path", example = "one file path")
+            @RequestPart("file") MultipartFile file,
             @Parameter(description = "List of multipart file paths", example = "file path")
             @RequestPart(value = "files") MultipartFile[] files,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
@@ -166,13 +167,19 @@ public class ExternalMappingController {
 
    int i=1;
 
+   log.info("satisfiability: " + sat);
+
+   log.info("source ontology original file name: " + file.getOriginalFilename() + " source ontology file content type: " + file.getContentType());
+
    log.info("files length: " + files.length);
 
-   for(MultipartFile file: files) {
+   filesMap.put(i++ + ".",  " source ontology original file name: " + file.getOriginalFilename() + " source ontology file content type: " + file.getContentType());
 
-   log.info(i++ + ".",  " file original name: " + file.getOriginalFilename() + " file content type: " + file.getContentType() + " sat: " + sat);
+   for(MultipartFile f: files) {
 
-   filesMap.put(i++ + ".",  " file original name: " + file.getOriginalFilename() + " file content type: " + file.getContentType() + " sat: " + sat);
+   log.info(i++ + ".",  " target ontology original file name: " + f.getOriginalFilename() + " target ontology file content type: " + f.getContentType());
+
+   filesMap.put(i++ + ".",  " target ontology original file name: " + f.getOriginalFilename() + " target ontology file content type: " + f.getContentType());
 
   }
 
