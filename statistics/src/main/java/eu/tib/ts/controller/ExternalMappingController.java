@@ -10,6 +10,7 @@ import eu.tib.ts.utils.HttpUtils;
 import eu.tib.ts.utils.PageUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("api/ontology/mapping")
 public class ExternalMappingController {
@@ -108,19 +110,34 @@ public class ExternalMappingController {
 
     @Operation(summary = "Mappings between multiple uploaded ontology files")
     @Async
-    @PostMapping(value="/external/upload", produces= MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value="/eccenca", produces= MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsLoadOntologyFiles(
-            @Parameter(description = "Source ontology file path", example = "file path")
+            @Parameter(description = "Source ontology file path", example = "one file path")
             @RequestParam("sourceFile") MultipartFile sourceFile,
-            @Parameter(description = "List of target ontology file paths", example = "file paths")
-            @RequestParam("targetFiles") List<MultipartFile> targetFiles,
+            @Parameter(description = "List of target ontology file paths", example = "one or more file paths")
+            @RequestParam("targetFiles") MultipartFile[] targetFiles,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
             Pageable pageable
-    ) throws IOException {
+    ) {
 
         ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), sourceFile,
                 "external source ontology as a file");
+
+        log.info("satisfiability : " + sat);
+
+        log.info(" source file name: " + sourceFile.getOriginalFilename() + "source file content type: " + sourceFile.getContentType());
+
+        int i=1;
+
+        log.info("number of target files: " + targetFiles.length);
+
+        for(MultipartFile file: targetFiles) {
+
+        log.info(i++ + ".",  " target file name: " + file.getOriginalFilename() + "target file content type: " + file.getContentType());
+
+        }
+
 
 
         Page<ExternalMapping> eternalMappingPage = null;
@@ -132,32 +149,35 @@ public class ExternalMappingController {
                 externalMappingModelAssembler
         );
 
-        return ResponseEntity.ok(pagedModel);
+    return ResponseEntity.ok(pagedModel);
 
     }
 
-    @Operation(summary = "Mappings between multiple uploaded ontology files")
-    @Async
-    @PostMapping(value="/test/upload", produces= MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, String>> getMappingsUploadOntologyFiles(
-            @RequestParam("files") List<MultipartFile> files,
+    @PostMapping(value="/test/upload")
+    public ResponseEntity<Map<String, String>> produceMultipartFileMapping(
+            @Parameter(description = "List of multipart file paths", example = "file path")
+            @RequestPart(value = "files") MultipartFile[] files,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
-            @RequestParam boolean sat
-            ) throws IOException {
+            @RequestParam boolean sat,
+            Pageable pageable
+            ){
 
-    Map<String, String> filesMap = new HashMap<>();
+   Map<String, String> filesMap = new HashMap<>();
 
-    int i=1;
+   int i=1;
 
-    for(MultipartFile file: files) {
+   log.info("files length: " + files.length);
 
-    filesMap.put(i++ + ".",  " file name: " + file.getName() + " file resource: " + file.getResource() + "sat: " + sat);
+   for(MultipartFile file: files) {
 
-    }
+   log.info(i++ + ".",  " file original name: " + file.getOriginalFilename() + " file content type: " + file.getContentType() + " sat: " + sat);
 
-    return ResponseEntity.ok(filesMap);
+   filesMap.put(i++ + ".",  " file original name: " + file.getOriginalFilename() + " file content type: " + file.getContentType() + " sat: " + sat);
 
-    }
+  }
 
+  return ResponseEntity.ok(filesMap);
+
+  }
 
 }
