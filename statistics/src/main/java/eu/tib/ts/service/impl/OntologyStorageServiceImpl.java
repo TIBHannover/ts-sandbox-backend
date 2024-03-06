@@ -15,10 +15,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -84,15 +81,28 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
     @Override
     public OntModel loadOntologyIntoOntModelFromMultipartFile(MultipartFile file) throws IOException {
 
-        OntModel model = null;
+//      OntModel model = null;
 
-        try (InputStream inputStream = file.getInputStream()) {
+        File intputFile = file.getResource().getFile();;
 
-            model = ModelFactory.createOntologyModel();
 
-            model.read(inputStream, file.getOriginalFilename());
+        log.info("source absolute file path: " + intputFile.getCanonicalPath());
 
-        }
+//      try (InputStream inputStream = intputFile.getInputStream()) {
+
+        OntModel  model = ModelFactory.createOntologyModel();
+
+        InputStream in = new FileInputStream(intputFile.getPath());
+        model.read(in, null);
+        in.close();
+
+        log.info("ontology URL: " + model.getNsPrefixURI(""));
+
+
+
+//        model.read("file:"+intputFile.getAbsolutePath(),"");
+
+//        }
 
         return model;
 

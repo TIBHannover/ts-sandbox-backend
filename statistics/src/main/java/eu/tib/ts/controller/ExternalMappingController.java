@@ -22,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +161,7 @@ public class ExternalMappingController {
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
             Pageable pageable
-            ){
+            ) throws IOException {
 
    Map<String, String> filesMap = new HashMap<>();
 
@@ -180,9 +182,12 @@ public class ExternalMappingController {
    filesMap.put(i++ + ".",  " target ontology original file name: " + f.getOriginalFilename() + " target ontology file content type: " + f.getContentType());
 
   }
+   File newFile = file.getResource().getFile();
+
+log.info("file path: " + file.getResource().getFile().getAbsolutePath().toString());
 
   ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), file,
-                "external source ontology as a file");
+                file.getOriginalFilename());
 
    log.info("sourceProcessedOntology.getUri(): " + sourceProcessedOntology.getUri());
 
