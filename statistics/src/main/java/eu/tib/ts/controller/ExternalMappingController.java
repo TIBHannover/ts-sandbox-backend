@@ -127,6 +127,8 @@ public class ExternalMappingController {
 
     List<ProcessedOntology> targetProcessedOntologyList = new ArrayList<>();
 
+
+
    Map<String, String> filesMap = new HashMap<>();
 
    int i=1;
@@ -163,6 +165,8 @@ public class ExternalMappingController {
 // OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(inOwl);
 // log.info("owlOntology.getOntologyID() :  " + owlOntology.getOntologyID());
 // inOwl.close();
+
+  log.info(String.valueOf("size of targetProcessedOntologyList: " + targetProcessedOntologyList.size()));
 
  log.info("target ontology titles: ");
 
