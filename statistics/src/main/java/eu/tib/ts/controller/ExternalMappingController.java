@@ -182,6 +182,7 @@ public class ExternalMappingController {
 
    for(MultipartFile f: files) {
 
+
    log.info(i++ + ".",  " target ontology original file name: " + f.getOriginalFilename() + " target ontology file content type: " + f.getContentType());
 
    filesMap.put(i++ + ".",  " target ontology original file name: " + f.getOriginalFilename() + " target ontology file content type: " + f.getContentType());
@@ -208,7 +209,7 @@ public class ExternalMappingController {
  inOwl.close();
 
 
-//ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), file, file.getOriginalFilename());
+ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), file, file.getOriginalFilename());
 
   return ResponseEntity.ok(filesMap);
 

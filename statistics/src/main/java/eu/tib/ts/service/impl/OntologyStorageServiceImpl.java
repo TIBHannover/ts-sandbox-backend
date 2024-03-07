@@ -23,56 +23,18 @@ import java.nio.file.Paths;
 @Service
 public class OntologyStorageServiceImpl implements OntologyStorageService {
 
-    private final Path path=null;
-
-//    public OntologyStorageServiceImpl(Path path) throws IOException {
-//
-//        this.path = path;
-//
-//    }
-
     @Override
-    public OWLOntology loadOntologyIntoOWLOntologyFromMultipartFile(MultipartFile file) throws IOException {
+    public OWLOntology loadOntologyIntoOWLOntologyFromMultipartFile(MultipartFile file) throws IOException, OWLOntologyCreationException {
 
+        InputStream in = file.getInputStream();
 
-        OWLOntology owlOntology;
+        OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 
-        if (file.isEmpty()) {
+        OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(in);
 
-        throw new RuntimeException("Failed to store empty file");
+        log.info("owlOntology.getOntologyID() :  " + owlOntology.getOntologyID());
 
-        } else {
-
-            owlOntology = null;
-
-            Path filePath = this.path.resolve(Paths.get(file.getOriginalFilename()))
-                    .normalize().toAbsolutePath();
-
-            if (!filePath.getParent().equals(this.path.toAbsolutePath())) {
-
-                throw new RuntimeException("Can not store file outside of current folder");
-            }
-
-            try (InputStream inputStream = file.getInputStream()) {
-
-                File ontologyFile = new File(file.toString());
-
-                copyInputStreamToFile(inputStream, ontologyFile);
-
-//              Files.copy(inputStream,filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                OWLOntologyManager owlOntologyManager = OWLManager.createOWLOntologyManager();
-
-                try {
-
-                    owlOntology = owlOntologyManager.loadOntologyFromOntologyDocument(ontologyFile);
-
-                } catch (OWLOntologyCreationException e) {
-
-                    e.printStackTrace();
-                }
-            }
-        }
+        in.close();
 
     return owlOntology;
 
@@ -84,29 +46,14 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
         OntModel  model = ModelFactory.createOntologyModel();
         InputStream in = file.getInputStream();
 
+        /**
+         * TURTLE language only
+         */
         model.read(in,null, "TURTLE");
 
         return model;
 
     }
-    /**
-     * copy input streamn to a file
-     *
-     * @param inputStream
-     * @param file
-     * @throws IOException
-     */
-    private static void copyInputStreamToFile(InputStream inputStream, File file)
-            throws IOException {
 
-        try (FileOutputStream outputStream = new FileOutputStream(file, false)) {
-            int read;
-            byte[] bytes = new byte[10096];
-            while ((read = inputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, read);
-            }
-        }
-
-    }
 
 }
