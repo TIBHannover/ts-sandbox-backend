@@ -113,49 +113,6 @@ public class ExternalMappingController {
 
     }
 
-//    @Operation(summary = "Mappings between multiple uploaded ontology files from local machine")
-//    @Async
-//    @PostMapping(value="/eccenca", produces= MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsLoadOntologyFiles(
-//            @Parameter(description = "Source ontology file path", example = "one file path")
-//            @RequestParam("sourceFile") MultipartFile sourceFile,
-//            @Parameter(description = "List of target ontology file paths", example = "one or more file paths")
-//            @RequestParam("targetFiles") MultipartFile[] targetFiles,
-//            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
-//            @RequestParam boolean sat,
-//            Pageable pageable
-//    ) {
-//
-//        log.info("satisfiability : " + sat);
-//
-//        log.info("source file name: [" + sourceFile.getOriginalFilename() + "] source file content type: [ " + sourceFile.getContentType()+ " ]");
-//
-//        int i=1;
-//
-//        log.info("number of target files: " + targetFiles.length);
-//
-//        for(MultipartFile file: targetFiles) {
-//
-//        log.info(i++ + ".",  " target file name: [ " + file.getOriginalFilename() + " ] target file content type: [ " + file.getContentType()+ " ]");
-//
-//        }
-//
-//        ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), sourceFile,
-//                "external source ontology as a file");
-//
-//        Page<ExternalMapping> eternalMappingPage = null;
-//
-//        PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
-//                eternalMappingPage,
-//                ExternalMappingModel.class,
-//                externalMappingPagedResourcesAssembler,
-//                externalMappingModelAssembler
-//        );
-//
-//    return ResponseEntity.ok(pagedModel);
-//
-//    }
-
     @Operation(summary = "Mappings between uploaded ontology files from local machine")
     @PostMapping(value="/eccenca")
     public ResponseEntity<Map<String, String>> produceMultipartFileMapping(
@@ -166,7 +123,9 @@ public class ExternalMappingController {
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
             Pageable pageable
-            ) throws IOException, OWLOntologyCreationException {
+            ) {
+
+    List<ProcessedOntology> targetProcessedOntologyList = new ArrayList<>();
 
    Map<String, String> filesMap = new HashMap<>();
 
@@ -180,38 +139,39 @@ public class ExternalMappingController {
 
    filesMap.put(i++ + ".",  " source ontology original file name: " + file.getOriginalFilename() + " source ontology file content type: " + file.getContentType());
 
+   ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), file, file.getOriginalFilename());
+   log.info("sourceProcessedOntology.getOntologyId(): " + sourceProcessedOntology.getOntologyId() + " sourceProcessedOntology.getUri(): "+ sourceProcessedOntology.getUri());
+
    for(MultipartFile f: files) {
 
+   ProcessedOntology targetProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), f, f.getOriginalFilename());
+
+   targetProcessedOntologyList.add(targetProcessedOntology);
 
    log.info(i++ + ".",  " target ontology original file name: " + f.getOriginalFilename() + " target ontology file content type: " + f.getContentType());
 
    filesMap.put(i++ + ".",  " target ontology original file name: " + f.getOriginalFilename() + " target ontology file content type: " + f.getContentType());
 
-
   }
 
-  OntModel model = ModelFactory.createOntologyModel();
+//  OntModel model = ModelFactory.createOntologyModel();
+//  InputStream in = file.getInputStream();
+//  model.read(in,null, "TURTLE");
+//  in.close();
+//  InputStream inOwl = file.getInputStream();
+// OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+// OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(inOwl);
+// log.info("owlOntology.getOntologyID() :  " + owlOntology.getOntologyID());
+// inOwl.close();
 
-  InputStream in = file.getInputStream();
+ log.info("target ontology titles: ");
 
-  model.read(in,null, "TURTLE");
+for(ProcessedOntology po: targetProcessedOntologyList){
 
-  in.close();
+    log.info(po.getTitle());
+}
 
-  InputStream inOwl = file.getInputStream();
-
- OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-
- OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(inOwl);
-
- log.info("owlOntology.getOntologyID() :  " + owlOntology.getOntologyID());
-
- inOwl.close();
-
-
-ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), file, file.getOriginalFilename());
-
-  return ResponseEntity.ok(filesMap);
+return ResponseEntity.ok(filesMap);
 
 }
 
