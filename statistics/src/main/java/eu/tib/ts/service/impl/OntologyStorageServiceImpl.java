@@ -81,28 +81,10 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
     @Override
     public OntModel loadOntologyIntoOntModelFromMultipartFile(MultipartFile file) throws IOException {
 
-//      OntModel model = null;
-
-        File intputFile = file.getResource().getFile();;
-
-
-        log.info("source absolute file path: " + intputFile.getCanonicalPath());
-
-//      try (InputStream inputStream = intputFile.getInputStream()) {
-
         OntModel  model = ModelFactory.createOntologyModel();
+        InputStream in = file.getInputStream();
 
-        InputStream in = new FileInputStream(intputFile.getPath());
-        model.read(in, null);
-        in.close();
-
-        log.info("ontology URL: " + model.getNsPrefixURI(""));
-
-
-
-//        model.read("file:"+intputFile.getAbsolutePath(),"");
-
-//        }
+        model.read(in,null, "TURTLE");
 
         return model;
 

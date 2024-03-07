@@ -11,8 +11,15 @@ import eu.tib.ts.utils.PageUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -22,12 +29,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -105,7 +108,9 @@ public class ExternalMappingController {
                 externalMappingPagedResourcesAssembler,
                 externalMappingModelAssembler
         );
-    return HttpUtils.ok(pagedModel);
+
+        return HttpUtils.ok(pagedModel);
+
     }
 
 //    @Operation(summary = "Mappings between multiple uploaded ontology files from local machine")
@@ -161,7 +166,7 @@ public class ExternalMappingController {
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
             Pageable pageable
-            ) throws IOException {
+            ) throws IOException, OWLOntologyCreationException {
 
    Map<String, String> filesMap = new HashMap<>();
 
@@ -181,18 +186,32 @@ public class ExternalMappingController {
 
    filesMap.put(i++ + ".",  " target ontology original file name: " + f.getOriginalFilename() + " target ontology file content type: " + f.getContentType());
 
+
   }
-   File newFile = file.getResource().getFile();
 
-log.info("file path: " + file.getResource().getFile().getAbsolutePath().toString());
+  OntModel model = ModelFactory.createOntologyModel();
 
-  ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), file,
-                file.getOriginalFilename());
+  InputStream in = file.getInputStream();
 
-   log.info("sourceProcessedOntology.getUri(): " + sourceProcessedOntology.getUri());
+  model.read(in,null, "TURTLE");
+
+  in.close();
+
+  InputStream inOwl = file.getInputStream();
+
+ OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+
+ OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(inOwl);
+
+ log.info("owlOntology.getOntologyID() :  " + owlOntology.getOntologyID());
+
+ inOwl.close();
+
+
+//ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), file, file.getOriginalFilename());
 
   return ResponseEntity.ok(filesMap);
 
-  }
+}
 
 }
