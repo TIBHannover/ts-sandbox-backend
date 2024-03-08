@@ -1,10 +1,7 @@
 package eu.tib.ts.service.impl;
-
-import eu.tib.ts.model.ontology.OntologyType;
 import eu.tib.ts.service.OntologyStorageService;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.rdf.model.ModelFactory;
 
@@ -16,8 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Slf4j
 @Service
@@ -30,13 +25,14 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
 
         OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 
+
         OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(in);
 
         log.info("owlOntology.getOntologyID() :  " + owlOntology.getOntologyID());
 
         in.close();
 
-    return owlOntology;
+        return owlOntology;
 
     }
 

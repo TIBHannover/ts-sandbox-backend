@@ -2,6 +2,7 @@ package eu.tib.ts.service;
 
 import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.ExtendedOntology;
+import eu.tib.ts.model.ontology.ProcessedOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,5 +40,22 @@ public interface ExternalMappingService {
     <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenTwoExternalOntologies(T sourceOntology,
                                                                                                T targetOntology, boolean sat,
                                                                                       Pageable pageable) throws OWLOntologyCreationException;
+
+
+    /**
+     * Mapping between source ontology and list of target ontologies, given as local file paths. In this implementation
+     * we use Multipart upload.
+     *
+     * @param ontology
+     * @param processedOntologyList
+     * @param sat
+     * @param pageable
+     * @return
+     * @param <T>
+     */
+    public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(T ontology,
+                                                                                                                 List<ProcessedOntology> processedOntologyList,
+                                                                                                                 boolean sat,
+                                                                                                                 Pageable pageable);
 
 }

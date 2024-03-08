@@ -53,6 +53,160 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     }
 
     @Override
+    public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(T ontology,
+                                                                                                                 List<ProcessedOntology> processedOntologyList,
+                                                                                                                 boolean sat,
+                                                                                                                 Pageable pageable){
+        ProcessedOntology ont2 = ProcessedOntology.of(ontology);
+
+        List<ExternalMapping> externalMappingList = new ArrayList<>();
+
+        int numberOfTargetOntologies = processedOntologyList.size();
+
+        Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
+
+        int numberOfMappingsProcessed = 0;
+
+        for (ProcessedOntology ont1 : processedOntologyList) {
+
+            log.info("mapping for ontology : " + ont1.getOntologyId());
+            log.info("target ontology uri: " + ont1.getUri());
+
+            /**
+             * disallow mapping computation between the same URLs
+             */
+            if(ont1.getUri().equals(ont2.getUri())) continue;
+
+            ontologyManager= OWLManager.createOWLOntologyManager();
+
+            TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
+
+            try {
+                /**
+                 * generate first and second random numbers
+                 */
+                Random r1 = SecureRandom.getInstanceStrong();
+                Random r2 = SecureRandom.getInstanceStrong();
+
+                long id = r1.nextLong() * r2.nextLong();
+                targetOntologyObjectSetModel.setId(id);
+
+            }catch (Exception e) {
+
+                log.info("Source random get instance exception: " + e.getMessage());
+
+            }
+            /**
+             * target ontology hashset
+             */
+            Set<OntologyDto> targetOntologySet = new HashSet<>();
+
+            log.info("target ontology id: " + ont1.getOntologyId());
+            log.info("target ontology uri: " + ont1.getUri());
+            log.info("target ontology title: " + ont1.getTitle());
+            log.info("target ontology collection: " + ont1.getCollection());
+
+            /**
+             * target ontology dto from terminology service (localhost: Docker)
+             */
+            OntologyDto targetTSOntDto = OntologyDto.builder()
+                    .ontologyId(ont1.getOntologyId())
+                    .uri(ont1.getUri())
+                    .title(ont1.getTitle())
+                    .collection(ont1.getCollection())
+                    .build();
+
+            targetOntologySet.add(targetTSOntDto);
+
+            /**
+             * target ontology set
+             */
+            targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+
+            try {
+/**
+ * Enable  HermiT reasoner during the computation of mappings. In Parameters class reasoning is set to HermiT.
+ *
+ */
+                LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(
+                        ontologyManager.loadOntology(IRI.create(
+                                ont2.getUri())), ontologyManager.loadOntology(IRI.create(
+                        ont1.getUri())), Parameters.hermit
+                );;
+
+                Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
+                Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
+
+                if(sat) {
+
+                    targetOntologyObjectSetModel.setMappingException(getReasoningExplanation(logmap2Mappings, ont2, ont1 ));
+
+                } else {
+
+                    targetOntologyObjectSetModel.setMappingException("Checking classes satisfiability is off");
+                }
+
+                if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
+
+                    /**
+                     *
+                     * Number of mappings
+                     * Number of conflictive mappings
+                     */
+                    targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
+                    targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+
+                    Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
+
+                    /**
+                     * Store mappings information in target ontology object set model
+                     */
+                    getExternalMappings(mappingList, logmap2Mappings);
+
+                    /**
+                     * mapping list
+                     */
+                    targetOntologyObjectSetModel.setMappingList(mappingList);
+
+                    Set<MappingObjectSetModel> conflictiveMappingList = new HashSet<MappingObjectSetModel>();
+
+                    /**
+                     * Stores conflictive mappings information in target ontology object set model
+                     */
+                    getExternalMappings(conflictiveMappingList, conflictiveLogmap2Mappings);
+
+                    /**
+                     * conflictive mappings list
+                     */
+                    targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
+                }
+
+            }catch(Exception e){
+
+                targetOntologyObjectSetModel.setMappingException(getExeptionMessage(e, " "));
+
+                log.error("Mapping exception: " + e.getMessage());
+
+            }
+
+            targetOntologyList.add(targetOntologyObjectSetModel);
+
+            numberOfMappingsProcessed++;
+
+        } // end loop for all selected ontologies from tib terminology service
+
+        ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
+
+        externalMappingList.add(externalMapping);
+
+        log.info("number of mappings processed: " + numberOfMappingsProcessed);
+
+        return PageUtils.toPage(externalMappingList, pageable);
+
+    }
+
+
+    @Override
     public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsForExternalOntology(T ontology, Optional<List<String>> ids, boolean sat, Pageable pageable) {
 
         log.info("started mappings computation for the following ontologies: ");
