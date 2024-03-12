@@ -127,23 +127,6 @@ public class ExternalMappingController {
 
    List<ProcessedOntology> targetProcessedOntologyList = new ArrayList<>();
 
-//   ProcessedOntology sourceProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), file, "processed source ontology");
-//
-//   for(MultipartFile f: files) {
-//
-//   ProcessedOntology targetProcessedOntology = preProcessingOntologyService.preProcessMultipartFile(Optional.empty(), f, "processed target ontology");
-//
-//   targetProcessedOntologyList.add(targetProcessedOntology);
-//
-//  }
-//
-//   log.info("target ontologies: ");
-//   for(ProcessedOntology processedOntology: targetProcessedOntologyList){
-//
-//   log.info("ontology id: "+ processedOntology.getOntologyId() + " title: "+  processedOntology.getTitle() + " uri: " + processedOntology.getUri()+ " id: " + processedOntology.getId());
-//
-//   }
-
 Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.getMultipartFileMappingMappingForExternalOntology(
                 file,
                 files,

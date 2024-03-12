@@ -7,10 +7,8 @@ import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.service.ExternalMappingService;
-import eu.tib.ts.service.OntologyFilterService;
 
 import eu.tib.ts.service.OntologyStorageService;
-import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -80,11 +78,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         }
 
-//       ProcessedOntology sourceOntology = ProcessedOntology.of(ont2);
-
         List<ExternalMapping> externalMappingList = new ArrayList<>();
-
-//      int numberOfTargetOntologies = processedOntologyList.size();
 
         int numberOfTargetOntologies = owlOntologyList.size();
 
@@ -94,16 +88,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         for (OWLOntology ont1 : owlOntologyList) {
 
-//            log.info("mapping for ontology : " + ont1.getOntologyId());
-//            log.info("target ontology uri: " + ont1.getUri());
-
-            /**
-             * disallow mapping computation between the same URLs
-             */
-//            if(ont1.getUri().equals(ont2.getUri())) continue;
-
             ontologyManager= OWLManager.createOWLOntologyManager();
-
             
             TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
 
@@ -127,26 +112,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
              */
             Set<OntologyDto> targetOntologySet = new HashSet<>();
 
-//            log.info("target ontology id: " + ont1.getOntologyId());
-//            log.info("target ontology uri: " + ont1.getUri());
-//            log.info("target ontology title: " + ont1.getTitle());
-//            log.info("target ontology collection: " + ont1.getCollection());
-
-            String targetOntologyURI = null;
-
-            for(OWLAnnotation owlAnnotation : ont1.getAnnotations()){
-
-                log.info("owlAnnotation.getProperty().getIRI().getIRIString(): " + owlAnnotation.getProperty().getIRI().getIRIString());
-                targetOntologyURI = owlAnnotation.getProperty().getIRI().getIRIString();
-            };
-
             /**
              * target ontology dto from terminology service (localhost: Docker)
              */
             OntologyDto targetTSOntDto = OntologyDto.builder()
-                    .ontologyId(ont1.getOntologyID().toString())
-                    .uri(targetOntologyURI)
-                    .title(ont1.getOntologyID().getOntologyIRI().toString())
+                    .ontologyId(ont1.getOntologyID().getOntologyIRI().get().getFragment().toString())
+                    .uri(ont1.getOntologyID().getOntologyIRI().get().toURI().toString())
+                    .title(ont1.getOntologyID().getOntologyIRI().get().getFragment().toString())
                     .collection(null)
                     .build();
 
@@ -166,7 +138,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 if(sat) {
 
-                    targetOntologyObjectSetModel.setMappingException(getReasoningExplanationForOWLOntology(logmap2Mappings, sourceOntology, ont1 ));
+                    targetOntologyObjectSetModel.setMappingException(getReasoningExplanationForMultipartOWLOntologyFile(logmap2Mappings, sourceOntology, ont1 ));
 
                 } else {
 
@@ -232,7 +204,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
 
-    private String getReasoningExplanationForOWLOntology(Set<MappingObjectStr> logmap2Mappings, OWLOntology onto2, OWLOntology onto1 ){
+    private String getReasoningExplanationForMultipartOWLOntologyFile(Set<MappingObjectStr> logmap2Mappings, OWLOntology onto2, OWLOntology onto1 ){
 
         try{
 
@@ -864,7 +836,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                                                    Set<TargetOntologyObjectSetModel> targetOntologyList) {
         return ExternalMapping.builder()
                 .mappingId(UUID.randomUUID().toString())
-                .sourceOntologyURI(ont1.getOntologyID().getOntologyIRI().toString())
+                .sourceOntologyURI(ont1.getOntologyID().getOntologyIRI().get().toURI().toString())
                 .numberOfTargetOntologies(numberOfTargetOntologies)
                 .targetOntologyList(targetOntologyList)
                 .build();

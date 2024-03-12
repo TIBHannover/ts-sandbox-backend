@@ -77,18 +77,7 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
 
         OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(in);
 
-        Set<OWLClass> owlClassList =  owlOntology.getClassesInSignature();
-
-        log.info("Ontology classes:");
-
-        for(OWLClass cl: owlClassList){
-
-            log.info(cl.getIRI().getIRIString());
-
-        }
-
-
-        log.info("owlOntology.getOntologyID() :  " + owlOntology.getOntologyID());
+        log.info("owlOntology.getOntologyID().getDefaultDocumentIRI().get().toURI().toString() :  " + owlOntology.getOntologyID().getDefaultDocumentIRI().get().toURI().toString());
 
         in.close();
 
