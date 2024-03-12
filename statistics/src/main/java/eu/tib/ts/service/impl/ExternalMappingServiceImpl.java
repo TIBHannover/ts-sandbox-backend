@@ -853,8 +853,5 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     return StreamSupport.stream(ProcessedMongoOntologyRepository.findAll().spliterator(), false)
                 .sorted(Comparator.comparing(ProcessedOntology::getOntologyId))
                 .collect(Collectors.toList());
-
-
     }
-
 }
