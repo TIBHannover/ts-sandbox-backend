@@ -2,7 +2,6 @@ package eu.tib.ts.service;
 
 import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.ExtendedOntology;
-import eu.tib.ts.model.ontology.ProcessedOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,18 +41,20 @@ public interface ExternalMappingService {
     <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenTwoExternalOntologies(T sourceOntology,
                                                                                                T targetOntology, boolean sat,
                                                                                       Pageable pageable) throws OWLOntologyCreationException;
-
-
     /**
+     *
      * Mapping between source ontology and list of target ontologies, given as local file paths. In this implementation
      * we use Multipart upload.
      *
+      * @param file file path to source ontology
+     * @param files file paths to one or more target ontologies
+     * @param sat satisfiability checking yes/no
+     * @param pageable pageable
+     * @return
+     * @param <T>
+     * @throws OWLOntologyCreationException
+     * @throws IOException
      */
-//    public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(ProcessedOntology ont2,
-//                                                                                                                 List<ProcessedOntology> processedOntologyList,
-//                                                                                                                 boolean sat,
-//                                                                                                                 Pageable pageable);
-
     public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(MultipartFile file,
                                                                                                                  MultipartFile[] files,
                                                                                                                  boolean sat,

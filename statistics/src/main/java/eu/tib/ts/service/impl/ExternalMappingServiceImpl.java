@@ -131,6 +131,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             try {
 
+                /**
+                 * Ontologies are loaded into LogMap Matcher as OWLOntology and not via URI.
+                 * Enable  HermiT reasoner during the computation of mappings. In Parameters class reasoning is set to HermiT.
+                 */
                 LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(sourceOntology, ont1, Parameters.hermit);;
 
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
@@ -208,24 +212,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         try{
 
-//            OWLOntologyManager ontoManager1;
-//            OWLOntologyManager ontoManager2;
-//
             OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
-//
-//            ontoManager1  = OWLManager.createOWLOntologyManager();
-//            ontoManager2  = OWLManager.createOWLOntologyManager();
-//
-//            OWLOntology onto1 = ontoManager1.loadOntology(IRI.create(ont1.getUri()));
-//            OWLOntology onto2 = ontoManager2.loadOntology(IRI.create(ont2.getUri()));
-
-
-            /**
-             * Merge source ontology, target ontology and mappings ontology.
-             */
-//                 OWLOntology mergedOntology = createMergedOntology(ontologyManager.loadOntology(IRI.create(ont2.getUri())),
-//                         ontologyManager.loadOntology(IRI.create(ont1.getUri())),
-//                         mappingsToOWLOntology);
 
             try {
 

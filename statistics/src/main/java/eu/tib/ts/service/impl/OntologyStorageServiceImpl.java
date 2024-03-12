@@ -11,58 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.Set;
-
 
 @Slf4j
 @Service
 public class OntologyStorageServiceImpl implements OntologyStorageService {
-
-//    @Override
-//    public OWLOntology loadOntologyIntoOWLOntologyFromMultipartFile(MultipartFile file) throws IOException {
-//
-//        OWLOntology owlOntology;
-//
-//        if (file.isEmpty()) {
-//
-//            throw new RuntimeException("Failed to store empty file");
-//
-//        } else {
-//
-//            owlOntology = null;
-//
-//
-//                try (InputStream inputStream = file.getInputStream()) {
-//
-//                    File ontologyFile = new File(System.getProperty("user.dir") + "/" + file.getOriginalFilename());
-//
-//                    copyInputStreamToFile(inputStream, ontologyFile);
-//
-////              Files.copy(inputStream,filePath, StandardCopyOption.REPLACE_EXISTING);
-//
-//                    OWLOntologyManager owlOntologyManager = OWLManager.createOWLOntologyManager();
-////                    InputStream in = file.getInputStream();
-//
-//                    try {
-//                        OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
-//
-//                        owlOntology = owlOntologyManager.loadOntologyFromOntologyDocument(ontologyFile);
-//
-////                        OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(in);
-//
-//                    } catch (OWLOntologyCreationException e) {
-//
-//                        log.info("owlOntology.getOntologyID() :  " + owlOntology.getOntologyID());
-//
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//            }
-//
-//        return owlOntology;
-//
-//        }
 
     @Override
     public OWLOntology loadOntologyIntoOWLOntologyFromMultipartFile(MultipartFile file) throws IOException, OWLOntologyCreationException {
@@ -71,13 +23,7 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
 
         OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 
-//      OWLOntologyLoaderConfiguration config = manager.getOntologyLoaderConfiguration();
-//      config = config.setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT);
-//      manager.setOntologyLoaderConfiguration(config);
-
         OWLOntology owlOntology = manager.loadOntologyFromOntologyDocument(in);
-
-        log.info("owlOntology.getOntologyID().getDefaultDocumentIRI().get().toURI().toString() :  " + owlOntology.getOntologyID().getDefaultDocumentIRI().get().toURI().toString());
 
         in.close();
 
@@ -97,7 +43,7 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
         /**
          * TURTLE language only
          */
-        model.read(in,"file:"+file.getResource().getURL(), "TURTLE");
+        model.read(in,"file:"+file.getResource().getURL(), "TTL");
 
         return model;
 
@@ -115,7 +61,4 @@ public class OntologyStorageServiceImpl implements OntologyStorageService {
         }
 
     }
-
-
-
 }

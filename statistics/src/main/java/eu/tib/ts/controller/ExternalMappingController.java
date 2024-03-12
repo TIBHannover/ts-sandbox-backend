@@ -78,7 +78,8 @@ public class ExternalMappingController {
                 externalMappingModelAssembler
         );
 
-        return HttpUtils.ok(pagedModel);
+    return HttpUtils.ok(pagedModel);
+
     }
 
     @Operation(summary = "Mappings between two external ontologies given by URLs")
@@ -109,23 +110,21 @@ public class ExternalMappingController {
                 externalMappingModelAssembler
         );
 
-        return HttpUtils.ok(pagedModel);
+    return HttpUtils.ok(pagedModel);
 
     }
 
-    @Operation(summary = "Mappings between uploaded ontology files uploaded from local machine")
+    @Operation(summary = "Mappings between ontology files uploaded from local machine")
     @PostMapping(value="/eccenca")
     public ResponseEntity<PagedModel<ExternalMappingModel>> produceMultipartFileMapping(
-            @Parameter(description = "Source ontology file path", example = "one file path")
+            @Parameter(description = "Source ontology file path", example = "-F file=@C://Users//KrdzavacN//git//ontologies//scor//scor.ttl")
             @RequestPart("file") MultipartFile file,
-            @Parameter(description = "List of multipart file paths", example = "file path")
+            @Parameter(description = "One or more target ontology file paths", example = "-F files=@C://Users//KrdzavacN//git//ontologies//scor//scor.ttl")
             @RequestPart(value = "files") MultipartFile[] files,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
             Pageable pageable
             ) throws OWLOntologyCreationException, IOException {
-
-   List<ProcessedOntology> targetProcessedOntologyList = new ArrayList<>();
 
 Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.getMultipartFileMappingMappingForExternalOntology(
                 file,
@@ -141,7 +140,7 @@ Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.g
                 externalMappingModelAssembler
         );
 
-        return HttpUtils.ok(pagedModel);
-}
+    return HttpUtils.ok(pagedModel);
 
+    }
 }
