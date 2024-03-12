@@ -22,7 +22,7 @@ public class OntologyReadServiceImpl implements OntologyReadService {
         OntModel model = ModelFactory.createOntologyModel();
         OntologyType type = OntologyType.get(StringUtils.right(uri, FILE_EXTENSION_LENGTH));
         model.read(uri, type.getName());
-        log.info("starting main service");
+        log.info("Loaded (" + uri.toString()+") ontology into Jena OntModel");
 
         return model;
     }

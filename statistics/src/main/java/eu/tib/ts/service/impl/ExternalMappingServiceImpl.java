@@ -9,6 +9,8 @@ import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.service.ExternalMappingService;
 import eu.tib.ts.service.OntologyFilterService;
 
+import eu.tib.ts.service.OntologyStorageService;
+import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ox.krr.logmap2.LogMap2_Matcher;
 import uk.ac.ox.krr.logmap2.Parameters;
 import uk.ac.ox.krr.logmap2.io.OWLAlignmentFormat;
@@ -28,6 +31,7 @@ import uk.ac.ox.krr.logmap2.mappings.objects.MappingObjectStr;
 import uk.ac.ox.krr.logmap2.reasoning.SatisfiabilityIntegration;
 import uk.ac.ox.krr.logmap2.utilities.Utilities;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,43 +46,65 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     OWLOntologyManager ontologyManager;
 
+    private final OntologyStorageService ontologyStorageService;
+
     @Autowired
     protected ExternalMappingServiceImpl(
             ProcessedMongoOntologyRepository processedMongoOntologyRepository,
-            OntologyFilterService ontologyFilterService
+            OntologyStorageService ontologyStorageService
+
     ){
 
     this.ProcessedMongoOntologyRepository=processedMongoOntologyRepository;
+        this.ontologyStorageService=ontologyStorageService;
+
 
     }
 
+
     @Override
-    public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(T ontology,
-                                                                                                                 List<ProcessedOntology> processedOntologyList,
+    public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(MultipartFile file,
+                                                                                                                 MultipartFile[] files,
                                                                                                                  boolean sat,
-                                                                                                                 Pageable pageable){
-        ProcessedOntology ont2 = ProcessedOntology.of(ontology);
+                                                                                                                 Pageable pageable) throws OWLOntologyCreationException, IOException {
+
+        OWLOntology sourceOntology = ontologyStorageService.loadOntologyIntoOWLOntologyFromMultipartFile(file);
+
+        List<OWLOntology> owlOntologyList = new ArrayList<>();
+
+        for(MultipartFile f: files){
+
+            OWLOntology targetOntology = ontologyStorageService.loadOntologyIntoOWLOntologyFromMultipartFile(f);
+
+            owlOntologyList.add(targetOntology);
+
+        }
+
+//       ProcessedOntology sourceOntology = ProcessedOntology.of(ont2);
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
 
-        int numberOfTargetOntologies = processedOntologyList.size();
+//      int numberOfTargetOntologies = processedOntologyList.size();
+
+        int numberOfTargetOntologies = owlOntologyList.size();
 
         Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
 
         int numberOfMappingsProcessed = 0;
 
-        for (ProcessedOntology ont1 : processedOntologyList) {
+        for (OWLOntology ont1 : owlOntologyList) {
 
-            log.info("mapping for ontology : " + ont1.getOntologyId());
-            log.info("target ontology uri: " + ont1.getUri());
+//            log.info("mapping for ontology : " + ont1.getOntologyId());
+//            log.info("target ontology uri: " + ont1.getUri());
 
             /**
              * disallow mapping computation between the same URLs
              */
-            if(ont1.getUri().equals(ont2.getUri())) continue;
+//            if(ont1.getUri().equals(ont2.getUri())) continue;
 
             ontologyManager= OWLManager.createOWLOntologyManager();
 
+            
             TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
 
             try {
@@ -101,19 +127,27 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
              */
             Set<OntologyDto> targetOntologySet = new HashSet<>();
 
-            log.info("target ontology id: " + ont1.getOntologyId());
-            log.info("target ontology uri: " + ont1.getUri());
-            log.info("target ontology title: " + ont1.getTitle());
-            log.info("target ontology collection: " + ont1.getCollection());
+//            log.info("target ontology id: " + ont1.getOntologyId());
+//            log.info("target ontology uri: " + ont1.getUri());
+//            log.info("target ontology title: " + ont1.getTitle());
+//            log.info("target ontology collection: " + ont1.getCollection());
+
+            String targetOntologyURI = null;
+
+            for(OWLAnnotation owlAnnotation : ont1.getAnnotations()){
+
+                log.info("owlAnnotation.getProperty().getIRI().getIRIString(): " + owlAnnotation.getProperty().getIRI().getIRIString());
+                targetOntologyURI = owlAnnotation.getProperty().getIRI().getIRIString();
+            };
 
             /**
              * target ontology dto from terminology service (localhost: Docker)
              */
             OntologyDto targetTSOntDto = OntologyDto.builder()
-                    .ontologyId(ont1.getOntologyId())
-                    .uri(ont1.getUri())
-                    .title(ont1.getTitle())
-                    .collection(ont1.getCollection())
+                    .ontologyId(ont1.getOntologyID().toString())
+                    .uri(targetOntologyURI)
+                    .title(ont1.getOntologyID().getOntologyIRI().toString())
+                    .collection(null)
                     .build();
 
             targetOntologySet.add(targetTSOntDto);
@@ -124,22 +158,15 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
 
             try {
-/**
- * Enable  HermiT reasoner during the computation of mappings. In Parameters class reasoning is set to HermiT.
- *
- */
-                LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(
-                        ontologyManager.loadOntology(IRI.create(
-                                ont2.getUri())), ontologyManager.loadOntology(IRI.create(
-                        ont1.getUri())), Parameters.hermit
-                );;
+
+                LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(sourceOntology, ont1, Parameters.hermit);;
 
                 Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
                 Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
                 if(sat) {
 
-                    targetOntologyObjectSetModel.setMappingException(getReasoningExplanation(logmap2Mappings, ont2, ont1 ));
+                    targetOntologyObjectSetModel.setMappingException(getReasoningExplanationForOWLOntology(logmap2Mappings, sourceOntology, ont1 ));
 
                 } else {
 
@@ -195,7 +222,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         } // end loop for all selected ontologies from tib terminology service
 
-        ExternalMapping externalMapping = processExternalMapping(ont2, numberOfTargetOntologies, targetOntologyList);
+        ExternalMapping externalMapping = processExternalMultifilePartMapping(sourceOntology, numberOfTargetOntologies, targetOntologyList);
 
         externalMappingList.add(externalMapping);
 
@@ -203,6 +230,79 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         return PageUtils.toPage(externalMappingList, pageable);
 
+    }
+
+    private String getReasoningExplanationForOWLOntology(Set<MappingObjectStr> logmap2Mappings, OWLOntology onto2, OWLOntology onto1 ){
+
+        try{
+
+//            OWLOntologyManager ontoManager1;
+//            OWLOntologyManager ontoManager2;
+//
+            OWLOntology mappingsToOWLOntology = getOWLOntology4GivenMappings(logmap2Mappings);
+//
+//            ontoManager1  = OWLManager.createOWLOntologyManager();
+//            ontoManager2  = OWLManager.createOWLOntologyManager();
+//
+//            OWLOntology onto1 = ontoManager1.loadOntology(IRI.create(ont1.getUri()));
+//            OWLOntology onto2 = ontoManager2.loadOntology(IRI.create(ont2.getUri()));
+
+
+            /**
+             * Merge source ontology, target ontology and mappings ontology.
+             */
+//                 OWLOntology mergedOntology = createMergedOntology(ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+//                         ontologyManager.loadOntology(IRI.create(ont1.getUri())),
+//                         mappingsToOWLOntology);
+
+            try {
+
+                /**
+                 * this classs is taken from LogMap matcher library (API)
+                 */
+                SatisfiabilityIntegration mappingsSatChecker = new SatisfiabilityIntegration(
+                        onto2,
+                        onto1,
+                        mappingsToOWLOntology,//mappingsToOWLOntology , //mergedOntology,
+                        true,//checks classes satisfiability
+                        false,//Time_Out_Class
+                        false); //use factory
+
+                if (mappingsSatChecker.hasUnsatClasses()) {
+
+                    log.info("merged "+ onto2.getOntologyID() + " ontology, "+ onto1.getOntologyID()+" ontology and mappings ontology does not have unsatisfiable classes");
+
+                    return "unsatisfiable classes: " + mappingsSatChecker.hasUnsatClasses() ;
+
+                } else {
+
+                    log.info("merged "+ onto2.getOntologyID() + " ontology, "+ onto1.getOntologyID()+" ontology and mappings ontology does not have unsatisfiable classes");
+
+                    return "unsatisfiable classes: " + mappingsSatChecker.hasUnsatClasses();
+
+                }
+
+            } catch(InconsistentOntologyException e){
+
+                log.info("merged "+ onto2.getOntologyID()+ " ontology, "+ onto1.getOntologyID()+" ontology and mappings ontology inconsistency: " + getExeptionMessage(e,""));
+
+                return getExeptionMessage(e, " ");
+            }
+
+        }catch (OWLOntologyCreationException owlOntologyCreationException){
+
+            log.info("owlOntologyCreationException.getLocalizedMessage(): " +  getExeptionMessage(owlOntologyCreationException,""));
+
+            return getExeptionMessage(owlOntologyCreationException, "OWL ontology creation exception is detected:");
+
+        } catch (Exception e) {
+
+            String message =  new RuntimeException(e).getLocalizedMessage();
+
+            log.info("runtime exception occurs: " + message);
+
+            return getExeptionMessage(e," ");
+        }
     }
 
 
@@ -686,7 +786,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     }
 
     /**
-     * The method is taken from LogMap Matcher
+     * The method is borrowed from LogMap Matcher
      * @param mappings
      * @return
      * @throws Exception
@@ -754,6 +854,17 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         return ExternalMapping.builder()
                 .mappingId(UUID.randomUUID().toString())
                 .sourceOntologyURI(ont1.getUri())
+                .numberOfTargetOntologies(numberOfTargetOntologies)
+                .targetOntologyList(targetOntologyList)
+                .build();
+    }
+
+    private ExternalMapping processExternalMultifilePartMapping(OWLOntology ont1,
+                                                   int numberOfTargetOntologies,
+                                                   Set<TargetOntologyObjectSetModel> targetOntologyList) {
+        return ExternalMapping.builder()
+                .mappingId(UUID.randomUUID().toString())
+                .sourceOntologyURI(ont1.getOntologyID().getOntologyIRI().toString())
                 .numberOfTargetOntologies(numberOfTargetOntologies)
                 .targetOntologyList(targetOntologyList)
                 .build();

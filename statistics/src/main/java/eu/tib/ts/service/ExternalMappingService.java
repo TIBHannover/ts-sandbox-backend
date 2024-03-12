@@ -6,7 +6,9 @@ import eu.tib.ts.model.ontology.ProcessedOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,16 +48,14 @@ public interface ExternalMappingService {
      * Mapping between source ontology and list of target ontologies, given as local file paths. In this implementation
      * we use Multipart upload.
      *
-     * @param ontology
-     * @param processedOntologyList
-     * @param sat
-     * @param pageable
-     * @return
-     * @param <T>
      */
-    public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(T ontology,
-                                                                                                                 List<ProcessedOntology> processedOntologyList,
-                                                                                                                 boolean sat,
-                                                                                                                 Pageable pageable);
+//    public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(ProcessedOntology ont2,
+//                                                                                                                 List<ProcessedOntology> processedOntologyList,
+//                                                                                                                 boolean sat,
+//                                                                                                                 Pageable pageable);
 
+    public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(MultipartFile file,
+                                                                                                                 MultipartFile[] files,
+                                                                                                                 boolean sat,
+                                                                                                                 Pageable pageable) throws OWLOntologyCreationException, IOException;
 }
