@@ -277,6 +277,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 : getProcessedOntologies();
 
         if (processedOntologies == null || processedOntologies.isEmpty()) {
+
+            log.info("processedOntologies.size: " + processedOntologies.size());
+
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
 
