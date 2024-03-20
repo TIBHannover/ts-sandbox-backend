@@ -16,7 +16,6 @@ public class WebConfiguration  implements WebMvcConfigurer  {
     public void addCorsMappings(CorsRegistry registry) {
 
         registry.addMapping("/**")
-                .allowedOrigins("http://ols4ing01.develop.service.tib.eu", "https://raw.githubusercontent.com")
                 .allowedMethods("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS");
     }
 

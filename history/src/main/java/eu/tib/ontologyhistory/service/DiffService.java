@@ -152,6 +152,11 @@ public class DiffService {
             OWLOntology loadedOntologyLeft = OntologyUtils.loadOntology(ontLeft);
             OWLOntology loadedOntologyRight = OntologyUtils.loadOntology(ontRight);
 
+            if (loadedOntologyLeft == null || loadedOntologyRight == null) {
+                throw new RuntimeException("Failed to load one or both ontologies from files: " +
+                        ontologyLeftFilename + ", " + ontologyRightFilename);
+            }
+
             OWLOntologySetProvider ontologySetProvider = new DualOntologySetProvider(
                     loadedOntologyLeft.getOWLOntologyManager(),
                     loadedOntologyRight.getOWLOntologyManager()
