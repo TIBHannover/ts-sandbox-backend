@@ -17,6 +17,7 @@ public class WebConfiguration  implements WebMvcConfigurer  {
 
         registry.addMapping("/**")
                 .allowedOrigins("http://ols4ing01.develop.service.tib.eu")
+                .allowedOrigins("https://raw.githubusercontent.com")
                 .allowedMethods("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS");
     }
 
