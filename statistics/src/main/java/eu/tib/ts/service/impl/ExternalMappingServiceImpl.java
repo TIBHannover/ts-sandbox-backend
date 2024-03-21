@@ -55,11 +55,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     this.ProcessedMongoOntologyRepository=processedMongoOntologyRepository;
         this.ontologyStorageService=ontologyStorageService;
-
-
     }
-
-
     @Override
     public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(MultipartFile file,
                                                                                                                  MultipartFile[] files,
