@@ -1,12 +1,8 @@
 package eu.tib.ontologyhistory.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.tib.ontologyhistory.dto.ontology.OntologyDto;
 import eu.tib.ontologyhistory.model.Diff;
-import eu.tib.ontologyhistory.model.JsonApiWrapper;
 import eu.tib.ontologyhistory.service.OntologyService;
 import eu.tib.ontologyhistory.view.Views;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,16 +14,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
 import lombok.val;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping("/api/history/ontologies")
@@ -103,9 +96,12 @@ public class OntologyController {
             @ApiResponse(responseCode = "201", description = "Ontology created"),
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
     })
-    public ResponseEntity<String> createOntology(@JsonView(Views.Add.class) @RequestBody OntologyDto ontologyDTO) throws Exception {
-        ontologyService.create(ontologyDTO);
-        return new ResponseEntity<>("Ontology manually added", HttpStatus.CREATED);
+    public ResponseEntity<OntologyDto> createOntology(@JsonView(Views.Add.class) @RequestBody OntologyDto ontologyDTO) throws Exception {
+        val ontologyDto = ontologyService.create(ontologyDTO);
+        if (ontologyDto == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(ontologyDto, HttpStatus.CREATED);
     }
 
     @DeleteMapping
