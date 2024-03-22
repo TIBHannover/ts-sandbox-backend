@@ -49,7 +49,7 @@ public class OntologyService {
         ontologyRepository.save(savedOntology);
     }
 
-    public void create(OntologyDto ontologyDto) throws Exception {
+    public OntologyDto create(OntologyDto ontologyDto) throws Exception {
         val diffAdds = githubService.getDiffAdds(ontologyDto);
         val diffs = new ArrayList<Diff>();
         for (val diffAdd : diffAdds) {
@@ -72,10 +72,12 @@ public class OntologyService {
                     .build();
 
             val savedOntology = ontologyRepository.save(ontology);
+            return ontologyMapper.entityToDto(savedOntology);
 //            diffService.assignOntologyId(ontology.getDiffs(), savedOntology.getId());
 //            apiErrorService.assignOntologyId(ontology.getInvalidDiffs(), savedOntology.getId());
-            ontologyRepository.save(savedOntology);
+//            ontologyRepository.save(savedOntology);
         }
+        return null;
     }
 
     public void update(String id, OntologyDto ontologyDto) {

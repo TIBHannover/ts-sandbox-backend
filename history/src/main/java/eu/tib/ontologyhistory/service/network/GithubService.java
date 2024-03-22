@@ -26,6 +26,8 @@ import java.util.*;
 @AllArgsConstructor
 public class GithubService {
 
+    private static final String ACCESS_TOKEN = "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";
+
     public List<DiffAdd> getDiffAdds(OntologyDto ontologyDto) {
         val uri = checkUriValidity(ontologyDto.url());
         val diffAdds = new ArrayList<DiffAdd>();
@@ -118,7 +120,7 @@ public class GithubService {
 
         HttpRequest requestGetRawFile = HttpRequest.newBuilder()
                 .uri(githubRawFileApi)
-                .header("Authorization", "Bearer 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")
+                .header("Authorization", "Bearer " + ACCESS_TOKEN)
                 .build();
 
         try {
@@ -142,7 +144,7 @@ public class GithubService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(githubApiUri)
-                .header("Authorization", "Bearer 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")
+                .header("Authorization", "Bearer " + ACCESS_TOKEN)
                 .build();
 
             try {
@@ -173,7 +175,7 @@ public class GithubService {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(githubApiUri)
-                    .header("Authorization", "Bearer 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")
+                    .header("Authorization", "Bearer " + ACCESS_TOKEN)
                     .build();
 
             try {
