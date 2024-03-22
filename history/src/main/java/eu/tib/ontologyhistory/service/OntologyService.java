@@ -71,8 +71,8 @@ public class OntologyService {
                     .type("github")
                     .build();
 
-            val savedOntology = ontologyRepository.save(ontology);
-            return ontologyMapper.entityToDto(savedOntology);
+//            val savedOntology = ontologyRepository.save(ontology);
+            return ontologyMapper.entityToDto(ontology);
 //            diffService.assignOntologyId(ontology.getDiffs(), savedOntology.getId());
 //            apiErrorService.assignOntologyId(ontology.getInvalidDiffs(), savedOntology.getId());
 //            ontologyRepository.save(savedOntology);
