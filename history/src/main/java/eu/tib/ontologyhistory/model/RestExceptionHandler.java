@@ -1,6 +1,7 @@
 package eu.tib.ontologyhistory.model;
 
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.model.exception.RobotDiffExecutionException;
 import eu.tib.ontologyhistory.model.exception.UnloadableCustomImportException;
 import eu.tib.ontologyhistory.model.exception.UnparsableCustomOntologyException;
 import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
@@ -63,23 +64,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler(Exception.class)
-    protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
+    @ExceptionHandler(RobotDiffExecutionException.class)
+    protected ResponseEntity<Object> handleRobotDiffExecution(RobotDiffExecutionException ex, WebRequest request) {
         DiffAdd requestBody = (DiffAdd) request.getAttribute(REQUEST_BODY, RequestAttributes.SCOPE_REQUEST);
         assert requestBody != null;
         ApiError response = ApiError.builder()
                 .ontologyId(DEFAULT_ONTOLOGY_ID)
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .status(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
-                .message("Some error happened during diff creation")
+                .message("Error happened while parsing an ontology. Check left- or right- IRI Files")
                 .timestamp(requestBody.shaOffsetDateTime())
                 .leftIriFile(requestBody.gitUrlLeft())
                 .rightIriFile(requestBody.gitUrlRight())
                 .build();
 
         invalidDiffRepository.insert(response);
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY);
     }
-
 
 }

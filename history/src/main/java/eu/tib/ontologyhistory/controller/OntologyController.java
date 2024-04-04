@@ -96,8 +96,10 @@ public class OntologyController {
             @ApiResponse(responseCode = "201", description = "Ontology created"),
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
     })
-    public ResponseEntity<OntologyDto> createOntology(@JsonView(Views.Add.class) @RequestBody OntologyDto ontologyDTO) throws Exception {
-        val ontologyDto = ontologyService.create(ontologyDTO);
+    public ResponseEntity<OntologyDto> createOntology(
+            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
+            @RequestParam String url) throws Exception {
+        val ontologyDto = ontologyService.create(url);
         if (ontologyDto == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -176,7 +178,8 @@ public class OntologyController {
         val diffs = ontologyService.getDiffsBetween(id, startDate, endDate);
         if (diffs == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else if (diffs.isEmpty()) {
+        }
+        if (diffs.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
