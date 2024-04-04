@@ -1,6 +1,8 @@
 package eu.tib.ontologyhistory.service;
 
+import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.dto.ontology.OntologyDto;
+import eu.tib.ontologyhistory.mapper.DiffMapper;
 import eu.tib.ontologyhistory.mapper.OntologyMapper;
 import eu.tib.ontologyhistory.model.ApiError;
 import eu.tib.ontologyhistory.model.CommitStatus;
@@ -29,6 +31,8 @@ public class OntologyService {
 
     private final OntologyMapper ontologyMapper;
 
+    private final DiffMapper diffMapper;
+
     private final GithubService githubService;
 
     public List<OntologyDto> findAll() {
@@ -49,9 +53,9 @@ public class OntologyService {
         ontologyRepository.save(savedOntology);
     }
 
-    public OntologyDto create(OntologyDto ontologyDto) throws Exception {
-        val diffAdds = githubService.getDiffAdds(ontologyDto);
-        val diffs = new ArrayList<Diff>();
+    public OntologyDto create(String url) throws Exception {
+        val diffAdds = githubService.getDiffAdds(url);
+        val diffs = new ArrayList<DiffDto>();
         for (val diffAdd : diffAdds) {
             val diff = diffService.makeDiffFromGit(diffAdd);
             if (diff != null) {
@@ -59,23 +63,21 @@ public class OntologyService {
             }
         }
 
+        Collections.reverse(diffs);
+
         if (!diffs.isEmpty()) {
             val ontology = Ontology.builder()
-                    .url(ontologyDto.url())
-                    .name(ontologyDto.name())
-                    .description(ontologyDto.description())
-                    .diffs(diffs)
-                    .invalidDiffs(Collections.EMPTY_LIST)
-                    .atime(diffs.get(0).getTimestamp())
+                    .url(url)
+                    .name("placeholder ontology name")
+                    .description("placeholder ontology description")
+                    .diffs(diffMapper.dtoToEntity(diffs))
+                    .invalidDiffs(Collections.emptyList())
+                    .atime(diffMapper.dtoToEntity(diffs).get(0).getTimestamp())
                     .commitStatus(new CommitStatus("latest", "0", "main"))
                     .type("github")
                     .build();
 
-//            val savedOntology = ontologyRepository.save(ontology);
             return ontologyMapper.entityToDto(ontology);
-//            diffService.assignOntologyId(ontology.getDiffs(), savedOntology.getId());
-//            apiErrorService.assignOntologyId(ontology.getInvalidDiffs(), savedOntology.getId());
-//            ontologyRepository.save(savedOntology);
         }
         return null;
     }
@@ -108,6 +110,7 @@ public class OntologyService {
     public List<Diff> getDiffsBetween(String ontologyId, Instant startDate, Instant endDate) {
         val ontology = ontologyRepository.findById(ontologyId).orElse(null);
         List<Diff> filteredDiffs = new ArrayList<>();
+        assert ontology != null;
         for (Diff diff : ontology.getDiffs()) {
             if (diff.getShaOffsetDateTime().isAfter(startDate) && diff.getParentOffsetDateTime().isBefore(endDate)) {
                 filteredDiffs.add(diff);

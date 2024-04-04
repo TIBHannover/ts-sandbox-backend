@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
-import eu.tib.ontologyhistory.dto.ontology.OntologyDto;
 import eu.tib.ontologyhistory.model.github.Commit;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,86 +27,65 @@ public class GithubService {
 
     private static final String ACCESS_TOKEN = "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";
 
-    public List<DiffAdd> getDiffAdds(OntologyDto ontologyDto) {
-        val uri = checkUriValidity(ontologyDto.url());
-        val diffAdds = new ArrayList<DiffAdd>();
-        if (uri.isPresent()) {
-            val user = getUserFromUrl(uri.get());
-            val repo = getRepoFromUrl(uri.get());
-            val encodedPath = getEncodedPath(uri.get().getPath());
-
-            val commits = getCommits(uri.get(), user, repo, encodedPath);
-            if (commits.isPresent()) {
-                Iterator<Commit> iterator = commits.get().iterator();
-                while (iterator.hasNext()) {
-                    val commit = iterator.next();
-                    if (iterator.hasNext()) {
-                        val parentCommit = iterator.next();
-
-                        val rawFile = getRawFileUrl(uri.get(), user, repo, commit.sha(), encodedPath);
-                        val parentRawFile = getRawFileUrl(uri.get(), user, repo, parentCommit.sha(), encodedPath);
-
-                        if (rawFile.isPresent() && parentRawFile.isPresent()) {
-                            val diffAdd = new DiffAdd(String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, commit.sha(), encodedPath),
-                                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentCommit.sha(), encodedPath),
-                                    rawFile.get(),
-                                    parentRawFile.get(),
-                                    commit.sha(),
-                                    commit.sha(),
-                                    commit.commit().committer().date(),
-                                    parentCommit.commit().committer().date(),
-                                    commit.commit().committer().date(),
-                                    commit.commit().message()
-                            );
-                            diffAdds.add(diffAdd);
-                        }
-                    }
-                }
-                return diffAdds;
-            }
-        }
-        return diffAdds;
+    public List<DiffAdd> getDiffAdds(String url) {
+        val uri = checkUriValidity(url);
+        return getDiffAddsFrom(uri, null);
     }
 
     public List<DiffAdd> getDiffAdds(String link, Instant datetime) {
         val uri = checkUriValidity(link);
-        val diffAdds = new ArrayList<DiffAdd>();
+        return getDiffAddsFrom(uri, datetime);
+    }
+
+    private List<DiffAdd> getDiffAddsFrom(Optional<URI> uri, Instant datetime) {
+        List<DiffAdd> diffAdds = new ArrayList<>();
         if (uri.isPresent()) {
-            val user = getUserFromUrl(uri.get());
-            val repo = getRepoFromUrl(uri.get());
-            val encodedPath = getEncodedPath(uri.get().getPath());
+            String user = getUserFromUrl(uri.get());
+            String repo = getRepoFromUrl(uri.get());
+            String encodedPath = getEncodedPath(uri.get().getPath());
 
-            val commits = getCommitsByURISinceDatetime(uri.get(), datetime);
-            if (commits.isPresent()) {
-                Iterator<Commit> iterator = commits.get().iterator();
-                while (iterator.hasNext()) {
-                    val commit = iterator.next();
-                    if (iterator.hasNext()) {
-                        val parentCommit = iterator.next();
-
-                        val rawFile = getRawFileUrl(uri.get(), user, repo, commit.sha(), encodedPath);
-                        val parentRawFile = getRawFileUrl(uri.get(), user, repo, parentCommit.sha(), encodedPath);
-
-                        if (rawFile.isPresent() && parentRawFile.isPresent()) {
-                            val diffAdd = new DiffAdd(String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, commit.sha(), encodedPath),
-                                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentCommit.sha(), encodedPath),
-                                    rawFile.get(),
-                                    parentRawFile.get(),
-                                    commit.sha(),
-                                    commit.sha(),
-                                    commit.commit().committer().date(),
-                                    parentCommit.commit().committer().date(),
-                                    commit.commit().committer().date(),
-                                    commit.commit().message()
-                            );
-                            diffAdds.add(diffAdd);
-                        }
-                    }
-                }
-                return diffAdds;
-            }
+            Optional<List<Commit>> commits = getCommits(uri.get(), user, repo, encodedPath, datetime);
+            commits.ifPresent(commitList -> {
+                Collections.reverse(commits.get());
+                diffAdds.addAll(processCommits(commitList, user, repo, encodedPath, uri.get()));
+            });
         }
         return diffAdds;
+    }
+
+    public List<DiffAdd> processCommits(List<Commit> commits, String user, String repo, String encodedPath, URI uri) {
+        List<DiffAdd> diffAdds = new ArrayList<>();
+        ListIterator<Commit> iterator = commits.listIterator();
+        Commit current = null;
+        while (iterator.hasNext()) {
+            val next = iterator.next();
+            if (current != null) {
+                processCommitPair(current, next, user, repo, encodedPath, diffAdds, uri);
+            }
+            current = next;
+        }
+        return diffAdds;
+    }
+
+    private void processCommitPair(Commit commit, Commit parentCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri) {
+        Optional<String> rawFile = getRawFileUrl(uri, user, repo, commit.sha(), encodedPath);
+        Optional<String> parentRawFile = getRawFileUrl(uri, user, repo, parentCommit.sha(), encodedPath);
+
+        if (rawFile.isPresent() && parentRawFile.isPresent()) {
+            DiffAdd diffAdd = new DiffAdd(
+                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, commit.sha(), encodedPath),
+                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentCommit.sha(), encodedPath),
+                    rawFile.get(),
+                    parentRawFile.get(),
+                    commit.sha(),
+                    parentCommit.sha(),
+                    commit.commit().committer().date(),
+                    parentCommit.commit().committer().date(),
+                    commit.commit().committer().date(),
+                    commit.commit().message()
+            );
+            diffAdds.add(diffAdd);
+        }
     }
 
     public Optional<String> getRawFileUrl(URI uri, String owner, String repo, String sha, String path) {
@@ -134,11 +112,21 @@ public class GithubService {
         return Optional.empty();
     }
 
-    public Optional<List<Commit>> getCommits(URI uri, String owner, String repo, String path) {
-        URI githubApiUri = UriComponentsBuilder.fromUri(uri)
+    public Optional<List<Commit>> getCommits(URI uri, String owner, String repo, String path, Instant datetime) {
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(uri)
                 .host("api.github.com")
-                .replacePath("/repos/{owner}/{repo}/commits")
-                .queryParam("path", path)
+                .replacePath("/repos/{owner}/{repo}/commits");
+
+        if (path != null) {
+            uriBuilder.queryParam("path", path);
+        }
+
+        if (datetime != null) {
+            uriBuilder.queryParam("since", datetime);
+        }
+
+        URI githubApiUri = uriBuilder
                 .buildAndExpand(owner, repo)
                 .toUri();
 
@@ -147,48 +135,19 @@ public class GithubService {
                 .header("Authorization", "Bearer " + ACCESS_TOKEN)
                 .build();
 
-            try {
-                HttpClient client = HttpClient.newHttpClient();
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-                return Optional.of(objectMapper.readValue(response.body(), new TypeReference<>() {}));
-            } catch (InterruptedException e) {
-                log.error("Interrupted with the response: " + e);
-                Thread.currentThread().interrupt();
-            } catch (IOException e) { log.error("IOException happened: " + e); }
-        return Optional.empty();
-    }
-
-    public Optional<List<Commit>> getCommitsByURISinceDatetime(URI uri, Instant datetime) {
-            val owner = getUserFromUrl(uri);
-            val repo = getRepoFromUrl(uri);
-            val encodedPath = getEncodedPath(uri.getPath());
-
-            URI githubApiUri = UriComponentsBuilder.fromUri(uri)
-                    .host("api.github.com")
-                    .replacePath("/repos/{owner}/{repo}/commits")
-                    .queryParam("path", encodedPath)
-                    .queryParam("since", datetime)
-                    .buildAndExpand(owner, repo)
-                    .toUri();
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(githubApiUri)
-                    .header("Authorization", "Bearer " + ACCESS_TOKEN)
-                    .build();
-
-            try {
-                HttpClient client = HttpClient.newHttpClient();
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-                ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-                return Optional.of(objectMapper.readValue(response.body(), new TypeReference<>() {}));
-            } catch (InterruptedException e) {
-                log.error("Interrupted with the response: " + e);
-                Thread.currentThread().interrupt();
-            } catch (IOException e) { log.error("IOException happened: " + e); }
-            return Optional.of(Collections.emptyList());
+            ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+            return Optional.of(objectMapper.readValue(response.body(), new TypeReference<>() {}));
+        } catch (InterruptedException e) {
+            log.error("Interrupted with the response: " + e);
+            Thread.currentThread().interrupt();
+        } catch (IOException e) {
+            log.error("IOException happened: " + e);
+        }
+        return Optional.of(Collections.emptyList());
     }
 
     public Optional<URI> checkUriValidity(String url) {

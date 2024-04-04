@@ -16,9 +16,9 @@ public record DiffAdd (
 
         String parentSha,
 
-        Instant parentOffsetDateTime,
-
         Instant shaOffsetDateTime,
+
+        Instant parentOffsetDateTime,
 
         Instant commitDate,
 
