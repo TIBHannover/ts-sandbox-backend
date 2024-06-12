@@ -1,0 +1,208 @@
+package eu.tib.ontologyhistory.controller;
+
+import eu.tib.ontologyhistory.dto.conto.Difference;
+import eu.tib.ontologyhistory.dto.conto.GraphInfo;
+import eu.tib.ontologyhistory.dto.conto.Timeline;
+import eu.tib.ontologyhistory.dto.conto.TimelineMessage;
+import eu.tib.ontologyhistory.service.ContoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.AllArgsConstructor;
+
+import lombok.val;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/api/history/conto")
+public class ContoController {
+
+    private ContoService contoService;
+
+    private static final String DATASET_NAME = "test";
+
+    @PostMapping("/add")
+    @Operation(summary = "Calculate and save into triple story Semantic Diffs with Conto Diff")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Ontology created"),
+            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
+    })
+    public ResponseEntity<List<String>> createOntology(
+            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
+            @RequestParam String url) {
+
+        contoService.create(url);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all ontologies from the triple store")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the ontologies"),
+            @ApiResponse(responseCode = "404", description = "No ontologies found", content = @Content)
+    })
+    public ResponseEntity<List<GraphInfo>> getOntologies() {
+        val ontologies = contoService.findAll();
+
+        if (ontologies.isEmpty()) {
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(ontologies, HttpStatus.OK);
+    }
+
+    @GetMapping("/timeline")
+    @Operation(summary = "Get timeline for the ontology")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the timeline"),
+            @ApiResponse(responseCode = "404", description = "No timeline found", content = @Content)
+    })
+    public ResponseEntity<List<Timeline>> getTimeline(
+            @Parameter(description = "ontologyUrl")
+            @RequestParam String ontologyUrl) {
+
+        val ontologies = contoService.findByUrl(ontologyUrl);
+
+        return new ResponseEntity<>(ontologies, HttpStatus.OK);
+    }
+
+    @GetMapping("/timelineElem")
+    @Operation(summary = "Get timeline for the ontology")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the timeline"),
+            @ApiResponse(responseCode = "404", description = "No timeline found", content = @Content)
+    })
+    public ResponseEntity<Difference> getTimelineElement(
+            @Parameter(description = "commitId")
+            @RequestParam String commitId) {
+
+        val ontologies = contoService.timeline(commitId);
+
+        return new ResponseEntity<>(ontologies, HttpStatus.OK);
+    }
+
+    @PostMapping("/upload")
+    @Operation(summary = "Save data into the Apache Fuseki triple store")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Ontology created"),
+            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
+    })
+    public ResponseEntity<String> uploadOntlogy(
+            @Parameter(description = "Ontology as a string", example = "https://www.w3.org/1999/02/22-rdf-syntax-ns#")
+            @RequestParam String ontology
+            ) {
+
+        contoService.uploadOntologyToFuseki(ontology);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/operations")
+    @Operation(summary = "Get operations")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the operations"),
+            @ApiResponse(responseCode = "404", description = "No operations found", content = @Content)
+    })
+    public ResponseEntity<List<String>> getOperations(
+            @Parameter(description = "ontologyUrl")
+            @RequestParam String ontologyUrl) {
+
+        val operations = contoService.operations(DATASET_NAME, ontologyUrl);
+
+        return new ResponseEntity<>(operations, HttpStatus.OK);
+    }
+
+    @GetMapping("/operationsData")
+    @Operation(summary = "Get operations data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the operations data"),
+            @ApiResponse(responseCode = "404", description = "No operations data found", content = @Content)
+    })
+    public ResponseEntity<List<String>> getOperationsData(
+            @Parameter(description = "ontologyUrl")
+            @RequestParam String ontologyUrl,
+
+            @Parameter(description = "searchOperation")
+            @RequestParam String searchOperation) {
+
+        val subjects = contoService.operationsData(DATASET_NAME, ontologyUrl, searchOperation);
+
+        return new ResponseEntity<>(subjects, HttpStatus.OK);
+    }
+
+    @GetMapping("/versions")
+    @Operation(summary = "Get versions data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the versions data"),
+            @ApiResponse(responseCode = "404", description = "No versions data found", content = @Content)
+    })
+    public ResponseEntity<List<Timeline>> getVersions(
+            @Parameter(description = "ontologyUrl")
+            @RequestParam String ontologyUrl) {
+
+        val subjects = contoService.getVersions(DATASET_NAME, ontologyUrl);
+
+        return new ResponseEntity<>(subjects, HttpStatus.OK);
+    }
+
+    @GetMapping("/versionsElem")
+    @Operation(summary = "Get versions data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the versions data"),
+            @ApiResponse(responseCode = "404", description = "No versions data found", content = @Content)
+    })
+    public ResponseEntity<List<TimelineMessage>> getVersionElem(
+            @Parameter(description = "ontologyUrl")
+            @RequestParam String ontologyUrl,
+
+            @Parameter(description = "label")
+            @RequestParam String label,
+
+            @Parameter(description = "resourceUri")
+            @RequestParam String resourceUri,
+
+            @Parameter(description = "firstDate")
+            @RequestParam String firstDate,
+
+            @Parameter(description = "secondDate")
+            @RequestParam String secondDate) {
+
+        val subjects = contoService.timelineMessage(DATASET_NAME, ontologyUrl, label, resourceUri, firstDate, secondDate);
+
+        return new ResponseEntity<>(subjects, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/report")
+    @Operation(summary = "Get data in a period of time")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the data"),
+            @ApiResponse(responseCode = "404", description = "No data found", content = @Content)
+    })
+    public ResponseEntity<List<String>> createReport(
+            @Parameter(description = "ontologyUrl")
+            @RequestParam String ontologyUrl,
+
+            @Parameter(description = "firstDate")
+            @RequestParam String firstDate,
+
+            @Parameter(description = "secondDate")
+            @RequestParam String secondDate) {
+
+        val subjects = contoService.dataInBetweenDates(DATASET_NAME, ontologyUrl, firstDate, secondDate);
+
+        return new ResponseEntity<>(subjects, HttpStatus.OK);
+    }
+
+}

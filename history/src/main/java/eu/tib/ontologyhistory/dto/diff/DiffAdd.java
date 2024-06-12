@@ -8,6 +8,10 @@ public record DiffAdd (
 
         String gitUrlRight,
 
+        String gitCommitUrlLeft,
+
+        String gitCommitUrlRight,
+
         String gitRawFileLeft,
 
         String gitRawFileRight,
@@ -16,13 +20,13 @@ public record DiffAdd (
 
         String parentSha,
 
-        Instant shaOffsetDateTime,
+        Instant datetime,
 
-        Instant parentOffsetDateTime,
+        Instant parentDatetime,
 
-        Instant commitDate,
+        String messageLeft,
 
-        String message
+        String messageRight
 ) {
     public static final int MAX_MARKDOWN_LENGTH = 300;
 }

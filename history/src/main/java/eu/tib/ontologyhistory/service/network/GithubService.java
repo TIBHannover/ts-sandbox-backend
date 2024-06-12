@@ -75,14 +75,16 @@ public class GithubService {
             DiffAdd diffAdd = new DiffAdd(
                     String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, commit.sha(), encodedPath),
                     String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentCommit.sha(), encodedPath),
+                    commit.html_url(),
+                    parentCommit.html_url(),
                     rawFile.get(),
                     parentRawFile.get(),
                     commit.sha(),
                     parentCommit.sha(),
                     commit.commit().committer().date(),
                     parentCommit.commit().committer().date(),
-                    commit.commit().committer().date(),
-                    commit.commit().message()
+                    commit.commit().message(),
+                    parentCommit.commit().message()
             );
             diffAdds.add(diffAdd);
         }

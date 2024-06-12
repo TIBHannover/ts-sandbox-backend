@@ -4,6 +4,7 @@ import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.model.exception.RobotDiffExecutionException;
 import eu.tib.ontologyhistory.model.exception.UnloadableCustomImportException;
 import eu.tib.ontologyhistory.model.exception.UnparsableCustomOntologyException;
+import eu.tib.ontologyhistory.model.exception.conto.ContoDiffExecutionException;
 import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -37,7 +38,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.FAILED_DEPENDENCY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
                 .message("One or more resources were not loaded. Check left- or right- IRI Files")
-                .timestamp(requestBody.shaOffsetDateTime())
+                .timestamp(requestBody.datetime())
                 .leftIriFile(requestBody.gitUrlLeft())
                 .rightIriFile(requestBody.gitUrlRight())
                 .build();
@@ -55,7 +56,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
                 .message("Error happened while parsing an ontology. Check left- or right- IRI Files")
-                .timestamp(requestBody.shaOffsetDateTime())
+                .timestamp(requestBody.datetime())
                 .leftIriFile(requestBody.gitUrlLeft())
                 .rightIriFile(requestBody.gitUrlRight())
                 .build();
@@ -73,7 +74,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
                 .message("Error happened while parsing an ontology. Check left- or right- IRI Files")
-                .timestamp(requestBody.shaOffsetDateTime())
+                .timestamp(requestBody.datetime())
                 .leftIriFile(requestBody.gitUrlLeft())
                 .rightIriFile(requestBody.gitUrlRight())
                 .build();
@@ -82,4 +83,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+
+    @ExceptionHandler(ContoDiffExecutionException.class)
+    protected ResponseEntity<Object> handleContoDiffExecution(ContoDiffExecutionException ex) {
+        ApiError response = ApiError.builder()
+                .ontologyId(DEFAULT_ONTOLOGY_ID)
+                .status(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
+                .debugMessage(ex.getMessage())
+                .message("Error happened while parsing an ontology. Check left- or right- IRI Files")
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
 }
