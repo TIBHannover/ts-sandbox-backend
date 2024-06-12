@@ -24,11 +24,7 @@ public class Diff {
     private String id;
 
     @JsonView({Views.Full.class})
-    private String ontologyId;
-
-    @JsonView({Views.Full.class})
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Instant timestamp;
+    private String url;
 
     @JsonView({Views.Full.class})
     private String sha;
@@ -38,11 +34,11 @@ public class Diff {
 
     @JsonView({Views.Full.class})
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Instant shaOffsetDateTime;
+    private Instant datetime;
 
     @JsonView({Views.Full.class})
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Instant parentOffsetDateTime;
+    private Instant parentDatetime;
 
     @JsonView({Views.Full.class})
     @Schema(description = "Markdown diff content", implementation = java.lang.String.class)

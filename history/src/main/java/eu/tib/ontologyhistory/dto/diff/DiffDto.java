@@ -22,11 +22,7 @@ public record DiffDto (
         String id,
 
         @JsonView({Views.Short.class})
-        String ontologyId,
-
-        @JsonView({Views.Short.class})
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-        Instant timestamp,
+        String url,
 
         @JsonView({Views.Edit.class})
         String sha,
@@ -36,11 +32,11 @@ public record DiffDto (
 
         @JsonView({Views.Edit.class})
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-        Instant shaOffsetDateTime,
+        Instant datetime,
 
         @JsonView({Views.Edit.class})
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-        Instant parentOffsetDateTime,
+        Instant parentDatetime,
 
         @JsonView({Views.Full.class})
         @Schema(description = "Markdown diff content", implementation = java.lang.String.class)

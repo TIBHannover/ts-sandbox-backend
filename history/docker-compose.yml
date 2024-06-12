@@ -4,14 +4,33 @@ services:
   mongodb:
     image: mongo:3.6.23
     container_name: "mongodb"
+    networks:
+      - sdiff-inet
     ports:
       - "27017:27017"
+  fuseki:
+    image: secoresearch/fuseki
+    container_name: fuseki
+    networks:
+      - sdiff-inet
+    ports:
+      - "3030:3030"
+    environment:
+      ADMIN_PASSWORD: fuseki
+      QUERY_TIMEOUT: 600000
+    volumes:
+      - /home/terminology/fuseki/fuseki-data:/fuseki-base/databases
+      - /home/terminology/fuseki/fuseki-configuration:/fuseki-base/configuration
   history-back:
     image: history-back:1.0
     container_name: history-back
+    networks:
+      - sdiff-inet
     build:
       context: .
     ports:
       - "9090:9090"
-    links:
-      - mongodb
+
+networks:
+  sdiff-inet:
+    driver: bridge
