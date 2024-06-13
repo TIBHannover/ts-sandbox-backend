@@ -1,8 +1,6 @@
 package eu.tib.ontologyhistory.service;
 
 import eu.tib.ontologyhistory.model.ApiError;
-import eu.tib.ontologyhistory.model.Diff;
-import eu.tib.ontologyhistory.repository.DiffRepository;
 import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
 import org.springframework.stereotype.Service;
 

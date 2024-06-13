@@ -8,6 +8,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Commit(
         String url,
+        String html_url,
         String sha,
         CommitDetail commit,
         List<ParentCommit> parents
