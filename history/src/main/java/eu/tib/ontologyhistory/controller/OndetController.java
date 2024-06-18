@@ -54,11 +54,11 @@ public class OndetController {
             @RequestParam String dataset
     ) {
 
-        val result = ondetService.findByUrl(url);
-
-        if (!result.isEmpty()) {
-            return new ResponseEntity<>("Already exists in the database", HttpStatus.FOUND);
-        }
+//        val result = ondetService.findByUrl(url);
+//
+//        if (!result.isEmpty()) {
+//            return new ResponseEntity<>("Already exists in the database", HttpStatus.FOUND);
+//        }
 
         ondetService.create(url, dataset);
         
