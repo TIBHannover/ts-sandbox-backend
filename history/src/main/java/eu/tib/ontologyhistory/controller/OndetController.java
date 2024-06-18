@@ -21,8 +21,11 @@ public class OndetController {
 
     @GetMapping
     @Operation(summary = "Find all objects")
-    public ResponseEntity<List> findAll() {
-        val objects = ondetService.findAll();
+    public ResponseEntity<List> findAll(
+            @Parameter(description = "Apache Jena Dataset")
+            @RequestParam String dataset
+    ) {
+        val objects = ondetService.findAll(dataset);
 
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
@@ -30,10 +33,13 @@ public class OndetController {
     @GetMapping("/{sha}")
     @Operation(summary = "Find one object by sha")
     public ResponseEntity<Object> find(
-            @PathVariable String sha
+            @PathVariable String sha,
+
+            @Parameter(description = "Apache Jena Dataset")
+            @RequestParam String dataset
     ) {
 
-        val diff = ondetService.find(sha);
+        val diff = ondetService.find(sha, dataset);
 
         return new ResponseEntity<>(diff, HttpStatus.OK);
     }
@@ -42,7 +48,10 @@ public class OndetController {
     @Operation(summary = "Create one object")
     public ResponseEntity<String> create(
             @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url
+            @RequestParam String url,
+
+            @Parameter(description = "Apache Jena Dataset")
+            @RequestParam String dataset
     ) {
 
         val result = ondetService.findByUrl(url);
@@ -51,7 +60,7 @@ public class OndetController {
             return new ResponseEntity<>("Already exists in the database", HttpStatus.FOUND);
         }
 
-        ondetService.create(url);
+        ondetService.create(url, dataset);
         
         return new ResponseEntity<>("Created", HttpStatus.OK);
     }

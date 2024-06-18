@@ -39,9 +39,13 @@ public class ContoController {
     })
     public ResponseEntity<List<String>> createOntology(
             @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url) {
+            @RequestParam String url,
 
-        contoService.create(url);
+            @Parameter(description = "Apache Jena Dataset")
+            @RequestParam String dataset
+            ) {
+
+        contoService.create(url, dataset);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -52,8 +56,11 @@ public class ContoController {
             @ApiResponse(responseCode = "200", description = "Found the ontologies"),
             @ApiResponse(responseCode = "404", description = "No ontologies found", content = @Content)
     })
-    public ResponseEntity<List<GraphInfo>> getOntologies() {
-        val ontologies = contoService.findAll();
+    public ResponseEntity<List<GraphInfo>> getOntologies(
+            @Parameter(description = "Apache Jena Dataset")
+            @RequestParam String dataset
+    ) {
+        val ontologies = contoService.findAll(dataset);
 
         if (ontologies.isEmpty()) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
@@ -70,9 +77,13 @@ public class ContoController {
     })
     public ResponseEntity<List<Timeline>> getTimeline(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl) {
+            @RequestParam String ontologyUrl,
 
-        val ontologies = contoService.findByUrl(ontologyUrl);
+            @Parameter(description = "Apache Jena Dataset")
+            @RequestParam String dataset
+            ) {
+
+        val ontologies = contoService.findByUrl(ontologyUrl, dataset);
 
         return new ResponseEntity<>(ontologies, HttpStatus.OK);
     }
@@ -85,9 +96,13 @@ public class ContoController {
     })
     public ResponseEntity<Difference> getTimelineElement(
             @Parameter(description = "commitId")
-            @RequestParam String commitId) {
+            @RequestParam String commitId,
 
-        val ontologies = contoService.timeline(commitId);
+            @Parameter(description = "Apache Jena Dataset")
+            @RequestParam String dataset
+            ) {
+
+        val ontologies = contoService.timeline(commitId, dataset);
 
         return new ResponseEntity<>(ontologies, HttpStatus.OK);
     }
@@ -100,10 +115,13 @@ public class ContoController {
     })
     public ResponseEntity<String> uploadOntlogy(
             @Parameter(description = "Ontology as a string", example = "https://www.w3.org/1999/02/22-rdf-syntax-ns#")
-            @RequestParam String ontology
+            @RequestParam String ontology,
+
+            @Parameter(description = "Apache Jena Dataset")
+            @RequestParam String dataset
             ) {
 
-        contoService.uploadOntologyToFuseki(ontology);
+        contoService.uploadOntologyToFuseki(ontology, dataset);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

@@ -56,17 +56,15 @@ public class ContoService {
 
     private static final String QUAD_FILENAME = "all_diffs.nq";
 
-    private static final String DATASET = "test";
-
     private final GithubService githubService;
 
     private final RobotService robotService;
 
-    public List<GraphInfo> findAll() {
+    public List<GraphInfo> findAll(String dataset) {
         List<GraphInfo> graphs = new ArrayList<>();
         fusekiAuthenticate();
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
 
@@ -87,11 +85,11 @@ public class ContoService {
         return graphs;
     }
 
-    public List<Timeline> findByUrl(String ontologyURL) {
+    public List<Timeline> findByUrl(String ontologyURL, String dataset) {
         List<Timeline> timelines = new ArrayList<>();
         fusekiAuthenticate();
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
@@ -120,10 +118,10 @@ public class ContoService {
         return timelines.subList(1, timelines.size());
     }
 
-    public Difference timeline(String commitId) {
+    public Difference timeline(String commitId, String dataset) {
         fusekiAuthenticate();
         List<String> result = new ArrayList<>();
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
@@ -368,13 +366,13 @@ public class ContoService {
         return result;
     }
 
-    public void create(String url) {
+    public void create(String url, String dataset) {
         val diffAdds = githubService.getDiffAdds(url);
         for (val diffAdd : diffAdds) {
             try {
                 diffExecute(diffAdd, url);
-                uploadOntologyToFuseki(new File(OUTPUT_FILENAME));
-                uploadOntologyToFuseki(new File(QUAD_FILENAME));
+                uploadOntologyToFuseki(new File(OUTPUT_FILENAME), dataset);
+                uploadOntologyToFuseki(new File(QUAD_FILENAME), dataset);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -437,14 +435,14 @@ public class ContoService {
         return dataset;
     }
 
-    public void uploadOntologyToFuseki(File ont) throws IOException {
+    public void uploadOntologyToFuseki(File ont, String dataset) throws IOException {
         fusekiAuthenticate();
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         if (RDFLanguages.filenameToLang(ont.getName()).equals(Lang.NQUADS)) {
-            Dataset dataset = readDataset(ont.getName(), ont.toPath());
+            Dataset ds = readDataset(ont.getName(), ont.toPath());
             DatasetAccessor datasetAccessor = DatasetAccessorFactory.createHTTP(datasetServiceUrl);
-            dataset.listNames().forEachRemaining(name -> {
-                datasetAccessor.add(name, dataset.getNamedModel(name));
+            ds.listNames().forEachRemaining(name -> {
+                datasetAccessor.add(name, ds.getNamedModel(name));
             });
         } else {
             Model ontologyModel = readOntology(ont);
@@ -457,11 +455,11 @@ public class ContoService {
         }
     }
 
-    public void uploadOntologyToFuseki(String ont) {
+    public void uploadOntologyToFuseki(String ont, String dataset) {
         fusekiAuthenticate();
         Model ontologyModel = readOntology(ont);
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
 
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
