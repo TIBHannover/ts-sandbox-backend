@@ -19,27 +19,24 @@ public class OndetController {
 
     private final OndetService ondetService;
 
+    private static final String DATASET = "test";
+
     @GetMapping
     @Operation(summary = "Find all objects")
-    public ResponseEntity<List> findAll(
-            @Parameter(description = "Apache Jena Dataset")
-            @RequestParam String dataset
+    public ResponseEntity<List<?>> findAll(
     ) {
-        val objects = ondetService.findAll(dataset);
+        val objects = ondetService.findAll(DATASET);
 
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
 
     @GetMapping("/{sha}")
     @Operation(summary = "Find one object by sha")
-    public ResponseEntity<Object> find(
-            @PathVariable String sha,
-
-            @Parameter(description = "Apache Jena Dataset")
-            @RequestParam String dataset
+    public ResponseEntity<DifferenceMarkdown> find(
+            @PathVariable String sha
     ) {
 
-        val diff = ondetService.find(sha, dataset);
+        val diff = ondetService.find(sha, DATASET);
 
         return new ResponseEntity<>(diff, HttpStatus.OK);
     }
@@ -48,20 +45,11 @@ public class OndetController {
     @Operation(summary = "Create one object")
     public ResponseEntity<String> create(
             @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url,
-
-            @Parameter(description = "Apache Jena Dataset")
-            @RequestParam String dataset
+            @RequestParam String url
     ) {
 
-//        val result = ondetService.findByUrl(url);
-//
-//        if (!result.isEmpty()) {
-//            return new ResponseEntity<>("Already exists in the database", HttpStatus.FOUND);
-//        }
+        ondetService.create(url, DATASET);
 
-        ondetService.create(url, dataset);
-        
         return new ResponseEntity<>("Created", HttpStatus.OK);
     }
 

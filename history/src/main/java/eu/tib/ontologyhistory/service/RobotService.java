@@ -2,14 +2,13 @@ package eu.tib.ontologyhistory.service;
 
 import com.google.common.collect.Sets;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
-import eu.tib.ontologyhistory.dto.diff.DiffAndApiError;
 import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.mapper.DiffMapper;
-import eu.tib.ontologyhistory.model.ApiError;
 import eu.tib.ontologyhistory.model.Axiom;
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.exception.RobotDiffExecutionException;
 import eu.tib.ontologyhistory.repository.RobotRepository;
+import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.service.network.GithubService;
 import eu.tib.ontologyhistory.utils.ExceptionUtils;
 import eu.tib.ontologyhistory.utils.FileUtils;
@@ -26,7 +25,6 @@ import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.DiffCommand;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologySetProvider;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -44,17 +42,11 @@ import java.util.*;
 @Service
 public class RobotService {
 
-    private static final String OUTPUT_DIFF_FILENAME = "outputDiff.txt";
-
-    private static final String DEFAULT_ONTOLOGY_ID = "default";
-
     private static final String MARKDOWN_DOCUMENT_KEY = "file";
 
     private final RobotRepository robotRepository;
 
     private final DiffMapper diffMapper;
-
-    private final GithubService githubService;
 
     public List<DiffDto> findAll() {
         val diff = robotRepository.findAll();
@@ -67,7 +59,7 @@ public class RobotService {
     }
 
     public DiffDto findBySha(String sha) {
-        val diff = robotRepository.findBySha(sha).orElse(null);
+        val diff = robotRepository.findFirstBySha(sha).orElse(null);
         return diffMapper.entityToDto(diff);
     }
 
@@ -141,7 +133,9 @@ public class RobotService {
     }
 
     public void create(String url) {
-        val diffAdds = githubService.getDiffAdds(url);
+        GitService<?> gitService = GitServiceFactory.getService(url);
+
+        val diffAdds = gitService.getDiffAdds(url);
 
         for (val diffAdd : diffAdds) {
             try {
