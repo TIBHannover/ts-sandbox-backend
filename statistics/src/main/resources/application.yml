@@ -68,3 +68,6 @@ skip:
     - infosecsos
     - ontology
     - go
+    - gpo
+    - sweet
+    - icitygeom
