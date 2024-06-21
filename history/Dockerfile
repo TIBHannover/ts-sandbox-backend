@@ -10,9 +10,6 @@ ENTRYPOINT ["java","-Xmx5G", "-Xms1024m","-jar","/opt/sandbox/history/target/his
 #Can be used if maven is installed on the system - will reuse installed dependencies,
 #so there's no need to install them each time.
 
-#EXPOSE 9090
-
-#
 #FROM eclipse-temurin:17-jre-alpine
 #
 #COPY target/history-back.jar history-back.jar

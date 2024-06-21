@@ -12,7 +12,7 @@ public interface RobotRepository extends MongoRepository<Diff, String> {
 
     List<Diff> findAllByUrl(String url);
 
-    Optional<Diff> findBySha(String sha);
+    Optional<Diff> findFirstBySha(String sha);
 
     void deleteAllByUrl(String url);
 }
