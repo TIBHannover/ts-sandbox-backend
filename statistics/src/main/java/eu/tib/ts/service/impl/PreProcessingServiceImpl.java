@@ -127,15 +127,12 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         for(int i=0;i<unproceesedOntologySize;i++) {
 
-
-
             Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<>();
 
             Set<SourceOntologyObjectSetModel> sourceOntology = new HashSet<>();
             SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
 
             int numberOfTargetOntologies = 0;
-
 
             for (int j = i + 1; j <= unproceesedOntologySize -1 ; j++) {
 
@@ -145,8 +142,8 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                 try {
 
-                    log.info("source ontology uri: " + unprocessedOntologies.get(i).getUri());
-                    log.info("target ontology uri: " + unprocessedOntologies.get(j).getUri());
+                    log.info("---- source ontology uri: " + unprocessedOntologies.get(i).getUri());
+                    log.info("---- target ontology uri: " + unprocessedOntologies.get(j).getUri());
 
                     LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
@@ -207,16 +204,16 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                     }
 
+                    log.info("----- mapping between {} and {} ontologies is completed in {} ms",
+                            unprocessedOntologies.get(i).getUri(),
+                            unprocessedOntologies.get(j).getUri(),
+                            System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
+
                 }catch(Exception e){
 
                     log.error("Exception happened: " + e.getMessage());
 
                 }
-
-                log.info("Mapping between {} and {} ontologies is completed in {} ms",
-                        unprocessedOntologies.get(i).getUri(),
-                        unprocessedOntologies.get(j).getUri(),
-                        System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
 
             }
 
