@@ -127,7 +127,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
         for(int i=0;i<unproceesedOntologySize;i++) {
 
-            long mappingForOneOntologyPairStartTime = System.currentTimeMillis();
+
 
             Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<>();
 
@@ -138,6 +138,8 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
 
             for (int j = i + 1; j <= unproceesedOntologySize -1 ; j++) {
+
+                long mappingForOneOntologyPairStartTime = System.currentTimeMillis();
 
                 ontologyManager= OWLManager.createOWLOntologyManager();
 
