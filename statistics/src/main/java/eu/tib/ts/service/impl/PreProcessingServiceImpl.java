@@ -18,7 +18,6 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Service;
 
@@ -70,140 +69,65 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     @Override
     public void doPreProcessing() {
 
-        List<TsOntology> tsOntologies = tsRepository.getOntologies();
+        List<TsOntology> tsOntologies = new ArrayList<TsOntology>();
+                tsOntologies.addAll(tsRepository.getOntologies());
 
+        long startTime = System.currentTimeMillis();
+//        List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
-        List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
-
-
-
-        List<TsOntology> unprocessedOntologies = tsOntologies.stream()
-                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologies))
+        List<TsOntology> unprocessedOntologies = new ArrayList<TsOntology>();
+        unprocessedOntologies.addAll(tsOntologies.stream()
+                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologyService.findAll()))
                 .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
                 /**
                  * changed toList()
                  */
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
 
-        int count = 1;
-        log.info("Pre-processing starts");
-        long startTime = System.currentTimeMillis();
+                log.info("Pre-processing ontologies is done in {} ms", System.currentTimeMillis() - startTime);
 
-        log.info("Titled : " + tsOntologies.get(0).getTitle());
+//        int count = 1;
 
-        for (TsOntology tsOntology : unprocessedOntologies) {
-
-            String fileLocation = tsOntology.getConfig().getFileLocation();
-            String title = tsOntology.getConfig().getTitle();
-            if (title.equals("") || title.equals("null")) {
-                title = "no title found";
-            }
-
-            long startRead = System.currentTimeMillis();
-
-            log.info("Titled : " + title);
-
-            log.info("Titled : inner loop " + title);
-
-            ProcessedOntology processedOntology =
-                    preProcessingOntologyService.preProcess(Optional.of(tsOntology), fileLocation, title);
-
-            long endRead = System.currentTimeMillis();
-
-            log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
-
-            processedOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedOntology.SEQUENCE_NAME));
-            processedOntologyService.save(processedOntology);
-            count++;
-
-        }
-
-        log.info("Titled : after loop");
-
-        log.info("Pre-processing done in {} ms", System.currentTimeMillis() - startTime);
-
-        log.info("Saved {} ontologies", count);
-
-        log.info("Mappings between pairs of ontologies start:");
-
-
-//        for(int i=0;i<unprocessedOntologies.size();i++) {
-//
-//            for (int j = i + 1; j < unprocessedOntologies.size()+1; j++) {
-//
-//                ontologyManager= OWLManager.createOWLOntologyManager();
-//
-//                try {
-//
-//                    /**
-//                     *
-//                     * Calculates mappings between all ontologies pair within one collection.
-//                     *
-//                     */
-//
-//                    LogMap2_Matcher logmap2 = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
-//                            unprocessedOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
-//                            unprocessedOntologies.get(j).getUri())));
-//
-//                    /**
-//                     * gets mappings between pairs of ontologies
-//                     */
-//                    Set<MappingObjectStr> logmap2Mappings = logmap2.getLogmap2_Mappings();
-//
-//                    /**
-//                     * gets conflictive mappings between pairs of ontologies
-//                     */
-//                    Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2.getLogmap2_ConflictiveMappings();
-//
-//                    /**
-//                     * adds information about source ontology in ontology dto
-//                     */
-//                    OntologyDto sourceOntology = OntologyDto.builder()
-//                            .ontologyId(unprocessedOntologies.get(i).getOntologyId())
-//                            .uri(unprocessedOntologies.get(i).getUri())
-//                            .title(unprocessedOntologies.get(i).getTitle())
-//                            .collection(unprocessedOntologies.get(i).getCollection())
-//                            .build();
-//
-//                    Set<OntologyDto> sourceOntologySet = new HashSet<>();
-//
-//                    sourceOntologySet.add(sourceOntology);
-//
-//                    /**
-//                     * adds information about target ontology into ontology dto.
-//                     */
-//                    OntologyDto targetOntology = OntologyDto.builder()
-//                            .ontologyId(unprocessedOntologies.get(j).getOntologyId())
-//                            .uri(unprocessedOntologies.get(j).getUri())
-//                            .title(unprocessedOntologies.get(j).getTitle())
-//                            .collection(unprocessedOntologies.get(j).getCollection())
-//                            .build();
-//
-//                    Set<OntologyDto> targetOntologySet = new HashSet<>();
-//                    targetOntologySet.add(targetOntology);
-//
-//
-//                    ProcessedMapping processedMapping =
-//                            preProcessingMappingService.preProcess(sourceOntologySet,
-//                                    targetOntologySet, logmap2Mappings.size(),
-//                                    conflictiveLogmap2Mappings.size(), getMappingList(logmap2Mappings),getMappingList(conflictiveLogmap2Mappings));
-//
-//                    processedMapping.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
-//                    processedMappingService.save(processedMapping);
-//
-//                }catch(Exception e){
-//
-//                    e.printStackTrace();
-//
-//                }
+//        log.info("Pre-processing starts");
+//        log.info("Titled : " + tsOntologies.get(0).getTitle());
+//        for (TsOntology tsOntology : unprocessedOntologies) {
+//            String fileLocation = tsOntology.getConfig().getFileLocation();
+//            String title = tsOntology.getConfig().getTitle();
+//            if (title.equals("") || title.equals("null")) {
+//                title = "no title found";
 //            }
+//
+//            long startRead = System.currentTimeMillis();
+//
+//            log.info("Titled : " + title);
+//
+//            log.info("Titled : inner loop " + title);
+//
+//            ProcessedOntology processedOntology =
+//                    preProcessingOntologyService.preProcess(Optional.of(tsOntology), fileLocation, title);
+//
+//            long endRead = System.currentTimeMillis();
+//
+//            log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
+//
+//            processedOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedOntology.SEQUENCE_NAME));
+//            processedOntologyService.save(processedOntology);
+//            count++;
 //        }
+
+        log.info("Number of preprocessed ontologies: {} ", unprocessedOntologies.size());
 
         log.info("Start mappings between pairs of ontologies brouped by source ontology :");
 
-        for(int i=0;i<unprocessedOntologies.size();i++) {
+        long mappingStartTime = System.currentTimeMillis();
 
-//            sourceOntologyManager= OWLManager.createOWLOntologyManager();
+        log.info("mapping start time: " +mappingStartTime);
+
+        int unproceesedOntologySize= unprocessedOntologies.size();
+
+        for(int i=0;i<unproceesedOntologySize;i++) {
+
+            long mappingForOneOntologyPairStartTime = System.currentTimeMillis();
 
             Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<>();
 
@@ -213,11 +137,14 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             int numberOfTargetOntologies = 0;
 
 
-            for (int j = i + 1; j < unprocessedOntologies.size() + 1; j++) {
+            for (int j = i + 1; j <= unproceesedOntologySize -1 ; j++) {
 
                 ontologyManager= OWLManager.createOWLOntologyManager();
 
                 try {
+
+                    log.info("source ontology uri: " + unprocessedOntologies.get(i).getUri());
+                    log.info("target ontology uri: " + unprocessedOntologies.get(j).getUri());
 
                     LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
                             unprocessedOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
@@ -284,22 +211,22 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 
                 }
 
-            }
-
-
-            log.info("number of target ontologies :" + numberOfTargetOntologies);
-
-            log.info("target ontologies:" );
-
-            for(TargetOntologyObjectSetModel targetOntologyObjectSetModel: targetOntologyObjectSetModelSet) {
-
-                for(OntologyDto targetOnt: targetOntologyObjectSetModel.getTargetOntology()){
-
-                    log.info("targetOnt.getId() : " + targetOnt.getId() );
-                    log.info("targetOnt.getTitle() : " + targetOnt.getTitle());
-                }
+                log.info("Mapping between {} and {} ontologies is completed in {} ms",
+                        unprocessedOntologies.get(i).getUri(),
+                        unprocessedOntologies.get(j).getUri(),
+                        System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
 
             }
+
+
+//            log.info("number of target ontologies :" + numberOfTargetOntologies);
+//            log.info("target ontologies:" );
+//            for(TargetOntologyObjectSetModel targetOntologyObjectSetModel: targetOntologyObjectSetModelSet) {
+//                for(OntologyDto targetOnt: targetOntologyObjectSetModel.getTargetOntology()){
+//                    log.info("targetOnt.getId() : " + targetOnt.getId() );
+//                    log.info("targetOnt.getTitle() : " + targetOnt.getTitle());
+//                }
+//            }
 
             if(numberOfTargetOntologies >0) {
 
@@ -307,9 +234,14 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                         preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntology ,numberOfTargetOntologies, targetOntologyObjectSetModelSet);
 
                 processedMappingGroupedBySourceOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
+                /**
+                 * Save mappings to MongoDB
+                 */
                 processedMappingService.save(processedMappingGroupedBySourceOntology);
             }
         }
+
+        log.info("All mappings are done in {} ms", System.currentTimeMillis() - mappingStartTime);
     }
 
     /**

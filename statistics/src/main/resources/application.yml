@@ -71,3 +71,6 @@ skip:
     - gpo
     - sweet
     - icitygeom
+    - uberon
+    - flopo
+
