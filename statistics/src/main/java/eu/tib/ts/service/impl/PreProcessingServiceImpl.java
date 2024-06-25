@@ -69,25 +69,21 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     @Override
     public void doPreProcessing() {
 
-        List<TsOntology> tsOntologies = new ArrayList<TsOntology>();
-                tsOntologies.addAll(tsRepository.getOntologies());
+        List<TsOntology> tsOntologies = tsRepository.getOntologies();
 
         long startTime = System.currentTimeMillis();
-//        List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
+//      List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
-        List<TsOntology> unprocessedOntologies = new ArrayList<TsOntology>();
-        unprocessedOntologies.addAll(tsOntologies.stream()
+        List<TsOntology> unprocessedOntologies = tsOntologies.stream()
                 .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologyService.findAll()))
                 .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
                 /**
                  * changed toList()
                  */
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
 
-                log.info("Pre-processing ontologies is done in {} ms", System.currentTimeMillis() - startTime);
-
+//        log.info("Pre-processing ontologies is done in {} ms", System.currentTimeMillis() - startTime);
 //        int count = 1;
-
 //        log.info("Pre-processing starts");
 //        log.info("Titled : " + tsOntologies.get(0).getTitle());
 //        for (TsOntology tsOntology : unprocessedOntologies) {
@@ -114,8 +110,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 //            processedOntologyService.save(processedOntology);
 //            count++;
 //        }
-
-        log.info("Number of preprocessed ontologies: {} ", unprocessedOntologies.size());
 
         log.info("Start mappings between pairs of ontologies brouped by source ontology :");
 
@@ -209,6 +203,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                             unprocessedOntologies.get(j).getUri(),
                             System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
 
+
                 }catch(Exception e){
 
                     log.error("Exception happened: " + e.getMessage());
@@ -241,6 +236,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         }
 
         log.info("All mappings are done in {} ms", System.currentTimeMillis() - mappingStartTime);
+        log.info("Number of preprocessed ontologies: {} ", unprocessedOntologies.size());
     }
 
     /**

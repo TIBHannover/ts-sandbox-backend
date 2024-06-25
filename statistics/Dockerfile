@@ -8,7 +8,7 @@ RUN cd /opt/sandbox/statistics && ls && mvn clean package -DskipTests
 #RUN cd /opt/sandbox/statistics
 
 #EXPOSE 8080
-ENTRYPOINT ["java", "-Xmx4G", "-Xms1024m", "-jar", "/opt/sandbox/statistics/target/ts-statistics-back.jar"]
+ENTRYPOINT ["java", "-Xmx10G", "-Xms1024m", "-jar", "/opt/sandbox/statistics/target/ts-statistics-back.jar"]
 
 #FROM eclipse-temurin:17-jre-alpine
 #COPY target/ts-statistics-back.jar ts-statistics-back.jar
