@@ -81,7 +81,9 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                  * changed toList()
                  */
                 .collect(Collectors.toList());
-
+/*
+Commented code below stpres TIB TS ontologies into MongoDB
+ */
 //        log.info("Pre-processing ontologies is done in {} ms", System.currentTimeMillis() - startTime);
 //        int count = 1;
 //        log.info("Pre-processing starts");
@@ -203,24 +205,13 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                             unprocessedOntologies.get(j).getUri(),
                             System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
 
-
                 }catch(Exception e){
 
-                    log.error("Exception happened: " + e.getMessage());
+                    log.error("Mapping exception happened: " + e.getMessage());
 
                 }
 
             }
-
-
-//            log.info("number of target ontologies :" + numberOfTargetOntologies);
-//            log.info("target ontologies:" );
-//            for(TargetOntologyObjectSetModel targetOntologyObjectSetModel: targetOntologyObjectSetModelSet) {
-//                for(OntologyDto targetOnt: targetOntologyObjectSetModel.getTargetOntology()){
-//                    log.info("targetOnt.getId() : " + targetOnt.getId() );
-//                    log.info("targetOnt.getTitle() : " + targetOnt.getTitle());
-//                }
-//            }
 
             if(numberOfTargetOntologies >0) {
 
