@@ -211,10 +211,9 @@ Commented code below stpres TIB TS ontologies into MongoDB
                             unprocessedOntologies.get(j).getUri(),
                             System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
 
-
                 }catch(Exception e){
 
-                    log.error("Mapping exception happened: " + e.getMessage());
+                log.error("Mapping exception happened: " + e.getMessage());
 
                 }
 
@@ -226,6 +225,7 @@ Commented code below stpres TIB TS ontologies into MongoDB
                         preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntology ,numberOfTargetOntologies, targetOntologyObjectSetModelSet);
 
                 processedMappingGroupedBySourceOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
+
                 /**
                  * Save mappings to MongoDB
                  */
