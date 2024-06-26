@@ -121,6 +121,8 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
         int unproceesedOntologySize= unprocessedOntologies.size();
 
+        int iteration =0;
+
         for(int i=0;i<unproceesedOntologySize;i++) {
 
             Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<>();
@@ -132,12 +134,15 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
             for (int j = i + 1; j <= unproceesedOntologySize -1 ; j++) {
 
+                iteration = iteration +1;
+
                 long mappingForOneOntologyPairStartTime = System.currentTimeMillis();
 
                 ontologyManager= OWLManager.createOWLOntologyManager();
 
                 try {
 
+                    log.info("interation: " + iteration);
                     log.info("---- source ontology uri: " + unprocessedOntologies.get(i).getUri());
                     log.info("---- target ontology uri: " + unprocessedOntologies.get(j).getUri());
 
@@ -200,10 +205,12 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
                     }
 
-                    log.info("----- mapping between {} and {} ontologies is completed in {} ms",
+                    log.info("|----- number of mappings: "+ logmap2Mappings.size() + " number of conflictive mappings: "+ conflictiveLogmap2Mappings.size());
+                    log.info("!----- mapping between {} and {} ontologies is completed in {} ms",
                             unprocessedOntologies.get(i).getUri(),
                             unprocessedOntologies.get(j).getUri(),
                             System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
+
 
                 }catch(Exception e){
 
@@ -226,8 +233,9 @@ Commented code below stpres TIB TS ontologies into MongoDB
             }
         }
 
-        log.info("All mappings are done in {} ms", System.currentTimeMillis() - mappingStartTime);
-        log.info("Number of preprocessed ontologies: {} ", unprocessedOntologies.size());
+        log.info("---- number of preprocessed ontologies: {} ", unprocessedOntologies.size());
+        log.info("---- all mappings are done in {} ms", System.currentTimeMillis() - mappingStartTime);
+
     }
 
     /**
