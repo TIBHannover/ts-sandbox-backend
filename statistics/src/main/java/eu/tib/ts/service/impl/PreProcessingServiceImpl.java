@@ -121,7 +121,7 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
         int unproceesedOntologySize= unprocessedOntologies.size();
 
-        int iteration =0;
+        int iteration =1;
 
         for(int i=0;i<unproceesedOntologySize;i++) {
 
