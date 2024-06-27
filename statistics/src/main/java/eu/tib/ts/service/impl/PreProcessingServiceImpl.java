@@ -87,34 +87,34 @@ public class PreProcessingServiceImpl implements PreProcessingService {
 /*
 Commented code below stpres TIB TS ontologies into MongoDB
  */
-//        log.info("Pre-processing ontologies is done in {} ms", System.currentTimeMillis() - startTime);
-//        int count = 1;
-//        log.info("Pre-processing starts");
-//        log.info("Titled : " + tsOntologies.get(0).getTitle());
-//        for (TsOntology tsOntology : unprocessedOntologies) {
-//            String fileLocation = tsOntology.getConfig().getFileLocation();
-//            String title = tsOntology.getConfig().getTitle();
-//            if (title.equals("") || title.equals("null")) {
-//                title = "no title found";
-//            }
-//
-//            long startRead = System.currentTimeMillis();
-//
-//            log.info("Titled : " + title);
-//
-//            log.info("Titled : inner loop " + title);
-//
-//            ProcessedOntology processedOntology =
-//                    preProcessingOntologyService.preProcess(Optional.of(tsOntology), fileLocation, title);
-//
-//            long endRead = System.currentTimeMillis();
-//
-//            log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
-//
-//            processedOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedOntology.SEQUENCE_NAME));
-//            processedOntologyService.save(processedOntology);
-//            count++;
-//        }
+        log.info("Pre-processing ontologies is done in {} ms", System.currentTimeMillis() - startTime);
+        int count = 1;
+        log.info("Pre-processing starts");
+        log.info("Titled : " + tsOntologies.get(0).getTitle());
+        for (TsOntology tsOntology : unprocessedOntologies) {
+            String fileLocation = tsOntology.getConfig().getFileLocation();
+            String title = tsOntology.getConfig().getTitle();
+            if (title.equals("") || title.equals("null")) {
+                title = "no title found";
+            }
+
+            long startRead = System.currentTimeMillis();
+
+            log.info("Titled : " + title);
+
+            log.info("Titled : inner loop " + title);
+
+            ProcessedOntology processedOntology =
+                    preProcessingOntologyService.preProcess(Optional.of(tsOntology), fileLocation, title);
+
+            long endRead = System.currentTimeMillis();
+
+            log.debug("{} {} {} ms", tsOntology.getOntologyId(), fileLocation, endRead - startRead);
+
+            processedOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedOntology.SEQUENCE_NAME));
+            processedOntologyService.save(processedOntology);
+            count++;
+        }
 
         log.info("Start mappings between pairs of ontologies brouped by source ontology :");
 
