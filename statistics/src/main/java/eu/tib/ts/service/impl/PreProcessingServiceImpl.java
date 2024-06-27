@@ -74,6 +74,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         log.info("Terminology service ontology list: ");
 
         int ont_num = 1;
+        
         for(TsOntology ts: tsOntologies){
 
             log.info(ont_num++ + ". " + ts.getOntologyId() + " , "+  ts.getUri());
@@ -164,6 +165,7 @@ Commented code below stpres TIB TS ontologies into MongoDB
                             tsOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
                             tsOntologies.get(j).getUri())));
 
+
                     /**
                      * gets mappings between pairs of ontologies
                      */
@@ -194,6 +196,11 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
                         sourceOntology.add(sourceOntologyObjectSetModel);
 
+                        log.info("sourceOntology.add(sourceOntologyObjectSetModel) Java heap memory: ");
+                        log.info("iteration: "+ iteration + ",  ontologies pair ( "+i +" , "+j + " ): \t " + Runtime.getRuntime().freeMemory() +
+                                " \t \t " + Runtime.getRuntime().totalMemory() +
+                                " \t \t " + Runtime.getRuntime().maxMemory());
+
                         OntologyDto targetOntology = OntologyDto.builder()
                                 .ontologyId(tsOntologies.get(j).getOntologyId())
                                 .uri(tsOntologies.get(j).getUri())
@@ -204,6 +211,10 @@ Commented code below stpres TIB TS ontologies into MongoDB
                         Set<OntologyDto> targetOntologySet = new HashSet<>();
 
                         targetOntologySet.add(targetOntology);
+                        log.info("targetOntologySet.add(targetOntology) Java heap memory: ");
+                        log.info("iteration: "+ iteration + ",  ontologies pair ( "+i +" , "+j + " ): \t " + Runtime.getRuntime().freeMemory() +
+                                " \t \t " + Runtime.getRuntime().totalMemory() +
+                                " \t \t " + Runtime.getRuntime().maxMemory());
 
                         TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
                         targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
@@ -214,13 +225,19 @@ Commented code below stpres TIB TS ontologies into MongoDB
                         targetOntologyObjectSetModel.setConflictiveMappingsList(getMappingList(conflictiveLogmap2Mappings));
 
                         targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel);
+                        log.info("targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel) Java heap memory: ");
+                        log.info("iteration: "+ iteration + ",  ontologies pair ( "+i +" , "+j + " ): \t " + Runtime.getRuntime().freeMemory() +
+                                " \t \t " + Runtime.getRuntime().totalMemory() +
+                                " \t \t " + Runtime.getRuntime().maxMemory());
 
                         numberOfTargetOntologies++;
 
                     }
 
-                    log.info("|----- number of mappings: "+ logmap2Mappings.size() + " number of conflictive mappings: "+ conflictiveLogmap2Mappings.size());
-                    log.info("!----- mapping between {} and {} ontologies is completed in {} ms",
+
+
+                    log.info("----- number of mappings: "+ logmap2Mappings.size() + " number of conflictive mappings: "+ conflictiveLogmap2Mappings.size());
+                    log.info("----- mapping between {} and {} ontologies is completed in {} ms",
                             tsOntologies.get(i).getUri(),
                             tsOntologies.get(j).getUri(),
                             System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
@@ -244,6 +261,11 @@ Commented code below stpres TIB TS ontologies into MongoDB
                  * Save mappings to MongoDB
                  */
                 processedMappingService.save(processedMappingGroupedBySourceOntology);
+                log.info("processedMappingService.save(processedMappingGroupedBySourceOntology) Java heap memory: ");
+                log.info("iteration: "+ iteration + " \t " + Runtime.getRuntime().freeMemory() +
+                        " \t \t " + Runtime.getRuntime().totalMemory() +
+                        " \t \t " + Runtime.getRuntime().maxMemory());
+
             }
         }
 
