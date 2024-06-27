@@ -13,4 +13,3 @@ ENTRYPOINT ["java", "-Xmx5G", "-Xms1024m", "-jar", "/opt/sandbox/statistics/targ
 #FROM eclipse-temurin:17-jre-alpine
 #COPY target/ts-statistics-back.jar ts-statistics-back.jar
 #CMD ["java","-Xmx5G", "-Xms1024m","-jar","/ts-statistics-back.jar"]
-

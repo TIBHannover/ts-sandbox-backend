@@ -154,8 +154,8 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
                     log.info("---- number of ontologies: " + unproceesedOntologySize );
                     log.info("---- iteration: " + iteration);
-//                    log.info(i + ". ---- source ontology uri: " + unprocessedOntologies.get(i).getUri());
-//                    log.info(j+ ". ---- target ontology uri: " + unprocessedOntologies.get(j).getUri());
+//                  log.info(i + ". ---- source ontology uri: " + unprocessedOntologies.get(i).getUri());
+//                  log.info(j+ ". ---- target ontology uri: " + unprocessedOntologies.get(j).getUri());
 
                     log.info(i + ". ---- source ontology uri: " + tsOntologies.get(i).getUri());
                     log.info(j+ ". ---- target ontology uri: " + tsOntologies.get(j).getUri());
