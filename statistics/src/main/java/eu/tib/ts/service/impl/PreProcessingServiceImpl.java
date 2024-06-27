@@ -74,7 +74,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         log.info("Terminology service ontology list: ");
 
         int ont_num = 1;
-        
+
         for(TsOntology ts: tsOntologies){
 
             log.info(ont_num++ + ". " + ts.getOntologyId() + " , "+  ts.getUri());
@@ -197,6 +197,7 @@ Commented code below stpres TIB TS ontologies into MongoDB
                         sourceOntology.add(sourceOntologyObjectSetModel);
 
                         log.info("sourceOntology.add(sourceOntologyObjectSetModel) Java heap memory: ");
+                        log.info("i \t Free Memory \t Total Memory \t Max Memory");
                         log.info("iteration: "+ iteration + ",  ontologies pair ( "+i +" , "+j + " ): \t " + Runtime.getRuntime().freeMemory() +
                                 " \t \t " + Runtime.getRuntime().totalMemory() +
                                 " \t \t " + Runtime.getRuntime().maxMemory());
@@ -212,6 +213,7 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
                         targetOntologySet.add(targetOntology);
                         log.info("targetOntologySet.add(targetOntology) Java heap memory: ");
+                        log.info("i \t Free Memory \t Total Memory \t Max Memory");
                         log.info("iteration: "+ iteration + ",  ontologies pair ( "+i +" , "+j + " ): \t " + Runtime.getRuntime().freeMemory() +
                                 " \t \t " + Runtime.getRuntime().totalMemory() +
                                 " \t \t " + Runtime.getRuntime().maxMemory());
@@ -226,6 +228,7 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
                         targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel);
                         log.info("targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel) Java heap memory: ");
+                        log.info("i \t Free Memory \t Total Memory \t Max Memory");
                         log.info("iteration: "+ iteration + ",  ontologies pair ( "+i +" , "+j + " ): \t " + Runtime.getRuntime().freeMemory() +
                                 " \t \t " + Runtime.getRuntime().totalMemory() +
                                 " \t \t " + Runtime.getRuntime().maxMemory());
@@ -262,6 +265,7 @@ Commented code below stpres TIB TS ontologies into MongoDB
                  */
                 processedMappingService.save(processedMappingGroupedBySourceOntology);
                 log.info("processedMappingService.save(processedMappingGroupedBySourceOntology) Java heap memory: ");
+                log.info("i \t Free Memory \t Total Memory \t Max Memory");
                 log.info("iteration: "+ iteration + " \t " + Runtime.getRuntime().freeMemory() +
                         " \t \t " + Runtime.getRuntime().totalMemory() +
                         " \t \t " + Runtime.getRuntime().maxMemory());
