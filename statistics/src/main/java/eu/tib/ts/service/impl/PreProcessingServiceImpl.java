@@ -76,7 +76,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
         int ont_num = 1;
         for(TsOntology ts: tsOntologies){
 
-            log.info(ont_num+ ". " + ts.getOntologyId() + " , "+  ts.getUri());
+            log.info(ont_num++ + ". " + ts.getOntologyId() + " , "+  ts.getUri());
         }
 
         long startTime = System.currentTimeMillis();
