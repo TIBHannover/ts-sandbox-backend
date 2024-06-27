@@ -69,27 +69,20 @@ public class PreProcessingServiceImpl implements PreProcessingService {
     @Override
     public void doPreProcessing() {
 
-        List<TsOntology> tsOntologies = tsRepository.getOntologies();
+      List<TsOntology> tsOntologies = tsRepository.getOntologies();
 
-        log.info("Terminology service ontology list: ");
+      log.info("Terminology service ontology list: ");
 
-        int ont_num = 1;
+      long startTime = System.currentTimeMillis();
 
-        for(TsOntology ts: tsOntologies){
-
-            log.info(ont_num++ + ". " + ts.getOntologyId() + " , "+  ts.getUri());
-        }
-
-        long startTime = System.currentTimeMillis();
-
-//      List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
-//        List<TsOntology> unprocessedOntologies = tsOntologies.stream()
-//                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologyService.findAll()))
-//                .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
+//    List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
+      List<TsOntology> unprocessedOntologies = tsOntologies.stream()
+                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologyService.findAll()))
+                .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
                 /**
                  * changed toList()
                  */
-//                .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
 /*
 Commented code below stpres TIB TS ontologies into MongoDB
@@ -129,8 +122,8 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
         log.info("mapping start time: " +mappingStartTime);
 
-//        int unproceesedOntologySize= unprocessedOntologies.size();
-          int unproceesedOntologySize = tsOntologies.size();
+        int unproceesedOntologySize= unprocessedOntologies.size();
+//      int unproceesedOntologySize = tsOntologies.size();
 
         int iteration =1;
 
@@ -155,15 +148,15 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
                     log.info("---- number of ontologies: " + unproceesedOntologySize );
                     log.info("---- iteration: " + iteration);
-//                  log.info(i + ". ---- source ontology uri: " + unprocessedOntologies.get(i).getUri());
-//                  log.info(j+ ". ---- target ontology uri: " + unprocessedOntologies.get(j).getUri());
+                  log.info(i + ". ---- source ontology uri: " + unprocessedOntologies.get(i).getUri());
+                  log.info(j+ ". ---- target ontology uri: " + unprocessedOntologies.get(j).getUri());
 
-                    log.info(i + ". ---- source ontology uri: " + tsOntologies.get(i).getUri());
-                    log.info(j+ ". ---- target ontology uri: " + tsOntologies.get(j).getUri());
+//                    log.info(i + ". ---- source ontology uri: " + tsOntologies.get(i).getUri());
+//                    log.info(j+ ". ---- target ontology uri: " + tsOntologies.get(j).getUri());
 
                     LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
-                            tsOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
-                            tsOntologies.get(j).getUri())));
+                            unprocessedOntologies.get(i).getUri())), ontologyManager.loadOntology(IRI.create(
+                            unprocessedOntologies.get(j).getUri())));
 
 
                     /**
@@ -179,10 +172,10 @@ Commented code below stpres TIB TS ontologies into MongoDB
                     if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
 
                         OntologyDto sourceOnt = OntologyDto.builder()
-                                .ontologyId(tsOntologies.get(i).getOntologyId())
-                                .uri(tsOntologies.get(i).getUri())
-                                .title(tsOntologies.get(i).getTitle())
-                                .collection(tsOntologies.get(i).getCollection())
+                                .ontologyId(unprocessedOntologies.get(i).getOntologyId())
+                                .uri(unprocessedOntologies.get(i).getUri())
+                                .title(unprocessedOntologies.get(i).getTitle())
+                                .collection(unprocessedOntologies.get(i).getCollection())
                                 .build();
 
                         Set<OntologyDto> sourceOntologySet = new HashSet<>();
@@ -203,10 +196,10 @@ Commented code below stpres TIB TS ontologies into MongoDB
                                 " \t \t " + Runtime.getRuntime().maxMemory());
 
                         OntologyDto targetOntology = OntologyDto.builder()
-                                .ontologyId(tsOntologies.get(j).getOntologyId())
-                                .uri(tsOntologies.get(j).getUri())
-                                .title(tsOntologies.get(j).getTitle())
-                                .collection(tsOntologies.get(j).getCollection())
+                                .ontologyId(unprocessedOntologies.get(j).getOntologyId())
+                                .uri(unprocessedOntologies.get(j).getUri())
+                                .title(unprocessedOntologies.get(j).getTitle())
+                                .collection(unprocessedOntologies.get(j).getCollection())
                                 .build();
 
                         Set<OntologyDto> targetOntologySet = new HashSet<>();
@@ -241,8 +234,8 @@ Commented code below stpres TIB TS ontologies into MongoDB
 
                     log.info("----- number of mappings: "+ logmap2Mappings.size() + " number of conflictive mappings: "+ conflictiveLogmap2Mappings.size());
                     log.info("----- mapping between {} and {} ontologies is completed in {} ms",
-                            tsOntologies.get(i).getUri(),
-                            tsOntologies.get(j).getUri(),
+                            unprocessedOntologies.get(i).getUri(),
+                            unprocessedOntologies.get(j).getUri(),
                             System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
 
                 }catch(Exception e){
@@ -273,7 +266,7 @@ Commented code below stpres TIB TS ontologies into MongoDB
             }
         }
 
-        log.info("---- number of preprocessed ontologies: {} ", tsOntologies.size());
+        log.info("---- number of preprocessed ontologies: {} ", unprocessedOntologies.size());
         log.info("---- all mappings are done in {} ms", System.currentTimeMillis() - mappingStartTime);
 
     }
