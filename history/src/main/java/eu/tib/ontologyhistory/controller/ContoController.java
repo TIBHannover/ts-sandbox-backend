@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @RestController
 @AllArgsConstructor
@@ -29,7 +27,7 @@ public class ContoController {
 
     private ContoService contoService;
 
-    private static final String DATASET_NAME = "test";
+    private static final String DATASET = "test";
 
     @PostMapping("/add")
     @Operation(summary = "Calculate and save into triple story Semantic Diffs with Conto Diff")
@@ -39,9 +37,10 @@ public class ContoController {
     })
     public ResponseEntity<List<String>> createOntology(
             @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url) {
+            @RequestParam String url
+            ) {
 
-        contoService.create(url);
+        contoService.create(url, DATASET);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -52,8 +51,9 @@ public class ContoController {
             @ApiResponse(responseCode = "200", description = "Found the ontologies"),
             @ApiResponse(responseCode = "404", description = "No ontologies found", content = @Content)
     })
-    public ResponseEntity<List<GraphInfo>> getOntologies() {
-        val ontologies = contoService.findAll();
+    public ResponseEntity<List<GraphInfo>> getOntologies(
+    ) {
+        val ontologies = contoService.findAll(DATASET);
 
         if (ontologies.isEmpty()) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
@@ -70,9 +70,10 @@ public class ContoController {
     })
     public ResponseEntity<List<Timeline>> getTimeline(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl) {
+            @RequestParam String ontologyUrl
+            ) {
 
-        val ontologies = contoService.findByUrl(ontologyUrl);
+        val ontologies = contoService.findByUrl(ontologyUrl, DATASET);
 
         return new ResponseEntity<>(ontologies, HttpStatus.OK);
     }
@@ -85,9 +86,10 @@ public class ContoController {
     })
     public ResponseEntity<Difference> getTimelineElement(
             @Parameter(description = "commitId")
-            @RequestParam String commitId) {
+            @RequestParam String commitId
+            ) {
 
-        val ontologies = contoService.timeline(commitId);
+        val ontologies = contoService.timeline(commitId, DATASET);
 
         return new ResponseEntity<>(ontologies, HttpStatus.OK);
     }
@@ -103,7 +105,7 @@ public class ContoController {
             @RequestParam String ontology
             ) {
 
-        contoService.uploadOntologyToFuseki(ontology);
+        contoService.uploadOntologyToFuseki(ontology, DATASET);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -118,7 +120,7 @@ public class ContoController {
             @Parameter(description = "ontologyUrl")
             @RequestParam String ontologyUrl) {
 
-        val operations = contoService.operations(DATASET_NAME, ontologyUrl);
+        val operations = contoService.operations(DATASET, ontologyUrl);
 
         return new ResponseEntity<>(operations, HttpStatus.OK);
     }
@@ -136,7 +138,7 @@ public class ContoController {
             @Parameter(description = "searchOperation")
             @RequestParam String searchOperation) {
 
-        val subjects = contoService.operationsData(DATASET_NAME, ontologyUrl, searchOperation);
+        val subjects = contoService.operationsData(DATASET, ontologyUrl, searchOperation);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }
@@ -151,7 +153,7 @@ public class ContoController {
             @Parameter(description = "ontologyUrl")
             @RequestParam String ontologyUrl) {
 
-        val subjects = contoService.getVersions(DATASET_NAME, ontologyUrl);
+        val subjects = contoService.getVersions(DATASET, ontologyUrl);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }
@@ -178,7 +180,7 @@ public class ContoController {
             @Parameter(description = "secondDate")
             @RequestParam String secondDate) {
 
-        val subjects = contoService.timelineMessage(DATASET_NAME, ontologyUrl, label, resourceUri, firstDate, secondDate);
+        val subjects = contoService.timelineMessage(DATASET, ontologyUrl, label, resourceUri, firstDate, secondDate);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }
@@ -200,7 +202,7 @@ public class ContoController {
             @Parameter(description = "secondDate")
             @RequestParam String secondDate) {
 
-        val subjects = contoService.dataInBetweenDates(DATASET_NAME, ontologyUrl, firstDate, secondDate);
+        val subjects = contoService.dataInBetweenDates(DATASET, ontologyUrl, firstDate, secondDate);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }

@@ -19,21 +19,24 @@ public class OndetController {
 
     private final OndetService ondetService;
 
+    private static final String DATASET = "test";
+
     @GetMapping
     @Operation(summary = "Find all objects")
-    public ResponseEntity<List> findAll() {
-        val objects = ondetService.findAll();
+    public ResponseEntity<List<?>> findAll(
+    ) {
+        val objects = ondetService.findAll(DATASET);
 
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
 
     @GetMapping("/{sha}")
     @Operation(summary = "Find one object by sha")
-    public ResponseEntity<Object> find(
+    public ResponseEntity<DifferenceMarkdown> find(
             @PathVariable String sha
     ) {
 
-        val diff = ondetService.find(sha);
+        val diff = ondetService.find(sha, DATASET);
 
         return new ResponseEntity<>(diff, HttpStatus.OK);
     }
@@ -45,14 +48,8 @@ public class OndetController {
             @RequestParam String url
     ) {
 
-        val result = ondetService.findByUrl(url);
+        ondetService.create(url, DATASET);
 
-        if (!result.isEmpty()) {
-            return new ResponseEntity<>("Already exists in the database", HttpStatus.FOUND);
-        }
-
-        ondetService.create(url);
-        
         return new ResponseEntity<>("Created", HttpStatus.OK);
     }
 

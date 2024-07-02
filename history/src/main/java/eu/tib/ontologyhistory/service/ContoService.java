@@ -5,7 +5,7 @@ import eu.tib.ontologyhistory.dto.conto.GraphInfo;
 import eu.tib.ontologyhistory.dto.conto.Timeline;
 import eu.tib.ontologyhistory.dto.conto.TimelineMessage;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
-import eu.tib.ontologyhistory.service.network.GithubService;
+import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.utils.SparqlQueries;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,25 +48,17 @@ public class ContoService {
 
     private static final Character UNIQUE_DELIMITER = '\u001f';
 
-    private static final String FUSEKI_LOCAL_CONN_STRING = "http://localhost:3030/";
-
     private static final String FUSEKI_DOCKER_CONN_STRING = "http://fuseki:3030/";
 
-    private static final String OUTPUT_FILENAME = "output.ttl";
+    private static final String OUTPUT_FILE = "output.ttl";
 
-    private static final String QUAD_FILENAME = "all_diffs.nq";
+    private static final String QUAD_FILE = "all_diffs.nq";
 
-    private static final String DATASET = "test";
-
-    private final GithubService githubService;
-
-    private final RobotService robotService;
-
-    public List<GraphInfo> findAll() {
+    public List<GraphInfo> findAll(String dataset) {
         List<GraphInfo> graphs = new ArrayList<>();
         fusekiAuthenticate();
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
 
@@ -87,11 +79,11 @@ public class ContoService {
         return graphs;
     }
 
-    public List<Timeline> findByUrl(String ontologyURL) {
+    public List<Timeline> findByUrl(String ontologyURL, String dataset) {
         List<Timeline> timelines = new ArrayList<>();
         fusekiAuthenticate();
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
@@ -101,7 +93,7 @@ public class ContoService {
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
                 try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode commitLabel = null, message = null, firstCommitTime = null;
+                    RDFNode commitLabel, message, firstCommitTime;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         commitLabel = soln.get("commit_label");
@@ -116,14 +108,14 @@ public class ContoService {
             });
         }
 
-        timelines.sort(Comparator.comparing(Timeline::firstCommitTime));
+        timelines.sort(Comparator.comparing(Timeline::firstCommitTime).reversed());
         return timelines.subList(1, timelines.size());
     }
 
-    public Difference timeline(String commitId) {
+    public Difference timeline(String commitId, String dataset) {
         fusekiAuthenticate();
         List<String> result = new ArrayList<>();
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
@@ -133,7 +125,7 @@ public class ContoService {
                 graphQuery.setLiteral("commitId", commitId);
                 try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode ppLabel = null, s = null, p = null, o = null;
+                    RDFNode ppLabel, s, p, o;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         ppLabel = soln.get("pp_label");
@@ -150,10 +142,10 @@ public class ContoService {
         return new Difference(result);
     }
 
-    public List<TimelineMessage> timelineMessage(String datasetName, String ontologyURL, String label, String resourceUri, String firstCommitTime, String secondCommitTime) {
+    public List<TimelineMessage> timelineMessage(String dataset, String ontologyURL, String label, String resourceUri, String firstCommitTime, String secondCommitTime) {
         fusekiAuthenticate();
         List<TimelineMessage> result = new ArrayList<>();
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + datasetName;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
@@ -182,15 +174,15 @@ public class ContoService {
                 }
             });
         }
-        result.sort(Comparator.comparing(TimelineMessage::commitTime));
+        result.sort(Comparator.comparing(TimelineMessage::commitTime).reversed());
         return result;
     }
 
-    public List<String> operations(String datasetName, String ontologyURL) {
+    public List<String> operations(String dataset, String ontologyURL) {
         List<String> functions = new ArrayList<>();
         fusekiAuthenticate();
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + datasetName;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
@@ -200,7 +192,7 @@ public class ContoService {
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
                 try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode function = null;
+                    RDFNode function;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         function = soln.get("function");
@@ -213,11 +205,11 @@ public class ContoService {
         return functions;
     }
 
-    public List<String> operationsData(String datasetName, String ontologyURL, String searchOperation) {
+    public List<String> operationsData(String dataset, String ontologyURL, String searchOperation) {
         List<String> subjects = new ArrayList<>();
         fusekiAuthenticate();
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + datasetName;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
@@ -241,11 +233,11 @@ public class ContoService {
         return subjects;
     }
 
-    public List<Timeline> getVersions(String datasetName, String ontologyURL) {
+    public List<Timeline> getVersions(String dataset, String ontologyURL) {
         List<Timeline> subjects = new ArrayList<>();
         fusekiAuthenticate();
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + datasetName;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
 
@@ -274,11 +266,11 @@ public class ContoService {
         return subjects;
     }
 
-    public List<String> dataInBetweenDates(String datasetName, String ontologyURL, String firstCommitTime, String secondCommitTime) {
+    public List<String> dataInBetweenDates(String dataset, String ontologyURL, String firstCommitTime, String secondCommitTime) {
         List<String> subjects = new ArrayList<>();
         fusekiAuthenticate();
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + datasetName;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
@@ -364,17 +356,20 @@ public class ContoService {
 //    }
 
     private String apacheDatetimeToInstant(String datetime) {
-        String result = datetime.split("\\^\\^")[0];
-        return result;
+        return datetime.split("\\^\\^")[0];
     }
 
-    public void create(String url) {
-        val diffAdds = githubService.getDiffAdds(url);
+    public void create(String url, String dataset) {
+        GitService<?> gitService = GitServiceFactory.getService(url);
+
+        log.info("Checking the conto create service");
+        val diffAdds = gitService.getDiffAdds(url);
         for (val diffAdd : diffAdds) {
             try {
                 diffExecute(diffAdd, url);
-                uploadOntologyToFuseki(new File(OUTPUT_FILENAME));
-                uploadOntologyToFuseki(new File(QUAD_FILENAME));
+                uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
+                uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
+                log.info("Information was uploaded to Apache Fuseki: {}", new File(OUTPUT_FILE).getTotalSpace());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -383,6 +378,7 @@ public class ContoService {
     }
 
     private void diffExecute(DiffAdd diffAdd, String baseUri) throws Exception {
+
         String gitInfo = "\"" + diffAdd.gitCommitUrlLeft() + UNIQUE_DELIMITER +
                     diffAdd.gitCommitUrlRight() + UNIQUE_DELIMITER +
                     diffAdd.datetime() + UNIQUE_DELIMITER +
@@ -395,9 +391,11 @@ public class ContoService {
                  " -ob-iri " + diffAdd.gitUrlRight() +
                  " -base-iri " + baseUri +
                 " -git_info " + gitInfo +
-                 " -o " + OUTPUT_FILENAME;
+                 " -o " + OUTPUT_FILE;
 
+        log.info("Command to send to custom COnto Diff: {}", command);
         Process process = Runtime.getRuntime().exec(command);
+        log.info("Diff was executed with left file URI: {}", diffAdd.gitUrlLeft());
         val error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         val errorString = error.readLine();
         if (errorString != null) {
@@ -437,14 +435,14 @@ public class ContoService {
         return dataset;
     }
 
-    public void uploadOntologyToFuseki(File ont) throws IOException {
+    public void uploadOntologyToFuseki(File ont, String dataset) throws IOException {
         fusekiAuthenticate();
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         if (RDFLanguages.filenameToLang(ont.getName()).equals(Lang.NQUADS)) {
-            Dataset dataset = readDataset(ont.getName(), ont.toPath());
+            Dataset ds = readDataset(ont.getName(), ont.toPath());
             DatasetAccessor datasetAccessor = DatasetAccessorFactory.createHTTP(datasetServiceUrl);
-            dataset.listNames().forEachRemaining(name -> {
-                datasetAccessor.add(name, dataset.getNamedModel(name));
+            ds.listNames().forEachRemaining(name -> {
+                datasetAccessor.add(name, ds.getNamedModel(name));
             });
         } else {
             Model ontologyModel = readOntology(ont);
@@ -457,11 +455,11 @@ public class ContoService {
         }
     }
 
-    public void uploadOntologyToFuseki(String ont) {
+    public void uploadOntologyToFuseki(String ont, String dataset) {
         fusekiAuthenticate();
         Model ontologyModel = readOntology(ont);
 
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + DATASET;
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
 
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);

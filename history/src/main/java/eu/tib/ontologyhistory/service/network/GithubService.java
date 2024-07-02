@@ -23,21 +23,24 @@ import java.util.*;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class GithubService {
+public class GithubService implements GitService<Commit> {
 
     private static final String ACCESS_TOKEN = "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";
 
+    @Override
     public List<DiffAdd> getDiffAdds(String url) {
         val uri = checkUriValidity(url);
         return getDiffAddsFrom(uri, null);
     }
 
+    @Override
     public List<DiffAdd> getDiffAdds(String link, Instant datetime) {
         val uri = checkUriValidity(link);
         return getDiffAddsFrom(uri, datetime);
     }
 
-    private List<DiffAdd> getDiffAddsFrom(Optional<URI> uri, Instant datetime) {
+    @Override
+    public List<DiffAdd> getDiffAddsFrom(Optional<URI> uri, Instant datetime) {
         List<DiffAdd> diffAdds = new ArrayList<>();
         if (uri.isPresent()) {
             String user = getUserFromUrl(uri.get());
@@ -53,6 +56,7 @@ public class GithubService {
         return diffAdds;
     }
 
+    @Override
     public List<DiffAdd> processCommits(List<Commit> commits, String user, String repo, String encodedPath, URI uri) {
         List<DiffAdd> diffAdds = new ArrayList<>();
         ListIterator<Commit> iterator = commits.listIterator();
@@ -67,7 +71,8 @@ public class GithubService {
         return diffAdds;
     }
 
-    private void processCommitPair(Commit commit, Commit parentCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri) {
+    @Override
+    public void processCommitPair(Commit commit, Commit parentCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri) {
         Optional<String> rawFile = getRawFileUrl(uri, user, repo, commit.sha(), encodedPath);
         Optional<String> parentRawFile = getRawFileUrl(uri, user, repo, parentCommit.sha(), encodedPath);
 
@@ -90,6 +95,7 @@ public class GithubService {
         }
     }
 
+    @Override
     public Optional<String> getRawFileUrl(URI uri, String owner, String repo, String sha, String path) {
 
         URI githubRawFileApi = UriComponentsBuilder.fromUri(uri)
@@ -114,6 +120,7 @@ public class GithubService {
         return Optional.empty();
     }
 
+    @Override
     public Optional<List<Commit>> getCommits(URI uri, String owner, String repo, String path, Instant datetime) {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(uri)
@@ -152,6 +159,7 @@ public class GithubService {
         return Optional.of(Collections.emptyList());
     }
 
+    @Override
     public Optional<URI> checkUriValidity(String url) {
         try {
             val uri = new URI(url);
@@ -162,19 +170,23 @@ public class GithubService {
         return Optional.empty();
     }
 
-    private String getUserFromUrl(URI uri) {
+    @Override
+    public String getUserFromUrl(URI uri) {
         return uri.getPath().split("/")[1];
     }
 
-    private String getRepoFromUrl(URI uri) {
+    @Override
+    public String getRepoFromUrl(URI uri) {
         return uri.getPath().split("/")[2];
     }
 
-    private String getBranchFromUrl(URI uri) {
+    @Override
+    public String getBranchFromUrl(URI uri) {
         return uri.getPath().split("/")[5];
     }
 
-    private String getEncodedPath(String url) {
+    @Override
+    public String getEncodedPath(String url) {
         String[] segments = url.split("/");
         return String.join("/", Arrays.copyOfRange(segments, 4, segments.length));
     }

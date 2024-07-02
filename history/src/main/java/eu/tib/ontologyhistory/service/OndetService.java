@@ -19,17 +19,17 @@ public class OndetService {
 
     private final ContoService contoService;
 
-    public List<?> findAll() {
+    public List<?> findAll(String dataset) {
         val robotDiffs = robotService.findAll();
-        val ondetDiffs = contoService.findAll();
+        val ondetDiffs = contoService.findAll(dataset);
 
         return new ArrayList<>();
     }
 
-    public DifferenceMarkdown find(String sha) {
+    public DifferenceMarkdown find(String sha, String dataset) {
         val robotDiff = robotService.findBySha(sha);
 
-        val contoDiff = contoService.timeline(sha);
+        val contoDiff = contoService.timeline(sha, dataset);
 
         val markdown = robotDiff == null ? null : robotDiff.markdown();
 
@@ -44,9 +44,9 @@ public class OndetService {
         return robotDiffs;
     }
 
-    public void create(String url) {
+    public void create(String url, String dataset) {
         robotService.create(url);
-        contoService.create(url);
+        contoService.create(url, dataset);
     }
 
 
