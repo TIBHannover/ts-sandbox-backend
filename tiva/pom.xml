@@ -158,7 +158,21 @@
 			<version>4.5.14</version>
 		</dependency>
 
-    </dependencies>
+		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>apache-jena-libs</artifactId>
+			<type>pom</type>
+			<version>5.0.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.jena/jena-arq -->
+		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>jena-arq</artifactId>
+			<version>5.0.0</version>
+		</dependency>
+
+	</dependencies>
 
 	<build>
 		<finalName>tiva-statistics-back</finalName>
