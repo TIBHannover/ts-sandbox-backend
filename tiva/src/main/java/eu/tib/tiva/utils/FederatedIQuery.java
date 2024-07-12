@@ -1,3 +1,4 @@
+import ch.qos.logback.classic.BasicConfigurator;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
