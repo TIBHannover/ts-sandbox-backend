@@ -84,9 +84,6 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                  */
                 .collect(Collectors.toList());
 
-/*
-Commented code below stpres TIB TS ontologies into MongoDB
- */
         log.info("Pre-processing ontologies is done in {} ms", System.currentTimeMillis() - startTime);
         int count = 1;
         log.info("Pre-processing starts");
