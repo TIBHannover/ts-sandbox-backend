@@ -79,9 +79,9 @@ public class MappingController {
 
         for(MappingGropedBySourceOntologyDto mappingGroupedBySourceOntologyDto: mappingGropedBySourceOntologyDtoList){
 
-            Set<SourceOntologyObjectSetModel> sourceOntologyObjectSetModels = mappingGroupedBySourceOntologyDto.getSourceOntology();
+        Set<SourceOntologyObjectSetModel> sourceOntologyObjectSetModels = mappingGroupedBySourceOntologyDto.getSourceOntology();
 
-            for(SourceOntologyObjectSetModel sm: sourceOntologyObjectSetModels){
+        for(SourceOntologyObjectSetModel sm: sourceOntologyObjectSetModels){
 
                 Set<String> allCollections = sm.getCollection();
 
@@ -89,11 +89,9 @@ public class MappingController {
 
                 mappingGropedBySourceOntologyDtoListFillteredByMappingId.add(mappingGroupedBySourceOntologyDto);
 
-                }
-
-            }
-
-            }
+        }
+        }
+        }
 
     return HttpUtils.ok(mappingGropedBySourceOntologyDtoListFillteredByMappingId);
 

@@ -4,6 +4,8 @@ import eu.tib.ts.controller.assember.ExternalMappingModelAssembler;
 import eu.tib.ts.controller.dto.ExternalMappingModel;
 import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
+import eu.tib.ts.model.ontology.TsOntology;
+import eu.tib.ts.repository.TsRepository;
 import eu.tib.ts.service.ExternalMappingService;
 import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.utils.HttpUtils;
@@ -11,15 +13,8 @@ import eu.tib.ts.utils.PageUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -40,15 +35,17 @@ public class ExternalMappingController {
     private final PreProcessingOntologyService preProcessingOntologyService;
     private final ExternalMappingService externalMappingService;
     private final PagedResourcesAssembler<ExternalMapping> externalMappingPagedResourcesAssembler;
-
     private final ExternalMappingModelAssembler externalMappingModelAssembler;
+    private final TsRepository tsRepository;
 
     @Autowired
     public ExternalMappingController(
+        TsRepository tsRepository,
         PreProcessingOntologyService preProcessingOntologyService,
         ExternalMappingService externalMappingService,
         PagedResourcesAssembler<ExternalMapping> externalMappingPagedResourcesAssembler,
         ExternalMappingModelAssembler externalMappingModelAssembler){
+        this.tsRepository = tsRepository;
         this.preProcessingOntologyService=preProcessingOntologyService;
         this.externalMappingService=externalMappingService;
         this.externalMappingPagedResourcesAssembler=externalMappingPagedResourcesAssembler;
@@ -143,4 +140,29 @@ Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.g
     return HttpUtils.ok(pagedModel);
 
     }
+
+    @Operation(summary = "Computes mappings between given ontology id ingested in TS and other ontologies that are stored in MongoDB. Mapping results are store into MongoDB")
+    @PostMapping(value="/mongodb")
+    public ResponseEntity<PagedModel<ExternalMappingModel>> storeComputedMappingsIntoMongoDB(
+            @Parameter(description="Source ontology id", example="coy")
+            @RequestParam List<String> sourceontologyids,
+            Pageable pegable
+    ) throws  OWLOntologyCreationException, IOException {
+
+    List<TsOntology> tsOntologies = tsRepository.getOntologies();
+
+    Page<ExternalMapping> mappingsStoredInMongoDB =null;
+
+
+        PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
+                mappingsStoredInMongoDB,
+                ExternalMappingModel.class,
+                externalMappingPagedResourcesAssembler,
+                externalMappingModelAssembler
+        );
+
+        return HttpUtils.ok(pagedModel);
+
+    }
+
 }

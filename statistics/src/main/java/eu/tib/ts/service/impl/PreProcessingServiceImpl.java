@@ -113,7 +113,7 @@ public class PreProcessingServiceImpl implements PreProcessingService {
             count++;
         }
 
-        log.info("Start mappings between pairs of ontologies brouped by source ontology :");
+        log.info("Start mappings between pairs of ontologies grouped by source ontology :");
 
         long mappingStartTime = System.currentTimeMillis();
 
