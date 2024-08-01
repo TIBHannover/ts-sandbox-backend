@@ -469,8 +469,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenOntologyIdsAndAllOtherTSOntologies( Optional<List<String>> ids, Pageable pageable) throws OWLOntologyCreationException, IOException {
 
 
+
         /**
-         * source ontology
+         * Source ontologies ingested in TIB Terminology Service
          */
         List<ProcessedOntology> processedOntologies = ids.isPresent()
                 ? getProcessedOntologies(ids.get())
@@ -484,6 +485,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         }
 
 
+        log.info("source ontology list:");
+
+        for(ProcessedOntology po: processedOntologies){
+
+            log.info("processed ontology uri: " + po.getUri());
+        }
+
 
         List<TsOntology> tsOntologies = tsRepository.getOntologies();
 
@@ -496,11 +504,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 .collect(Collectors.toList());
 
 
-
-
-
-
-
+        List<ExternalMapping> externalMappingList = new ArrayList<>();
 
 
         return null;
