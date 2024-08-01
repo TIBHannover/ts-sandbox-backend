@@ -1,14 +1,17 @@
 package eu.tib.ts.service.impl;
 
+import eu.tib.ts.configuration.OntologiesProcessingConfig;
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
+import eu.tib.ts.repository.TsRepository;
 import eu.tib.ts.service.ExternalMappingService;
 
 import eu.tib.ts.service.OntologyStorageService;
+import eu.tib.ts.service.ProcessedOntologyService;
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -44,18 +47,31 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     OWLOntologyManager ontologyManager;
 
+    private final TsRepository tsRepository;
+    private final ProcessedOntologyService processedOntologyService;
+    OntologiesProcessingConfig ontologiesProcessingConfig;
+
     private final OntologyStorageService ontologyStorageService;
 
     @Autowired
     protected ExternalMappingServiceImpl(
             ProcessedMongoOntologyRepository processedMongoOntologyRepository,
-            OntologyStorageService ontologyStorageService
+            OntologyStorageService ontologyStorageService,
+            TsRepository tsRepository,
+            ProcessedOntologyService processedOntologyService,
+            OntologiesProcessingConfig ontologiesProcessingConfig
 
     ){
 
     this.ProcessedMongoOntologyRepository=processedMongoOntologyRepository;
         this.ontologyStorageService=ontologyStorageService;
+        this.tsRepository=tsRepository;
+        this.processedOntologyService=processedOntologyService;
+        this.ontologiesProcessingConfig=ontologiesProcessingConfig;
     }
+
+
+
     @Override
     public <T extends  ExtendedOntology> Page<ExternalMapping> getMultipartFileMappingMappingForExternalOntology(MultipartFile file,
                                                                                                                  MultipartFile[] files,
@@ -432,6 +448,62 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
          return PageUtils.toPage(externalMappingList, pageable);
 
+    }
+
+    private boolean ontologyExists(TsOntology tsOntology, List<ProcessedOntology> processedOntologies) {
+        return processedOntologies.stream()
+                .anyMatch(ont -> ont.equalsTsOntology(tsOntology));
+    }
+    /**
+     * Calculates mappings between one ontology ingested in TIB terminology service and other ontologies ingested in TIB
+     * Terminology Service. The results of mappings is stored in MongoDB.
+     *
+     * @param ids
+     * @param pageable
+     * @return
+     * @param <T>
+     * @throws OWLOntologyCreationException
+     * @throws IOException
+     */
+    @Override
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenOntologyIdsAndAllOtherTSOntologies( Optional<List<String>> ids, Pageable pageable) throws OWLOntologyCreationException, IOException {
+
+
+        /**
+         * source ontology
+         */
+        List<ProcessedOntology> processedOntologies = ids.isPresent()
+                ? getProcessedOntologies(ids.get())
+                : getProcessedOntologies();
+
+        if (processedOntologies == null || processedOntologies.isEmpty()) {
+
+            log.info("processedOntologies.size: " + processedOntologies.size());
+
+            return PageUtils.toPage(Collections.emptyList(), pageable);
+        }
+
+
+
+        List<TsOntology> tsOntologies = tsRepository.getOntologies();
+
+        List<TsOntology> unprocessedOntologies = tsOntologies.stream()
+                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologyService.findAll()))
+                .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
+                /**
+                 * changed toList()
+                 */
+                .collect(Collectors.toList());
+
+
+
+
+
+
+
+
+
+        return null;
     }
 
     /**
