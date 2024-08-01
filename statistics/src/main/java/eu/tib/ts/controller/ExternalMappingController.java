@@ -142,7 +142,7 @@ Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.g
     }
 
     @Operation(summary = "Computes mappings between given ontology id ingested in TS and other ontologies that are stored in MongoDB. Mapping results are store into MongoDB")
-    @PostMapping(value="/mongodb")
+    @PostMapping(value="/external/mongodb")
     public ResponseEntity<PagedModel<ExternalMappingModel>> storeComputedMappingsIntoMongoDB(
             @Parameter(description="Source ontology id", example="coy")
             @RequestParam List<String> sourceontologyids,
