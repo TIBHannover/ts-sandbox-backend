@@ -11,6 +11,7 @@ import eu.tib.ts.repository.TsRepository;
 import eu.tib.ts.service.ExternalMappingService;
 
 import eu.tib.ts.service.OntologyStorageService;
+import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.service.ProcessedOntologyService;
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     private final ProcessedOntologyService processedOntologyService;
     OntologiesProcessingConfig ontologiesProcessingConfig;
 
+    private final SequenceGeneratorService sequenceGeneratorService;
+
+    private final PreProcessingOntologyService preProcessingOntologyService;
+
     private final OntologyStorageService ontologyStorageService;
 
     @Autowired
@@ -59,7 +64,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             OntologyStorageService ontologyStorageService,
             TsRepository tsRepository,
             ProcessedOntologyService processedOntologyService,
-            OntologiesProcessingConfig ontologiesProcessingConfig
+            OntologiesProcessingConfig ontologiesProcessingConfig,
+            PreProcessingOntologyService preProcessingOntologyService,
+            SequenceGeneratorService sequenceGeneratorService
 
     ){
 
@@ -68,6 +75,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         this.tsRepository=tsRepository;
         this.processedOntologyService=processedOntologyService;
         this.ontologiesProcessingConfig=ontologiesProcessingConfig;
+        this.preProcessingOntologyService=preProcessingOntologyService;
+        this.sequenceGeneratorService=sequenceGeneratorService;
     }
 
 
@@ -468,8 +477,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     @Override
     public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenOntologyIdsAndAllOtherTSOntologies( Optional<List<String>> ids, Pageable pageable) throws OWLOntologyCreationException, IOException {
 
-
-
         /**
          * Source ontologies ingested in TIB Terminology Service
          */
@@ -484,7 +491,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
 
-
         log.info("source ontology list:");
 
         for(ProcessedOntology po: processedOntologies){
@@ -492,7 +498,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             log.info("processed ontology uri: " + po.getUri());
         }
 
-
+        /**
+         * Get all ontologies from TIB Terminology Service
+         */
         List<TsOntology> tsOntologies = tsRepository.getOntologies();
 
         List<TsOntology> unprocessedOntologies = tsOntologies.stream()
@@ -503,6 +511,28 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  */
                 .collect(Collectors.toList());
 
+        /**
+         * Iterates through unprocessed ontologies
+          */
+
+
+
+        /**
+         * iterates source ontologies
+         */
+        for (ProcessedOntology ont1 : processedOntologies) {
+
+        /**
+        * Iterates through all ontologies ingested in TIB Terminology Service.
+        */
+        for (TsOntology tsOntology : unprocessedOntologies) {
+
+
+
+        }
+
+
+        }
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
 
@@ -799,24 +829,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         sb.append(e.getLocalizedMessage());
 
         return sb.toString();
-    }
-
-    private OWLOntology createMergedOntology(OWLOntology O1, OWLOntology O2, OWLOntology M) throws Exception{
-
-        OWLOntologyManager managerMerged;
-        OWLOntology mergedOntology;
-
-        Set<OWLAxiom> axioms = new HashSet<>();
-        axioms.addAll(O1.getAxioms());
-        axioms.addAll(O2.getAxioms());
-        axioms.addAll(M.getAxioms());
-
-        managerMerged = OWLManager.createOWLOntologyManager();
-        mergedOntology = managerMerged.createOntology(axioms, IRI.create("https://terminology.nfdi4ing.de/ts/sandbox/generatemapping/mappings.owl"));
-
-        log.info("Number of classes integration in merged ontology: " + mergedOntology.getClassesInSignature().size());
-
-        return mergedOntology;
     }
 
     /**
