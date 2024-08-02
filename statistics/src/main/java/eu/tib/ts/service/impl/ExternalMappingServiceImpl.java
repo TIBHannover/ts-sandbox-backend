@@ -3,16 +3,14 @@ package eu.tib.ts.service.impl;
 import eu.tib.ts.configuration.OntologiesProcessingConfig;
 import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
+import eu.tib.ts.controller.dto.SourceOntologyObjectSetModel;
 import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
 import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
 import eu.tib.ts.repository.TsRepository;
-import eu.tib.ts.service.ExternalMappingService;
+import eu.tib.ts.service.*;
 
-import eu.tib.ts.service.OntologyStorageService;
-import eu.tib.ts.service.PreProcessingOntologyService;
-import eu.tib.ts.service.ProcessedOntologyService;
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -58,6 +56,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     private final OntologyStorageService ontologyStorageService;
 
+    private final PreProcessingMappingService preProcessingMappingService;
+
+    private final ProcessedMappingService processedMappingService;
+
     @Autowired
     protected ExternalMappingServiceImpl(
             ProcessedMongoOntologyRepository processedMongoOntologyRepository,
@@ -66,7 +68,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             ProcessedOntologyService processedOntologyService,
             OntologiesProcessingConfig ontologiesProcessingConfig,
             PreProcessingOntologyService preProcessingOntologyService,
-            SequenceGeneratorService sequenceGeneratorService
+            SequenceGeneratorService sequenceGeneratorService,
+            PreProcessingMappingService preProcessingMappingService,
+            ProcessedMappingService processedMappingService
 
     ){
 
@@ -77,6 +81,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         this.ontologiesProcessingConfig=ontologiesProcessingConfig;
         this.preProcessingOntologyService=preProcessingOntologyService;
         this.sequenceGeneratorService=sequenceGeneratorService;
+        this.preProcessingMappingService=preProcessingMappingService;
+        this.processedMappingService = processedMappingService;
     }
 
 
@@ -347,7 +353,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                         }catch (Exception e) {
 
-                            log.info("Source random get instance exception: " + e.getMessage());
+                        log.info("Source random get instance exception: " + e.getMessage());
 
                         }
             /**
@@ -463,7 +469,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         return processedOntologies.stream()
                 .anyMatch(ont -> ont.equalsTsOntology(tsOntology));
     }
+
     /**
+     *
      * Calculates mappings between one ontology ingested in TIB terminology service and other ontologies ingested in TIB
      * Terminology Service. The results of mappings is stored in MongoDB.
      *
@@ -473,71 +481,58 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
      * @param <T>
      * @throws OWLOntologyCreationException
      * @throws IOException
+     *
      */
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenOntologyIdsAndAllOtherTSOntologies( Optional<List<String>> ids, Pageable pageable) throws OWLOntologyCreationException, IOException {
+    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenOntologyIdsAndAllOtherTSOntologies(
+            Optional<List<String>> ids,
+            Pageable pageable) {
 
-        /**
-         * Source ontologies ingested in TIB Terminology Service
-         */
-        List<ProcessedOntology> processedOntologies = ids.isPresent()
-                ? getProcessedOntologies(ids.get())
-                : getProcessedOntologies();
+        Collection<TsOntology> tsOnt = tsRepository.getOntologies();
 
-        if (processedOntologies == null || processedOntologies.isEmpty()) {
+        log.info("tsOnt.size(): " + tsOnt.size());
+        log.info("TIB Terminology Service ontologies:");
+        int i =1;
+        for(TsOntology ont: tsOnt){
 
-            log.info("processedOntologies.size: " + processedOntologies.size());
-
-            return PageUtils.toPage(Collections.emptyList(), pageable);
-        }
-
-        log.info("source ontology list:");
-
-        for(ProcessedOntology po: processedOntologies){
-
-            log.info("processed ontology uri: " + po.getUri());
-        }
-
-        /**
-         * Get all ontologies from TIB Terminology Service
-         */
-        List<TsOntology> tsOntologies = tsRepository.getOntologies();
-
-        List<TsOntology> unprocessedOntologies = tsOntologies.stream()
-                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologyService.findAll()))
-                .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
-                /**
-                 * changed toList()
-                 */
-                .collect(Collectors.toList());
-
-        /**
-         * Iterates through unprocessed ontologies
-          */
-
-
-
-        /**
-         * iterates source ontologies
-         */
-        for (ProcessedOntology ont1 : processedOntologies) {
-
-        /**
-        * Iterates through all ontologies ingested in TIB Terminology Service.
-        */
-        for (TsOntology tsOntology : unprocessedOntologies) {
-
-
+        log.info("ontology id  and uri from TIB TS: "+ i++ +". "+ ont.getOntologyId() + " . " + ont.getUri() );
 
         }
+        
+        List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
+        log.info("Processed ontologies: ");
+        for(ProcessedOntology pso: processedOntologies){
+
+        log.info("processed ontology-id and uri: "+pso.getId() + " , " + pso.getOntologyId() + " , " + pso.getUri());
 
         }
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
 
+        return PageUtils.toPage(externalMappingList, pageable);
 
-        return null;
+    }
+
+    private Set<MappingObjectSetModel> getMappingList (Set<MappingObjectStr> logmap2MappingsSet){
+
+        Set<MappingObjectSetModel> mappingList = new HashSet<>();
+
+        for(MappingObjectStr mos: logmap2MappingsSet) {
+
+            MappingObjectSetModel mappingObjectSetModel = new MappingObjectSetModel();
+
+            mappingObjectSetModel.setSourceIRI(mos.getIRIStrEnt1());
+            mappingObjectSetModel.setMappingDirection(mos.getMappingDirection());
+            mappingObjectSetModel.setTargetIRI(mos.getIRIStrEnt2());
+            mappingObjectSetModel.setTypeOfMapping(mos.getTypeOfMapping());
+            mappingObjectSetModel.setConfidence(mos.getConfidence());
+            mappingObjectSetModel.setStructuralConfidenceMapping(mos.getStructuralConfidenceMapping());
+
+            mappingList.add(mappingObjectSetModel);
+        }
+
+        return mappingList;
     }
 
     /**
