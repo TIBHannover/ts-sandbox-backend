@@ -64,15 +64,19 @@ public interface ExternalMappingService {
     /**
      * Calculates mappings between one or more ontologies as a source ontologies ingested in TIB terminology service and all other ontologies ingested in TIB
      * Terminology Service as target onotlogies. The results of mappings is stored in MongoDB.
+     */
+    /**
      *
-     *
-     * @param ids
+     * @param sourceontologyid
+     * @param targetontologyid
      * @param pageable
      * @return
      * @param <T>
      * @throws OWLOntologyCreationException
      * @throws IOException
      */
-    public <T extends  ExtendedOntology> Page<ExternalMapping> getMappingsBetweenOntologyIdsAndAllOtherTSOntologies(Optional<List<String>> ids,
-                                                                                                                Pageable pageable) throws OWLOntologyCreationException, IOException;
+    public <T extends  ExtendedOntology> Page<ExternalMapping> getMappingsBetweenOntologyIdsAndAllOtherTSOntologies(
+            Optional<List<String>> sourceontologyid,
+            Optional<List<String>> targetontologyid,
+            Pageable pageable) throws OWLOntologyCreationException, IOException;
 }

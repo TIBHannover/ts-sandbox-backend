@@ -472,20 +472,22 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     /**
      *
-     * Calculates mappings between one ontology ingested in TIB terminology service and other ontologies ingested in TIB
-     * Terminology Service. The results of mappings is stored in MongoDB.
+     * Calculates mappings between two ontologies ingested in TIB terminology service.
+     * The results of mappings is stored in MongoDB.
      *
-     * @param ids
+     */
+    /**
+     *
+     * @param sourceontologyid
+     * @param targetontologyid
      * @param pageable
      * @return
      * @param <T>
-     * @throws OWLOntologyCreationException
-     * @throws IOException
-     *
      */
     @Override
     public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenOntologyIdsAndAllOtherTSOntologies(
-            Optional<List<String>> ids,
+            Optional<List<String>> sourceontologyid,
+            Optional<List<String>> targetontologyid,
             Pageable pageable) {
 
         Collection<TsOntology> tsOnt = tsRepository.getOntologies();
@@ -498,7 +500,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         log.info("ontology id  and uri from TIB TS: "+ i++ +". "+ ont.getOntologyId() + " . " + ont.getUri() );
 
         }
-        
+
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
         log.info("Processed ontologies: ");
