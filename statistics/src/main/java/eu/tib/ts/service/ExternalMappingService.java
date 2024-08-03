@@ -62,8 +62,9 @@ public interface ExternalMappingService {
 
 
     /**
-     * Calculates mappings between one or more ontologies as a source ontologies ingested in TIB terminology service and all other ontologies ingested in TIB
-     * Terminology Service as target onotlogies. The results of mappings is stored in MongoDB.
+     * Calculates mappings between two sets of ontologies ingested in TIB terminology service. This excludes
+     * source and target ontologies for which mappings are already computed and stored in MongoDB.
+     * The results of mappings is stored in MongoDB.
      */
     /**
      *

@@ -147,6 +147,7 @@ Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.g
     public ResponseEntity<PagedModel<ExternalMappingModel>> storeComputedMappingsIntoMongoDB(
             @Parameter(description="A list of source ontology ids", example="coy,dr")
             @RequestParam Optional<List<String>> sourceontologyid,
+            @Parameter(description="A list of target ontology ids", example="fibo,hp")
             @RequestParam Optional<List<String>> targetontologyid,
             Pageable pageable
     ) throws  OWLOntologyCreationException, IOException {

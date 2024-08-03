@@ -472,12 +472,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     /**
      *
-     * Calculates mappings between two ontologies ingested in TIB terminology service.
-     * The results of mappings is stored in MongoDB.
-     *
-     */
-    /**
-     *
      * @param sourceontologyid
      * @param targetontologyid
      * @param pageable
@@ -492,27 +486,60 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         Collection<TsOntology> tsOnt = tsRepository.getOntologies();
 
+        int size = tsOnt.size();
+
         log.info("tsOnt.size(): " + tsOnt.size());
         log.info("TIB Terminology Service ontologies:");
         int i =1;
         for(TsOntology ont: tsOnt){
 
-        log.info("ontology id  and uri from TIB TS: "+ i++ +". "+ ont.getOntologyId() + " . " + ont.getUri() );
+        log.info(" "+ i++ +". id: "+ ont.getOntologyId() + " , uri: " + ont.getUri() );
 
         }
 
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
+        for(int k =0; k < size; k++){
+
+            for(int j = i + 1; j <= size -1 ; j++){
+
+
+            }
+
+        }
+
         log.info("Processed ontologies: ");
+        int p = 1;
         for(ProcessedOntology pso: processedOntologies){
-
-        log.info("processed ontology-id and uri: "+pso.getId() + " , " + pso.getOntologyId() + " , " + pso.getUri());
-
+        log.info("ontology-id: "+ pso.getId() + " , " + p++ +". " + pso.getOntologyId() + " ,  uri: " + pso.getUri());
         }
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
 
         return PageUtils.toPage(externalMappingList, pageable);
+
+    }
+
+    /**
+     * Return true if ontology id belongs to processed ontology list, otherwise retuns false
+     * @param ontologyid
+     * @param processedOntology
+     * @return
+     */
+    public boolean existsOntologyId(String ontologyid, List<ProcessedOntology> processedOntology){
+
+       int n=0;
+
+       for(ProcessedOntology pso: processedOntology){
+
+       if(pso.getOntologyId().equals(ontologyid)) {
+
+           return true;
+       };
+
+        }
+
+     return false;
 
     }
 
