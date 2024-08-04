@@ -472,46 +472,35 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     /**
      *
-     * @param sourceontologyid
-     * @param targetontologyid
      * @param pageable
      * @return
      * @param <T>
      */
     @Override
-    public <T extends ExtendedOntology> Page<ExternalMapping> getMappingsBetweenOntologyIdsAndAllOtherTSOntologies(
-            Optional<List<String>> sourceontologyid,
-            Optional<List<String>> targetontologyid,
+    public <T extends ExtendedOntology> Page<ExternalMapping> getAllTIBTSOntologiesAndProcessedOntologiesInMappings(
             Pageable pageable) {
 
         Collection<TsOntology> tsOnt = tsRepository.getOntologies();
+        List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
         int size = tsOnt.size();
 
         log.info("tsOnt.size(): " + tsOnt.size());
         log.info("TIB Terminology Service ontologies:");
         int i =1;
-        for(TsOntology ont: tsOnt){
 
-        log.info(" "+ i++ +". id: "+ ont.getOntologyId() + " , uri: " + ont.getUri() );
+        for(TsOntology ts: tsOnt){
 
+            log.info(i++ + ". ont id: " + ts.getOntologyId() + " , ont uri: " + ts.getUri());
         }
 
-        List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
-
-        for(int k =0; k < size; k++){
-
-            for(int j = i + 1; j <= size -1 ; j++){
-
-
-            }
-
-        }
-
-        log.info("Processed ontologies: ");
+        log.info("Processed ontologies in MongoDB: ");
         int p = 1;
+
         for(ProcessedOntology pso: processedOntologies){
+
         log.info("ontology-id: "+ pso.getId() + " , " + p++ +". " + pso.getOntologyId() + " ,  uri: " + pso.getUri());
+
         }
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
