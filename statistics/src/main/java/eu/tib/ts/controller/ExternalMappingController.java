@@ -141,7 +141,7 @@ Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.g
     }
 
     @Operation(summary = "List all ontologies from TIB TS and processed ontologies in mappings")
-    @PostMapping(value="/external/listontologies")
+    @GetMapping(value="/external/listontologies")
     public ResponseEntity<PagedModel<ExternalMappingModel>> listOntologiesFromTIBTSandProcessedOntologies(
             Pageable pageable
     ) throws  OWLOntologyCreationException, IOException {
