@@ -28,12 +28,11 @@ public class OndetService {
 
     public DifferenceMarkdown find(String sha, String dataset) {
         val robotDiff = robotService.findBySha(sha);
-
         val contoDiff = contoService.timeline(sha, dataset);
 
         val markdown = robotDiff == null ? null : robotDiff.markdown();
 
-        return new DifferenceMarkdown(markdown, contoDiff);
+        return new DifferenceMarkdown(markdown, contoDiff, robotDiff.gitDiff());
     }
 
     public List<DiffDto> findByUrl(String url) {

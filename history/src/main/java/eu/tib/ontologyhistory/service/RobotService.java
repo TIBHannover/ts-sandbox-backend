@@ -9,7 +9,6 @@ import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.exception.RobotDiffExecutionException;
 import eu.tib.ontologyhistory.repository.RobotRepository;
 import eu.tib.ontologyhistory.service.network.GitService;
-import eu.tib.ontologyhistory.service.network.GithubService;
 import eu.tib.ontologyhistory.utils.ExceptionUtils;
 import eu.tib.ontologyhistory.utils.FileUtils;
 import eu.tib.ontologyhistory.utils.OntologyUtils;
@@ -33,7 +32,6 @@ import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.*;
 
 
@@ -45,6 +43,8 @@ public class RobotService {
     private static final String MARKDOWN_DOCUMENT_KEY = "file";
 
     private final RobotRepository robotRepository;
+
+    private final GitDiffService gitDiffService;
 
     private final DiffMapper diffMapper;
 
@@ -172,7 +172,6 @@ public class RobotService {
             Files.write(diffOutputPlainFile, BasicDiffRenderer.renderPlain(differ).getBytes());
             Files.write(diffOutputPlainMarkdown, MarkdownGroupedDiffRenderer.render(groupedForMarkdown, ontologySetProvider).getBytes());
 
-
             List<String> lines = Files.readAllLines(diffOutputPlainFile, StandardCharsets.UTF_8);
             String line = Files.readString(diffOutputPlainMarkdown, StandardCharsets.UTF_8);
 
@@ -189,6 +188,7 @@ public class RobotService {
                     .message(diffAdd.messageLeft())
                     .markdown(markdown)
                     .axioms(axioms)
+                    .gitDiff(gitDiffService.makeDiff(ontLeft.toPath(), ontRight.toPath()))
                     .build();
 
             if (diff != null) {

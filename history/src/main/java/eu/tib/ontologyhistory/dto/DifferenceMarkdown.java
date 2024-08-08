@@ -8,6 +8,8 @@ public record DifferenceMarkdown(
         @Schema(description = "Markdown diff content", implementation = java.lang.String.class)
         Document markdown,
 
-        Difference difference
+        Difference difference,
+
+        String gitDiff
 ) {
 }
