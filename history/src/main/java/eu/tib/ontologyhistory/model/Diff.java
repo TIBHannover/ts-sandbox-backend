@@ -49,6 +49,9 @@ public class Diff {
     private Map<String, List<Axiom>> axioms;
 
     @JsonView({Views.Full.class})
+    private String gitDiff;
+
+    @JsonView({Views.Full.class})
     private String message;
 
 }
