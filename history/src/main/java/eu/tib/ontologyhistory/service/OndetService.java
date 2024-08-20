@@ -1,14 +1,14 @@
 package eu.tib.ontologyhistory.service;
 
+import eu.tib.ontologyhistory.dto.DiffDtoTimeline;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
-import eu.tib.ontologyhistory.dto.diff.DiffDto;
+import eu.tib.ontologyhistory.dto.conto.GraphInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -19,11 +19,14 @@ public class OndetService {
 
     private final ContoService contoService;
 
-    public List<?> findAll(String dataset) {
-        val robotDiffs = robotService.findAll();
-        val ondetDiffs = contoService.findAll(dataset);
+    public Set<GraphInfo> findAll(String dataset) {
+        val robotDiffs = robotService.findAllUrls();
+        val contoDiffs = contoService.findAll(dataset);
 
-        return new ArrayList<>();
+        val result = new HashSet<>(robotDiffs);
+        result.addAll(contoDiffs);
+
+        return result;
     }
 
     public DifferenceMarkdown find(String sha, String dataset) {
@@ -35,19 +38,27 @@ public class OndetService {
         return new DifferenceMarkdown(markdown, contoDiff, robotDiff.gitDiff());
     }
 
-    public List<DiffDto> findByUrl(String url) {
+    public Optional<DiffDtoTimeline> findFirstByUrl(String url, String dataset) {
 
-        val robotDiffs = robotService.findAllByUrl(url);
-//        val contoDiffs = contoService.findByUrl(url);
+        val robotDiff = robotService.findFirstByUrl(url);
+        if (robotDiff != null) {
+            return Optional.of(new DiffDtoTimeline(robotDiff, Collections.emptyList()));
+        }
 
-        return robotDiffs;
+        val contoDiff = contoService.findFirstByUrl(url, dataset);
+        if (!contoDiff.isEmpty()) {
+            return Optional.of(new DiffDtoTimeline(null, contoDiff));
+        }
+
+        return Optional.empty();
     }
 
-    public void create(String url, String dataset) {
+    public Optional<DiffDtoTimeline> create(String url, String dataset) {
         robotService.create(url);
         contoService.create(url, dataset);
-    }
 
+        return findFirstByUrl(url, dataset);
+    }
 
     public void remove(String id) {
         robotService.deleteById(id);

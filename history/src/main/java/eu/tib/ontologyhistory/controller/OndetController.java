@@ -1,16 +1,20 @@
 package eu.tib.ontologyhistory.controller;
 
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
+import eu.tib.ontologyhistory.dto.conto.GraphInfo;
 import eu.tib.ontologyhistory.service.OndetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.val;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/ondet/sdiffs")
@@ -23,7 +27,7 @@ public class OndetController {
 
     @GetMapping
     @Operation(summary = "Find all objects")
-    public ResponseEntity<List<?>> findAll(
+    public ResponseEntity<Set<GraphInfo>> findAll(
     ) {
         val objects = ondetService.findAll(DATASET);
 
@@ -41,16 +45,39 @@ public class OndetController {
         return new ResponseEntity<>(diff, HttpStatus.OK);
     }
 
+    @GetMapping("/checkUrl")
+    @Operation(summary = "Check if object exists by URL")
+    public ResponseEntity<String> findByUrl(@RequestParam String url,
+                                            HttpServletRequest httpServletRequest) {
+
+        val diff = ondetService.findFirstByUrl(url, DATASET);
+
+        if (diff.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        val responseUrl = httpServletRequest.getRequestURL().append('?').append(url).toString();
+
+        return new ResponseEntity<>(responseUrl, HttpStatus.OK);
+    }
+
     @PostMapping
     @Operation(summary = "Create one object")
     public ResponseEntity<String> create(
             @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url
+            @RequestParam String url,
+            HttpServletRequest httpServletRequest
     ) {
 
-        ondetService.create(url, DATASET);
+        val result = ondetService.create(url, DATASET);
 
-        return new ResponseEntity<>("Created", HttpStatus.OK);
+        if (result.isEmpty()) {
+            return new ResponseEntity<>("Your provided ontology was not added into the system, since all semantic diffs failed", HttpStatus.NOT_FOUND);
+        }
+
+        val responseUrl = httpServletRequest.getRequestURL().append('?').append(url).toString();
+
+        return new ResponseEntity<>(responseUrl, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

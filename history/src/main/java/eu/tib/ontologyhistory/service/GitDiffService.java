@@ -4,26 +4,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Optional;
 
 @Service
 @Slf4j
 public class GitDiffService {
 
-    public String makeDiff(Path left, Path right) {
+    public static String makeDiff(Path left, Path right) {
         ProcessBuilder processBuilder = new ProcessBuilder("git", "diff", "--no-index", left.toString(), right.toString());
-        String result = "";
         try {
             Process process = processBuilder.start();
 
-            result = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
+            return IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.error(e.getMessage());
         }
 
-        return result;
+        return "We are sorry to inform you, but some exception happened during creation of git diff";
     }
 
 }
