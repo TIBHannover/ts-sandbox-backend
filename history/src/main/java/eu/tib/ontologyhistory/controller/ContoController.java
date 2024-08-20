@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @AllArgsConstructor
@@ -51,12 +52,12 @@ public class ContoController {
             @ApiResponse(responseCode = "200", description = "Found the ontologies"),
             @ApiResponse(responseCode = "404", description = "No ontologies found", content = @Content)
     })
-    public ResponseEntity<List<GraphInfo>> getOntologies(
+    public ResponseEntity<Set<GraphInfo>> getOntologies(
     ) {
         val ontologies = contoService.findAll(DATASET);
 
         if (ontologies.isEmpty()) {
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Collections.emptySet(), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(ontologies, HttpStatus.OK);

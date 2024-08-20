@@ -54,8 +54,8 @@ public class ContoService {
 
     private static final String QUAD_FILE = "all_diffs.nq";
 
-    public List<GraphInfo> findAll(String dataset) {
-        List<GraphInfo> graphs = new ArrayList<>();
+    public Set<GraphInfo> findAll(String dataset) {
+        val graphs = new HashSet<GraphInfo>();
         fusekiAuthenticate();
 
         String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
@@ -65,7 +65,7 @@ public class ContoService {
         try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
             Txn.executeRead(conn, () -> {
                 Query graphQuery = QueryFactory.create(SparqlQueries.GET_ALL_GRAPHS);
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery)) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery)) {
                     ResultSet results = qExec.execSelect();
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
@@ -91,7 +91,7 @@ public class ContoService {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.WHOLE_ONTOLOGY_TIMELINE);
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode commitLabel, message, firstCommitTime;
                     while (results.hasNext()) {
@@ -112,6 +112,32 @@ public class ContoService {
         return timelines.subList(1, timelines.size());
     }
 
+    public List<GraphInfo> findFirstByUrl(String ontologyURL, String dataset) {
+        fusekiAuthenticate();
+        val res = new ArrayList<GraphInfo>();
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
+        RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
+                .destination(datasetServiceUrl);
+
+        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
+            Txn.executeRead(conn, () -> {
+                ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
+                graphQuery.setCommandText(SparqlQueries.GET_GRAPH_BY_URL);
+                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                    ResultSet results = qExec.execSelect();
+                    if (results.hasNext()) {
+                        QuerySolution soln = results.next();
+                        RDFNode graph = soln.get("graph");
+                        res.add(new GraphInfo(String.valueOf(graph)));
+                    }
+                }
+            });
+        }
+
+        return res;
+    }
+
     public Difference timeline(String commitId, String dataset) {
         fusekiAuthenticate();
         List<String> result = new ArrayList<>();
@@ -123,7 +149,7 @@ public class ContoService {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.WHOLE_ONTOLOGY_TIMELINE_ELEMENT);
                 graphQuery.setLiteral("commitId", commitId);
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode ppLabel, s, p, o;
                     while (results.hasNext()) {
@@ -157,7 +183,7 @@ public class ContoService {
                 graphQuery.setParam("resourceArg", ResourceFactory.createResource(resourceUri));
                 graphQuery.setLiteral("firstCommitTime", firstCommitTime);
                 graphQuery.setLiteral("secondCommitTime", secondCommitTime);
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode ppLabel, commitTime, p, o;
                     while (results.hasNext()) {
@@ -190,7 +216,7 @@ public class ContoService {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.ALL_DISTINCT_OPERATIONS);
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode function;
                     while (results.hasNext()) {
@@ -218,7 +244,7 @@ public class ContoService {
                 graphQuery.setCommandText(SparqlQueries.DATA_RELATED_TO_OPERATION);
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
                 graphQuery.setParam("searchOperation", ResourceFactory.createResource(searchOperation));
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode subject;
                     while (results.hasNext()) {
@@ -246,7 +272,7 @@ public class ContoService {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.WHOLE_ONTOLOGY_TIMELINE);
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode message, versionTime, commitLabel;
                     while (results.hasNext()) {
@@ -280,7 +306,7 @@ public class ContoService {
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
                 graphQuery.setLiteral("firstCommitTime", firstCommitTime);
                 graphQuery.setLiteral("secondCommitTime", secondCommitTime);
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode ppLabel, subject, object, predicate;
                     while (results.hasNext()) {
@@ -307,7 +333,8 @@ public class ContoService {
 
     }
 
-    public void update(String id) {}
+    public void update(String id) {
+    }
 //    private List<?> runQuery(Query query, String dataset, Object dto) {
 //        List<GraphInfo> graphs = new ArrayList<>();
 //        GraphInfo graph = new GraphInfo();
@@ -362,46 +389,48 @@ public class ContoService {
     public void create(String url, String dataset) {
         GitService<?> gitService = GitServiceFactory.getService(url);
 
-        log.info("Checking the conto create service");
         val diffAdds = gitService.getDiffAdds(url);
         for (val diffAdd : diffAdds) {
             try {
+
                 diffExecute(diffAdd, url);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
-                log.info("Information was uploaded to Apache Fuseki: {}", new File(OUTPUT_FILE).getTotalSpace());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
-
         }
+    }
+
+    private static String getCommand(DiffAdd diffAdd, String baseUri) {
+        String gitInfo = "\"" + diffAdd.gitCommitUrlLeft() + UNIQUE_DELIMITER +
+                diffAdd.gitCommitUrlRight() + UNIQUE_DELIMITER +
+                diffAdd.datetime() + UNIQUE_DELIMITER +
+                diffAdd.parentDatetime() + UNIQUE_DELIMITER +
+                diffAdd.messageLeft().replaceAll("\\s", "_") + UNIQUE_DELIMITER +
+                diffAdd.messageRight().replaceAll("\\s", "_") + "\"";
+
+        return "java -jar ContoDiff-1.0-SNAPSHOT-shaded.jar" +
+                " -oa-iri " + diffAdd.gitUrlLeft() +
+                " -ob-iri " + diffAdd.gitUrlRight() +
+                " -base-iri " + baseUri +
+                " -git_info " + gitInfo +
+                " -o " + OUTPUT_FILE;
     }
 
     private void diffExecute(DiffAdd diffAdd, String baseUri) throws Exception {
 
-        String gitInfo = "\"" + diffAdd.gitCommitUrlLeft() + UNIQUE_DELIMITER +
-                    diffAdd.gitCommitUrlRight() + UNIQUE_DELIMITER +
-                    diffAdd.datetime() + UNIQUE_DELIMITER +
-                    diffAdd.parentDatetime() + UNIQUE_DELIMITER +
-                    diffAdd.messageLeft().replaceAll("\\s", "_") + UNIQUE_DELIMITER +
-                    diffAdd.messageRight().replaceAll("\\s", "_") + "\"";
+        String command = getCommand(diffAdd, baseUri);
 
-        String command = "java -jar ContoDiff-1.0-SNAPSHOT-shaded.jar" +
-                 " -oa-iri " + diffAdd.gitUrlLeft() +
-                 " -ob-iri " + diffAdd.gitUrlRight() +
-                 " -base-iri " + baseUri +
-                " -git_info " + gitInfo +
-                 " -o " + OUTPUT_FILE;
+            Process process = Runtime.getRuntime().exec(command);
+            val error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            val errorString = error.readLine();
+            if (errorString != null) {
+                throw new IOException(errorString);
+            }
+            process.waitFor();
 
-        log.info("Command to send to custom COnto Diff: {}", command);
-        Process process = Runtime.getRuntime().exec(command);
-        log.info("Diff was executed with left file URI: {}", diffAdd.gitUrlLeft());
-        val error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-        val errorString = error.readLine();
-        if (errorString != null) {
-            throw new Exception(errorString);
-        }
-        process.waitFor();
+
     }
 
     private Model readOntology(String ont) {
@@ -435,22 +464,30 @@ public class ContoService {
         return dataset;
     }
 
-    public void uploadOntologyToFuseki(File ont, String dataset) throws IOException {
+    public void uploadOntologyToFuseki(File ont, String dataset) {
         fusekiAuthenticate();
         String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
+        DatasetAccessor datasetAccessor = DatasetAccessorFactory.createHTTP(datasetServiceUrl);
         if (RDFLanguages.filenameToLang(ont.getName()).equals(Lang.NQUADS)) {
-            Dataset ds = readDataset(ont.getName(), ont.toPath());
-            DatasetAccessor datasetAccessor = DatasetAccessorFactory.createHTTP(datasetServiceUrl);
-            ds.listNames().forEachRemaining(name -> {
-                datasetAccessor.add(name, ds.getNamedModel(name));
-            });
+            try {
+                Dataset ds = readDataset(ont.getName(), ont.toPath());
+                ds.listNames().forEachRemaining(name -> {
+                    datasetAccessor.add(name, ds.getNamedModel(name));
+                });
+            } catch (IOException e) {
+                log.error("Error reading dataset{}", e.getMessage(), e);
+            }
         } else {
-            Model ontologyModel = readOntology(ont);
-            RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
-                    .destination(datasetServiceUrl);
+            try {
+                Model ontologyModel = readOntology(ont);
+                RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
+                        .destination(datasetServiceUrl);
 
-            try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-                conn.load(ontologyModel);
+                try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
+                    conn.load(ontologyModel);
+                }
+            } catch (IOException e) {
+                log.error("Error reading ontology{}", e.getMessage(), e);
             }
         }
     }

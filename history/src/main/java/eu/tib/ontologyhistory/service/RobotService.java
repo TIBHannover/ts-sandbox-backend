@@ -1,6 +1,7 @@
 package eu.tib.ontologyhistory.service;
 
 import com.google.common.collect.Sets;
+import eu.tib.ontologyhistory.dto.conto.GraphInfo;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.mapper.DiffMapper;
@@ -22,12 +23,14 @@ import org.geneontology.owl.differ.render.BasicDiffRenderer;
 import org.geneontology.owl.differ.render.MarkdownGroupedDiffRenderer;
 import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.DiffCommand;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologySetProvider;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -42,6 +45,10 @@ public class RobotService {
 
     private static final String MARKDOWN_DOCUMENT_KEY = "file";
 
+    private static final Path ONTOLOGY_LEFT = Path.of("ontology-left.txt");
+
+    private static final Path ONTOLOGY_RIGHT = Path.of("ontology-right.txt");
+
     private final RobotRepository robotRepository;
 
     private final GitDiffService gitDiffService;
@@ -51,6 +58,15 @@ public class RobotService {
     public List<DiffDto> findAll() {
         val diff = robotRepository.findAll();
         return diffMapper.entityToDto(diff);
+    }
+
+    public Set<GraphInfo> findAllUrls() {
+        val diff = robotRepository.findAll();
+        val urls = new HashSet<GraphInfo>();
+        for (Diff d : diff) {
+            urls.add(new GraphInfo(d.getUrl()));
+        }
+        return urls;
     }
 
     public DiffDto findById(String id) {
@@ -66,6 +82,11 @@ public class RobotService {
     public List<DiffDto> findAllByUrl(String url) {
         val diffs = robotRepository.findAllByUrl(url);
         return diffMapper.entityToDto(diffs);
+    }
+
+    public DiffDto findFirstByUrl(String url) {
+        val diff = robotRepository.findFirstByUrl(url);
+        return diffMapper.entityToDto(diff);
     }
 
     public void deleteById(String id) {
@@ -84,123 +105,48 @@ public class RobotService {
 
     }
 
-    private static class DualOntologySetProvider implements OWLOntologySetProvider {
-
-        @Serial
-        private static final long serialVersionUID = -8942374248162307075L;
-        private final Set<OWLOntology> ontologies = Sets.newIdentityHashSet();
-
-        /**
-         * Init a new DualOntologySetProvider for a left and right ontology.
-         *
-         * @param left OWLOntologySetProvider for left ontology
-         * @param right OWLOntologySetProvider for right ontology
-         */
-        public DualOntologySetProvider(OWLOntologySetProvider left, OWLOntologySetProvider right) {
-            ontologies.addAll(left.getOntologies());
-            ontologies.addAll(right.getOntologies());
-        }
-
-        /**
-         * Get the ontologies in the provider.
-         *
-         * @return Set of OWLOntologies
-         */
-        @Nonnull
-        @Override
-        public Set<OWLOntology> getOntologies() {
-            return Collections.unmodifiableSet(ontologies);
-        }
-    }
-
-    private void diffExecute(DiffAdd diffAdd, File output) {
-        val diffCommand = new DiffCommand();
-        try {
-            diffCommand.execute(new CommandState(), new String[]
-                    {
-                            "--left-iri", diffAdd.gitUrlLeft(),
-                            "--right-iri", diffAdd.gitUrlRight(),
-                            "--output", output.getName(),
-                            "--format", "markdown"
-                    });
-        } catch (Exception e) {
-            val throwable = ExceptionUtils.findRootCause(e);
-            if (!ExceptionUtils.handleCustomException(throwable)) {
-                throw new RobotDiffExecutionException("Some general error happened during diff execution");
-            }
-        }
-
-    }
-
     public void create(String url) {
         GitService<?> gitService = GitServiceFactory.getService(url);
 
         val diffAdds = gitService.getDiffAdds(url);
 
         for (val diffAdd : diffAdds) {
-            try {
-                makeDiffFromGit(diffAdd, url);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            makeDiffFromGit(diffAdd, url);
         }
 
     }
 
-    public DiffDto makeDiffFromGit(DiffAdd diffAdd, String url) {
-        String ontologyLeftFilename = "ontology-left";
-        String ontologyRightFilename = "ontology-right";
-
-        Path diffOutputPlainFile = Path.of("diff-output-plain.txt");
-        Path diffOutputPlainMarkdown = Path.of("diff-output-markdown.md");
-
+    public void makeDiffFromGit(DiffAdd diffAdd, String url) {
         try {
-            File ontLeft = FileUtils.createTempFile(ontologyLeftFilename, diffAdd.gitRawFileLeft());
-            File ontRight = FileUtils.createTempFile(ontologyRightFilename, diffAdd.gitRawFileRight());
+            OWLOntology owlOntologyLeft = OntologyUtils.loadOntology(IRI.create(diffAdd.gitUrlLeft()));
+            OWLOntology owlOntologyRight = OntologyUtils.loadOntology(IRI.create(diffAdd.gitUrlRight()));
 
-            OWLOntology loadedOntologyLeft = OntologyUtils.loadOntology(ontLeft);
-            OWLOntology loadedOntologyRight = OntologyUtils.loadOntology(ontRight);
+            val ontologySetProvider = OntologyUtils.getOwlOntologySetProvider(owlOntologyLeft, owlOntologyRight);
+            val axiomsMarkdown = OntologyUtils.getAxiomsMarkdown(owlOntologyLeft, owlOntologyRight, ontologySetProvider);
+            val gitDiff = GitDiffService.makeDiff(Files.write(ONTOLOGY_LEFT, diffAdd.gitRawFileLeft().getBytes()), Files.write(ONTOLOGY_RIGHT, diffAdd.gitRawFileRight().getBytes()));
 
-            OWLOntologySetProvider ontologySetProvider = new DualOntologySetProvider(
-                    loadedOntologyLeft.getOWLOntologyManager(),
-                    loadedOntologyRight.getOWLOntologyManager()
-            );
+            if (axiomsMarkdown.isPresent()) {
+                Map<String, List<Axiom>> axioms = ParserUtils.parseAxioms(axiomsMarkdown.get().plainOutput());
+                Document markdown = new Document().append(MARKDOWN_DOCUMENT_KEY, axiomsMarkdown.get().markdownOutput());
 
-            Differ.BasicDiff differ = Differ.diff(loadedOntologyLeft, loadedOntologyRight);
-            Differ.GroupedDiff groupedForMarkdown = Differ.groupedDiff(differ);
+                Diff.builder()
+                        .url(url)
+                        .sha(diffAdd.sha())
+                        .parentSha(diffAdd.parentSha())
+                        .datetime(diffAdd.parentDatetime())
+                        .parentDatetime(diffAdd.parentDatetime())
+                        .message(diffAdd.messageLeft())
+                        .markdown(markdown)
+                        .axioms(axioms)
+                        .gitDiff(gitDiff)
+                        .build();
 
-            Files.write(diffOutputPlainFile, BasicDiffRenderer.renderPlain(differ).getBytes());
-            Files.write(diffOutputPlainMarkdown, MarkdownGroupedDiffRenderer.render(groupedForMarkdown, ontologySetProvider).getBytes());
-
-            List<String> lines = Files.readAllLines(diffOutputPlainFile, StandardCharsets.UTF_8);
-            String line = Files.readString(diffOutputPlainMarkdown, StandardCharsets.UTF_8);
-
-            Map<String, List<Axiom>> axioms = ParserUtils.parseAxioms(lines);
-
-            Document markdown = new Document().append(MARKDOWN_DOCUMENT_KEY, line);
-
-            val diff = Diff.builder()
-                    .url(url)
-                    .sha(diffAdd.sha())
-                    .parentSha(diffAdd.parentSha())
-                    .datetime(diffAdd.parentDatetime())
-                    .parentDatetime(diffAdd.parentDatetime())
-                    .message(diffAdd.messageLeft())
-                    .markdown(markdown)
-                    .axioms(axioms)
-                    .gitDiff(gitDiffService.makeDiff(ontLeft.toPath(), ontRight.toPath()))
-                    .build();
-
-            if (diff != null) {
-                val savedDiff = robotRepository.insert(diff);
-                return diffMapper.entityToDto(savedDiff);
-            } else {
-                return null;
             }
-        } catch (Exception e) {
-            log.error("Error happened during diff creation: " + e.getMessage());
+
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         }
-        return null;
+
     }
 
 }
