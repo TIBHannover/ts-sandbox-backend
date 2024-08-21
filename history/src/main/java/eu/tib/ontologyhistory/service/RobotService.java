@@ -1,6 +1,5 @@
 package eu.tib.ontologyhistory.service;
 
-import com.google.common.collect.Sets;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.diff.DiffDto;
@@ -11,28 +10,19 @@ import eu.tib.ontologyhistory.model.exception.RobotDiffExecutionException;
 import eu.tib.ontologyhistory.repository.RobotRepository;
 import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.utils.ExceptionUtils;
-import eu.tib.ontologyhistory.utils.FileUtils;
 import eu.tib.ontologyhistory.utils.OntologyUtils;
 import eu.tib.ontologyhistory.utils.ParserUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bson.Document;
-import org.geneontology.owl.differ.Differ;
-import org.geneontology.owl.differ.render.BasicDiffRenderer;
-import org.geneontology.owl.differ.render.MarkdownGroupedDiffRenderer;
 import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.DiffCommand;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
-import org.semanticweb.owlapi.model.OWLOntologySetProvider;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
 import java.io.File;
-import java.io.IOException;
-import java.io.Serial;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -160,10 +150,9 @@ public class RobotService {
                 robotRepository.insert(diff);
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-
     }
 
     public Map<String, List<String>> resHistory(String url, Instant datetime, String resourceIRI) {
