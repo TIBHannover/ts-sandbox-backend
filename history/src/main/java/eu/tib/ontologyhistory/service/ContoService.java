@@ -1,5 +1,7 @@
 package eu.tib.ontologyhistory.service;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import eu.tib.ontologyhistory.dto.conto.Difference;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
 import eu.tib.ontologyhistory.dto.conto.Timeline;
@@ -168,9 +170,9 @@ public class ContoService {
         return new Difference(result);
     }
 
-    public List<TimelineMessage> timelineMessage(String dataset, String ontologyURL, String resourceUri, String firstCommitTime, String secondCommitTime) {
+    public Map<Instant, Collection<TimelineMessage>> timelineMessage(String dataset, String ontologyURL, String resourceUri, String firstCommitTime, String secondCommitTime) {
         fusekiAuthenticate();
-        List<TimelineMessage> result = new ArrayList<>();
+        Multimap<Instant, TimelineMessage> result = ArrayListMultimap.create();
         String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
                 .destination(datasetServiceUrl);
@@ -182,7 +184,7 @@ public class ContoService {
                 graphQuery.setParam("resourceArg", ResourceFactory.createResource(resourceUri));
                 graphQuery.setLiteral("firstCommitTime", firstCommitTime);
                 graphQuery.setLiteral("secondCommitTime", secondCommitTime);
-                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode ppLabel, commitTime, p, o;
                     while (results.hasNext()) {
@@ -191,16 +193,14 @@ public class ContoService {
                         ppLabel = soln.get("pp_label");
                         p = soln.get("p");
                         o = soln.get("o");
-                        result.add(new TimelineMessage(Instant.parse(apacheDatetimeToInstant(commitTime.toString())),
-                                ppLabel.toString(),
-                                p.toString(),
-                                o.toString()));
+                        result.put(Instant.parse(apacheDatetimeToInstant(commitTime.toString())),
+                                new TimelineMessage(ppLabel.toString(), p.toString(), o.toString()));
                     }
                 }
             });
         }
-        result.sort(Comparator.comparing(TimelineMessage::commitTime).reversed());
-        return result;
+//        result.sort(Comparator.comparing(TimelineMessage::commitTime).reversed());
+        return result.asMap();
     }
 
     public List<String> operations(String dataset, String ontologyURL) {

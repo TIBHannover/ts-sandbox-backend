@@ -19,7 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -130,5 +133,25 @@ public class OndetController {
         val commits = ondetService.getCommits(ontologyUrl);
 
         return new ResponseEntity<>(commits, HttpStatus.OK);
+    }
+
+    @GetMapping("/resHistory")
+    @Operation(summary = "Return resource history in the external ontology")
+    public ResponseEntity<Map<String, List<String>>> resHistory(
+            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/monarch-initiative/SEPIO-ontology/master/sepio.owl", required = true)
+            @RequestParam String url,
+            @Parameter(description = "Start datetime in ISO-8601 (if absent will return from the first version)", example = "YYYY-MM-DDTHH:MM:SSZ")
+            @RequestParam(required = false) Instant datetime,
+            @Parameter(description = "Unique resource IRI in the ontology", example = "http://purl.obolibrary.org/obo/COB_0000120", required = true)
+            @RequestParam String resourceIRI
+    ) {
+
+        val result = ondetService.resHistory(url, datetime, resourceIRI);
+
+        if (result.isEmpty()) {
+            return new ResponseEntity<>(Collections.emptyMap(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

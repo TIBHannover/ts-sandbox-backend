@@ -17,9 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 
 @RestController
 @AllArgsConstructor
@@ -147,7 +146,7 @@ public class ContoController {
             @ApiResponse(responseCode = "200", description = "Found the versions data"),
             @ApiResponse(responseCode = "404", description = "No versions data found", content = @Content)
     })
-    public ResponseEntity<List<TimelineMessage>> getVersionElem(
+    public ResponseEntity<Map<Instant, Collection<TimelineMessage>>> getVersionElem(
             @Parameter(description = "ontologyUrl")
             @RequestParam String ontologyUrl,
 

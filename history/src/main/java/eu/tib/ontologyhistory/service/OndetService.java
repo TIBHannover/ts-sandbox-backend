@@ -11,6 +11,7 @@ import org.bson.Document;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -97,5 +98,9 @@ public class OndetService {
             return result.get();
         }
         return Collections.emptyList();
+    }
+
+    public Map<String, List<String>> resHistory(String url, Instant datetime, String resourceIRI) {
+        return robotService.resHistory(url, datetime, resourceIRI);
     }
 }
