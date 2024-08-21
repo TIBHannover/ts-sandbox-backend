@@ -1,10 +1,16 @@
 package eu.tib.ontologyhistory.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
+import eu.tib.ontologyhistory.dto.conto.Timeline;
 import eu.tib.ontologyhistory.service.OndetService;
+import eu.tib.ontologyhistory.view.Views;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -109,5 +115,20 @@ public class OndetController {
         return new ResponseEntity<>("Updated", HttpStatus.OK);
     }
 
-    
+    @GetMapping("/commits")
+    @Operation(summary = "Get timeline for the ontology")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the timeline"),
+            @ApiResponse(responseCode = "404", description = "No timeline found", content = @Content)
+    })
+    @JsonView(Views.Short.class)
+    public ResponseEntity<List<?>> getCommits(
+            @Parameter(description = "ontologyUrl")
+            @RequestParam String ontologyUrl
+    ) {
+
+        val commits = ondetService.getCommits(ontologyUrl);
+
+        return new ResponseEntity<>(commits, HttpStatus.OK);
+    }
 }

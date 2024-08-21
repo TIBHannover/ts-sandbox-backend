@@ -168,7 +168,7 @@ public class ContoService {
         return new Difference(result);
     }
 
-    public List<TimelineMessage> timelineMessage(String dataset, String ontologyURL, String label, String resourceUri, String firstCommitTime, String secondCommitTime) {
+    public List<TimelineMessage> timelineMessage(String dataset, String ontologyURL, String resourceUri, String firstCommitTime, String secondCommitTime) {
         fusekiAuthenticate();
         List<TimelineMessage> result = new ArrayList<>();
         String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
@@ -179,7 +179,6 @@ public class ContoService {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.WHOLE_ONTOLOGY_TIMELINE_MESSAGE);
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
-                graphQuery.setParam("labelArg", ResourceFactory.createResource(label));
                 graphQuery.setParam("resourceArg", ResourceFactory.createResource(resourceUri));
                 graphQuery.setLiteral("firstCommitTime", firstCommitTime);
                 graphQuery.setLiteral("secondCommitTime", secondCommitTime);
@@ -231,7 +230,7 @@ public class ContoService {
         return functions;
     }
 
-    public List<String> operationsData(String dataset, String ontologyURL, String searchOperation) {
+    public List<String> operationsData(String dataset, String ontologyURL) {
         List<String> subjects = new ArrayList<>();
         fusekiAuthenticate();
 
@@ -243,7 +242,6 @@ public class ContoService {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.DATA_RELATED_TO_OPERATION);
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
-                graphQuery.setParam("searchOperation", ResourceFactory.createResource(searchOperation));
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode subject;
@@ -392,7 +390,6 @@ public class ContoService {
         val diffAdds = gitService.getDiffAdds(url);
         for (val diffAdd : diffAdds) {
             try {
-
                 diffExecute(diffAdd, url);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);

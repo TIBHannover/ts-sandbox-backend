@@ -96,7 +96,6 @@ public class SparqlQueries {
           FILTER(?first_commit_time >= ?firstCommitTime^^xsd:dateTime &&
                  ?second_commit_time <= ?secondCommitTime^^xsd:dateTime &&
                  ?first_commit_time < ?second_commit_time) .
-          FILTER(?pp = ?labelArg) .
         }
         """;
 
@@ -177,7 +176,6 @@ public class SparqlQueries {
           ?first_commit prov:wasRevisionOf ?second_commit .
           ?first_commit prov:generatedAtTime ?first_commit_time .
           ?first_commit prov:value ?first_commit_title .
-          ?operation ?searchOperation ?first_commit .
           ?operation prov:atLocation ?location .
           ?location prov:dm ?diff .
           ?commit_id prov:alternateOf ?ontology_url .

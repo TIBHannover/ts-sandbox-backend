@@ -111,21 +111,6 @@ public class ContoController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping("/operations")
-    @Operation(summary = "Get operations")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the operations"),
-            @ApiResponse(responseCode = "404", description = "No operations found", content = @Content)
-    })
-    public ResponseEntity<List<String>> getOperations(
-            @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl) {
-
-        val operations = contoService.operations(DATASET, ontologyUrl);
-
-        return new ResponseEntity<>(operations, HttpStatus.OK);
-    }
-
     @GetMapping("/operationsData")
     @Operation(summary = "Get operations data")
     @ApiResponses(value = {
@@ -134,12 +119,9 @@ public class ContoController {
     })
     public ResponseEntity<List<String>> getOperationsData(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl,
+            @RequestParam String ontologyUrl) {
 
-            @Parameter(description = "searchOperation")
-            @RequestParam String searchOperation) {
-
-        val subjects = contoService.operationsData(DATASET, ontologyUrl, searchOperation);
+        val subjects = contoService.operationsData(DATASET, ontologyUrl);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }
@@ -169,9 +151,6 @@ public class ContoController {
             @Parameter(description = "ontologyUrl")
             @RequestParam String ontologyUrl,
 
-            @Parameter(description = "label")
-            @RequestParam String label,
-
             @Parameter(description = "resourceUri")
             @RequestParam String resourceUri,
 
@@ -181,7 +160,7 @@ public class ContoController {
             @Parameter(description = "secondDate")
             @RequestParam String secondDate) {
 
-        val subjects = contoService.timelineMessage(DATASET, ontologyUrl, label, resourceUri, firstDate, secondDate);
+        val subjects = contoService.timelineMessage(DATASET, ontologyUrl, resourceUri, firstDate, secondDate);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }

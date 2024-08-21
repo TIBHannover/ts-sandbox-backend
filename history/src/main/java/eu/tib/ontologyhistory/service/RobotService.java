@@ -45,13 +45,7 @@ public class RobotService {
 
     private static final String MARKDOWN_DOCUMENT_KEY = "file";
 
-    private static final Path ONTOLOGY_LEFT = Path.of("ontology-left.txt");
-
-    private static final Path ONTOLOGY_RIGHT = Path.of("ontology-right.txt");
-
     private final RobotRepository robotRepository;
-
-    private final GitDiffService gitDiffService;
 
     private final DiffMapper diffMapper;
 
@@ -123,13 +117,12 @@ public class RobotService {
 
             val ontologySetProvider = OntologyUtils.getOwlOntologySetProvider(owlOntologyLeft, owlOntologyRight);
             val axiomsMarkdown = OntologyUtils.getAxiomsMarkdown(owlOntologyLeft, owlOntologyRight, ontologySetProvider);
-            val gitDiff = GitDiffService.makeDiff(Files.write(ONTOLOGY_LEFT, diffAdd.gitRawFileLeft().getBytes()), Files.write(ONTOLOGY_RIGHT, diffAdd.gitRawFileRight().getBytes()));
 
             if (axiomsMarkdown.isPresent()) {
                 Map<String, List<Axiom>> axioms = ParserUtils.parseAxioms(axiomsMarkdown.get().plainOutput());
                 Document markdown = new Document().append(MARKDOWN_DOCUMENT_KEY, axiomsMarkdown.get().markdownOutput());
 
-                Diff.builder()
+                val diff = Diff.builder()
                         .url(url)
                         .sha(diffAdd.sha())
                         .parentSha(diffAdd.parentSha())
@@ -138,9 +131,9 @@ public class RobotService {
                         .message(diffAdd.messageLeft())
                         .markdown(markdown)
                         .axioms(axioms)
-                        .gitDiff(gitDiff)
                         .build();
 
+                robotRepository.insert(diff);
             }
 
         } catch (IOException e) {
