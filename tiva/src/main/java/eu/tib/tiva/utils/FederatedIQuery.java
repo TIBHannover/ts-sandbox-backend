@@ -2,7 +2,11 @@ package eu.tib.tiva.utils;
 
 import java.net.http.HttpClient;
 
+import lombok.extern.flogger.Flogger;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.jena.http.auth.AuthLib;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
@@ -19,14 +23,14 @@ import java.net.Authenticator;
 @Slf4j
 public class FederatedIQuery {
 
+
     private static final String ENDPOINT_URL = "https://skynet.coypu.org/coypu-internal/query";
 
     public static void main(String[] argv) {
-
-        HttpClient authenticator = authenticate();
+        val authenticator = authenticate();
 
         try(QueryExecution q = QueryExecutionHTTP.service(ENDPOINT_URL)
-                .query(query())
+                .query(Queries.BACI_IMPORT_EXPORT_VALUE)
                 .httpClient(authenticator)
                 .build())
         {
@@ -44,7 +48,7 @@ public class FederatedIQuery {
 
                  RDFNode animport = soln.get("import") ;
                  RDFNode export = soln.get("export");
-                 RDFNode productMatch = soln.get("productMatch");
+//                 RDFNode productMatch = soln.get("productMatch");
                  Literal productLabel = soln.getLiteral("productLabel");
                  RDFNode amountYear = soln.get("amountYear");
                  Literal amountValue = soln.getLiteral("amountValue");
@@ -55,26 +59,26 @@ public class FederatedIQuery {
                  * TiVA variable
                  */
 
-                Literal vaoImportValue = soln.getLiteral("vaoImportValue");
-                RDFNode vaoImportYear = soln.get("vaoImportYear");
+//                Literal vaoImportValue = soln.getLiteral("vaoImportValue");
+//                RDFNode vaoImportYear = soln.get("vaoImportYear");
                 RDFNode exIndustryCode = soln.get("exIndustryCode");
-                RDFNode exTradeLocation = soln.get("exTradeLocation");
-                RDFNode importLocation = soln.get("importLocation");
+//                RDFNode exTradeLocation = soln.get("exTradeLocation");
+//                RDFNode importLocation = soln.get("importLocation");
 
 
                 System.out.println(i++ + ".  " +
-                        " | imgr bsci export location: " + exTradeLocation.asNode().getLocalName() +
+//                        " | imgr bsci export location: " + exTradeLocation.asNode().getLocalName() +
                         " | exgr dva export location: " + export.asNode().getLocalName() +
                         " | imgr export industry code: " + exIndustryCode +
-                        " | imgr bsci import location: " + importLocation.asNode().getLocalName() +
+//                        " | imgr bsci import location: " + importLocation.asNode().getLocalName() +
                          " | exgr dva import location: " + animport.asNode().getLocalName() +
-                        " | exgr dva product match (code): " + productMatch +
+//                        " | exgr dva product match (code): " + productMatch +
                         " | exgr dva product name: " + productLabel.toString() +
                          " | exgr dva amount year: " + amountYear.asLiteral().getValue() +
                          " | exgr  dva amount value: " + amountValue.asLiteral().getValue() +
-                        " | exgr dva trade value: " + value.asLiteral().getValue()+
-                        " imgr bsci value : "+ vaoImportValue.asLiteral().getValue() +
-                        " | imgr bsci year: "+ vaoImportYear.asLiteral().getValue());
+                        " | exgr dva trade value: " + value.asLiteral().getValue());
+//                        " imgr bsci value : "+ vaoImportValue.asLiteral().getValue() +
+//                        " | imgr bsci year: "+ vaoImportYear.asLiteral().getValue());
 
             }
 
@@ -85,8 +89,8 @@ public class FederatedIQuery {
 
     }
 
-    private static HttpClient authenticate() {
-        Authenticator authenticator = AuthLib.authenticator("user", "password");
+    public static HttpClient authenticate() {
+        Authenticator authenticator = AuthLib.authenticator(PrivateVars.LOGIN, PrivateVars.PASS);
         return HttpClient.newBuilder()
                 .authenticator(authenticator)
                 .build();
@@ -96,7 +100,7 @@ public class FederatedIQuery {
 
     String q = """
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            SELECT DISTINCT ?vaoImportValue ?vaoImportYear ?exTradeLocation ?importLocation ?import ?export ?exIndustryCode ?productMatch ?productLabel ?amountYear ?amountValue ?value ?sum
+            SELECT DISTINCT ?exTradeLocation ?importLocation ?import ?export ?value ?exIndustryCode
             WHERE {
                 GRAPH <https://data.coypu.org/trade/baci/> {
                     ?exgrdva rdf:type <https://schema.coypu.org/vtf#ExgrDva> .
@@ -115,11 +119,10 @@ public class FederatedIQuery {
                 }
                 SERVICE <https://tiva.coypu.org/tiva> {
                     {
-                        SELECT ?vaoImportValue ?vaoImportYear ?exIndustryCode ?exTradeLocation ?importLocation
+                        SELECT ?exIndustryCode ?exTradeLocation ?importLocation
                         WHERE {
                             ?imgrbsci a <https://schema.coypu.org/vtf#ImgrBsci> .
                             ?imgrbsci <https://schema.coypu.org/global#hasValue> ?vaoImportValue .
-                            ?imgrbsci <https://schema.coypu.org/global#hasYear> ?vaoImportYear .
                             ?imgrbsci <https://schema.coypu.org/vtf#hasExport> ?ex .
                             ?ex <https://schema.coypu.org/vtf#hasIndustryCode> ?exIndustryCode .
                             ?imgrbsci <https://schema.coypu.org/vtf#hasImport> ?imgrImport .

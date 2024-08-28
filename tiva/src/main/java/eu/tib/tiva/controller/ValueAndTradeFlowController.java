@@ -10,22 +10,33 @@ import eu.tib.tiva.controller.assembler.OriginOfValueAddedInFinalDemandAssembler
 import eu.tib.tiva.controller.assembler.TradeLocationCodeModelAssembler;
 import eu.tib.tiva.model.*;
 import eu.tib.tiva.service.ValueAndTradeFlowService;
+import eu.tib.tiva.utils.FederatedIQuery;
 import eu.tib.tiva.utils.HttpUtils;
 import eu.tib.tiva.utils.PageUtils;
+import eu.tib.tiva.utils.Queries;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.sparql.exec.http.QueryExecutionHTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -207,6 +218,87 @@ public class ValueAndTradeFlowController {
 
         return HttpUtils.ok(pagedModel);
 
+    }
+
+    @Operation(summary = "List value between import and export country")
+    @GetMapping(value = "/values", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getCodes(
+            @Parameter(description = "Import location code for value added origin", example = "FIN")
+            @RequestParam String importParam,
+            @Parameter(description = "Export location code for value added origin", example = "POL")
+            @RequestParam String exportParam,
+            @Parameter(description = "Year for the trade activity", example = "2018")
+            @RequestParam String year
+    ){
+
+        val COYPU_COUNTRY_URL = "https://data.coypu.org/country/";
+//        val result = getMapImportExportValues(COYPU_COUNTRY_URL + importParam, COYPU_COUNTRY_URL + exportParam, year);
+            val result = getListImportExportValues();
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    public static Map<String, Double> getMapImportExportValues(String importRes, String exportRes, String year) {
+        val authenticator = FederatedIQuery.authenticate();
+        Map<String, Double> objects = new HashMap<>();
+
+        ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
+        graphQuery.setCommandText(Queries.BACI_IMPORT_EXPORT_VALUE);
+        graphQuery.setParam("importRes", ResourceFactory.createResource(importRes));
+        graphQuery.setParam("exportRes", ResourceFactory.createResource(exportRes));
+        graphQuery.setLiteral("year", year);
+
+        try(QueryExecution q = QueryExecutionHTTP.service("https://skynet.coypu.org/coypu-internal/query")
+                .query(graphQuery.asQuery())
+                .httpClient(authenticator)
+                .build()) {
+
+            ResultSet results = q.execSelect();
+
+            while (results.hasNext()) {
+                QuerySolution solution = results.next();
+                RDFNode importVal = solution.get("import");
+                RDFNode exportVal = solution.get("export");
+                RDFNode productMatch = solution.get("productMatch");
+                Literal value = solution.getLiteral("value");
+                Literal amountYear = solution.getLiteral("amountYear");
+                String key = importVal.asResource().getLocalName() + " " + exportVal.asResource().getLocalName()
+                        + " " + productMatch.toString() + " " + amountYear.getString();
+                double currentValue = value.getDouble();
+                objects.merge(key, currentValue, Double::sum);
+            }
+        } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
+        }
+
+        return objects;
+    }
+
+    public static List<String> getListImportExportValues() {
+        val authenticator = FederatedIQuery.authenticate();
+        List<String> objects = new ArrayList<>();
+        try(QueryExecution q = QueryExecutionHTTP.service("https://skynet.coypu.org/coypu-internal/query")
+                .query(Queries.BACI_IMPORT_EXPORT_VALUE)
+                .httpClient(authenticator)
+                .build()) {
+
+            ResultSet results = q.execSelect();
+
+            while (results.hasNext()) {
+                QuerySolution solution = results.next();
+                RDFNode importVal = solution.get("import");
+                RDFNode exportVal = solution.get("export");
+                Literal value = solution.getLiteral("value");
+                Literal productLabel = solution.getLiteral("productLabel");
+                RDFNode productMatch = solution.get("productMatch");
+                String obj = importVal.asResource().getLocalName() + " " + exportVal.asResource().getLocalName() + " "
+                   + productMatch.toString() + " " + value.getValue();
+                objects.add(obj);
+            }
+        } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
+        }
+
+        return objects;
     }
 
     public static String getValueAddedOriginInFinalDemandQuery(String location, String industryCode) {
