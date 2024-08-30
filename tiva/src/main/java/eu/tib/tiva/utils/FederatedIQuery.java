@@ -30,7 +30,7 @@ public class FederatedIQuery {
         val authenticator = authenticate();
 
         try(QueryExecution q = QueryExecutionHTTP.service(ENDPOINT_URL)
-                .query(Queries.BACI_IMPORT_EXPORT_VALUE)
+                .query(Queries.EUROSTAT)
                 .httpClient(authenticator)
                 .build())
         {

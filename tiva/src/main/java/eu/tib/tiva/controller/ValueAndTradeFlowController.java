@@ -10,7 +10,6 @@ import eu.tib.tiva.controller.assembler.OriginOfValueAddedInFinalDemandAssembler
 import eu.tib.tiva.controller.assembler.TradeLocationCodeModelAssembler;
 import eu.tib.tiva.model.*;
 import eu.tib.tiva.service.ValueAndTradeFlowService;
-import eu.tib.tiva.utils.FederatedIQuery;
 import eu.tib.tiva.utils.HttpUtils;
 import eu.tib.tiva.utils.PageUtils;
 import eu.tib.tiva.utils.Queries;
@@ -19,9 +18,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.jena.query.*;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Literal;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.sparql.exec.http.QueryExecutionHTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -53,7 +49,7 @@ public class ValueAndTradeFlowController {
     private final OriginOfValueAddedInGrossImportsAssembler originOfValueAddedInGrossImportsAssembler;
 
     private final PagedResourcesAssembler<GrossExportByOriginOfValueAddedAndFinalDestinations>
-    grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler;
+            grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler;
 
     private final GrossExportsByOriginOfValueAddedAndFinalDestinationAssembler grossExportsByOriginOfValueAddedAndFinalDestinationAssembler;
     private final String sparqlEndPoint = "https://tiva.coypu.org/tiva";
@@ -71,18 +67,18 @@ public class ValueAndTradeFlowController {
                     grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler,
             GrossExportsByOriginOfValueAddedAndFinalDestinationAssembler
                     grossExportsByOriginOfValueAddedAndFinalDestinationAssembler
-            ){
+    ) {
         this.valueAndTradeFlowService = valueAndTradeFlowService;
-        this.countryCodePagedResourcesAssembler=countryCodePagedResourcesAssembler;
-        this.originOfValueAddedInFinalDemandPagedResourcesAssembler=originOfValueAddedInFinalDemandPagedResourcesAssembler;
+        this.countryCodePagedResourcesAssembler = countryCodePagedResourcesAssembler;
+        this.originOfValueAddedInFinalDemandPagedResourcesAssembler = originOfValueAddedInFinalDemandPagedResourcesAssembler;
         this.tradeLocationCodeModelAssembler = tradeLocationCodeModelAssembler;
-        this.originOfValueAddedInFinalDemandAssembler=originOfValueAddedInFinalDemandAssembler;
-        this.originOfValueAddedInGrossImportsPagedResourcesAssembler=originOfValueAddedInGrossImportsPagedResourcesAssembler;
-        this.originOfValueAddedInGrossImportsAssembler=originOfValueAddedInGrossImportsAssembler;
-        this.grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler=
+        this.originOfValueAddedInFinalDemandAssembler = originOfValueAddedInFinalDemandAssembler;
+        this.originOfValueAddedInGrossImportsPagedResourcesAssembler = originOfValueAddedInGrossImportsPagedResourcesAssembler;
+        this.originOfValueAddedInGrossImportsAssembler = originOfValueAddedInGrossImportsAssembler;
+        this.grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler =
                 grossExportByOriginOfValueAddedAndFinalDestinationsPagedResourcesAssembler;
-        this.grossExportsByOriginOfValueAddedAndFinalDestinationAssembler=
-                 grossExportsByOriginOfValueAddedAndFinalDestinationAssembler;
+        this.grossExportsByOriginOfValueAddedAndFinalDestinationAssembler =
+                grossExportsByOriginOfValueAddedAndFinalDestinationAssembler;
     }
 
     @Operation(summary = "List all codes available in tiva knowledge graph depends on selected type of code")
@@ -91,10 +87,10 @@ public class ValueAndTradeFlowController {
             @Parameter(description = "Type of trade location", example = "Country,InetrnationalOrganization,IndustryCode")
             @RequestParam String type,
             Pageable pageable
-    ){
+    ) {
 
         Page<ValueAndTradeFlowCode> countryCodePage = valueAndTradeFlowService.
-                getValueAndTradeFlowCodeList(sparqlEndPoint,type,pageable);
+                getValueAndTradeFlowCodeList(sparqlEndPoint, type, pageable);
 
         PagedModel<ValueAndTradeFlowModel> pagedModel = PageUtils.toPagedModel(
                 countryCodePage,
@@ -103,7 +99,7 @@ public class ValueAndTradeFlowController {
                 tradeLocationCodeModelAssembler
         );
 
-    return HttpUtils.ok(pagedModel);
+        return HttpUtils.ok(pagedModel);
 
     }
 
@@ -116,23 +112,23 @@ public class ValueAndTradeFlowController {
             @Parameter(description = "Industry code for value added origin", example = "D62T63, D20")
             @RequestParam String industry,
             Pageable pageable
-    ){
+    ) {
 
-    Page<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPage = valueAndTradeFlowService.
-            getOriginOfValueAddedList(sparqlEndPoint,
-                    location,
-                    industry,
-                    getValueAddedOriginInFinalDemandQuery(location, industry),
-                    pageable);
+        Page<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPage = valueAndTradeFlowService.
+                getOriginOfValueAddedList(sparqlEndPoint,
+                        location,
+                        industry,
+                        getValueAddedOriginInFinalDemandQuery(location, industry),
+                        pageable);
 
-    PagedModel<OriginOfValueAddedInFinalDemandModel> pagedModel = PageUtils.toPagedModel(
+        PagedModel<OriginOfValueAddedInFinalDemandModel> pagedModel = PageUtils.toPagedModel(
                 originOfValueAddedInFinalDemandPage,
                 OriginOfValueAddedInFinalDemandModel.class,
                 originOfValueAddedInFinalDemandPagedResourcesAssembler,
                 originOfValueAddedInFinalDemandAssembler
-    );
+        );
 
-    return HttpUtils.ok(pagedModel);
+        return HttpUtils.ok(pagedModel);
 
     }
 
@@ -145,13 +141,13 @@ public class ValueAndTradeFlowController {
             @Parameter(description = "Industry code for value added origin", example = "D62T63,D20")
             @RequestParam String industry,
             Pageable pageable
-    ){
+    ) {
 
         Page<OriginOfValueAddedInFinalDemand> originOfValueAddedInFinalDemandPage = valueAndTradeFlowService.
                 getOriginOfValueAddedList(sparqlEndPoint,
                         location,
                         industry,
-                        getValueAddedOriginInGrossExportsQuery(location, industry) ,
+                        getValueAddedOriginInGrossExportsQuery(location, industry),
                         pageable);
 
         PagedModel<OriginOfValueAddedInFinalDemandModel> pagedModel = PageUtils.toPagedModel(
@@ -167,12 +163,12 @@ public class ValueAndTradeFlowController {
 
     @Operation(summary = "List of country codes, industry codes within gross exports, country code wuthin imports, " +
             "value and year in origin of value added in gross imports. Number of results is limited up to 5000000 n-tuples")
-    @GetMapping(value="/vao/imports", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/vao/imports", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<OriginOfValueAddedInGrossImportsModel>> getOriginOfValueAddedinGrossImports(
             @Parameter(description = "Trade location code for value added origin", example = "DEU")
             @RequestParam String location,
             Pageable pageable
-    ){
+    ) {
 
         Page<OriginOfValueAddedInGrossImports> originOfValueAddedInGrossImportsPage =
                 valueAndTradeFlowService.getOriginOfValueAddedInGrossImports(
@@ -194,13 +190,13 @@ public class ValueAndTradeFlowController {
 
     @Operation(summary = "List of country codes, industry codes within gross exports, country code wuthin final demand, " +
             "value and year in  gross exports of vao and final destination. Number of results is limited up to 1000000 n-tuples")
-    @GetMapping(value="/vao/finaldestination", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/vao/finaldestination", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<GrossExportByOriginOfValueAddedAndFinalDestinationModel>>
     getGrossExportsByOriginOfValueAddedAndFinalDestination(
             @Parameter(description = "Trade location code for value added origin", example = "DEU")
             @RequestParam String location,
             Pageable pageable
-    ){
+    ) {
 
         Page<GrossExportByOriginOfValueAddedAndFinalDestinations> grossExportsByOriginOfValueAddedAndFinalDestinationPage =
                 valueAndTradeFlowService.getGrossExportsByOriginOfValueAddedAndFinalDestination(
@@ -220,114 +216,186 @@ public class ValueAndTradeFlowController {
 
     }
 
-    @Operation(summary = "List value between import and export country")
-    @GetMapping(value = "/values", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getCodes(
-            @Parameter(description = "Import location code for value added origin", example = "FIN")
-            @RequestParam String importParam,
-            @Parameter(description = "Export location code for value added origin", example = "POL")
-            @RequestParam String exportParam,
-            @Parameter(description = "Year for the trade activity", example = "2018")
-            @RequestParam String year
-    ){
+    @Operation(summary = "Get data from eurostat dataset")
+    @GetMapping(value = "/eurostat", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getEurostat(
+            @Parameter(description = "Trade location code for value added origin", example = "AT")
+            @RequestParam(required = false) String reporter,
+            @Parameter(description = "Trade location code for value added origin", example = "EU_EXTRA")
+            @RequestParam(required = false) String partner,
+            @Parameter(description = "Trade location code for value added origin", example = "1")
+            @RequestParam(required = false) String flow,
+            @Parameter(description = "Trade location code for value added origin", example = "854149")
+            @RequestParam(required = false) String product,
+            @Parameter(description = "Trade location code for value added origin", example = "1995")
+            @RequestParam(required = false) String year,
+            @Parameter(description = "Trade location code for value added origin", example = "1995")
+            @RequestParam(required = false) String value
+    ) {
+        val fields = new LinkedHashSet<String>();
 
-        val COYPU_COUNTRY_URL = "https://data.coypu.org/country/";
-//        val result = getMapImportExportValues(COYPU_COUNTRY_URL + importParam, COYPU_COUNTRY_URL + exportParam, year);
-            val result = getListImportExportValues();
+        if (reporter != null) {
+            fields.add("reporter");
+        }
+        if (partner != null) {
+            fields.add("partner");
+        }
+        if (flow != null) {
+            fields.add("flow");
+        }
+        if (product != null) {
+            fields.add("product");
+        }
+        if (year != null) {
+            fields.add("yearTrimmed");
+        }
+        if (value != null) {
+            fields.add("value");
+        }
+        val result = getListEurostat(fields);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    public static Map<String, Double> getMapImportExportValues(String importRes, String exportRes, String year) {
-        val authenticator = FederatedIQuery.authenticate();
-        Map<String, Double> objects = new HashMap<>();
+    @Operation(summary = "Get sum value by reporter and year")
+    @GetMapping(value = "/euroRepYearSum", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, List<ChartObj>>> getEuroRepYearSum(
+            @Parameter(description = "Reporter", example = "AT")
+            @RequestParam String reporter,
+            @Parameter(description = "Year", example = "1996")
+            @RequestParam String year
+    ) {
 
+        val result = getRepYearSum(reporter, year);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    public static List<String> getListEurostat(Set<String> fields) {
+        val objects = new ArrayList<String>();
+
+        String query = getQueryByFields(fields);
+
+        query += "\n LIMIT 10";
         ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
-        graphQuery.setCommandText(Queries.BACI_IMPORT_EXPORT_VALUE);
-        graphQuery.setParam("importRes", ResourceFactory.createResource(importRes));
-        graphQuery.setParam("exportRes", ResourceFactory.createResource(exportRes));
-        graphQuery.setLiteral("year", year);
+        graphQuery.setCommandText(query);
 
-        try(QueryExecution q = QueryExecutionHTTP.service("https://skynet.coypu.org/coypu-internal/query")
+        try (QueryExecution q = QueryExecutionHTTP.service("http://sc3onto01.develop.service.tib.eu:7200/repositories/default")
                 .query(graphQuery.asQuery())
-                .httpClient(authenticator)
                 .build()) {
 
             ResultSet results = q.execSelect();
 
             while (results.hasNext()) {
                 QuerySolution solution = results.next();
-                RDFNode importVal = solution.get("import");
-                RDFNode exportVal = solution.get("export");
-                RDFNode productMatch = solution.get("productMatch");
-                Literal value = solution.getLiteral("value");
-                Literal amountYear = solution.getLiteral("amountYear");
-                String key = importVal.asResource().getLocalName() + " " + exportVal.asResource().getLocalName()
-                        + " " + productMatch.toString() + " " + amountYear.getString();
-                double currentValue = value.getDouble();
-                objects.merge(key, currentValue, Double::sum);
+                for (String field : fields) {
+                    String key = "";
+                    if (solution.contains(field)) {
+                        if (field.equals("flow") || field.equals("value") || field.equals("yearTrimmed")) {
+                            key = solution.get(field).toString();
+                        } else {
+                            key += solution.get(field).asResource().getLocalName();
+                        }
+                    }
+                    objects.add(key);
+                }
             }
         } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
+            log.error(e.getMessage(), e);
         }
 
         return objects;
     }
 
-    public static List<String> getListImportExportValues() {
-        val authenticator = FederatedIQuery.authenticate();
-        List<String> objects = new ArrayList<>();
-        try(QueryExecution q = QueryExecutionHTTP.service("https://skynet.coypu.org/coypu-internal/query")
-                .query(Queries.BACI_IMPORT_EXPORT_VALUE)
-                .httpClient(authenticator)
+    private static String getQueryByFields(Set<String> fields) {
+        String prefixes = Queries.EUROSTAT_PREFIXES;
+
+        StringBuilder select = new StringBuilder("SELECT DISTINCT");
+        StringBuilder where = new StringBuilder(Queries.EUROSTAT_WHERE_CLAUSE);
+
+        for (String field : fields) {
+            switch (field) {
+                case "reporter":
+                    select.append(" ?reporter");
+                    where.append(" ?data <https://schema.coypu.org/global#hasReporter> ?reporter .");
+                    break;
+                case "partner":
+                    select.append(" ?partner");
+                    where.append(" ?data <https://schema.coypu.org/global#hasPartner> ?partner .");
+                    break;
+                case "product":
+                    select.append(" ?product");
+                    where.append(" ?data <http://www.w3id.org/ecsel-dr-OOSMP#contains_product> ?product .");
+                    break;
+                case "flow":
+                    select.append(" ?flow");
+                    where.append(" ?data <https://schema.coypu.org/global#hasDataFlow> ?flow .");
+                    break;
+                case "value":
+                    select.append(" ?value");
+                    where.append("?data <http://www.w3.org/2006/vcard/ns#hasValue> ?data_value .")
+                            .append(" ?data_value <http://www.w3.org/2006/vcard/ns#value> ?value .");
+                    break;
+                case "yearTrimmed":
+                    select.append(" (SUBSTR(?year, 0, spif:indexOf(?year, '-') + 1) AS ?yearTrimmed)");
+                    where.append("?data <http://www.w3.org/2006/vcard/ns#hasValue> ?data_value .")
+                            .append(" ?data_value <http://publications.europa.eu/ontology/cdm#year>  ?year .");
+                    break;
+            }
+        }
+
+        return prefixes + select + where + "\n}";
+    }
+
+    public static Map<String, List<ChartObj>> getRepYearSum(String reporter, String year) {
+        val objects = new HashMap<String, List<ChartObj>>();
+        val obj = new ArrayList<ChartObj>();
+
+        ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
+        graphQuery.setCommandText(Queries.EUROSTAT_REP_YEAR_SUM);
+        graphQuery.setLiteral("repArg", reporter);
+        graphQuery.setLiteral("yearArg", year);
+        try (QueryExecution q = QueryExecutionHTTP.service("http://sc3onto01.develop.service.tib.eu:7200/repositories/default")
+                .query(graphQuery.asQuery())
                 .build()) {
 
             ResultSet results = q.execSelect();
-
             while (results.hasNext()) {
                 QuerySolution solution = results.next();
-                RDFNode importVal = solution.get("import");
-                RDFNode exportVal = solution.get("export");
-                Literal value = solution.getLiteral("value");
-                Literal productLabel = solution.getLiteral("productLabel");
-                RDFNode productMatch = solution.get("productMatch");
-                String obj = importVal.asResource().getLocalName() + " " + exportVal.asResource().getLocalName() + " "
-                   + productMatch.toString() + " " + value.getValue();
-                objects.add(obj);
+                val yearTrimmed = solution.get("yearTrimmed").asLiteral().getValue().toString();
+                val sumVal = solution.get("sumVal").asLiteral().getValue().toString();
+                obj.add(new ChartObj(yearTrimmed, sumVal));
+                objects.put("data", obj);
             }
-        } catch (Exception e) {
-            log.error(e.getLocalizedMessage());
         }
-
         return objects;
     }
 
     public static String getValueAddedOriginInFinalDemandQuery(String location, String industryCode) {
 
-        String queryString =  "";
+        String queryString = "";
         String localtionUri = "";
 
         if (location.equals("APEC") || location.equals("ECD") || location.equals("EU13") ||
-            location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
-            location.equals("EU15") || location.equals("ZASI") || location.equals("EA19") ||
-            location.equals("ZSCA") || location.equals("WLD") || location.equals("DXD") ||
-            location.equals("ZEUR") || location.equals("ZOTH") || location.equals("ZNAM") ||
-            location.equals("NONOECD") || location.equals("ASEAN") || location.equals("EU27_2020")
+                location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
+                location.equals("EU15") || location.equals("ZASI") || location.equals("EA19") ||
+                location.equals("ZSCA") || location.equals("WLD") || location.equals("DXD") ||
+                location.equals("ZEUR") || location.equals("ZOTH") || location.equals("ZNAM") ||
+                location.equals("NONOECD") || location.equals("ASEAN") || location.equals("EU27_2020")
         ) {
 
-        localtionUri="<https://data.coypu.org/organization/"+location+">";
+            localtionUri = "<https://data.coypu.org/organization/" + location + ">";
 
-        log.info("selected location code in final demand: " + localtionUri);
+            log.info("selected location code in final demand: " + localtionUri);
 
         } else {
 
-        localtionUri ="<https://data.coypu.org/country/"+location+">";
+            localtionUri = "<https://data.coypu.org/country/" + location + ">";
 
-        log.info("selected location code in final demand: " + localtionUri);
+            log.info("selected location code in final demand: " + localtionUri);
 
         }
 
-        queryString =  "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-                       "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+        queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
                 "SELECT DISTINCT ?fdTradeLocation ?fdIndustryCode ?vao_fd_value  ?vao_fd_year " +
                 "WHERE { " +
                 "?vao_fd rdf:type <https://schema.coypu.org/vtf#FdVaBsci> . " +
@@ -349,7 +417,7 @@ public class ValueAndTradeFlowController {
     public static String getValueAddedOriginInGrossExportsQuery(String location, String industryCode) {
 
         String queryString = "";
-        String locationIri="";
+        String locationIri = "";
 
         if (location.equals("APEC") || location.equals("ECD") || location.equals("EU13") ||
                 location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
@@ -359,13 +427,13 @@ public class ValueAndTradeFlowController {
                 location.equals("NONOECD") || location.equals("ASEAN") || location.equals("EU27_2020")
         ) {
 
-            locationIri="<https://data.coypu.org/organization/"+location+">";
+            locationIri = "<https://data.coypu.org/organization/" + location + ">";
 
             log.info("selected location code in exports: " + locationIri);
 
         } else {
 
-            locationIri ="<https://data.coypu.org/country/"+location+">";
+            locationIri = "<https://data.coypu.org/country/" + location + ">";
 
             log.info("selected location code in exports: " + locationIri);
 
@@ -394,7 +462,7 @@ public class ValueAndTradeFlowController {
     public static String getOriginOfValueAddedInGrossImportQuery(String location) {
 
         String queryString = "";
-        String locationIri="";
+        String locationIri = "";
 
         if (location.equals("APEC") || location.equals("ECD") || location.equals("EU13") ||
                 location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
@@ -404,13 +472,13 @@ public class ValueAndTradeFlowController {
                 location.equals("NONOECD") || location.equals("ASEAN") || location.equals("EU27_2020")
         ) {
 
-            locationIri="<https://data.coypu.org/organization/"+location+">";
+            locationIri = "<https://data.coypu.org/organization/" + location + ">";
 
             log.info("selected location code in import: " + locationIri);
 
         } else {
 
-            locationIri ="<https://data.coypu.org/country/"+location+">";
+            locationIri = "<https://data.coypu.org/country/" + location + ">";
 
             log.info("selected location code in import " + locationIri);
 
@@ -425,7 +493,7 @@ public class ValueAndTradeFlowController {
                 "?vao_import <https://schema.coypu.org/global#hasYear> ?vao_import_year . " +
                 "?vao_import <https://schema.coypu.org/vtf#hasValueAddedOrigin> ?vao . " +
                 "?vao rdf:type <https://schema.coypu.org/vtf#Vao> . " +
-                "?vao  <https://schema.coypu.org/vtf#hasTradeLocation> "+locationIri+ " . " +
+                "?vao  <https://schema.coypu.org/vtf#hasTradeLocation> " + locationIri + " . " +
                 "?vao_import <https://schema.coypu.org/vtf#hasExport> ?ex . " +
                 "?ex rdf:type <https://schema.coypu.org/vtf#Export> . " +
                 "?ex <https://schema.coypu.org/vtf#hasIndustryCode> ?exIndustryCode . " +
@@ -435,14 +503,14 @@ public class ValueAndTradeFlowController {
                 "?import <https://schema.coypu.org/vtf#hasTradeLocation> ?importTradeLocation . " +
                 "} LIMIT 5000000 ";
 
-    return queryString;
+        return queryString;
 
     }
 
     public static String getGrossExportsByOriginOfValueAddedAndFinalDestinationQuey(String location) {
 
         String queryString = "";
-        String locationIri="";
+        String locationIri = "";
 
         if (location.equals("APEC") || location.equals("ECD") || location.equals("EU13") ||
                 location.equals("EASIA") || location.equals("G20") || location.equals("EU28") ||
@@ -452,20 +520,20 @@ public class ValueAndTradeFlowController {
                 location.equals("NONOECD") || location.equals("ASEAN") || location.equals("EU27_2020")
         ) {
 
-            locationIri="<https://data.coypu.org/organization/"+location+">";
+            locationIri = "<https://data.coypu.org/organization/" + location + ">";
 
             log.info("selected location code in import: " + locationIri);
 
         } else {
 
-            locationIri ="<https://data.coypu.org/country/"+location+">";
+            locationIri = "<https://data.coypu.org/country/" + location + ">";
 
             log.info("selected location code in import " + locationIri);
 
         }
 
         queryString =
-                        "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
                         "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
                         "SELECT DISTINCT ?exTradeLocation ?exIndustryCode ?fdTradeLocation ?fd_exgr_va_year ?fd_exgr_va_value " +
                         "WHERE { " +
