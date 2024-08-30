@@ -90,7 +90,7 @@ public class FederatedIQuery {
     }
 
     public static HttpClient authenticate() {
-        Authenticator authenticator = AuthLib.authenticator(PrivateVars.LOGIN, PrivateVars.PASS);
+        Authenticator authenticator = AuthLib.authenticator("user", "pass");
         return HttpClient.newBuilder()
                 .authenticator(authenticator)
                 .build();
