@@ -472,9 +472,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     /**
      *
-     * @param ids
+     * @param ids list of ontology ids
      * @param pageable
-     * @return
+     * @return mappings between ontology ids from parameter list and processed ontologies from MongoDB
      * @param <T>
      */
     @Override
@@ -527,17 +527,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
         }
 
-        log.info("tsOnt.size(): " + terminologyServiceOntologies.size());
-        log.info("TIB Terminology Service ontologies:");
-        int i = 1;
-
-        for (TsOntology ts : terminologyServiceOntologies) {
-
-            log.info(i++ + ". ont id: " + ts.getOntologyId() + " , ont uri: " + ts.getUri());
-
-        }
-
-        log.info("list of ontology ids from parameter list:");
+        log.info("--List of ontology ids from parameter list:");
         for (String id : ids) {
 
             for (TsOntology ts : terminologyServiceOntologies) {
@@ -550,8 +540,24 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             }
         }
+        log.info("--List of ontologies filtered from parameter list:");
+        for(OntologyDto newontologyList: newOntologySetFromParameterList){
 
-        log.info("Processed ontologies in MongoDB: ");
+        log.info("id: " + newontologyList.getOntologyId() + " , title: " + newontologyList.getTitle() +
+                " , uri: " +newontologyList.getUri() + " , collection: " + newontologyList.getCollection());
+        }
+
+        log.info("tsOnt.size(): " + terminologyServiceOntologies.size());
+        log.info("TIB Terminology Service ontologies:");
+        int i = 1;
+
+        for (TsOntology ts : terminologyServiceOntologies) {
+
+            log.info(i++ + ". ont id: " + ts.getOntologyId() + " , ont uri: " + ts.getUri());
+
+        }
+
+        log.info("Processed ontologies in MongoDB list: ");
         int p = 1;
 
         for (ProcessedOntology pso : processedOntologies) {
@@ -559,6 +565,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             log.info("ontology-id: " + pso.getId() + " , " + p++ + ". " + pso.getOntologyId() + " ,  uri: " + pso.getUri());
 
         }
+
+
+//        List<TsOntology> unprocessedTSOntologies = terminologyServiceOntologies.stream()
+//                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologyService.findAll()))
+//                .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
+
+
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
         return PageUtils.toPage(externalMappingList, pageable);
