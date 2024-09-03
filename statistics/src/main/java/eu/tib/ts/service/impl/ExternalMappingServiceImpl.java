@@ -500,7 +500,14 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             if(!(existsOntologyInProcessedOntologyList(id, processedOntologies)) &&
                     existsOntologyInTerminologyService(id, terminologyServiceOntologies)){
 
+            log.info("ontology id " + id + " belongs to TIB TS ontologies and does not exist in MongoDB database");
+
             for(TsOntology terminologyServiceOntology: terminologyServiceOntologies){
+
+                /**
+                 * Takes ontology id from TIB TS if the ontology ID matches ontology ID from parameter list.
+                 */
+                if(terminologyServiceOntology.getOntologyId().equals(id)) {
 
                     OntologyDto sourceTsOntDto = OntologyDto.builder()
                             .ontologyId(terminologyServiceOntology.getOntologyId())
@@ -511,6 +518,12 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                     newOntologySetFromParameterList.add(sourceTsOntDto);
                 }
+
+                }
+
+            } else {
+
+                log.info("ontology id " + id + " is ignored!") ;
             }
         }
 
@@ -545,31 +558,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             log.info("ontology-id: " + pso.getId() + " , " + p++ + ". " + pso.getOntologyId() + " ,  uri: " + pso.getUri());
 
-        }
-
-        log.info("Check membership of ontologies from parameter list in processed ontologies and TIB TS: ");
-        for (String id : ids) {
-
-            log.info("ontology id from parameter list: " + id);
-
-            if (!(existsOntologyInProcessedOntologyList(id, processedOntologies)) &&
-                    existsOntologyInTerminologyService(id, terminologyServiceOntologies)) {
-
-            log.info("---ontology " + id + " does exist in processed ontologies (Mongo DB) and exists in TIB TS");
-
-            Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
-
-            log.info("Compute mappings between" + id +" ontology and processed ontologies from Mongo DB:");
-            for (ProcessedOntology pso : processedOntologies) {
-
-                log.info(" target ontology id: " + pso.getId()+ " target ontology title: " + pso.getTitle() +
-                        " target ontology url: " + pso.getUri());
-
-
-
-            }
-
-            }
         }
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
