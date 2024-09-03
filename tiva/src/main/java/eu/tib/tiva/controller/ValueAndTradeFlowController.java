@@ -269,6 +269,21 @@ public class ValueAndTradeFlowController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @Operation(summary = "Get sum value by reporter and year range")
+    @GetMapping(value = "/euroYearRange", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, List<ChartObj>>> getEuroRepYearSum(
+            @Parameter(description = "Reporter", example = "AT")
+            @RequestParam String reporter,
+            @Parameter(description = "Year", example = "1996-01-01")
+            @RequestParam String start,
+            @Parameter(description = "Year", example = "1998-12-31")
+            @RequestParam String end
+    ) {
+
+        val result = getYearRange(reporter, start, end);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     public static List<String> getListEurostat(Set<String> fields) {
         val objects = new ArrayList<String>();
 
@@ -353,6 +368,31 @@ public class ValueAndTradeFlowController {
         graphQuery.setCommandText(Queries.EUROSTAT_REP_YEAR_SUM);
         graphQuery.setLiteral("repArg", reporter);
         graphQuery.setLiteral("yearArg", year);
+        try (QueryExecution q = QueryExecutionHTTP.service("http://sc3onto01.develop.service.tib.eu:7200/repositories/default")
+                .query(graphQuery.asQuery())
+                .build()) {
+
+            ResultSet results = q.execSelect();
+            while (results.hasNext()) {
+                QuerySolution solution = results.next();
+                val yearTrimmed = solution.get("yearTrimmed").asLiteral().getValue().toString();
+                val sumVal = solution.get("sumVal").asLiteral().getValue().toString();
+                obj.add(new ChartObj(yearTrimmed, sumVal));
+                objects.put("data", obj);
+            }
+        }
+        return objects;
+    }
+
+    public static Map<String, List<ChartObj>> getYearRange(String reporter, String startDate, String endDate) {
+        val objects = new HashMap<String, List<ChartObj>>();
+        val obj = new ArrayList<ChartObj>();
+
+        ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
+        graphQuery.setCommandText(Queries.EUROSTAT_YEAR_RANGE);
+        graphQuery.setLiteral("repArg", reporter);
+        graphQuery.setLiteral("startDate", startDate);
+        graphQuery.setLiteral("endDate", endDate);
         try (QueryExecution q = QueryExecutionHTTP.service("http://sc3onto01.develop.service.tib.eu:7200/repositories/default")
                 .query(graphQuery.asQuery())
                 .build()) {
