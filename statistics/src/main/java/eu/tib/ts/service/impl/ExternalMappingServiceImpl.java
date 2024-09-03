@@ -493,9 +493,14 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
          */
         for(String id: ids){
 
-            for(TsOntology terminologyServiceOntology: terminologyServiceOntologies){
+            /**
+             * checks if ontology id exists in TIB TS and does not exists in processed
+             * ontology list (ontologies for which mappings are computted)
+             */
+            if(!(existsOntologyInProcessedOntologyList(id, processedOntologies)) &&
+                    existsOntologyInTerminologyService(id, terminologyServiceOntologies)){
 
-                if(terminologyServiceOntology.getOntologyId().equals(id)){
+            for(TsOntology terminologyServiceOntology: terminologyServiceOntologies){
 
                     OntologyDto sourceTsOntDto = OntologyDto.builder()
                             .ontologyId(terminologyServiceOntology.getOntologyId())
@@ -508,7 +513,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 }
             }
         }
-
 
         log.info("tsOnt.size(): " + terminologyServiceOntologies.size());
         log.info("TIB Terminology Service ontologies:");
