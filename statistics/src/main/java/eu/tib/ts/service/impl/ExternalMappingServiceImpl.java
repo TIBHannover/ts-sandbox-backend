@@ -523,25 +523,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         log.info("Check existance of ontologies from parameter list in processed ontologies and TIB TS: ");
         for (String id : ids) {
 
-            if (existsOntologyInProcessedOntologyList(id, processedOntologies)) {
-                log.info("---ontology " + id + " exists in processed ontologies (Mongo DB)");
-            } else {
-                log.info("---ontology " + id + " does not exist in processed ontologies (Mongo DB)");
+            if (!(existsOntologyInProcessedOntologyList(id, processedOntologies)) &&
+                    existsOntologyInTerminologyService(id, terminologyServiceOntologies)) {
+            log.info("---ontology " + id + " does exist in processed ontologies (Mongo DB) and exists in TIB TS");
             }
-            ;
-
-            if (existsOntologyInTerminologyService(id, terminologyServiceOntologies)) {
-
-                log.info("---ontology " + id + " exists in TIB TS ontologies");
-            } else {
-                log.info("---ontology " + id + " does not exist in TIB TS ontologies");
-            }
-            ;
-
         }
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
-
         return PageUtils.toPage(externalMappingList, pageable);
 
     }
