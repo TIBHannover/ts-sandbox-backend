@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
-import eu.tib.ontologyhistory.model.GitlabCommit;
+import eu.tib.ontologyhistory.model.gitlab.GitlabCommit;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -178,6 +178,14 @@ public class GitlabService implements GitService<GitlabCommit> {
         }
 
         return Optional.of(result);
+    }
+
+    @Override
+    public Optional<List<GitlabCommit>> getCommits(URI uri) {
+        String user = getUserFromUrl(uri);
+        String repo = getRepoFromUrl(uri);
+        String encodedPath = getEncodedPath(uri.getPath());
+        return getCommits(uri, user, repo, encodedPath, null);
     }
 
     @Override

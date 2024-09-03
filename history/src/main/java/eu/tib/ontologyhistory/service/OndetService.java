@@ -1,14 +1,18 @@
 package eu.tib.ontologyhistory.service;
 
+import eu.tib.ontologyhistory.dto.DiffDtoTimeline;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
-import eu.tib.ontologyhistory.dto.diff.DiffDto;
+import eu.tib.ontologyhistory.dto.conto.GraphInfo;
+import eu.tib.ontologyhistory.service.network.GitService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.bson.Document;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
+import java.time.Instant;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -18,37 +22,57 @@ public class OndetService {
     private final RobotService robotService;
 
     private final ContoService contoService;
+    private final GitDiffService gitDiffService;
 
-    public List<?> findAll(String dataset) {
-        val robotDiffs = robotService.findAll();
-        val ondetDiffs = contoService.findAll(dataset);
+    public Set<GraphInfo> findAll(String dataset) {
+        val robotDiffs = robotService.findAllUrls();
+        val contoDiffs = contoService.findAll(dataset);
 
-        return new ArrayList<>();
+        val result = new HashSet<>(robotDiffs);
+        result.addAll(contoDiffs);
+
+        return result;
     }
 
     public DifferenceMarkdown find(String sha, String dataset) {
         val robotDiff = robotService.findBySha(sha);
-
         val contoDiff = contoService.timeline(sha, dataset);
+        val gitDiff = gitDiffService.findBySha(sha);
 
-        val markdown = robotDiff == null ? null : robotDiff.markdown();
+        if (robotDiff == null) {
+            return new DifferenceMarkdown(new Document(), contoDiff, gitDiff);
+        }
 
-        return new DifferenceMarkdown(markdown, contoDiff);
+        return new DifferenceMarkdown(robotDiff.markdown(), contoDiff, gitDiff);
     }
 
-    public List<DiffDto> findByUrl(String url) {
+    public Optional<DiffDtoTimeline> findFirstByUrl(String url, String dataset) {
 
-        val robotDiffs = robotService.findAllByUrl(url);
-//        val contoDiffs = contoService.findByUrl(url);
+        val gitDiff = gitDiffService.findFirstByUrl(url);
+        if (gitDiff != null) {
+            return Optional.of(new DiffDtoTimeline(null, Collections.emptyList(), gitDiff));
+        }
 
-        return robotDiffs;
+        val robotDiff = robotService.findFirstByUrl(url);
+        if (robotDiff != null) {
+            return Optional.of(new DiffDtoTimeline(robotDiff, Collections.emptyList(), null));
+        }
+
+        val contoDiff = contoService.findFirstByUrl(url, dataset);
+        if (!contoDiff.isEmpty()) {
+            return Optional.of(new DiffDtoTimeline(null, contoDiff, null));
+        }
+
+        return Optional.empty();
     }
 
-    public void create(String url, String dataset) {
+    public Optional<DiffDtoTimeline> create(String url, String dataset) {
+        gitDiffService.create(url);
         robotService.create(url);
         contoService.create(url, dataset);
-    }
 
+        return findFirstByUrl(url, dataset);
+    }
 
     public void remove(String id) {
         robotService.deleteById(id);
@@ -58,10 +82,25 @@ public class OndetService {
     public void removeAll() {
         robotService.deleteAll();
         contoService.deleteAll();
+        gitDiffService.deleteAll();
     }
 
     public void update(String id) {
         robotService.update(id);
         contoService.update(id);
+    }
+
+    public List<?> getCommits(String url) {
+        GitService<?> gitService = GitServiceFactory.getService(url);
+
+        val result = gitService.getCommits(URI.create(url));
+        if (result.isPresent()) {
+            return result.get();
+        }
+        return Collections.emptyList();
+    }
+
+    public Map<String, List<String>> resHistory(String url, Instant datetime, String resourceIRI) {
+        return robotService.resHistory(url, datetime, resourceIRI);
     }
 }

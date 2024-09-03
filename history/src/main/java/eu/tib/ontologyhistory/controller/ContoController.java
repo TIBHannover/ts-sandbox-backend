@@ -17,8 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 
 @RestController
 @AllArgsConstructor
@@ -51,12 +51,12 @@ public class ContoController {
             @ApiResponse(responseCode = "200", description = "Found the ontologies"),
             @ApiResponse(responseCode = "404", description = "No ontologies found", content = @Content)
     })
-    public ResponseEntity<List<GraphInfo>> getOntologies(
+    public ResponseEntity<Set<GraphInfo>> getOntologies(
     ) {
         val ontologies = contoService.findAll(DATASET);
 
         if (ontologies.isEmpty()) {
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Collections.emptySet(), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(ontologies, HttpStatus.OK);
@@ -110,21 +110,6 @@ public class ContoController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping("/operations")
-    @Operation(summary = "Get operations")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the operations"),
-            @ApiResponse(responseCode = "404", description = "No operations found", content = @Content)
-    })
-    public ResponseEntity<List<String>> getOperations(
-            @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl) {
-
-        val operations = contoService.operations(DATASET, ontologyUrl);
-
-        return new ResponseEntity<>(operations, HttpStatus.OK);
-    }
-
     @GetMapping("/operationsData")
     @Operation(summary = "Get operations data")
     @ApiResponses(value = {
@@ -133,12 +118,9 @@ public class ContoController {
     })
     public ResponseEntity<List<String>> getOperationsData(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl,
+            @RequestParam String ontologyUrl) {
 
-            @Parameter(description = "searchOperation")
-            @RequestParam String searchOperation) {
-
-        val subjects = contoService.operationsData(DATASET, ontologyUrl, searchOperation);
+        val subjects = contoService.operationsData(DATASET, ontologyUrl);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }
@@ -164,12 +146,9 @@ public class ContoController {
             @ApiResponse(responseCode = "200", description = "Found the versions data"),
             @ApiResponse(responseCode = "404", description = "No versions data found", content = @Content)
     })
-    public ResponseEntity<List<TimelineMessage>> getVersionElem(
+    public ResponseEntity<Map<Instant, Collection<TimelineMessage>>> getVersionElem(
             @Parameter(description = "ontologyUrl")
             @RequestParam String ontologyUrl,
-
-            @Parameter(description = "label")
-            @RequestParam String label,
 
             @Parameter(description = "resourceUri")
             @RequestParam String resourceUri,
@@ -180,7 +159,7 @@ public class ContoController {
             @Parameter(description = "secondDate")
             @RequestParam String secondDate) {
 
-        val subjects = contoService.timelineMessage(DATASET, ontologyUrl, label, resourceUri, firstDate, secondDate);
+        val subjects = contoService.timelineMessage(DATASET, ontologyUrl, resourceUri, firstDate, secondDate);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }

@@ -1,3 +1,6 @@
+FROM eclipse-temurin:17-jre-alpine
+RUN apk add git
+
 FROM maven:3.9.4-eclipse-temurin-17
 
 COPY . /opt/sandbox/history
@@ -11,6 +14,8 @@ ENTRYPOINT ["java","-Xmx5G", "-Xms1024m","-jar","/opt/sandbox/history/target/his
 #so there's no need to install them each time.
 
 #FROM eclipse-temurin:17-jre-alpine
+#
+#RUN apk add git
 #
 #COPY target/history-back.jar history-back.jar
 #COPY src/main/java/eu/tib/ontologyhistory/contodiff/ContoDiff-1.0-SNAPSHOT-shaded.jar ContoDiff-1.0-SNAPSHOT-shaded.jar

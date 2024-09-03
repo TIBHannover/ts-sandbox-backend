@@ -46,6 +46,9 @@ public record DiffDto (
         @ArraySchema(schema = @Schema(description = "List of axioms", implementation = Axiom.class), minItems = 0)
         Map<String, List<Axiom>> axioms,
 
+        @JsonView({Views.Full.class})
+        String gitDiff,
+
         @JsonView({Views.Edit.class})
         String message
 ) {}

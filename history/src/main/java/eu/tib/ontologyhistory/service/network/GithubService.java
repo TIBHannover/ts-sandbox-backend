@@ -160,6 +160,14 @@ public class GithubService implements GitService<Commit> {
     }
 
     @Override
+    public Optional<List<Commit>> getCommits(URI uri) {
+        String user = getUserFromUrl(uri);
+        String repo = getRepoFromUrl(uri);
+        String encodedPath = getEncodedPath(uri.getPath());
+        return getCommits(uri, user, repo, encodedPath, null);
+    }
+
+    @Override
     public Optional<URI> checkUriValidity(String url) {
         try {
             val uri = new URI(url);
