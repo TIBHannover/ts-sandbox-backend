@@ -485,6 +485,31 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         Collection<TsOntology> terminologyServiceOntologies = tsRepository.getOntologies();
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
+        Set<OntologyDto> newOntologySetFromParameterList = new HashSet<>();
+
+        /**
+         * creates a list of source ontologies from ontology ids in parameter list by comparing IDs with
+         * TIB TS ontology IDs
+         */
+        for(String id: ids){
+
+            for(TsOntology terminologyServiceOntology: terminologyServiceOntologies){
+
+                if(terminologyServiceOntology.getOntologyId().equals(id)){
+
+                    OntologyDto sourceTsOntDto = OntologyDto.builder()
+                            .ontologyId(terminologyServiceOntology.getOntologyId())
+                            .uri(terminologyServiceOntology.getUri())
+                            .title(terminologyServiceOntology.getTitle())
+                            .collection(terminologyServiceOntology.getCollection())
+                            .build();
+
+                    newOntologySetFromParameterList.add(sourceTsOntDto);
+                }
+            }
+        }
+
+
         log.info("tsOnt.size(): " + terminologyServiceOntologies.size());
         log.info("TIB Terminology Service ontologies:");
         int i = 1;
@@ -535,8 +560,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 log.info(" target ontology id: " + pso.getId()+ " target ontology title: " + pso.getTitle() +
                         " target ontology url: " + pso.getUri());
-
-                
 
 
 
