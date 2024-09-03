@@ -13,4 +13,6 @@ public interface GitDiffRepository extends MongoRepository<GitDiff, String> {
     GitDiff findFirstBySha(String sha);
 
     GitDiff findFirstByUrl(String url);
+
+    void deleteAllByUrl(String url);
 }

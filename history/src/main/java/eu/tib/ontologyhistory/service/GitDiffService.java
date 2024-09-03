@@ -69,6 +69,10 @@ public class GitDiffService {
         gitDiffRepository.deleteAll();
     }
 
+    public void deleteAllByUrl(String url) {
+        gitDiffRepository.deleteAllByUrl(url);
+    }
+
     public static String makeDiff(Path left, Path right) {
         ProcessBuilder processBuilder = new ProcessBuilder("git", "diff", "--no-index", left.toString(), right.toString());
         try {

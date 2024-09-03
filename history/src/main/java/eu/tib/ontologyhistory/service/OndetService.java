@@ -67,6 +67,9 @@ public class OndetService {
     }
 
     public Optional<DiffDtoTimeline> create(String url, String dataset) {
+        robotService.deleteAllByUrl(url);
+        gitDiffService.deleteAllByUrl(url);
+
         gitDiffService.create(url);
         robotService.create(url);
         contoService.create(url, dataset);
