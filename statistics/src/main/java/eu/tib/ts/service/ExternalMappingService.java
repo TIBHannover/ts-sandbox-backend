@@ -65,14 +65,8 @@ public interface ExternalMappingService {
      * List all ontologies from TIB TS and processed ontologies in mappings i.e. used in mapping
      * computation. These ontologies are available in MongoDB
      */
-    /**
-     *
-     * @param pageable
-     * @return
-     * @param <T>
-     * @throws OWLOntologyCreationException
-     * @throws IOException
-     */
+
     public <T extends  ExtendedOntology> Page<ExternalMapping> getAllTIBTSOntologiesAndProcessedOntologiesInMappings(
+            List<String> ids,
             Pageable pageable) throws OWLOntologyCreationException, IOException;
 }

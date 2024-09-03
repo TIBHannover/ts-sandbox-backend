@@ -470,15 +470,19 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 .anyMatch(ont -> ont.equalsTsOntology(tsOntology));
     }
 
+
     /**
      *
+     * @param ids
      * @param pageable
      * @return
      * @param <T>
      */
     @Override
     public <T extends ExtendedOntology> Page<ExternalMapping> getAllTIBTSOntologiesAndProcessedOntologiesInMappings(
+            List<String> ids,
             Pageable pageable) {
+
 
         Collection<TsOntology> tsOnt = tsRepository.getOntologies();
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
@@ -489,10 +493,27 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         log.info("TIB Terminology Service ontologies:");
         int i =1;
 
+
         for(TsOntology ts: tsOnt){
 
             log.info(i++ + ". ont id: " + ts.getOntologyId() + " , ont uri: " + ts.getUri());
         }
+
+
+        log.info("list of ontology ids form parameter list");
+        for(String id: ids){
+
+            for(TsOntology ts: tsOnt){
+
+             if(ts.getOntologyId().equals(id)){
+
+            log.info("tib ts ontology id: " + ts.getOntologyId() + ", parameter id: " + id + ", ontology title: " + ts.getTitle());
+
+             }
+
+            }
+        }
+
 
         log.info("Processed ontologies in MongoDB: ");
         int p = 1;

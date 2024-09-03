@@ -55,7 +55,7 @@ public class ExternalMappingController {
     public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsForExternalOntologyUri(
             @Parameter(description = "External resolvable ontology URI")
             @RequestParam String uri,
-            @Parameter(description = "Set of selected ontologies from TIB TS", example = "dr,coy,cidoc")
+            @Parameter(description = "A list of ontology ids", example = "dr,coy,cidoc")
             @RequestParam Optional<List<String>> ids,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
@@ -141,12 +141,14 @@ Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.g
     }
 
     @Operation(summary = "List all ontologies from TIB TS and processed ontologies in mappings")
-    @GetMapping(value="/external/listontologies")
+    @GetMapping(value="/external/updatemappings")
     public ResponseEntity<PagedModel<ExternalMappingModel>> listOntologiesFromTIBTSandProcessedOntologies(
+            @Parameter(description = "A list of ontology ids", example = "dr,coy,cidoc")
+            @RequestParam List<String> ids,
             Pageable pageable
     ) throws  OWLOntologyCreationException, IOException {
 
-    Page<ExternalMapping> mappingsStoredInMongoDB =externalMappingService.getAllTIBTSOntologiesAndProcessedOntologiesInMappings(pageable);
+    Page<ExternalMapping> mappingsStoredInMongoDB =externalMappingService.getAllTIBTSOntologiesAndProcessedOntologiesInMappings(ids,pageable);
 
 
         PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
