@@ -470,7 +470,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 .anyMatch(ont -> ont.equalsTsOntology(tsOntology));
     }
 
-
     /**
      *
      * @param ids
@@ -483,44 +482,61 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             List<String> ids,
             Pageable pageable) {
 
-
-        Collection<TsOntology> tsOnt = tsRepository.getOntologies();
+        Collection<TsOntology> terminologyServiceOntologies = tsRepository.getOntologies();
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
-        int size = tsOnt.size();
+        int size = terminologyServiceOntologies.size();
 
-        log.info("tsOnt.size(): " + tsOnt.size());
+        log.info("tsOnt.size(): " + terminologyServiceOntologies.size());
         log.info("TIB Terminology Service ontologies:");
-        int i =1;
+        int i = 1;
 
-
-        for(TsOntology ts: tsOnt){
+        for (TsOntology ts : terminologyServiceOntologies) {
 
             log.info(i++ + ". ont id: " + ts.getOntologyId() + " , ont uri: " + ts.getUri());
+
         }
 
+        log.info("list of ontology ids from parameter list:");
+        for (String id : ids) {
 
-        log.info("list of ontology ids form parameter list");
-        for(String id: ids){
+            for (TsOntology ts : terminologyServiceOntologies) {
 
-            for(TsOntology ts: tsOnt){
+                if (ts.getOntologyId().equals(id)) {
 
-             if(ts.getOntologyId().equals(id)){
+                    log.info("tib ts ontology id: " + ts.getOntologyId() + ", parameter id: " + id + ", ontology title: " + ts.getTitle());
 
-            log.info("tib ts ontology id: " + ts.getOntologyId() + ", parameter id: " + id + ", ontology title: " + ts.getTitle());
-
-             }
+                }
 
             }
         }
 
-
         log.info("Processed ontologies in MongoDB: ");
         int p = 1;
 
-        for(ProcessedOntology pso: processedOntologies){
+        for (ProcessedOntology pso : processedOntologies) {
 
-        log.info("ontology-id: "+ pso.getId() + " , " + p++ +". " + pso.getOntologyId() + " ,  uri: " + pso.getUri());
+            log.info("ontology-id: " + pso.getId() + " , " + p++ + ". " + pso.getOntologyId() + " ,  uri: " + pso.getUri());
+
+        }
+
+        log.info("Check existance of ontologies from parameter list in processed ontologies and TIB TS: ");
+        for (String id : ids) {
+
+            if (existsOntologyInProcessedOntologyList(id, processedOntologies)) {
+                log.info("---ontology " + id + " exists in processed ontologies (Mongo DB)");
+            } else {
+                log.info("---ontology " + id + " does not exist in processed ontologies (Mongo DB)");
+            }
+            ;
+
+            if (existsOntologyInTerminologyService(id, terminologyServiceOntologies)) {
+
+                log.info("---ontology " + id + " exists in TIB TS ontologies");
+            } else {
+                log.info("---ontology " + id + " does not exist in TIB TS ontologies");
+            }
+            ;
 
         }
 
@@ -528,6 +544,45 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         return PageUtils.toPage(externalMappingList, pageable);
 
+    }
+
+    /**
+     *
+     * @param id
+     * @param processedOntologies
+     * @return
+     */
+    private boolean existsOntologyInProcessedOntologyList(String id, List<ProcessedOntology> processedOntologies){
+
+    for(ProcessedOntology pso: processedOntologies){
+
+    if(pso.getOntologyId().equals(id)) {
+
+        return true;
+    }
+
+    }
+
+    return false;
+
+    }
+
+    private boolean existsOntologyInTerminologyService(String id, Collection<TsOntology> terminologyServiceOntologies){
+
+        for(TsOntology ts: terminologyServiceOntologies){
+
+            if(ts.getOntologyId().equals(id)){
+
+
+                log.info("---matched ontologies: ");
+                log.info("-----------tib ts ontology id: " + ts.getOntologyId() + ", parameter id: " + id + ", ontology title: " + ts.getTitle());
+
+                return true;
+            }
+
+            }
+
+        return false;
     }
 
     /**
@@ -545,9 +600,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
        if(pso.getOntologyId().equals(ontologyid)) {
 
            return true;
-       };
+       }
 
-        }
+       }
 
      return false;
 

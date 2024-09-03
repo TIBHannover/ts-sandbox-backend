@@ -150,7 +150,6 @@ Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.g
 
     Page<ExternalMapping> mappingsStoredInMongoDB =externalMappingService.getAllTIBTSOntologiesAndProcessedOntologiesInMappings(ids,pageable);
 
-
         PagedModel<ExternalMappingModel> pagedModel = PageUtils.toPagedModel(
                 mappingsStoredInMongoDB,
                 ExternalMappingModel.class,
