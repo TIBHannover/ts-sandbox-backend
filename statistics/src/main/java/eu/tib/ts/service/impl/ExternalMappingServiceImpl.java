@@ -577,15 +577,35 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         }
 
 
+        log.info("Start mappings between pairs of ontologies grouped by source ontology :");
+
+        long mappingStartTime = System.currentTimeMillis();
+
+        log.info("--mapping start time: " +mappingStartTime);
+
         /**
-         * We use already processed ontologies in Mongo DB as a target ontologies
+         * list of source ontologies fitered from parameter list
          */
-        for (ProcessedOntology ont1 : processedOntologies) {
+        for(OntologyDto sourceOntologyDto: newOntologySetFromParameterList) {
 
-            log.info("mapping for ontology : " + ont1.getOntologyId());
-            log.info("target ontology uri: " + ont1.getUri());
+            TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
+
+            /**
+             * We use already processed ontologies in Mongo DB as a target ontologies
+             */
+            for (ProcessedOntology ont1 : processedOntologies) {
+
+                log.info("mapping for ontology : " + ont1.getOntologyId());
+                log.info("target ontology uri: " + ont1.getUri());
+
+                ontologyManager = OWLManager.createOWLOntologyManager();
 
 
+
+
+
+
+            }
 
         }
 
