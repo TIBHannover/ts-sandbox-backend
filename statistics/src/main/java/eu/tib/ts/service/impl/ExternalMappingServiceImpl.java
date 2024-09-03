@@ -485,8 +485,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         Collection<TsOntology> terminologyServiceOntologies = tsRepository.getOntologies();
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
-        int size = terminologyServiceOntologies.size();
-
         log.info("tsOnt.size(): " + terminologyServiceOntologies.size());
         log.info("TIB Terminology Service ontologies:");
         int i = 1;
@@ -520,12 +518,30 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         }
 
-        log.info("Check existance of ontologies from parameter list in processed ontologies and TIB TS: ");
+        log.info("Check membership of ontologies from parameter list in processed ontologies and TIB TS: ");
         for (String id : ids) {
+
+            log.info("ontology id from parameter list: " + id);
 
             if (!(existsOntologyInProcessedOntologyList(id, processedOntologies)) &&
                     existsOntologyInTerminologyService(id, terminologyServiceOntologies)) {
+
             log.info("---ontology " + id + " does exist in processed ontologies (Mongo DB) and exists in TIB TS");
+
+            Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
+
+            log.info("Compute mappings between" + id +" ontology and processed ontologies from Mongo DB:");
+            for (ProcessedOntology pso : processedOntologies) {
+
+                log.info(" target ontology id: " + pso.getId()+ " target ontology title: " + pso.getTitle() +
+                        " target ontology url: " + pso.getUri());
+
+                
+
+
+
+            }
+
             }
         }
 
