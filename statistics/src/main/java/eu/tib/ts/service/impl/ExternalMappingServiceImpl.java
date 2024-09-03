@@ -485,6 +485,16 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         Collection<TsOntology> terminologyServiceOntologies = tsRepository.getOntologies();
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
+        /**
+         * If set of processed ontologies from MongoBD is empty then return empty list
+         */
+        if (processedOntologies == null || processedOntologies.isEmpty()) {
+
+            log.info("processedOntologies.size: " + processedOntologies.size());
+
+            return PageUtils.toPage(Collections.emptyList(), pageable);
+        }
+
         Set<OntologyDto> newOntologySetFromParameterList = new HashSet<>();
 
         /**
@@ -567,10 +577,17 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         }
 
 
-//        List<TsOntology> unprocessedTSOntologies = terminologyServiceOntologies.stream()
-//                .filter(tsOntology -> !ontologyExists(tsOntology, processedOntologyService.findAll()))
-//                .filter(tsOntology -> !ontologiesProcessingConfig.getOntologies().contains(tsOntology.getOntologyId().toLowerCase()))
+        /**
+         * We use already processed ontologies in Mongo DB as a target ontologies
+         */
+        for (ProcessedOntology ont1 : processedOntologies) {
 
+            log.info("mapping for ontology : " + ont1.getOntologyId());
+            log.info("target ontology uri: " + ont1.getUri());
+
+
+
+        }
 
 
         List<ExternalMapping> externalMappingList = new ArrayList<>();
