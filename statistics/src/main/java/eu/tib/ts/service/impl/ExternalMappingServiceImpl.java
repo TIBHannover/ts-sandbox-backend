@@ -498,7 +498,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         Set<OntologyDto> newOntologySetFromParameterList = new HashSet<>();
 
         /**
-         * creates a list of source ontologies from ontology ids in parameter list by comparing IDs with
+         * creates a list of source ontologies from ontology ids available in parameter list by comparing IDs with
          * TIB TS ontology IDs
          */
         for(String id: ids){
@@ -510,7 +510,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             if(!(existsOntologyInProcessedOntologyList(id, processedOntologies)) &&
                     existsOntologyInTerminologyService(id, terminologyServiceOntologies)){
 
-            log.info("ontology id " + id + " belongs to TIB TS ontologies and does not exist in MongoDB database");
+            log.info("ontology id " + id + " that belongs to TIB TS ontologies and does not exist in MongoDB database");
 
             for(TsOntology terminologyServiceOntology: terminologyServiceOntologies){
 
@@ -537,19 +537,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
         }
 
-        log.info("--List of ontology ids from parameter list:");
-        for (String id : ids) {
-
-            for (TsOntology ts : terminologyServiceOntologies) {
-
-                if (ts.getOntologyId().equals(id)) {
-
-                    log.info("tib ts ontology id: " + ts.getOntologyId() + ", parameter id: " + id + ", ontology title: " + ts.getTitle());
-
-                }
-
-            }
-        }
         log.info("--List of ontologies filtered from parameter list:");
         for(OntologyDto newontologyList: newOntologySetFromParameterList){
 
@@ -557,53 +544,57 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 " , uri: " +newontologyList.getUri() + " , collection: " + newontologyList.getCollection());
         }
 
-        log.info("tsOnt.size(): " + terminologyServiceOntologies.size());
-        log.info("TIB Terminology Service ontologies:");
-        int i = 1;
-
-        for (TsOntology ts : terminologyServiceOntologies) {
-
-            log.info(i++ + ". ont id: " + ts.getOntologyId() + " , ont uri: " + ts.getUri());
-
-        }
-
-        log.info("Processed ontologies in MongoDB list: ");
-        int p = 1;
-
-        for (ProcessedOntology pso : processedOntologies) {
-
-            log.info("ontology-id: " + pso.getId() + " , " + p++ + ". " + pso.getOntologyId() + " ,  uri: " + pso.getUri());
-
-        }
-
-
+        log.info("TIB Terminology Service ontologies: --erminologyServiceOntologies.size(): " + terminologyServiceOntologies.size());
         log.info("Start mappings between pairs of ontologies grouped by source ontology :");
 
         long mappingStartTime = System.currentTimeMillis();
 
         log.info("--mapping start time: " +mappingStartTime);
 
+        log.info("source (filtered) ontology size from TIB TS:  " + newOntologySetFromParameterList.size());
+        int count=1;
+
         /**
          * list of source ontologies fitered from parameter list
          */
+        log.info("--mappigns between filtered ontologies from TIB TS and processed ontologies stored in Mongo DB: ");
         for(OntologyDto sourceOntologyDto: newOntologySetFromParameterList) {
 
-            TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
+            int iteration =1;
+
+
+            log.info(+ count ++ +". --source ontology: "+sourceOntologyDto.getOntologyId() + " , "
+                    + sourceOntologyDto.getTitle()+ " , " + sourceOntologyDto.getUri());
+
+            Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<>();
+            Set<SourceOntologyObjectSetModel> sourceOntology = new HashSet<>();
+            SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
+
+            int processedTargetOntologySize  = processedOntologies.size();
+
+            log.info("--size of processed (target) ontologies: " + processedTargetOntologySize);
 
             /**
              * We use already processed ontologies in Mongo DB as a target ontologies
              */
-            for (ProcessedOntology ont1 : processedOntologies) {
+            for (int i=0;i<processedTargetOntologySize;i++) {
 
-                log.info("mapping for ontology : " + ont1.getOntologyId());
-                log.info("target ontology uri: " + ont1.getUri());
+            long mappingForOneOntologyPairStartTime = System.currentTimeMillis();
 
-                ontologyManager = OWLManager.createOWLOntologyManager();
+            ontologyManager = OWLManager.createOWLOntologyManager();
 
+            try {
 
+                log.info(iteration + ". ---- target ontology uri: " + processedOntologies.get(i).getUri());
+                iteration = iteration +1;
 
+            }catch(Exception e){
 
+                log.error("Mapping exception happened: " + e.getMessage());
 
+                return PageUtils.toPage(Collections.emptyList(), pageable);
+
+            }
 
             }
 
@@ -641,11 +632,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         for(TsOntology ts: terminologyServiceOntologies){
 
             if(ts.getOntologyId().equals(id)){
-
-
-                log.info("---matched ontologies: ");
-                log.info("-----------tib ts ontology id: " + ts.getOntologyId() + ", parameter id: " + id + ", ontology title: " + ts.getTitle());
-
                 return true;
             }
 
