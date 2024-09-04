@@ -98,6 +98,7 @@ public class OndetService {
 
         val result = gitService.getCommits(URI.create(url));
         if (result.isPresent()) {
+            result.get().remove(0);
             return result.get();
         }
         return Collections.emptyList();
