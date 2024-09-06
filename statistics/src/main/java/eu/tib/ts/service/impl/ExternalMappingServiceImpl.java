@@ -465,11 +465,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     }
 
-    private boolean ontologyExists(TsOntology tsOntology, List<ProcessedOntology> processedOntologies) {
-        return processedOntologies.stream()
-                .anyMatch(ont -> ont.equalsTsOntology(tsOntology));
-    }
-
     /**
      *
      * @param ids list of ontology ids
@@ -486,9 +481,11 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         List<ProcessedOntology> processedOntologies = processedOntologyService.findAll();
 
         /**
-         * If set of processed ontologies from MongoBD is empty then return empty list
+         * If set of processed ontologies from MongoBD or onotologies from TIB TS are empty or null then
+         * the code returns empty list.
          */
-        if (processedOntologies == null || processedOntologies.isEmpty()) {
+        if (processedOntologies == null || processedOntologies.isEmpty() ||
+                terminologyServiceOntologies==null || terminologyServiceOntologies.isEmpty()) {
 
             log.info("processedOntologies.size: " + processedOntologies.size());
 
@@ -515,7 +512,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             for(TsOntology terminologyServiceOntology: terminologyServiceOntologies){
 
                 /**
-                 * Takes ontology id from TIB TS if the ontology ID matches ontology ID from parameter list.
+                 * Creates ontology dto list from TIB TS if  an ontology ID from parameter list is equal to the ontology ID
+                 * from TIB TS.
                  */
                 if(terminologyServiceOntology.getOntologyId().equals(id)) {
 
@@ -555,6 +553,11 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         int count=1;
 
         /**
+         * Mappings result that should be stored in JSON format
+         */
+        List<ExternalMapping> externalMappingList = new ArrayList<>();
+
+        /**
          * list of source ontologies fitered from parameter list
          */
         log.info("--mappigns between filtered ontologies from TIB TS and processed ontologies stored in Mongo DB: ");
@@ -562,13 +565,14 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             int iteration =1;
 
-
             log.info(+ count ++ +". --source ontology: "+sourceOntologyDto.getOntologyId() + " , "
                     + sourceOntologyDto.getTitle()+ " , " + sourceOntologyDto.getUri());
 
             Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<>();
             Set<SourceOntologyObjectSetModel> sourceOntology = new HashSet<>();
             SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
+
+            Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
 
             int processedTargetOntologySize  = processedOntologies.size();
 
@@ -585,25 +589,148 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             try {
 
-                log.info(iteration + ". ---- target ontology uri: " + processedOntologies.get(i).getUri());
-                iteration = iteration +1;
+            log.info(iteration + ".-- target ontology uri: " + processedOntologies.get(i).getUri());
+
+            log.info("--computes mappings between ontologies: ("+ sourceOntologyDto.getOntologyId()+","+
+                        processedOntologies.get(i).getOntologyId() +"): ");
+
+            LogMap2_Matcher logmap2GroupedBySourceOntology = new LogMap2_Matcher(ontologyManager.loadOntology(IRI.create(
+                        sourceOntologyDto.getUri())), ontologyManager.loadOntology(IRI.create(
+                        processedOntologies.get(i).getUri())));
+
+            Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
+
+            log.info("--the number of mappings between ("+ sourceOntologyDto.getOntologyId()+","+
+                    processedOntologies.get(i).getOntologyId() +") ontologies is: " + logmap2Mappings.size());
+
+            Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
+
+            log.info("--the number of conflictive mappings between ("+ sourceOntologyDto.getOntologyId()+","+
+                        processedOntologies.get(i).getOntologyId() +") ontologies is: " + conflictiveLogmap2Mappings.size());
+
+            if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
+
+                sourceOntologyObjectSetModel.setId(sourceOntologyDto.getId());
+                sourceOntologyObjectSetModel.setCollection(sourceOntologyDto.getCollection());
+                sourceOntologyObjectSetModel.setOntologyId(sourceOntologyDto.getOntologyId());
+                sourceOntologyObjectSetModel.setUri(sourceOntologyDto.getUri());
+                sourceOntologyObjectSetModel.setTitle(sourceOntologyDto.getTitle());
+
+                sourceOntology.add(sourceOntologyObjectSetModel);
+
+                log.info("sourceOntology.add(sourceOntologyObjectSetModel) Java heap memory: ");
+                log.info("i \t Free Memory \t Total Memory \t Max Memory");
+                log.info("iteration: "+ iteration + ",  ontologies pair ( "+sourceOntologyDto.getOntologyId() +" , " +
+                        ""+processedOntologies.get(i).getOntologyId() + " ): \t " + Runtime.getRuntime().freeMemory() +
+                        " \t \t " + Runtime.getRuntime().totalMemory() +
+                        " \t \t " + Runtime.getRuntime().maxMemory());
+
+                OntologyDto targetOntology = OntologyDto.builder()
+                        .ontologyId(processedOntologies.get(i).getOntologyId())
+                        .uri(processedOntologies.get(i).getUri())
+                        .title(processedOntologies.get(i).getTitle())
+                        .collection(processedOntologies.get(i).getCollection())
+                        .build();
+
+                Set<OntologyDto> targetOntologySet = new HashSet<>();
+                targetOntologySet.add(targetOntology);
+
+                log.info("targetOntologySet.add(targetOntology) Java heap memory: ");
+                log.info("i \t Free Memory \t Total Memory \t Max Memory");
+                log.info("iteration: "+ iteration + ",  ontologies pair ( "+sourceOntologyDto.getOntologyId() +" , " +
+                        ""+processedOntologies.get(i).getOntologyId() + " ): " +
+                        "\t " + Runtime.getRuntime().freeMemory() +
+                        " \t \t " + Runtime.getRuntime().totalMemory() +
+                        " \t \t " + Runtime.getRuntime().maxMemory());
+
+                TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
+                targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+                targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
+                targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+
+                targetOntologyObjectSetModel.setMappingList(getMappingList(logmap2Mappings));
+                targetOntologyObjectSetModel.setConflictiveMappingsList(getMappingList(conflictiveLogmap2Mappings));
+
+                targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel);
+                log.info("targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel) Java heap memory: ");
+                log.info("i \t Free Memory \t Total Memory \t Max Memory");
+                log.info("iteration: "+ iteration + ",  ontologies pair ( "+sourceOntologyDto.getOntologyId() +" , " +
+                        ""+processedOntologies.get(i).getOntologyId() + " ): \t " + Runtime.getRuntime().freeMemory() +
+                        " \t \t " + Runtime.getRuntime().totalMemory() +
+                        " \t \t " + Runtime.getRuntime().maxMemory());
+
+                targetOntologyList.add(targetOntologyObjectSetModel);
+            }
+
+            iteration = iteration +1;
+
+                log.info("----- mapping between {} and {} ontologies is completed in {} ms",
+                        sourceOntologyDto.getOntologyId(),
+                        processedOntologies.get(i).getOntologyId(),
+                        System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
+
+
 
             }catch(Exception e){
 
-                log.error("Mapping exception happened: " + e.getMessage());
-
-                return PageUtils.toPage(Collections.emptyList(), pageable);
+            log.error("Mapping exception happened: " + e.getMessage());
 
             }
-
             }
+
+
+            if(processedTargetOntologySize>0){
+                ProcessedMapping processedMappingGroupedBySourceOntology =
+                        preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntology ,processedTargetOntologySize, targetOntologyObjectSetModelSet);
+
+                processedMappingGroupedBySourceOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
+
+                /**
+                 * Save mappings to MongoDB
+                 */
+                processedMappingService.save(processedMappingGroupedBySourceOntology);
+                log.info("processedMappingService.save(processedMappingGroupedBySourceOntology) Java heap memory: ");
+                log.info("i \t Free Memory \t Total Memory \t Max Memory");
+                log.info("iteration: "+ iteration + " \t " + Runtime.getRuntime().freeMemory() +
+                        " \t \t " + Runtime.getRuntime().totalMemory() +
+                        " \t \t " + Runtime.getRuntime().maxMemory());
+            }
+
+
 
         }
 
+        log.info("---- all mappings are done in {} ms", System.currentTimeMillis() - mappingStartTime);
 
-        List<ExternalMapping> externalMappingList = new ArrayList<>();
         return PageUtils.toPage(externalMappingList, pageable);
 
+    }
+
+    /**
+     * stores information about mapping list (both type of mappings) in a Set of mapping object set model
+     * @param logmap2MappingsSet
+     * @return mappingList
+     *
+     */
+    private Set<MappingObjectSetModel> getMappingList (Set<MappingObjectStr> logmap2MappingsSet){
+
+        Set<MappingObjectSetModel> mappingList = new HashSet<>();
+
+        for(MappingObjectStr mos: logmap2MappingsSet) {
+
+            MappingObjectSetModel mappingObjectSetModel = new MappingObjectSetModel();
+
+            mappingObjectSetModel.setSourceIRI(mos.getIRIStrEnt1());
+            mappingObjectSetModel.setMappingDirection(mos.getMappingDirection());
+            mappingObjectSetModel.setTargetIRI(mos.getIRIStrEnt2());
+            mappingObjectSetModel.setTypeOfMapping(mos.getTypeOfMapping());
+            mappingObjectSetModel.setConfidence(mos.getConfidence());
+            mappingObjectSetModel.setStructuralConfidenceMapping(mos.getStructuralConfidenceMapping());
+
+            mappingList.add(mappingObjectSetModel);
+        }
+
+        return mappingList;
     }
 
     /**
@@ -638,50 +765,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
 
         return false;
-    }
-
-    /**
-     * Return true if ontology id belongs to processed ontology list, otherwise retuns false
-     * @param ontologyid
-     * @param processedOntology
-     * @return
-     */
-    public boolean existsOntologyId(String ontologyid, List<ProcessedOntology> processedOntology){
-
-       int n=0;
-
-       for(ProcessedOntology pso: processedOntology){
-
-       if(pso.getOntologyId().equals(ontologyid)) {
-
-           return true;
-       }
-
-       }
-
-     return false;
-
-    }
-
-    private Set<MappingObjectSetModel> getMappingList (Set<MappingObjectStr> logmap2MappingsSet){
-
-        Set<MappingObjectSetModel> mappingList = new HashSet<>();
-
-        for(MappingObjectStr mos: logmap2MappingsSet) {
-
-            MappingObjectSetModel mappingObjectSetModel = new MappingObjectSetModel();
-
-            mappingObjectSetModel.setSourceIRI(mos.getIRIStrEnt1());
-            mappingObjectSetModel.setMappingDirection(mos.getMappingDirection());
-            mappingObjectSetModel.setTargetIRI(mos.getIRIStrEnt2());
-            mappingObjectSetModel.setTypeOfMapping(mos.getTypeOfMapping());
-            mappingObjectSetModel.setConfidence(mos.getConfidence());
-            mappingObjectSetModel.setStructuralConfidenceMapping(mos.getStructuralConfidenceMapping());
-
-            mappingList.add(mappingObjectSetModel);
-        }
-
-        return mappingList;
     }
 
     /**
@@ -862,7 +945,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         targetOntologyList.add(targetOntologyObjectSetModel);
 
         numberOfMappingsProcessed++;
-
 
         ExternalMapping externalMapping = processExternalMapping(ont2, 1, targetOntologyList);
 
