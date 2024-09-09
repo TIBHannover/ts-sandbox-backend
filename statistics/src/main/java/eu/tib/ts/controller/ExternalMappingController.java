@@ -9,6 +9,7 @@ import eu.tib.ts.service.ExternalMappingService;
 import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.utils.HttpUtils;
 import eu.tib.ts.utils.PageUtils;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
@@ -140,6 +141,8 @@ Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.g
 
     }
 
+
+    @Hidden
     @Operation(summary = "List all ontologies from TIB TS and processed ontologies in mappings")
     @GetMapping(value="/external/updatemappings")
     public ResponseEntity<PagedModel<ExternalMappingModel>> listOntologiesFromTIBTSandProcessedOntologies(
