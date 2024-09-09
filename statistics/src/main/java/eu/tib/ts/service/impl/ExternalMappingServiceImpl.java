@@ -535,6 +535,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
         }
 
+
         log.info("--List of ontologies filtered from parameter list:");
         for(OntologyDto newontologyList: newOntologySetFromParameterList){
 
@@ -569,6 +570,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                     + sourceOntologyDto.getTitle()+ " , " + sourceOntologyDto.getUri());
 
             Set<TargetOntologyObjectSetModel> targetOntologyObjectSetModelSet = new HashSet<>();
+
             Set<SourceOntologyObjectSetModel> sourceOntology = new HashSet<>();
             SourceOntologyObjectSetModel sourceOntologyObjectSetModel = new SourceOntologyObjectSetModel();
 
@@ -652,6 +654,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 targetOntologyObjectSetModel.setConflictiveMappingsList(getMappingList(conflictiveLogmap2Mappings));
 
                 targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel);
+
                 log.info("targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel) Java heap memory: ");
                 log.info("i \t Free Memory \t Total Memory \t Max Memory");
                 log.info("iteration: "+ iteration + ",  ontologies pair ( "+sourceOntologyDto.getOntologyId() +" , " +
@@ -676,6 +679,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             log.error("Mapping exception happened: " + e.getMessage());
 
             }
+
+
             }
 
 
@@ -696,7 +701,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         " \t \t " + Runtime.getRuntime().maxMemory());
             }
 
+            ExternalMapping externalMapping = processExternalMappingWithDtoSourceOntology(sourceOntologyDto,
+                    processedTargetOntologySize, targetOntologyList);
 
+            externalMappingList.add(externalMapping);
 
         }
 
@@ -1120,6 +1128,16 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         }
     }
 
+    private ExternalMapping processExternalMappingWithDtoSourceOntology(OntologyDto ont1,
+                                                   int numberOfTargetOntologies,
+                                                   Set<TargetOntologyObjectSetModel> targetOntologyList) {
+        return ExternalMapping.builder()
+                .mappingId(UUID.randomUUID().toString())
+                .sourceOntologyURI(ont1.getUri())
+                .numberOfTargetOntologies(numberOfTargetOntologies)
+                .targetOntologyList(targetOntologyList)
+                .build();
+    }
     private ExternalMapping processExternalMapping(ProcessedOntology ont1,
                                             int numberOfTargetOntologies,
                                             Set<TargetOntologyObjectSetModel> targetOntologyList) {

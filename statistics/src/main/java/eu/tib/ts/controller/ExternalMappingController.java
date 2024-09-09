@@ -114,9 +114,9 @@ public class ExternalMappingController {
     @Operation(summary = "Mappings between ontology files uploaded from local machine")
     @PostMapping(value="/eccenca")
     public ResponseEntity<PagedModel<ExternalMappingModel>> produceMultipartFileMapping(
-            @Parameter(description = "Source ontology file path", example = "-F file=@C://Users//KrdzavacN//git//ontologies//scor//scor.ttl")
+            @Parameter(description = "Source ontology file path", example = "-F file=@C://Users//userName//git//ontologies//scor//scor.ttl")
             @RequestPart("file") MultipartFile file,
-            @Parameter(description = "One or more target ontology file paths", example = "-F files=@C://Users//KrdzavacN//git//ontologies//scor//scor.ttl")
+            @Parameter(description = "One or more target ontology file paths", example = "-F files=@C://Users//userName//git//ontologies//scor//scor.ttl")
             @RequestPart(value = "files") MultipartFile[] files,
             @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
             @RequestParam boolean sat,
