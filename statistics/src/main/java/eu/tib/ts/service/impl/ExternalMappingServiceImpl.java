@@ -535,7 +535,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
         }
 
-
         log.info("--List of ontologies filtered from parameter list:");
         for(OntologyDto newontologyList: newOntologySetFromParameterList){
 
@@ -580,8 +579,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             log.info("--size of processed (target) ontologies: " + processedTargetOntologySize);
 
+            int numberOfTargetOntologiesProcessed = 0;
             /**
              * We use already processed ontologies in Mongo DB as a target ontologies
+             * processedTargetOntologySize
              */
             for (int i=0;i<processedTargetOntologySize;i++) {
 
@@ -607,6 +608,11 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
+            if(logmap2Mappings.size()>0 || conflictiveLogmap2Mappings.size()>0){
+
+            numberOfTargetOntologiesProcessed = numberOfTargetOntologiesProcessed +1;
+            }
+
             log.info("--the number of conflictive mappings between ("+ sourceOntologyDto.getOntologyId()+","+
                         processedOntologies.get(i).getOntologyId() +") ontologies is: " + conflictiveLogmap2Mappings.size());
 
@@ -623,6 +629,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 log.info("sourceOntology.add(sourceOntologyObjectSetModel) Java heap memory: ");
                 log.info("i \t Free Memory \t Total Memory \t Max Memory");
                 log.info("iteration: "+ iteration + ",  ontologies pair ( "+sourceOntologyDto.getOntologyId() +" , " +
+                        ""+processedOntologies.get(i).getOntologyId() + " ): \t " + Runtime.getRuntime().freeMemory() +
                         ""+processedOntologies.get(i).getOntologyId() + " ): \t " + Runtime.getRuntime().freeMemory() +
                         " \t \t " + Runtime.getRuntime().totalMemory() +
                         " \t \t " + Runtime.getRuntime().maxMemory());
@@ -672,21 +679,17 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         processedOntologies.get(i).getOntologyId(),
                         System.currentTimeMillis() - mappingForOneOntologyPairStartTime);
 
-
-
             }catch(Exception e){
 
             log.error("Mapping exception happened: " + e.getMessage());
 
             }
 
-
             }
-
 
             if(processedTargetOntologySize>0){
                 ProcessedMapping processedMappingGroupedBySourceOntology =
-                        preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntology ,processedTargetOntologySize, targetOntologyObjectSetModelSet);
+                        preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntology, numberOfTargetOntologiesProcessed, targetOntologyObjectSetModelSet);
 
                 processedMappingGroupedBySourceOntology.setId(sequenceGeneratorService.getSequenceNumber(ProcessedMapping.SEQUENCE_NAME));
 
@@ -694,6 +697,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  * Save mappings to MongoDB
                  */
                 processedMappingService.save(processedMappingGroupedBySourceOntology);
+
                 log.info("processedMappingService.save(processedMappingGroupedBySourceOntology) Java heap memory: ");
                 log.info("i \t Free Memory \t Total Memory \t Max Memory");
                 log.info("iteration: "+ iteration + " \t " + Runtime.getRuntime().freeMemory() +
@@ -702,13 +706,14 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
 
             ExternalMapping externalMapping = processExternalMappingWithDtoSourceOntology(sourceOntologyDto,
-                    processedTargetOntologySize, targetOntologyList);
+                    numberOfTargetOntologiesProcessed, targetOntologyList);
 
             externalMappingList.add(externalMapping);
 
         }
 
         log.info("---- all mappings are done in {} ms", System.currentTimeMillis() - mappingStartTime);
+        log.info("Mappings completedf");
 
         return PageUtils.toPage(externalMappingList, pageable);
 
@@ -994,7 +999,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  /**
                   * Merge source ontology, target ontology and mappings ontology.
                   */
-//                 OWLOntology mergedOntology = createMergedOntology(ontologyManager.loadOntology(IRI.create(ont2.getUri())),
+//                 OWLOntology mergedOntology = createMergedOntology(ontologyManager.
+//                 loadOntology(IRI.create(ont2.getUri())),
 //                         ontologyManager.loadOntology(IRI.create(ont1.getUri())),
 //                         mappingsToOWLOntology);
 
