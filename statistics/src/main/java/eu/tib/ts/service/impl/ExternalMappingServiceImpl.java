@@ -703,6 +703,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
 
             if(numberOfTargetOntologiesProcessed>0){
+
                 ProcessedMapping processedMappingGroupedBySourceOntology =
                         preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntology, numberOfTargetOntologiesProcessed, targetOntologyObjectSetModelSet);
 
@@ -728,7 +729,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         }
 
         log.info("---- all mappings are done in {} ms", System.currentTimeMillis() - mappingStartTime);
-        log.info("Mappings completedf");
+        log.info("Mappings are completed");
 
         return PageUtils.toPage(externalMappingList, pageable);
 
