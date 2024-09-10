@@ -504,10 +504,13 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
              * checks if ontology id exists in TIB TS and does not exists in processed
              * ontology list (ontologies for which mappings are computted)
              */
-            if(!(existsOntologyInProcessedOntologyList(id, processedOntologies)) &&
-                    existsOntologyInTerminologyService(id, terminologyServiceOntologies)){
+            if(existsOntologyInTerminologyService(id, terminologyServiceOntologies)){
 
-            log.info("ontology id " + id + " that belongs to TIB TS ontologies and does not exist in MongoDB database");
+            log.info("--ontology id " + id + " belongs to TIB TS");
+
+                /**
+                 * list to join filtered ontologies from parameter list and processed ontology from MongoDB into one list.
+                 */
 
             for(TsOntology terminologyServiceOntology: terminologyServiceOntologies){
 
@@ -525,6 +528,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                             .build();
 
                     newOntologySetFromParameterList.add(sourceTsOntDto);
+
                 }
 
                 }
@@ -552,6 +556,16 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         log.info("source (filtered) ontology size from TIB TS:  " + newOntologySetFromParameterList.size());
         int count=1;
 
+        int processedTargetOntologySize  = processedOntologies.size();
+
+        log.info("--size of processed (target) ontologies from MongoDB: " + processedTargetOntologySize);
+        int pontcount = 1;
+        log.info("--list of processed (target) ontologies from MongoDB: " );
+        for(ProcessedOntology pont: processedOntologies){
+
+            log.info(pontcount++ +". --processed ontology: " + pont.getOntologyId() + " , "+ pont.getTitle());
+        }
+
         /**
          * Mappings result that should be stored in JSON format
          */
@@ -575,16 +589,20 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             Set<TargetOntologyObjectSetModel> targetOntologyList = new HashSet<TargetOntologyObjectSetModel>();
 
-            int processedTargetOntologySize  = processedOntologies.size();
-
-            log.info("--size of processed (target) ontologies: " + processedTargetOntologySize);
-
             int numberOfTargetOntologiesProcessed = 0;
             /**
              * We use already processed ontologies in Mongo DB as a target ontologies
              * processedTargetOntologySize
              */
             for (int i=0;i<processedTargetOntologySize;i++) {
+
+             if(sourceOntologyDto.getUri().equals(processedOntologies.get(i).getUri())) {
+
+                 log.info("--source ontology uri : [ " +sourceOntologyDto.getUri() + "] is equal to target ontology uri : [ " +
+                         processedOntologies.get(i).getUri() + " ] ");
+
+                 continue;
+             }
 
             long mappingForOneOntologyPairStartTime = System.currentTimeMillis();
 
@@ -608,15 +626,12 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
 
-            if(logmap2Mappings.size()>0 || conflictiveLogmap2Mappings.size()>0){
-
-            numberOfTargetOntologiesProcessed = numberOfTargetOntologiesProcessed +1;
-            }
-
             log.info("--the number of conflictive mappings between ("+ sourceOntologyDto.getOntologyId()+","+
                         processedOntologies.get(i).getOntologyId() +") ontologies is: " + conflictiveLogmap2Mappings.size());
 
             if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
+
+                numberOfTargetOntologiesProcessed = numberOfTargetOntologiesProcessed +1;
 
                 sourceOntologyObjectSetModel.setId(sourceOntologyDto.getId());
                 sourceOntologyObjectSetModel.setCollection(sourceOntologyDto.getCollection());
@@ -687,7 +702,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             }
 
-            if(processedTargetOntologySize>0){
+            if(numberOfTargetOntologiesProcessed>0){
                 ProcessedMapping processedMappingGroupedBySourceOntology =
                         preProcessingMappingService.preProcessGroupedBySourceOntology(sourceOntology, numberOfTargetOntologiesProcessed, targetOntologyObjectSetModelSet);
 
@@ -703,12 +718,12 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 log.info("iteration: "+ iteration + " \t " + Runtime.getRuntime().freeMemory() +
                         " \t \t " + Runtime.getRuntime().totalMemory() +
                         " \t \t " + Runtime.getRuntime().maxMemory());
+
+                ExternalMapping externalMapping = processExternalMappingWithDtoSourceOntology(sourceOntologyDto,
+                        numberOfTargetOntologiesProcessed, targetOntologyList);
+
+                externalMappingList.add(externalMapping);
             }
-
-            ExternalMapping externalMapping = processExternalMappingWithDtoSourceOntology(sourceOntologyDto,
-                    numberOfTargetOntologiesProcessed, targetOntologyList);
-
-            externalMappingList.add(externalMapping);
 
         }
 
@@ -744,27 +759,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         }
 
         return mappingList;
-    }
-
-    /**
-     *
-     * @param id
-     * @param processedOntologies
-     * @return
-     */
-    private boolean existsOntologyInProcessedOntologyList(String id, List<ProcessedOntology> processedOntologies){
-
-    for(ProcessedOntology pso: processedOntologies){
-
-    if(pso.getOntologyId().equals(id)) {
-
-        return true;
-    }
-
-    }
-
-    return false;
-
     }
 
     private boolean existsOntologyInTerminologyService(String id, Collection<TsOntology> terminologyServiceOntologies){
