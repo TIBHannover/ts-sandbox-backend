@@ -620,14 +620,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         processedOntologies.get(i).getUri())));
 
             Set<MappingObjectStr> logmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_Mappings();
-
-            log.info("--the number of mappings between ("+ sourceOntologyDto.getOntologyId()+","+
-                    processedOntologies.get(i).getOntologyId() +") ontologies is: " + logmap2Mappings.size());
-
             Set<MappingObjectStr>  conflictiveLogmap2Mappings = logmap2GroupedBySourceOntology.getLogmap2_ConflictiveMappings();
-
-            log.info("--the number of conflictive mappings between ("+ sourceOntologyDto.getOntologyId()+","+
-                        processedOntologies.get(i).getOntologyId() +") ontologies is: " + conflictiveLogmap2Mappings.size());
 
             if(!logmap2Mappings.isEmpty() || !conflictiveLogmap2Mappings.isEmpty()) {
 
@@ -688,6 +681,12 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
 
             iteration = iteration +1;
+
+                log.info("--the number of mappings between ("+ sourceOntologyDto.getOntologyId()+","+
+                        processedOntologies.get(i).getOntologyId() +") ontologies is: " + logmap2Mappings.size());
+
+                log.info("--the number of conflictive mappings between ("+ sourceOntologyDto.getOntologyId()+","+
+                        processedOntologies.get(i).getOntologyId() +") ontologies is: " + conflictiveLogmap2Mappings.size());
 
                 log.info("----- mapping between {} and {} ontologies is completed in {} ms",
                         sourceOntologyDto.getOntologyId(),
