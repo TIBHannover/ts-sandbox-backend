@@ -144,7 +144,7 @@ Page<ExternalMapping> eternalMultipartFileMappingPage = externalMappingService.g
 
     @Hidden
     @Operation(summary = "List all ontologies from TIB TS and processed ontologies in mappings")
-    @GetMapping(value="/external/updatemappings")
+    @PostMapping(value="/external/updatemappings")
     public ResponseEntity<PagedModel<ExternalMappingModel>> listOntologiesFromTIBTSandProcessedOntologies(
             @Parameter(description = "A list of ontology ids", example = "dr,coy,cidoc")
             @RequestParam List<String> ids,

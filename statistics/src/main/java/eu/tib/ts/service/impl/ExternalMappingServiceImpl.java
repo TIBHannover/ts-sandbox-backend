@@ -637,8 +637,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 log.info("sourceOntology.add(sourceOntologyObjectSetModel) Java heap memory: ");
                 log.info("i \t Free Memory \t Total Memory \t Max Memory");
                 log.info("iteration: "+ iteration + ",  ontologies pair ( "+sourceOntologyDto.getOntologyId() +" , " +
-                        ""+processedOntologies.get(i).getOntologyId() + " ): \t " + Runtime.getRuntime().freeMemory() +
-                        ""+processedOntologies.get(i).getOntologyId() + " ): \t " + Runtime.getRuntime().freeMemory() +
+                        ""+processedOntologies.get(i).getOntologyId() + " ): " +
+                        "\t " + Runtime.getRuntime().freeMemory() +
                         " \t \t " + Runtime.getRuntime().totalMemory() +
                         " \t \t " + Runtime.getRuntime().maxMemory());
 
