@@ -1,9 +1,7 @@
 package eu.tib.ontologyhistory.service;
 
-import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.model.GitDiff;
 import eu.tib.ontologyhistory.repository.GitDiffRepository;
-import eu.tib.ontologyhistory.repository.RobotRepository;
 import eu.tib.ontologyhistory.service.network.GitService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

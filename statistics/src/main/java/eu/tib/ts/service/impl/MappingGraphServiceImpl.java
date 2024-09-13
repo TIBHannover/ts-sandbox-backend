@@ -20,7 +20,4 @@ public class MappingGraphServiceImpl implements MappingGraphService {
         this.ProcessedMongoOntologyRepository = ProcessedMongoOntologyRepository;
         this.mappingFilterService = mappingFilterService;
     }
-
-
-
 }

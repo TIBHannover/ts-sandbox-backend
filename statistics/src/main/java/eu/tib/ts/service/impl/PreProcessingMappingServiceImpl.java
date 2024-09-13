@@ -39,9 +39,6 @@ public class PreProcessingMappingServiceImpl implements PreProcessingMappingServ
                 .build();
     }
 
-
-
-
     @Override
     public ProcessedMapping preProcessGroupedBySourceOntology(Set<SourceOntologyObjectSetModel> sourceOntologyObjectSetModels, int numberOfTargetOntologies, Set<TargetOntologyObjectSetModel> targetOntologyList) {
 

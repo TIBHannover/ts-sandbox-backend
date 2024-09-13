@@ -18,11 +18,4 @@ public class MappingServiceImpl implements MappingService {
         this.processedMongoOntologyRepository = processedMongoOntologyRepository;
     }
 
-    public List<ProcessedMapping> getProcessedMappings(List<String> collections) {
-
-
-        return processedMongoOntologyRepository.findMappingByCollection(collections);
-
-    }
-
 }
