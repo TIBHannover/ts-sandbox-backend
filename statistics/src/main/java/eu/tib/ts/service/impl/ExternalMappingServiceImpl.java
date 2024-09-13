@@ -683,8 +683,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         log.info("--mappigns between filtered ontologies from TIB TS and processed ontologies stored in Mongo DB: ");
         for(OntologyDto sourceOntologyDto: newOntologySetFromParameterList) {
 
-            int iteration =1;
-
             log.info(+ count ++ +". --source ontology: "+sourceOntologyDto.getOntologyId() + " , "
                     + sourceOntologyDto.getTitle()+ " , " + sourceOntologyDto.getUri());
 
@@ -700,6 +698,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
              * We use already processed ontologies in Mongo DB as a target ontologies
              * processedTargetOntologySize
              */
+            int iteration =1;
 
             for(OntologyDto targetOntologyDto : uniqueTargetOntologyDtoList) {
 
@@ -749,13 +748,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         " \t " + Runtime.getRuntime().totalMemory() +
                         " \t " + Runtime.getRuntime().maxMemory());
 
-//                OntologyDto targetOntology = OntologyDto.builder()
-//                        .ontologyId(targetOntologyDto.getOntologyId())
-//                        .uri(targetOntologyDto.getUri())
-//                        .title(targetOntologyDto.getTitle())
-//                        .collection(targetOntologyDto.getCollection())
-//                        .build();
-
                 Set<OntologyDto> targetOntologySet = new HashSet<>();
                 targetOntologySet.add(targetOntologyDto);
 
@@ -787,8 +779,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 targetOntologyList.add(targetOntologyObjectSetModel);
             }
 
-            iteration = iteration +1;
-
                 log.info("--the number of mappings between ("+ sourceOntologyDto.getOntologyId()+","+
                         targetOntologyDto.getOntologyId() +") ontologies is: " + logmap2Mappings.size());
 
@@ -806,6 +796,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             }
 
+            iteration = iteration +1;
+            
             }
 
             if(numberOfTargetOntologiesProcessed>0){
