@@ -501,6 +501,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             List<String> ids,
             Pageable pageable) {
 
+        System.out.println("getAllTIBTSOntologiesAndProcessedOntologiesInMappings");
+
         /**
          * This post request terminates if parameter list is empty or null
          */
@@ -658,7 +660,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         int newont =1;
         for(OntologyDto newontologyList: newOntologySetFromParameterList){
 
-        log.info(newont++ +"id: " + newontologyList.getOntologyId() + " , title: " + newontologyList.getTitle() +
+        log.info(newont++ +". --id: " + newontologyList.getOntologyId() + " , title: " + newontologyList.getTitle() +
                 " , uri: " +newontologyList.getUri() + " , collection: " + newontologyList.getCollection());
         }
 
