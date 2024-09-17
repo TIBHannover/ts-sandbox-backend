@@ -797,7 +797,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             }
 
             iteration = iteration +1;
-            
+
             }
 
             if(numberOfTargetOntologiesProcessed>0){
