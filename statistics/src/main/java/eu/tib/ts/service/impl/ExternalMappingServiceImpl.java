@@ -31,6 +31,7 @@ import uk.ac.ox.krr.logmap2.utilities.Utilities;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -468,12 +469,19 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
      * @param uniqueTargetOntologyDtoList
      * @return
      */
-    boolean existsDtoInOntologyDtoList(OntologyDto ontologyDto, List<OntologyDto> uniqueTargetOntologyDtoList){
+    boolean existsDtoInOntologyDtoList(int count, OntologyDto ontologyDto, List<OntologyDto> uniqueTargetOntologyDtoList){
 
         for(OntologyDto ont: uniqueTargetOntologyDtoList){
 
-            if(ontologyDto.getOntologyId().equals(ont.getOntologyId())) return true ;
-        }
+            if(Objects.equals(ontologyDto.getOntologyId(), ont.getOntologyId())) {
+
+            log.info(count ++ +". ontologyDto.getOntologyId()" + ontologyDto.getOntologyId() + " == " + ont.getOntologyId());
+
+            return true ;
+
+            }
+
+            }
 
         return false;
     }
@@ -548,8 +556,8 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         /**
          * List contains all source and target ontologies used in mappings
          */
+//        List<OntologyDto> uniqueTargetOntologyDtoListTemp = new ArrayList<OntologyDto>();
         List<OntologyDto> uniqueTargetOntologyDtoList = new ArrayList<OntologyDto>();
-
         /**
          * Iterates through all mappings and creates list of all source and target ontologies
          * from Mongo DB that are used in mappings.
@@ -578,13 +586,21 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
                 for(OntologyDto ontDto: targetOntologySet) {
 
-              if(!existsDtoInOntologyDtoList(ontDto,uniqueTargetOntologyDtoList)){
+                    OntologyDto targetOntDto = OntologyDto.builder()
+                            .ontologyId(ontDto.getOntologyId())
+                            .uri(ontDto.getUri())
+                            .title(ontDto.getTitle())
+                            .collection(ontDto.getCollection())
+                            .build();
 
-                    uniqueTargetOntologyDtoList.add(ontDto);
+                    uniqueTargetOntologyDtoList.add(targetOntDto);
 
-                  }
                 }
             }
+
+
+        uniqueTargetOntologyDtoList=uniqueTargetOntologyDtoList.stream().distinct().collect(Collectors.toList());
+
         }
 
         log.info("----------------------------------------------------------");
