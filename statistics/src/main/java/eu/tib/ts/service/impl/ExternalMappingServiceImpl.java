@@ -509,8 +509,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             List<String> ids,
             Pageable pageable) {
 
-        System.out.println("getAllTIBTSOntologiesAndProcessedOntologiesInMappings");
-
         /**
          * This post request terminates if parameter list is empty or null
          */
@@ -556,7 +554,6 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         /**
          * List contains all source and target ontologies used in mappings
          */
-//        List<OntologyDto> uniqueTargetOntologyDtoListTemp = new ArrayList<OntologyDto>();
         List<OntologyDto> uniqueTargetOntologyDtoList = new ArrayList<OntologyDto>();
         /**
          * Iterates through all mappings and creates list of all source and target ontologies
@@ -615,7 +612,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
         /**
          * creates a list of source ontologies from ontology ids available in parameter list by comparing IDs with
-         * TIB TS ontology IDs
+         * TIB TS ontology IDs stored in MongoDB and already used in mappings computation
          */
         for(String id: ids){
 
