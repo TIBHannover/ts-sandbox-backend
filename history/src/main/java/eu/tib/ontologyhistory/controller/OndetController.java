@@ -73,7 +73,7 @@ public class OndetController {
     @PostMapping
     @Operation(summary = "Create one object")
     public ResponseEntity<String> create(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
+            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
             @RequestParam String url,
             HttpServletRequest httpServletRequest
     ) {
