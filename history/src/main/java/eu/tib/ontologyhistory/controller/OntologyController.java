@@ -97,7 +97,7 @@
 //            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
 //    })
 //    public ResponseEntity<OntologyDto> createOntology(
-//            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
+//            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
 //            @RequestParam String url) {
 //        val ontologyDto = ontologyService.create(url);
 //

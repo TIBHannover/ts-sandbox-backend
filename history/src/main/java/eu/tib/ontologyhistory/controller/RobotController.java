@@ -101,7 +101,7 @@ public class RobotController {
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
     })
     public ResponseEntity<String> add(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
+            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
             @RequestParam String url) {
 
         robotService.create(url);
@@ -139,7 +139,7 @@ public class RobotController {
             @ApiResponse(responseCode = "204", description = "Robot diffs deleted", content = @Content)
     })
     public ResponseEntity<String> deleteAllByUrl(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
+            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
             @RequestParam String url
     ) {
 

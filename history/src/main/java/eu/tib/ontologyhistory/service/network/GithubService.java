@@ -196,7 +196,8 @@ public class GithubService implements GitService<Commit> {
     @Override
     public String getEncodedPath(String url) {
         String[] segments = url.split("/");
-        return String.join("/", Arrays.copyOfRange(segments, 4, segments.length));
+        int startIndex = url.contains("/refs/heads") ? 6 : 4;
+        return String.join("/", Arrays.copyOfRange(segments, startIndex, segments.length));
     }
 
 }
