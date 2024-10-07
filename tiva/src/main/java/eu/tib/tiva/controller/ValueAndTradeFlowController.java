@@ -216,20 +216,20 @@ public class ValueAndTradeFlowController {
 
     }
 
-    @Operation(summary = "Get data from eurostat dataset")
+    @Operation(summary = "Get data from eurostat dataset", hidden = true)
     @GetMapping(value = "/eurostat", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getEurostat(
-            @Parameter(description = "Trade location code for value added origin", example = "AT")
+            @Parameter(description = "Country of the import or export of the product", example = "AT")
             @RequestParam(required = false) String reporter,
-            @Parameter(description = "Trade location code for value added origin", example = "EU_EXTRA")
+            @Parameter(description = "Last known country of destination for intra- and extra-EU exports, the country of origin for extra-EU imports and the country of consignment for intra-EU imports", example = "EU_EXTRA")
             @RequestParam(required = false) String partner,
-            @Parameter(description = "Trade location code for value added origin", example = "1")
+            @Parameter(description = "Import or Export", example = "1")
             @RequestParam(required = false) String flow,
-            @Parameter(description = "Trade location code for value added origin", example = "854149")
+            @Parameter(description = "Product code from harmonized system (HS)", example = "854149")
             @RequestParam(required = false) String product,
-            @Parameter(description = "Trade location code for value added origin", example = "1995")
+            @Parameter(description = "Years from the system", example = "1995")
             @RequestParam(required = false) String year,
-            @Parameter(description = "Trade location code for value added origin", example = "1995")
+            @Parameter(description = "Value of the chosen product", example = "1999")
             @RequestParam(required = false) String value
     ) {
         val fields = new LinkedHashSet<String>();
