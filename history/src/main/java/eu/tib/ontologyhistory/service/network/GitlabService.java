@@ -189,6 +189,14 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     @Override
+    public Optional<List<GitlabCommit>> getCommits(URI uri, Instant datetime) {
+        String user = getUserFromUrl(uri);
+        String repo = getRepoFromUrl(uri);
+        String encodedPath = getEncodedPath(uri.getPath());
+        return getCommits(uri, user, repo, encodedPath, datetime);
+    }
+
+    @Override
     public Optional<URI> checkUriValidity(String url) {
         try {
             val uri = new URI(url);

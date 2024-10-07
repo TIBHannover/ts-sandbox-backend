@@ -1,6 +1,5 @@
 package eu.tib.ontologyhistory.service;
 
-import eu.tib.ontologyhistory.dto.conto.GraphInfo;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.mapper.DiffMapper;
@@ -49,11 +48,11 @@ public class RobotService {
         return diffMapper.entityToDto(diff);
     }
 
-    public Set<GraphInfo> findAllUrls() {
+    public Set<String> findAllUrls() {
         val diff = robotRepository.findAll();
-        val urls = new HashSet<GraphInfo>();
+        val urls = new HashSet<String>();
         for (Diff d : diff) {
-            urls.add(new GraphInfo(d.getUrl()));
+            urls.add(d.getUrl());
         }
         return urls;
     }
@@ -65,6 +64,11 @@ public class RobotService {
 
     public DiffDto findBySha(String sha) {
         val diff = robotRepository.findFirstBySha(sha).orElse(null);
+        return diffMapper.entityToDto(diff);
+    }
+
+    public DiffDto findByParentSha(String parentSha) {
+        val diff = robotRepository.findFirstByParentSha(parentSha).orElse(null);
         return diffMapper.entityToDto(diff);
     }
 
@@ -94,6 +98,16 @@ public class RobotService {
 
     }
 
+    public void updateByUrl(String url, Instant datetime) {
+        GitService<?> gitService = GitServiceFactory.getService(url);
+
+        val diffAdds = gitService.getDiffAdds(url, datetime);
+
+        for (val diffAdd : diffAdds) {
+            makeDiffFromGit(diffAdd, url);
+        }
+    }
+
     public void create(String url) {
         GitService<?> gitService = GitServiceFactory.getService(url);
 
@@ -103,6 +117,12 @@ public class RobotService {
             makeDiffFromGit(diffAdd, url);
         }
 
+    }
+
+    public void create(String url, List<DiffAdd> diffAdds) {
+        for (val diffAdd : diffAdds) {
+            makeDiffFromGit(diffAdd, url);
+        }
     }
 
     private void diffExecute(DiffAdd diffAdd, File output) {
