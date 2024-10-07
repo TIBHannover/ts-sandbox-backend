@@ -3,7 +3,6 @@ package eu.tib.ontologyhistory.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
-import eu.tib.ontologyhistory.dto.conto.Timeline;
 import eu.tib.ontologyhistory.service.OndetService;
 import eu.tib.ontologyhistory.view.Views;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.val;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -107,6 +105,17 @@ public class OndetController {
         return new ResponseEntity<>("Removed all", HttpStatus.OK);
     }
 
+    @DeleteMapping("/removeAllByUrl")
+    @Operation(summary = "Remove all semantic diff for the provided ontology URL")
+    public ResponseEntity<String> removeAllByUrl(
+            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
+            @RequestParam String url
+    ) {
+        ondetService.removeAllByUrl(url);
+
+        return new ResponseEntity<>("Removed all", HttpStatus.OK);
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Update one object")
     public ResponseEntity<String> update(
@@ -114,6 +123,19 @@ public class OndetController {
     ) {
 
         ondetService.update(id);
+
+        return new ResponseEntity<>("Updated", HttpStatus.OK);
+    }
+
+    @PostMapping("/update")
+    @Operation(summary = "Update ontology by URL")
+    public ResponseEntity<String> updateByUrl(
+            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/monarch-initiative/SEPIO-ontology/master/sepio.owl", required = true)
+            @RequestParam String url,
+            @Parameter(description = "Last ISO-8601 time of the semantic diff in the system", example = "YYYY-MM-DDTHH:MM:SSZ")
+            @RequestParam Instant datetime) {
+
+        ondetService.updateByUrl(url, datetime, DATASET);
 
         return new ResponseEntity<>("Updated", HttpStatus.OK);
     }
@@ -134,6 +156,27 @@ public class OndetController {
 
         return new ResponseEntity<>(commits, HttpStatus.OK);
     }
+
+    @GetMapping("/latestVersion")
+    @Operation(summary = "Get latest diff of the ontology")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the diff"),
+            @ApiResponse(responseCode = "404", description = "No diff found", content = @Content)
+    })
+    public ResponseEntity<String> getLatestVerison(
+            @Parameter(description = "ontologyUrl")
+            @RequestParam String ontologyUrl
+    ) {
+
+        val version = ondetService.getVersion(ontologyUrl);
+
+        if (version.sha().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(version.datetime().toString(), HttpStatus.OK);
+    }
+
 
     @GetMapping("/resHistory")
     @Operation(summary = "Return resource history in the external ontology")

@@ -3,6 +3,8 @@ package eu.tib.ontologyhistory.service;
 import eu.tib.ontologyhistory.dto.DiffDtoTimeline;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
+import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.dto.git.GitDiffDto;
 import eu.tib.ontologyhistory.service.network.GitService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +22,6 @@ import java.util.*;
 public class OndetService {
 
     private final RobotService robotService;
-
     private final ContoService contoService;
     private final GitDiffService gitDiffService;
 
@@ -28,16 +29,28 @@ public class OndetService {
         val robotDiffs = robotService.findAllUrls();
         val contoDiffs = contoService.findAll(dataset);
 
-        val result = new HashSet<>(robotDiffs);
-        result.addAll(contoDiffs);
+        val names = new HashSet<>(robotDiffs);
+        val result = new HashSet<GraphInfo>();
+        names.addAll(contoDiffs);
+
+        for (val name : names) {
+            val gitDiff = gitDiffService.findFirstByOrderByDatetimeDesc(name);
+            GitService<?> gitService = GitServiceFactory.getService(name);
+            val commits = gitService.getCommits(URI.create(name), gitDiff.datetime());
+            if (commits.isPresent()) {
+                result.add(new GraphInfo(name, gitDiff.datetime(), commits.get().size()));
+            } else {
+                result.add(new GraphInfo(name, gitDiff.datetime(), -1));
+            }
+        }
 
         return result;
     }
 
     public DifferenceMarkdown find(String sha, String dataset) {
-        val robotDiff = robotService.findBySha(sha);
+        val robotDiff = robotService.findByParentSha(sha);
+        val gitDiff = gitDiffService.findByParentSha(sha);
         val contoDiff = contoService.timeline(sha, dataset);
-        val gitDiff = gitDiffService.findBySha(sha);
 
         if (robotDiff == null) {
             return new DifferenceMarkdown(new Document(), contoDiff, gitDiff);
@@ -70,11 +83,18 @@ public class OndetService {
         robotService.deleteAllByUrl(url);
         gitDiffService.deleteAllByUrl(url);
 
-        gitDiffService.create(url);
-        robotService.create(url);
-        contoService.create(url, dataset);
+        val diffAdds = getDiffAdds(url);
+        gitDiffService.create(url, diffAdds);
+        robotService.create(url, diffAdds);
+        contoService.create(url, dataset, diffAdds);
 
         return findFirstByUrl(url, dataset);
+    }
+
+    public List<DiffAdd> getDiffAdds(String url) {
+        GitService<?> gitService = GitServiceFactory.getService(url);
+
+        return gitService.getDiffAdds(url);
     }
 
     public void remove(String id) {
@@ -88,9 +108,22 @@ public class OndetService {
         gitDiffService.deleteAll();
     }
 
+    public void removeAllByUrl(String url) {
+        robotService.deleteAllByUrl(url);
+        gitDiffService.deleteAllByUrl(url);
+//       not used currently
+//       contoService.deleteAllByUrl(url);
+    }
+
     public void update(String id) {
         robotService.update(id);
         contoService.update(id);
+    }
+
+    public void updateByUrl(String url, Instant datetime, String dataset) {
+        robotService.updateByUrl(url, datetime);
+        contoService.updateByUrl(url, datetime, dataset);
+        gitDiffService.updateByUrl(url, datetime);
     }
 
     public List<?> getCommits(String url) {
@@ -101,6 +134,15 @@ public class OndetService {
             return result.get();
         }
         return Collections.emptyList();
+    }
+
+    public GitDiffDto getVersion(String url) {
+        val gitDiffs = gitDiffService.findAllByUrl(url);
+
+        if (gitDiffs != null && !gitDiffs.isEmpty()) {
+            return gitDiffs.get(gitDiffs.size() - 1);
+        }
+        return GitDiffDto.defaultValue();
     }
 
     public Map<String, List<String>> resHistory(String url, Instant datetime, String resourceIRI) {

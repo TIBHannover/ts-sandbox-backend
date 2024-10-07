@@ -25,6 +25,8 @@ public interface GitService<T> {
 
     Optional<List<T>> getCommits(URI uri);
 
+    Optional<List<T>> getCommits(URI uri, Instant datetime);
+
     Optional<URI> checkUriValidity(String url);
 
     String getUserFromUrl(URI uri);

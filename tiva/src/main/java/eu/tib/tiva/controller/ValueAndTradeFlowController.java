@@ -271,16 +271,37 @@ public class ValueAndTradeFlowController {
 
     @Operation(summary = "Get sum value by reporter and year range")
     @GetMapping(value = "/euroYearRange", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, List<ChartObj>>> getEuroRepYearSum(
-            @Parameter(description = "Reporter", example = "AT")
-            @RequestParam String reporter,
-            @Parameter(description = "Year", example = "1996-01-01")
+    public ResponseEntity<Map<String, List<ChartObj>>> getEuroRep(
+            @Parameter(description = "List of reporters", example = "AT")
+            @RequestParam List<String> reporters,
+            @Parameter(description = "Year start", example = "1996-01-01")
             @RequestParam String start,
-            @Parameter(description = "Year", example = "1998-12-31")
-            @RequestParam String end
+            @Parameter(description = "Year end", example = "1998-12-31")
+            @RequestParam String end,
+            @Parameter(description = "List of partners", example = "EU_EXTRA")
+            @RequestParam List<String> partners,
+            @Parameter(description = "Flow", example = "1")
+            @RequestParam(required = false) String flow
     ) {
+        val result = getYearRange(reporters, start, end, partners, flow);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 
-        val result = getYearRange(reporter, start, end);
+    @Operation(summary = "Get sum of values between reporter and partner groupped by product")
+    @GetMapping(value = "/euroRepParProd", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, String>> getEuroRep(
+            @Parameter(description = "List of reporters", example = "AT")
+            @RequestParam List<String> reporters,
+            @Parameter(description = "Year start", example = "1996-01-01")
+            @RequestParam String start,
+            @Parameter(description = "Year end", example = "1998-12-31")
+            @RequestParam String end,
+            @Parameter(description = "List of partners", example = "EU_EXTRA")
+            @RequestParam List<String> partners,
+            @Parameter(description = "Products", example = "1")
+            @RequestParam List<String> products
+    ) {
+        val result = getReporterPartnerProducts(reporters, start, end, partners, products);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -289,7 +310,6 @@ public class ValueAndTradeFlowController {
 
         String query = getQueryByFields(fields);
 
-        query += "\n LIMIT 10";
         ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
         graphQuery.setCommandText(query);
 
@@ -304,7 +324,7 @@ public class ValueAndTradeFlowController {
                 for (String field : fields) {
                     String key = "";
                     if (solution.contains(field)) {
-                        if (field.equals("flow") || field.equals("value") || field.equals("yearTrimmed")) {
+                        if (field.equals("flow") || field.equals("value") || field.equals("yearTrimmed") || field.equals("product")) {
                             key = solution.get(field).toString();
                         } else {
                             key += solution.get(field).asResource().getLocalName();
@@ -384,15 +404,128 @@ public class ValueAndTradeFlowController {
         return objects;
     }
 
-    public static Map<String, List<ChartObj>> getYearRange(String reporter, String startDate, String endDate) {
-        val objects = new HashMap<String, List<ChartObj>>();
-        val obj = new ArrayList<ChartObj>();
+    private static List<String> assignFullAtoldPrefix(List<String> data) {
+        return data.stream()
+                .map(item -> "<http://publications.europa.eu/resource/authority/country/" + item + ">")
+                .toList();
+    }
 
+    private static List<String> assignCoypuHsPrefix(List<String> data) {
+        return data.stream()
+                .map(item -> "<https://data.coypu.org/classification/hs_2012/" + item + ">")
+                .toList();
+    }
+
+    private static String generateValuesClause(String field, List<String> inputs) {
+        StringBuilder values = new StringBuilder("VALUES ?").append(field).append(" {");
+        for (String input : inputs) {
+            values.append(input).append(System.lineSeparator());
+        }
+        values.append(" }").append(System.lineSeparator());
+        return values.toString();
+    }
+
+    public static Map<String, String> getReporterPartnerProducts(List<String> reporters, String startDate, String endDate, List<String> partners, List<String> products) {
+        val objects = new HashMap<String, String>();
+
+        val fullReportersIRIs = assignFullAtoldPrefix(reporters);
+        val fullPartnersIRIs = assignFullAtoldPrefix(partners);
+        val fullProductsIRIs = assignCoypuHsPrefix(products);
+        String prefixes = Queries.EUROSTAT_PREFIXES;
+        StringBuilder select = new StringBuilder("""
+                        SELECT DISTINCT ?reporter ?partner ?product
+                        (SUM(xsd:decimal(SUBSTR(?value, 0, spif:lastIndexOf(?value, "^")))) AS ?sumVal)
+                """);
+
+        String reporterValues = generateValuesClause("reporter", fullReportersIRIs);
+        String partnerValues = generateValuesClause("partner", fullPartnersIRIs);
+        String productValues = generateValuesClause("product", fullProductsIRIs);
+
+        StringBuilder where = new StringBuilder("WHERE {\n")
+                .append(reporterValues)
+                .append(partnerValues)
+                .append(productValues)
+                .append(Queries.EUROSTAT_FULL_WHERE_CLAUSE);
+
+        StringBuilder filters = new StringBuilder("FILTER(STRDT(CONCAT(SUBSTR(?year, 1, 7), '-01'), xsd:date) >= ?startDate^^xsd:date &&\n")
+                .append("       STRDT(CONCAT(SUBSTR(?year, 1, 7), '-01'), xsd:date) <= ?endDate^^xsd:date) .");
+
+
+        String query = prefixes + select + where + filters + "\n} GROUP BY ?product ?reporter ?partner";
         ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
-        graphQuery.setCommandText(Queries.EUROSTAT_YEAR_RANGE);
-        graphQuery.setLiteral("repArg", reporter);
+        graphQuery.setCommandText(query);
         graphQuery.setLiteral("startDate", startDate);
         graphQuery.setLiteral("endDate", endDate);
+
+        try (QueryExecution q = QueryExecutionHTTP.service("http://sc3onto01.develop.service.tib.eu:7200/repositories/default")
+                .query(graphQuery.asQuery())
+                .build()) {
+
+            ResultSet results = q.execSelect();
+            while (results.hasNext()) {
+                QuerySolution solution = results.next();
+                val productVal = solution.get("product").asResource().toString();
+                val reporterVal = solution.get("reporter").asResource().getLocalName();
+                val partnerVal = solution.get("partner").asResource().getLocalName();
+                val sumVal = solution.get("sumVal").asLiteral().getValue().toString();
+
+                String key = productVal.substring(productVal.lastIndexOf('/') + 1) + "_" + reporterVal + "_" + partnerVal;
+                objects.put(key, sumVal);
+            }
+        }
+
+        return objects;
+    }
+
+    public static Map<String, List<ChartObj>> getYearRange(
+            List<String> reporters, String startDate, String endDate, List<String> partners, String flow) {
+
+        val objects = new HashMap<String, List<ChartObj>>();
+
+        val fullReportersIRIs = assignFullAtoldPrefix(reporters);
+        val fullPartnersIRIs = assignFullAtoldPrefix(partners);
+
+        String prefixes = Queries.EUROSTAT_PREFIXES;
+        StringBuilder select = new StringBuilder("""
+                        SELECT DISTINCT ?reporter (STRDT(CONCAT(SUBSTR(?year, 1, 7), '-01'), xsd:date) AS ?yearTrimmed)
+                        (SUM(xsd:decimal(SUBSTR(?value, 0, spif:lastIndexOf(?value, "^")))) AS ?sumVal)
+                        ?partner
+                """);
+
+        if (flow != null) {
+            select.append("?flow\n");
+        }
+
+        String reporterValues = generateValuesClause("reporter", fullReportersIRIs);
+        String partnerValues = generateValuesClause("partner", fullPartnersIRIs);
+
+        StringBuilder where = new StringBuilder("WHERE {\n")
+                .append(reporterValues)
+                .append(partnerValues)
+                .append(Queries.EUROSTAT_FULL_WHERE_CLAUSE);
+
+        StringBuilder filters = new StringBuilder("FILTER(STRDT(CONCAT(SUBSTR(?year, 1, 7), '-01'), xsd:date) >= ?startDate^^xsd:date &&\n")
+                .append("       STRDT(CONCAT(SUBSTR(?year, 1, 7), '-01'), xsd:date) <= ?endDate^^xsd:date) .");
+
+        if (flow != null) {
+            filters.append("\nFILTER(CONTAINS(STR(?flow), ?flowArg)) .");
+        }
+
+        String query = prefixes + select + where + filters + "\n} GROUP BY ?reporter ?year ?partner";
+
+        if (flow != null) {
+            query += " ?flow";
+        }
+
+        ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
+        graphQuery.setCommandText(query);
+        graphQuery.setLiteral("startDate", startDate);
+        graphQuery.setLiteral("endDate", endDate);
+
+        if (flow != null) {
+            graphQuery.setLiteral("flowArg", flow);
+        }
+
         try (QueryExecution q = QueryExecutionHTTP.service("http://sc3onto01.develop.service.tib.eu:7200/repositories/default")
                 .query(graphQuery.asQuery())
                 .build()) {
@@ -402,10 +535,19 @@ public class ValueAndTradeFlowController {
                 QuerySolution solution = results.next();
                 val yearTrimmed = solution.get("yearTrimmed").asLiteral().getValue().toString();
                 val sumVal = solution.get("sumVal").asLiteral().getValue().toString();
+                val reporterVal = solution.get("reporter").asResource().getLocalName();
+                val partnerVal = solution.get("partner").asResource().getLocalName();
+
+                String key = (flow != null)
+                        ? solution.get("flow").asLiteral().getValue().toString() + "_" + reporterVal + "_" + partnerVal
+                        : reporterVal + "_" + partnerVal;
+
+                val obj = objects.getOrDefault(key, new ArrayList<>());
                 obj.add(new ChartObj(yearTrimmed, sumVal));
-                objects.put("data", obj);
+                objects.put(key, obj);
             }
         }
+
         return objects;
     }
 

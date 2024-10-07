@@ -1,10 +1,13 @@
 package eu.tib.ontologyhistory.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
+
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -22,4 +25,8 @@ public class GitDiff {
     private String parentSha;
 
     private String diff;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Instant datetime;
+
 }

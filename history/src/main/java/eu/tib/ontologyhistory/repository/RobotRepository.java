@@ -16,5 +16,7 @@ public interface RobotRepository extends MongoRepository<Diff, String> {
 
     Optional<Diff> findFirstBySha(String sha);
 
+    Optional<Diff> findFirstByParentSha(String parentSha);
+
     void deleteAllByUrl(String url);
 }

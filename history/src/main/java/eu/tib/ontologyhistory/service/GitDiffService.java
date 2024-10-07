@@ -1,5 +1,8 @@
 package eu.tib.ontologyhistory.service;
 
+import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.dto.git.GitDiffDto;
+import eu.tib.ontologyhistory.mapper.GittDiffMapper;
 import eu.tib.ontologyhistory.model.GitDiff;
 import eu.tib.ontologyhistory.repository.GitDiffRepository;
 import eu.tib.ontologyhistory.service.network.GitService;
@@ -13,7 +16,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -26,28 +31,31 @@ public class GitDiffService {
 
     private final GitDiffRepository gitDiffRepository;
 
+    private final GittDiffMapper gittDiffMapper;
+
     public void create(String url) {
         GitService<?> gitService = GitServiceFactory.getService(url);
 
         val diffAdds = gitService.getDiffAdds(url);
         for (val diffAdd : diffAdds) {
-            try {
-                val diff = makeDiff(Files.write(ONTOLOGY_LEFT, diffAdd.gitRawFileLeft().getBytes()),
-                        Files.write(ONTOLOGY_RIGHT, diffAdd.gitRawFileRight().getBytes()));
-                val gitDiff = GitDiff.builder()
-                        .sha(diffAdd.sha())
-                        .url(url)
-                        .parentSha(diffAdd.parentSha())
-                        .diff(diff)
-                        .build();
-
-                gitDiffRepository.insert(gitDiff);
-
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-            }
+            makeDiffFromGit(diffAdd, url);
         }
+    }
 
+    public void create(String url, List<DiffAdd> diffAdds) {
+
+        for (val diffAdd : diffAdds) {
+            makeDiffFromGit(diffAdd, url);
+        }
+    }
+
+    public void updateByUrl(String url, Instant datetime) {
+        GitService<?> gitService = GitServiceFactory.getService(url);
+
+        val diffAdds = gitService.getDiffAdds(url, datetime);
+        for (val diffAdd : diffAdds) {
+            makeDiffFromGit(diffAdd, url);
+        }
     }
 
     public String findBySha(String sha) {
@@ -58,9 +66,29 @@ public class GitDiffService {
         return "";
     }
 
-    public GitDiff findFirstByUrl(String url) {
+    public String findByParentSha(String parentSha) {
+        val gitDiff = gitDiffRepository.findFirstByParentSha(parentSha);
+        if (gitDiff != null) {
+            return gitDiff.getDiff();
+        }
+        return "";
+    }
+
+    public GitDiffDto findFirstByUrl(String url) {
         val gitDiff = gitDiffRepository.findFirstByUrl(url);
-        return gitDiff;
+        return gittDiffMapper.entityToDto(gitDiff);
+    }
+
+    public List<GitDiffDto> findAllByUrl(String url) {
+        val gitDiffs = gitDiffRepository.findAllByUrl(url);
+        gitDiffs.sort(Comparator.comparing(GitDiff::getDatetime));
+
+        return gittDiffMapper.entityToDto(gitDiffs);
+    }
+
+    public GitDiffDto findFirstByOrderByDatetimeDesc(String url) {
+        val gitDiff = gitDiffRepository.findFirstByUrlOrderByDatetimeDesc(url);
+        return gittDiffMapper.entityToDto(gitDiff);
     }
 
     public void deleteAll() {
@@ -69,6 +97,26 @@ public class GitDiffService {
 
     public void deleteAllByUrl(String url) {
         gitDiffRepository.deleteAllByUrl(url);
+    }
+
+    public void makeDiffFromGit(DiffAdd diffAdd, String url) {
+        try {
+            val diff = makeDiff(Files.write(ONTOLOGY_LEFT, diffAdd.gitRawFileLeft().getBytes()),
+                    Files.write(ONTOLOGY_RIGHT, diffAdd.gitRawFileRight().getBytes()));
+
+            val gitDiff = GitDiff.builder()
+                    .url(url)
+                    .sha(diffAdd.sha())
+                    .parentSha(diffAdd.parentSha())
+                    .diff(diff)
+                    .datetime(diffAdd.parentDatetime())
+                    .build();
+
+            gitDiffRepository.insert(gitDiff);
+
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     public static String makeDiff(Path left, Path right) {
