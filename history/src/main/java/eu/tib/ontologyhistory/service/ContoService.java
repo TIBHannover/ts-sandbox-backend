@@ -3,6 +3,7 @@ package eu.tib.ontologyhistory.service;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import eu.tib.ontologyhistory.dto.conto.Difference;
+import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.conto.Timeline;
 import eu.tib.ontologyhistory.dto.conto.TimelineMessage;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
@@ -59,8 +60,8 @@ public class ContoService {
 
     private static final Path ONTOLOGY_RIGHT = Path.of("ontology-right.txt");
 
-    public Set<String> findAll(String dataset) {
-        val graphs = new HashSet<String>();
+    public Set<TempGraph> findAll(String dataset) {
+        val graphs = new HashSet<TempGraph>();
         fusekiAuthenticate();
 
         String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
@@ -75,7 +76,7 @@ public class ContoService {
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         RDFNode graph = soln.get("graph");
-                        graphs.add(String.valueOf(graph));
+                        graphs.add(new TempGraph(String.valueOf(graph)));
                     }
                 }
             });
