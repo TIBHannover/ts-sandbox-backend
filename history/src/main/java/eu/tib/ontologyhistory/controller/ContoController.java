@@ -1,6 +1,7 @@
 package eu.tib.ontologyhistory.controller;
 
 import eu.tib.ontologyhistory.dto.conto.Difference;
+import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.conto.Timeline;
 import eu.tib.ontologyhistory.dto.conto.TimelineMessage;
 import eu.tib.ontologyhistory.service.ContoService;
@@ -50,7 +51,7 @@ public class ContoController {
             @ApiResponse(responseCode = "200", description = "Found the ontologies"),
             @ApiResponse(responseCode = "404", description = "No ontologies found", content = @Content)
     })
-    public ResponseEntity<Set<String>> getOntologies(
+    public ResponseEntity<Set<TempGraph>> getOntologies(
     ) {
         val ontologies = contoService.findAll(DATASET);
 

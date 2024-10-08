@@ -1,5 +1,6 @@
 package eu.tib.ontologyhistory.service;
 
+import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.mapper.DiffMapper;
@@ -48,11 +49,11 @@ public class RobotService {
         return diffMapper.entityToDto(diff);
     }
 
-    public Set<String> findAllUrls() {
+    public Set<TempGraph> findAllUrls() {
         val diff = robotRepository.findAll();
-        val urls = new HashSet<String>();
+        val urls = new HashSet<TempGraph>();
         for (Diff d : diff) {
-            urls.add(d.getUrl());
+            urls.add(new TempGraph(d.getUrl()));
         }
         return urls;
     }

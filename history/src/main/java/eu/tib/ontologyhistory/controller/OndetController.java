@@ -3,6 +3,7 @@ package eu.tib.ontologyhistory.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
+import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.service.OndetService;
 import eu.tib.ontologyhistory.view.Views;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +35,7 @@ public class OndetController {
 
     @GetMapping
     @Operation(summary = "Find all objects")
-    public ResponseEntity<Set<GraphInfo>> findAll(
+    public ResponseEntity<Set<TempGraph>> findAll(
     ) {
         val objects = ondetService.findAll(DATASET);
 

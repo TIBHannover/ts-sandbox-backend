@@ -3,6 +3,7 @@ package eu.tib.ontologyhistory.service;
 import eu.tib.ontologyhistory.dto.DiffDtoTimeline;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
+import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitDiffDto;
 import eu.tib.ontologyhistory.service.network.GitService;
@@ -25,7 +26,7 @@ public class OndetService {
     private final ContoService contoService;
     private final GitDiffService gitDiffService;
 
-    public Set<GraphInfo> findAll(String dataset) {
+    public Set<TempGraph> findAll(String dataset) {
         val robotDiffs = robotService.findAllUrls();
         val contoDiffs = contoService.findAll(dataset);
 
@@ -33,18 +34,18 @@ public class OndetService {
         val result = new HashSet<GraphInfo>();
         names.addAll(contoDiffs);
 
-        for (val name : names) {
-            val gitDiff = gitDiffService.findFirstByOrderByDatetimeDesc(name);
-            GitService<?> gitService = GitServiceFactory.getService(name);
-            val commits = gitService.getCommits(URI.create(name), gitDiff.datetime());
-            if (commits.isPresent()) {
-                result.add(new GraphInfo(name, gitDiff.datetime(), commits.get().size()));
-            } else {
-                result.add(new GraphInfo(name, gitDiff.datetime(), -1));
-            }
-        }
+//        for (val name : names) {
+//            val gitDiff = gitDiffService.findFirstByOrderByDatetimeDesc(name);
+//            GitService<?> gitService = GitServiceFactory.getService(name);
+//            val commits = gitService.getCommits(URI.create(name), gitDiff.datetime());
+//            if (commits.isPresent()) {
+//                result.add(new GraphInfo(name, gitDiff.datetime(), commits.get().size()));
+//            } else {
+//                result.add(new GraphInfo(name, gitDiff.datetime(), -1));
+//            }
+//        }
 
-        return result;
+        return names;
     }
 
     public DifferenceMarkdown find(String sha, String dataset) {
