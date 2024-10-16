@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  mongodb:
+#   image: mongo:3.6.23
+    image: latest
+    container_name: "mongodb"
+    ports:
+      - "27017:27017"
+    networks:
+      - my_shared_network
+  ts-statistics-back:
+    image: ts-statistics-back:1.0
+    container_name: ts-statistics-back
+    build:
+      context: statistics
+    ports:
+      - "9191:9191"
+#    links:
+#      - mongodb
+  history-back:
+    image: history-back:1.0
+    container_name: history-back
+    build:
+      context: history
+    ports:
+      - "9090:9090"
+    links:
+#      - mongodb
+      - fuseki
+  fuseki:
+    image: secoresearch/fuseki
+    container_name: fuseki
+    ports:
+      - "3030:3030"
+    environment:
+      ADMIN_PASSWORD: fuseki
+      QUERY_TIMEOUT: 600000
+    volumes:
+      - /home/terminology/fuseki/fuseki-data:/fuseki-base/databases
+      - /home/terminology/fuseki/fuseki-configuration:/fuseki-base/configuration
+  tiva-statistics-back:
+    image: tiva-statistics-back:1.0
+    container_name: tiva-statistics-back
+    build:
+      context: tiva
+    ports:
+      - "9494:9494"
+#    links:
+#      - mongodb
+networks:
+  my_shared_network:
+    driver: bridge
