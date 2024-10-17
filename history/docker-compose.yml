@@ -2,17 +2,22 @@ version: '3'
 
 services:
   mongodb:
-    image: mongo:3.6.23
+    #image: mongo:3.6.23
+    image: mongo:latest
     container_name: "mongodb"
     networks:
-      - sdiff-inet
+      - my_shared_network
+      #- sdiff-inet
     ports:
       - "27017:27017"
+    volumes:
+      - ${HOME_PATH_WINDOWS}:/data/db
   fuseki:
     image: secoresearch/fuseki
     container_name: fuseki
     networks:
-      - sdiff-inet
+      - my_shared_network
+      #- sdiff-inet
     ports:
       - "3030:3030"
     environment:
@@ -25,12 +30,13 @@ services:
     image: history-back:1.0
     container_name: history-back
     networks:
-      - sdiff-inet
+      - my_shared_network
+      #- sdiff-inet
     build:
       context: .
     ports:
       - "9090:9090"
-
 networks:
-  sdiff-inet:
+  #sdiff-inet:
+  my_shared_network:
     driver: bridge

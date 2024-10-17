@@ -2,10 +2,15 @@ version: '3'
 
 services:
     mongodb:
-      image: mongo:3.6.23
+      #image: mongo:3.6.23
+      image: mongo:latest
       container_name: "mongodb"
       ports:
         - "27017:27017"
+      networks:
+        - my_shared_network
+      volumes:
+        - ${HOME_PATH_WINDOWS}:/data/db
     ts-statistics-back:
       image: ts-statistics-back:1.0
       container_name: ts-statistics-back
@@ -13,6 +18,8 @@ services:
         context: statistics
       ports:
         - "9191:9191"
+      networks:
+        - my_shared_network
       links:
         - mongodb
     history-back:
@@ -22,6 +29,8 @@ services:
         context: history
       ports:
         - "9090:9090"
+      networks:
+        - my_shared_network
       links:
         - mongodb
         - fuseki
@@ -30,6 +39,9 @@ services:
       container_name: fuseki
       ports:
         - "3030:3030"
+      networks:
+        - my_shared_network
+        #- sdiff-inet
       environment:
         ADMIN_PASSWORD: fuseki
         QUERY_TIMEOUT: 600000
@@ -43,5 +55,12 @@ services:
         context: tiva
       ports:
        - "9494:9494"
+      networks:
+        - my_shared_network
       links:
        - mongodb
+networks:
+  #sdiff-inet:
+   # driver: bridge
+  my_shared_network:
+    driver: bridge

@@ -8,7 +8,7 @@ services:
       ports:
         - "27017:27017"
       volumes:
-        - ${HOME_PATH_LINUX}:/data/db
+        - ${HOME_PATH_WINDOWS}:/data/db
       networks:
         - my_shared_network
     ts-statistics-back:
