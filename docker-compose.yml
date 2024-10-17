@@ -10,7 +10,7 @@ services:
       networks:
         - my_shared_network
       volumes:
-        - ${HOME_PATH_WINDOWS}:/data/db
+        - ${HOME_PATH_LINUX}:/data/db
     ts-statistics-back:
       image: ts-statistics-back:1.0
       container_name: ts-statistics-back

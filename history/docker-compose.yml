@@ -11,7 +11,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ${HOME_PATH_WINDOWS}:/data/db
+      - ${HOME_PATH_LINUX}:/data/db
   fuseki:
     image: secoresearch/fuseki
     container_name: fuseki
