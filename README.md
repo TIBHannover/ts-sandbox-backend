@@ -22,7 +22,7 @@
 * Additionally, the path to the folder where the MongoDB data will be stored are specified. For example **HOME_PATH_LINUX**
 variable may be set to **/home/terminology/mongodb-data**.
 * In the **docker-compose.yml** filed located in each project folder, the following lines should be added under the 
-**mongodb** service if the project is being run or Linux or Windows machine. In the **volumes** section, the following 
+**mongodb** service if the project is being run on Linux or on Windows machine. In the **volumes** section, the following 
 line should be added **${HOME_PATH_LINUX/WINDOWS}:/data/db**.
 
 ### How to run
