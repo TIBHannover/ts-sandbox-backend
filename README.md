@@ -17,13 +17,13 @@
 * spring boot version 3.1.2
 
 ### Setup folder paths
-* In each source project folders and ***terminology-service-statistics*** project folder create ".env" file
-* In that file create variable HOME_PATH_LINUX and HOME_PATH_WINDOWS
-* Add paths to a folder where mongodb data will be stored. For example HOME_PATH_LINUX=/home/terminology/mongodb-data
-* In docker-compose.yml files located in each project folders add the following lines under mongodb service if a
-  project runs on Linux machine or Windows machine.
-  'volumes:'
-  '- ${HOME_PATH_LINUX/WINDOWS}:/data/db '
+* In each source project folders,  **.env** file is created for the and **terminology-service-statistics** project. 
+* In this file, the variables HOME_PATH_LINUX and HOME_PATH_WINDOWS are defined.
+* Additionally, the path to the folder where the MongoDB data will be stored are specified. For example **HOME_PATH_LINUX**
+variable may be set to **/home/terminology/mongodb-data**.
+* In the **docker-compose.yml** filed located in each project folder, the following lines should be added under the 
+**mongodb** service if the project is being run or Linux or Windows machine. In the **volumes** section, the following 
+line should be added **${HOME_PATH_LINUX/WINDOWS}:/data/db**.
 
 ### How to run
 ***
