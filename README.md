@@ -16,6 +16,15 @@
 * history-module is running on port 9090
 * spring boot version 3.1.2
 
+### Setup folder paths
+* In each source project folders and ***terminology-service-statistics*** project folder create ".env" file
+* In that file create variable HOME_PATH_LINUX and HOME_PATH_WINDOWS
+* Add paths to a folder where mongodb data will be stored. For example HOME_PATH_LINUX=/home/terminology/mongodb-data
+* In docker-compose.yml files located in each project folders add the following lines under mongodb service if a
+  project runs on Linux machine or Windows machine.
+  'volumes:'
+  '- ${HOME_PATH_LINUX/WINDOWS}:/data/db '
+
 ### How to run
 ***
 To start a project run following commands in a project directory:
