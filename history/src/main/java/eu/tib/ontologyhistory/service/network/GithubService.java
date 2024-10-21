@@ -48,7 +48,7 @@ public class GithubService implements GitService<Commit> {
             String branch = getBranchFromUrl(uri.get());
             String encodedPath = getEncodedPath(uri.get().getPath());
 
-            Optional<List<Commit>> commits = getCommits(uri.get(), user, repo, branch, encodedPath, datetime);
+            Optional<List<Commit>> commits = getCommits(uri.get(), user, repo, encodedPath, branch, datetime);
             commits.ifPresent(commitList -> {
                 Collections.reverse(commits.get());
                 diffAdds.addAll(processCommits(commitList, user, repo, encodedPath, uri.get()));
