@@ -45,9 +45,10 @@ public class GithubService implements GitService<Commit> {
         if (uri.isPresent()) {
             String user = getUserFromUrl(uri.get());
             String repo = getRepoFromUrl(uri.get());
+            String branch = getBranchFromUrl(uri.get());
             String encodedPath = getEncodedPath(uri.get().getPath());
 
-            Optional<List<Commit>> commits = getCommits(uri.get(), user, repo, encodedPath, datetime);
+            Optional<List<Commit>> commits = getCommits(uri.get(), user, repo, branch, encodedPath, datetime);
             commits.ifPresent(commitList -> {
                 Collections.reverse(commits.get());
                 diffAdds.addAll(processCommits(commitList, user, repo, encodedPath, uri.get()));
@@ -121,11 +122,13 @@ public class GithubService implements GitService<Commit> {
     }
 
     @Override
-    public Optional<List<Commit>> getCommits(URI uri, String owner, String repo, String path, Instant datetime) {
+    public Optional<List<Commit>> getCommits(URI uri, String owner, String repo, String path, String branch , Instant datetime) {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(uri)
                 .host("api.github.com")
                 .replacePath("/repos/{owner}/{repo}/commits");
+
+        uriBuilder.queryParam("sha", branch);
 
         if (path != null) {
             uriBuilder.queryParam("path", path);
@@ -163,16 +166,18 @@ public class GithubService implements GitService<Commit> {
     public Optional<List<Commit>> getCommits(URI uri) {
         String user = getUserFromUrl(uri);
         String repo = getRepoFromUrl(uri);
+        String branch = getBranchFromUrl(uri);
         String encodedPath = getEncodedPath(uri.getPath());
-        return getCommits(uri, user, repo, encodedPath, null);
+        return getCommits(uri, user, repo, encodedPath, branch, null);
     }
 
     @Override
     public Optional<List<Commit>> getCommits(URI uri, Instant datetime) {
         String user = getUserFromUrl(uri);
         String repo = getRepoFromUrl(uri);
+        String branch = getBranchFromUrl(uri);
         String encodedPath = getEncodedPath(uri.getPath());
-        return getCommits(uri, user, repo, encodedPath, datetime);
+        return getCommits(uri, user, repo, encodedPath, branch, datetime);
     }
 
 
@@ -199,7 +204,8 @@ public class GithubService implements GitService<Commit> {
 
     @Override
     public String getBranchFromUrl(URI uri) {
-        return uri.getPath().split("/")[5];
+        int startIndex = (uri.toString().contains("/refs/heads") || uri.toString().contains("/refs/tags")) ? 5 : 3;
+        return uri.getPath().split("/")[startIndex];
     }
 
     @Override

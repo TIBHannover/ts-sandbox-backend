@@ -21,7 +21,7 @@ public interface GitService<T> {
 
     Optional<String> getRawFileUrl(URI uri, String owner, String repo, String sha, String path);
 
-    Optional<List<T>> getCommits(URI uri, String owner, String repo, String path, Instant datetime);
+    Optional<List<T>> getCommits(URI uri, String owner, String repo, String path, String branch, Instant datetime);
 
     Optional<List<T>> getCommits(URI uri);
 

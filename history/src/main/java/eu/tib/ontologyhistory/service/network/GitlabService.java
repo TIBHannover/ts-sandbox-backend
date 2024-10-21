@@ -53,9 +53,10 @@ public class GitlabService implements GitService<GitlabCommit> {
         if (uri.isPresent()) {
             String user = getUserFromUrl(uri.get());
             String repo = getRepoFromUrl(uri.get());
+            String branch = getBranchFromUrl(uri.get());
             String encodedPath = getEncodedPath(uri.get().getPath());
 
-            Optional<List<GitlabCommit>> commits = getCommits(uri.get(), user, repo, encodedPath, datetime);
+            Optional<List<GitlabCommit>> commits = getCommits(uri.get(), user, repo, branch, encodedPath, datetime);
             if (commits.isPresent()) {
                 commits.get().sort(Comparator.comparing(GitlabCommit::committed_date));
                 diffAdds.addAll(processCommits(commits.get(), user, repo, encodedPath, uri.get()));
@@ -136,7 +137,7 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     @Override
-    public Optional<List<GitlabCommit>> getCommits(URI uri, String owner, String repo, String path, Instant datetime) {
+    public Optional<List<GitlabCommit>> getCommits(URI uri, String owner, String repo, String path, String ref_name, Instant datetime) {
 
         String link = "https://gitlab.com/api/v4/projects/" + owner + "%2F" + repo + "/repository/commits";
 
@@ -184,16 +185,18 @@ public class GitlabService implements GitService<GitlabCommit> {
     public Optional<List<GitlabCommit>> getCommits(URI uri) {
         String user = getUserFromUrl(uri);
         String repo = getRepoFromUrl(uri);
+        String branch = getBranchFromUrl(uri);
         String encodedPath = getEncodedPath(uri.getPath());
-        return getCommits(uri, user, repo, encodedPath, null);
+        return getCommits(uri, user, repo, branch, encodedPath, null);
     }
 
     @Override
     public Optional<List<GitlabCommit>> getCommits(URI uri, Instant datetime) {
         String user = getUserFromUrl(uri);
         String repo = getRepoFromUrl(uri);
+        String branch = getBranchFromUrl(uri);
         String encodedPath = getEncodedPath(uri.getPath());
-        return getCommits(uri, user, repo, encodedPath, datetime);
+        return getCommits(uri, user, repo, branch, encodedPath, datetime);
     }
 
     @Override
