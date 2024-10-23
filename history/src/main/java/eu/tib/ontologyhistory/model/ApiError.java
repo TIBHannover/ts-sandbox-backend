@@ -23,17 +23,23 @@ public class ApiError {
 
     @JsonView({Views.Update.class, Views.Full.class})
     private String ontologyId;
+
     @JsonView({Views.Update.class, Views.Full.class})
     private String status;
+
     @JsonView({Views.Update.class, Views.Full.class})
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Instant timestamp;
+
     @JsonView({Views.Update.class, Views.Full.class})
     private String message;
+
     @JsonView({Views.Update.class, Views.Full.class})
     private String debugMessage;
+
     @JsonView({Views.Update.class, Views.Full.class})
     private String leftIriFile;
+
     @JsonView({Views.Update.class, Views.Full.class})
     private String rightIriFile;
 

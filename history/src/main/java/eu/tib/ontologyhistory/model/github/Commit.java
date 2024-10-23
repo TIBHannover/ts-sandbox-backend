@@ -18,6 +18,7 @@ public record Commit(
         @JsonView(Views.Short.class)
         CommitDetail commit,
 
+        @JsonView(Views.Short.class)
         List<ParentCommit> parents
 
 ) {
@@ -26,6 +27,7 @@ public record Commit(
     public record ParentCommit (
             String url,
 
+            @JsonView(Views.Short.class)
             String sha
     ) {}
 }

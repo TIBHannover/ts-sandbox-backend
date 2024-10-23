@@ -4,6 +4,8 @@ import eu.tib.ontologyhistory.dto.conto.Difference;
 import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.conto.Timeline;
 import eu.tib.ontologyhistory.dto.conto.TimelineMessage;
+import eu.tib.ontologyhistory.model.InvalidContoDiff;
+import eu.tib.ontologyhistory.repository.InvalidContoDiffRepository;
 import eu.tib.ontologyhistory.service.ContoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,6 +27,7 @@ import java.util.*;
 @RequestMapping("/api/history/conto")
 public class ContoController {
 
+    private final InvalidContoDiffRepository invalidContoDiffRepository;
     private ContoService contoService;
 
     private static final String DATASET = "test";
@@ -58,6 +61,19 @@ public class ContoController {
         if (ontologies.isEmpty()) {
             return new ResponseEntity<>(Collections.emptySet(), HttpStatus.NOT_FOUND);
         }
+
+        return new ResponseEntity<>(ontologies, HttpStatus.OK);
+    }
+
+    @GetMapping("/findAllInvalid")
+    @Operation(summary = "Find all invalid conto diffs")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the ontologies"),
+            @ApiResponse(responseCode = "404", description = "No ontologies found", content = @Content)
+    })
+    public ResponseEntity<List<InvalidContoDiff>> findAllInvalidContoDiffs(
+    ) {
+        val ontologies = invalidContoDiffRepository.findAll();
 
         return new ResponseEntity<>(ontologies, HttpStatus.OK);
     }

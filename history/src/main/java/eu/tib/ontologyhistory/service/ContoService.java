@@ -7,6 +7,9 @@ import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.conto.Timeline;
 import eu.tib.ontologyhistory.dto.conto.TimelineMessage;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.model.InvalidContoDiff;
+import eu.tib.ontologyhistory.repository.InvalidContoDiffRepository;
+import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
 import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.utils.SparqlQueries;
 import lombok.AllArgsConstructor;
@@ -47,6 +50,8 @@ import java.util.*;
 @Service
 @AllArgsConstructor
 public class ContoService {
+
+    private final InvalidContoDiffRepository invalidContoDiffRepository;
 
     private static final Character UNIQUE_DELIMITER = '\u001f';
 
@@ -145,6 +150,12 @@ public class ContoService {
     }
 
     public Difference timeline(String commitId, String dataset) {
+
+        val invalidDiff = invalidContoDiffRepository.findFirstByParentSha(commitId);
+        if (invalidDiff != null) {
+            return new Difference(null, invalidDiff.getMessage());
+        }
+
         fusekiAuthenticate();
         List<String> result = new ArrayList<>();
         String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
@@ -171,7 +182,7 @@ public class ContoService {
             });
         }
 
-        return new Difference(result);
+        return new Difference(result, null);
     }
 
     public Map<Instant, Collection<TimelineMessage>> timelineMessage(String dataset, String ontologyURL, String resourceUri, String firstCommitTime, String secondCommitTime) {
@@ -398,6 +409,13 @@ public class ContoService {
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
             } catch (Exception e) {
+                val invalidContoDiff = InvalidContoDiff.builder()
+                        .sha(diffAdd.sha())
+                        .parentSha(diffAdd.parentSha())
+                        .message(e.getMessage())
+                        .build();
+
+                invalidContoDiffRepository.insert(invalidContoDiff);
                 log.error(e.getMessage(), e);
             }
         }
@@ -410,6 +428,13 @@ public class ContoService {
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
             } catch (Exception e) {
+                val invalidContoDiff = InvalidContoDiff.builder()
+                        .sha(diffAdd.sha())
+                        .parentSha(diffAdd.parentSha())
+                        .message(e.getMessage())
+                        .build();
+
+                invalidContoDiffRepository.insert(invalidContoDiff);
                 log.error(e.getMessage(), e);
             }
         }
@@ -425,21 +450,20 @@ public class ContoService {
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
             } catch (Exception e) {
+                val invalidContoDiff = InvalidContoDiff.builder()
+                        .sha(diffAdd.sha())
+                        .parentSha(diffAdd.parentSha())
+                        .message(e.getMessage())
+                        .build();
+
+                invalidContoDiffRepository.insert(invalidContoDiff);
                 log.error(e.getMessage(), e);
             }
         }
     }
 
     private static String getCommand(DiffAdd diffAdd, String baseUri) {
-        String ontLeft = null, ontRight = null;
-        try {
-            ontLeft = Files.write(ONTOLOGY_LEFT, diffAdd.gitRawFileLeft().getBytes()).toString();
-            ontRight = Files.write(ONTOLOGY_RIGHT, diffAdd.gitRawFileRight().getBytes()).toString();
-
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-        String gitInfo = "\"" +
+       String gitInfo = "\"" +
                 diffAdd.gitUrlLeft() + UNIQUE_DELIMITER +
                 diffAdd.gitUrlRight() + UNIQUE_DELIMITER +
                 diffAdd.gitCommitUrlLeft() + UNIQUE_DELIMITER +
@@ -450,8 +474,6 @@ public class ContoService {
                 diffAdd.messageRight().replaceAll("\\s", "_") + "\"";
 
         return "java -jar ContoDiff-1.0-SNAPSHOT-shaded.jar" +
-                " -oa " + ontLeft +
-                " -ob " + ontRight +
                 " -base-iri " + baseUri +
                 " -git_info " + gitInfo +
                 " -o " + OUTPUT_FILE;
@@ -462,14 +484,17 @@ public class ContoService {
         String command = getCommand(diffAdd, baseUri);
 
             Process process = Runtime.getRuntime().exec(command);
+            process.waitFor();
             val error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             val errorString = error.readLine();
+            StringBuilder errorOutput = new StringBuilder();
+            String line;
+            while ((line = error.readLine()) != null) {
+                errorOutput.append(line).append(System.lineSeparator());
+            }
             if (errorString != null) {
                 throw new IOException(errorString);
             }
-            process.waitFor();
-
-
     }
 
     private Model readOntology(String ont) {
