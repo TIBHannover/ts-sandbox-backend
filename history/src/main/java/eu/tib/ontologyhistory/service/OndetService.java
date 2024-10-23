@@ -28,11 +28,10 @@ public class OndetService {
 
     public Set<TempGraph> findAll(String dataset) {
         val robotDiffs = robotService.findAllUrls();
-        val contoDiffs = contoService.findAll(dataset);
-
-        val names = new HashSet<>(robotDiffs);
-        val result = new HashSet<GraphInfo>();
-        names.addAll(contoDiffs);
+        val gitDiffs = gitDiffService.findAllUrls();
+//        val contoDiffs = contoService.findAll(dataset);
+//        val result = new HashSet<GraphInfo>();
+//        names.addAll(contoDiffs);
 
 //        for (val name : names) {
 //            val gitDiff = gitDiffService.findFirstByOrderByDatetimeDesc(name);
@@ -45,7 +44,9 @@ public class OndetService {
 //            }
 //        }
 
-        return names;
+        val result = new HashSet<>(robotDiffs);
+        result.addAll(gitDiffs);
+        return result;
     }
 
     public DifferenceMarkdown find(String sha, String dataset) {

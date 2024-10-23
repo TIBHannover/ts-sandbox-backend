@@ -1,8 +1,10 @@
 package eu.tib.ontologyhistory.service;
 
+import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitDiffDto;
 import eu.tib.ontologyhistory.mapper.GittDiffMapper;
+import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.GitDiff;
 import eu.tib.ontologyhistory.repository.GitDiffRepository;
 import eu.tib.ontologyhistory.service.network.GitService;
@@ -18,7 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -77,6 +81,15 @@ public class GitDiffService {
     public GitDiffDto findFirstByUrl(String url) {
         val gitDiff = gitDiffRepository.findFirstByUrl(url);
         return gittDiffMapper.entityToDto(gitDiff);
+    }
+
+    public Set<TempGraph> findAllUrls() {
+        val gitDiffs = gitDiffRepository.findAll();
+        val urls = new HashSet<TempGraph>();
+        for (GitDiff item : gitDiffs) {
+            urls.add(new TempGraph(item.getUrl()));
+        }
+        return urls;
     }
 
     public List<GitDiffDto> findAllByUrl(String url) {
