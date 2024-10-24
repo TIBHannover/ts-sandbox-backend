@@ -305,7 +305,7 @@ public class ContoService {
         return subjects;
     }
 
-    public List<String> dataInBetweenDates(String dataset, String ontologyURL, String firstCommitTime, String secondCommitTime) {
+    public List<String> dataInBetweenDates(String dataset, String ontologyURL, String startDatetime, String endDatetime) {
         List<String> subjects = new ArrayList<>();
         fusekiAuthenticate();
 
@@ -317,8 +317,8 @@ public class ContoService {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.DATA_BETWEEN_TWO_DATES);
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
-                graphQuery.setLiteral("firstCommitTime", firstCommitTime);
-                graphQuery.setLiteral("secondCommitTime", secondCommitTime);
+                graphQuery.setLiteral("startDatetimeArg", startDatetime);
+                graphQuery.setLiteral("endDatetimeArg", endDatetime);
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode ppLabel, subject, object, predicate;

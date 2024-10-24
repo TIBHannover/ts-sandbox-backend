@@ -228,9 +228,8 @@ public class SparqlQueries {
               }
             
               FILTER(?label = ?ontologyURL) .
-              FILTER(?first_commit_time >= ?firstCommitTime^^xsd:dateTime &&
-                     ?second_commit_time <= ?secondCommitTime^^xsd:dateTime &&
-                     ?first_commit_time < ?second_commit_time) .
+              FILTER(?second_commit_time >= ?startDatetimeArg^^xsd:dateTime &&
+                     ?second_commit_time <= ?endDatetimeArg^^xsd:dateTime) .
             }
             """;
 
