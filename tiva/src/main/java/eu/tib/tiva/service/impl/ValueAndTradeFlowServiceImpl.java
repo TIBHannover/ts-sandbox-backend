@@ -40,7 +40,6 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
         List<ValueAndTradeFlowCode> valueAndTradeFlowCodeList = new ArrayList<>();
 
         try (RepositoryConnection conn = repo.getConnection()) {
-
             /**
              * InetrnationalOrganization should be written as InternationalOrganization in Python code
              */
@@ -66,7 +65,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
         }catch (Exception e){
 
-        e.printStackTrace();
+        log.error(e.getMessage());
 
         }
 
@@ -98,7 +97,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
         }catch (Exception e){
 
-        e.printStackTrace();
+        log.error(e.getMessage());
 
         }
 
@@ -128,7 +127,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
         }catch (Exception e){
 
-            e.printStackTrace();
+            log.error(e.getMessage());
 
         }
 
@@ -162,7 +161,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
         }catch (Exception e){
 
-            e.printStackTrace();
+            log.error(e.getMessage());
 
         }
 
@@ -342,7 +341,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
+            log.error(e.getMessage());
 
         }
     return originOfValueAddedInFinalDemandList;
@@ -369,7 +368,7 @@ public class ValueAndTradeFlowServiceImpl implements ValueAndTradeFlowService {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
+            log.error(e.getMessage());
 
         }
 

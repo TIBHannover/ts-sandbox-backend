@@ -1,13 +1,14 @@
 package eu.tib.ontologyhistory.service.network;
 
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.model.Commit;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public interface GitService<T> {
+public interface GitService<T extends Commit> {
 
     List<DiffAdd> getDiffAdds(String url);
 

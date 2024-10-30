@@ -6,6 +6,7 @@ import eu.tib.ontologyhistory.dto.conto.GraphInfo;
 import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitDiffDto;
+import eu.tib.ontologyhistory.model.Commit;
 import eu.tib.ontologyhistory.service.network.GitService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,23 +27,9 @@ public class OndetService {
     private final ContoService contoService;
     private final GitDiffService gitDiffService;
 
-    public Set<TempGraph> findAll(String dataset) {
+    public Set<TempGraph> findAll() {
         val robotDiffs = robotService.findAllUrls();
         val gitDiffs = gitDiffService.findAllUrls();
-//        val contoDiffs = contoService.findAll(dataset);
-//        val result = new HashSet<GraphInfo>();
-//        names.addAll(contoDiffs);
-
-//        for (val name : names) {
-//            val gitDiff = gitDiffService.findFirstByOrderByDatetimeDesc(name);
-//            GitService<?> gitService = GitServiceFactory.getService(name);
-//            val commits = gitService.getCommits(URI.create(name), gitDiff.datetime());
-//            if (commits.isPresent()) {
-//                result.add(new GraphInfo(name, gitDiff.datetime(), commits.get().size()));
-//            } else {
-//                result.add(new GraphInfo(name, gitDiff.datetime(), -1));
-//            }
-//        }
 
         val result = new HashSet<>(robotDiffs);
         result.addAll(gitDiffs);
@@ -113,8 +100,6 @@ public class OndetService {
     public void removeAllByUrl(String url) {
         robotService.deleteAllByUrl(url);
         gitDiffService.deleteAllByUrl(url);
-//       not used currently
-//       contoService.deleteAllByUrl(url);
     }
 
     public void update(String id) {
@@ -128,7 +113,7 @@ public class OndetService {
         gitDiffService.updateByUrl(url, datetime);
     }
 
-    public List<?> getCommits(String url) {
+    public List<? extends Commit> getCommits(String url) {
         GitService<?> gitService = GitServiceFactory.getService(url);
 
         val result = gitService.getCommits(URI.create(url));

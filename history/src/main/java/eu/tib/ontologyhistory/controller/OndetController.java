@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
 import eu.tib.ontologyhistory.dto.conto.TempGraph;
+import eu.tib.ontologyhistory.model.Commit;
 import eu.tib.ontologyhistory.service.OndetService;
 import eu.tib.ontologyhistory.view.Views;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +38,7 @@ public class OndetController {
     @Operation(summary = "Find all objects")
     public ResponseEntity<Set<TempGraph>> findAll(
     ) {
-        val objects = ondetService.findAll(DATASET);
+        val objects = ondetService.findAll();
 
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
@@ -148,7 +149,7 @@ public class OndetController {
             @ApiResponse(responseCode = "404", description = "No timeline found", content = @Content)
     })
     @JsonView(Views.Short.class)
-    public ResponseEntity<List<?>> getCommits(
+    public ResponseEntity<List<? extends Commit>> getCommits(
             @Parameter(description = "ontologyUrl")
             @RequestParam String ontologyUrl
     ) {

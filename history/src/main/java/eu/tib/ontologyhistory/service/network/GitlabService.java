@@ -75,9 +75,7 @@ public class GitlabService implements GitService<GitlabCommit> {
             val next = iterator.next();
             if (current != null) {
                 GitlabCommit finalCurrent = current;
-                futures.add(CompletableFuture.runAsync(() -> {
-                    processCommitPair(finalCurrent, next, user, repo, encodedPath, diffAdds, uri);
-                }, executor));
+                futures.add(CompletableFuture.runAsync(() -> processCommitPair(finalCurrent, next, user, repo, encodedPath, diffAdds, uri), executor));
             }
             current = next;
         }
@@ -107,7 +105,7 @@ public class GitlabService implements GitService<GitlabCommit> {
                     commit.message(),
                     parentCommit.message()
             );
-            synchronized (diffAdds) {
+            synchronized (this) {
                 diffAdds.add(diffAdd);
             }
         }
@@ -132,12 +130,14 @@ public class GitlabService implements GitService<GitlabCommit> {
         } catch (InterruptedException e) {
             log.error("Interrupted with the response: " + e);
             Thread.currentThread().interrupt();
-        } catch (IOException e) { log.error("IOException happened: " + e); }
+        } catch (IOException e) {
+            log.error("IOException happened: " + e);
+        }
         return Optional.empty();
     }
 
     @Override
-    public Optional<List<GitlabCommit>> getCommits(URI uri, String owner, String repo, String path, String ref_name, Instant datetime) {
+    public Optional<List<GitlabCommit>> getCommits(URI uri, String owner, String repo, String path, String ref, Instant datetime) {
 
         String link = "https://gitlab.com/api/v4/projects/" + owner + "%2F" + repo + "/repository/commits";
 
@@ -153,18 +153,20 @@ public class GitlabService implements GitService<GitlabCommit> {
         List<GitlabCommit> result = new ArrayList<>();
         HttpClient client = HttpClient.newHttpClient();
 
-        try {
-            URI gitlabUri = URI.create(link);
-            Optional<String> nextPage = Optional.of("1");
 
-            while (nextPage.isPresent()) {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(gitlabUri)
-                        .header("Authorization", "Bearer " + ACCESS_TOKEN)
-                        .build();
+        URI gitlabUri = URI.create(link);
+        Optional<String> nextPage = Optional.of("1");
 
+        while (nextPage.isPresent()) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(gitlabUri)
+                    .header("Authorization", "Bearer " + ACCESS_TOKEN)
+                    .build();
+
+            try {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                List<GitlabCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {});
+                List<GitlabCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {
+                });
                 result.addAll(commits);
 
                 nextPage = response.headers().firstValue("x-next-page");
@@ -173,10 +175,15 @@ public class GitlabService implements GitService<GitlabCommit> {
                 } else {
                     nextPage = Optional.empty();
                 }
+            } catch (InterruptedException e) {
+                log.warn("Interrupted: {}", String.valueOf(e));
+                Thread.currentThread().interrupt();
+            } catch (IOException e) {
+                log.error("IoException either with sent/received information with request or on objectMapper.readValue during json serializing: {}", String.valueOf(e));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
         }
+
 
         return Optional.of(result);
     }
@@ -211,17 +218,17 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     @Override
-    public String getUserFromUrl(URI uri)  {
+    public String getUserFromUrl(URI uri) {
         return uri.getPath().split("/")[1];
     }
 
     @Override
-    public String getRepoFromUrl(URI uri)  {
+    public String getRepoFromUrl(URI uri) {
         return uri.getPath().split("/")[2];
     }
 
     @Override
-    public String getBranchFromUrl(URI uri)  {
+    public String getBranchFromUrl(URI uri) {
         return uri.getPath().split("/")[5];
     }
 

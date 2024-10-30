@@ -2,12 +2,13 @@ package eu.tib.ontologyhistory.model.github;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
+import eu.tib.ontologyhistory.model.Commit;
 import eu.tib.ontologyhistory.view.Views;
 
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record Commit(
+public record GithubCommit(
         String url,
 
         String html_url,
@@ -21,7 +22,7 @@ public record Commit(
         @JsonView(Views.Short.class)
         List<ParentCommit> parents
 
-) {
+) implements Commit {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ParentCommit (

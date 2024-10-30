@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
-import eu.tib.ontologyhistory.model.github.Commit;
+import eu.tib.ontologyhistory.model.github.GithubCommit;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -23,7 +23,7 @@ import java.util.*;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class GithubService implements GitService<Commit> {
+public class GithubService implements GitService<GithubCommit> {
 
     private static final String ACCESS_TOKEN = "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";
 
@@ -48,7 +48,7 @@ public class GithubService implements GitService<Commit> {
             String branch = getBranchFromUrl(uri.get());
             String encodedPath = getEncodedPath(uri.get().getPath());
 
-            Optional<List<Commit>> commits = getCommits(uri.get(), user, repo, encodedPath, branch, datetime);
+            Optional<List<GithubCommit>> commits = getCommits(uri.get(), user, repo, encodedPath, branch, datetime);
             commits.ifPresent(commitList -> {
                 Collections.reverse(commits.get());
                 diffAdds.addAll(processCommits(commitList, user, repo, encodedPath, uri.get()));
@@ -58,10 +58,10 @@ public class GithubService implements GitService<Commit> {
     }
 
     @Override
-    public List<DiffAdd> processCommits(List<Commit> commits, String user, String repo, String encodedPath, URI uri) {
+    public List<DiffAdd> processCommits(List<GithubCommit> githubCommits, String user, String repo, String encodedPath, URI uri) {
         List<DiffAdd> diffAdds = new ArrayList<>();
-        ListIterator<Commit> iterator = commits.listIterator();
-        Commit current = null;
+        ListIterator<GithubCommit> iterator = githubCommits.listIterator();
+        GithubCommit current = null;
         while (iterator.hasNext()) {
             val next = iterator.next();
             if (current != null) {
@@ -73,24 +73,24 @@ public class GithubService implements GitService<Commit> {
     }
 
     @Override
-    public void processCommitPair(Commit commit, Commit parentCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri) {
-        Optional<String> rawFile = getRawFileUrl(uri, user, repo, commit.sha(), encodedPath);
-        Optional<String> parentRawFile = getRawFileUrl(uri, user, repo, parentCommit.sha(), encodedPath);
+    public void processCommitPair(GithubCommit githubCommit, GithubCommit parentGithubCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri) {
+        Optional<String> rawFile = getRawFileUrl(uri, user, repo, githubCommit.sha(), encodedPath);
+        Optional<String> parentRawFile = getRawFileUrl(uri, user, repo, parentGithubCommit.sha(), encodedPath);
 
         if (rawFile.isPresent() && parentRawFile.isPresent()) {
             DiffAdd diffAdd = new DiffAdd(
-                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, commit.sha(), encodedPath),
-                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentCommit.sha(), encodedPath),
-                    commit.html_url(),
-                    parentCommit.html_url(),
+                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, githubCommit.sha(), encodedPath),
+                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentGithubCommit.sha(), encodedPath),
+                    githubCommit.html_url(),
+                    parentGithubCommit.html_url(),
                     rawFile.get(),
                     parentRawFile.get(),
-                    commit.sha(),
-                    parentCommit.sha(),
-                    commit.commit().committer().date(),
-                    parentCommit.commit().committer().date(),
-                    commit.commit().message(),
-                    parentCommit.commit().message()
+                    githubCommit.sha(),
+                    parentGithubCommit.sha(),
+                    githubCommit.commit().committer().date(),
+                    parentGithubCommit.commit().committer().date(),
+                    githubCommit.commit().message(),
+                    parentGithubCommit.commit().message()
             );
             diffAdds.add(diffAdd);
         }
@@ -122,7 +122,7 @@ public class GithubService implements GitService<Commit> {
     }
 
     @Override
-    public Optional<List<Commit>> getCommits(URI uri, String owner, String repo, String path, String branch , Instant datetime) {
+    public Optional<List<GithubCommit>> getCommits(URI uri, String owner, String repo, String path, String branch , Instant datetime) {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(uri)
                 .host("api.github.com")
@@ -163,7 +163,7 @@ public class GithubService implements GitService<Commit> {
     }
 
     @Override
-    public Optional<List<Commit>> getCommits(URI uri) {
+    public Optional<List<GithubCommit>> getCommits(URI uri) {
         String user = getUserFromUrl(uri);
         String repo = getRepoFromUrl(uri);
         String branch = getBranchFromUrl(uri);
@@ -172,7 +172,7 @@ public class GithubService implements GitService<Commit> {
     }
 
     @Override
-    public Optional<List<Commit>> getCommits(URI uri, Instant datetime) {
+    public Optional<List<GithubCommit>> getCommits(URI uri, Instant datetime) {
         String user = getUserFromUrl(uri);
         String repo = getRepoFromUrl(uri);
         String branch = getBranchFromUrl(uri);

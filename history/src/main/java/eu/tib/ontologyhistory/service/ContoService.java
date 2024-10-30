@@ -9,7 +9,6 @@ import eu.tib.ontologyhistory.dto.conto.TimelineMessage;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.model.InvalidContoDiff;
 import eu.tib.ontologyhistory.repository.InvalidContoDiffRepository;
-import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
 import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.utils.SparqlQueries;
 import lombok.AllArgsConstructor;
@@ -61,10 +60,6 @@ public class ContoService {
 
     private static final String QUAD_FILE = "all_diffs.nq";
 
-    private static final Path ONTOLOGY_LEFT = Path.of("ontology-left.txt");
-
-    private static final Path ONTOLOGY_RIGHT = Path.of("ontology-right.txt");
-
     public Set<TempGraph> findAll(String dataset) {
         val graphs = new HashSet<TempGraph>();
         fusekiAuthenticate();
@@ -104,7 +99,9 @@ public class ContoService {
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode commitLabel, message, firstCommitTime;
+                    RDFNode commitLabel;
+                    RDFNode message;
+                    RDFNode firstCommitTime;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         commitLabel = soln.get("commit_label");
@@ -168,7 +165,10 @@ public class ContoService {
                 graphQuery.setLiteral("commitId", commitId);
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode ppLabel, s, p, o;
+                    RDFNode ppLabel;
+                    RDFNode s;
+                    RDFNode p;
+                    RDFNode o;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         ppLabel = soln.get("pp_label");
@@ -199,9 +199,12 @@ public class ContoService {
                 graphQuery.setParam("resourceArg", ResourceFactory.createResource(resourceUri));
                 graphQuery.setLiteral("firstCommitTime", firstCommitTime);
                 graphQuery.setLiteral("secondCommitTime", secondCommitTime);
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode ppLabel, commitTime, p, o;
+                    RDFNode ppLabel;
+                    RDFNode commitTime;
+                    RDFNode p;
+                    RDFNode o;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         commitTime = soln.get("first_commit_time");
@@ -214,7 +217,7 @@ public class ContoService {
                 }
             });
         }
-//        result.sort(Comparator.comparing(TimelineMessage::commitTime).reversed());
+
         return result.asMap();
     }
 
@@ -287,7 +290,9 @@ public class ContoService {
                 graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode message, versionTime, commitLabel;
+                    RDFNode message;
+                    RDFNode versionTime;
+                    RDFNode commitLabel;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         commitLabel = soln.get("commit_label");
@@ -321,7 +326,10 @@ public class ContoService {
                 graphQuery.setLiteral("endDatetimeArg", endDatetime);
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode ppLabel, subject, object, predicate;
+                    RDFNode ppLabel;
+                    RDFNode subject;
+                    RDFNode object;
+                    RDFNode predicate;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         ppLabel = soln.get("pp_label");
@@ -339,61 +347,16 @@ public class ContoService {
     }
 
     public void remove(String id) {
-
+        // will be extended later
     }
 
     public void deleteAll() {
-
+        // will be extended later
     }
 
     public void update(String id) {
+        // will be extended later
     }
-//    private List<?> runQuery(Query query, String dataset, Object dto) {
-//        List<GraphInfo> graphs = new ArrayList<>();
-//        GraphInfo graph = new GraphInfo();
-//        fusekiAuthenticate();
-//
-//        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
-//        RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
-//                .destination(datasetServiceUrl);
-//
-//        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-//            Txn.executeRead(conn, () -> {
-//                List<Var> vars = query.getProjectVars();
-//                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, query)) {
-//                    ResultSet results = qExec.execSelect();
-//                    while (results.hasNext()) {
-//                        QuerySolution soln = results.nextSolution();
-//                        for (Var var : vars) {
-//                            RDFNode rdfNode = soln.get(var.getVarName());
-//                            graph = populateGraph(dto, var.getVarName(), rdfNode);
-//                        }
-//                        graphs.add(graph);
-//                    }
-//                }
-//            });
-//        }
-//
-//        return graphs;
-//    }
-//
-//    private GraphInfo populateGraph(Object object, String var, RDFNode rdfNode) {
-//        GraphInfo graph = (GraphInfo) object;
-//        Class<?> dtoClass = graph.getClass();
-//
-//        for (Field field : dtoClass.getDeclaredFields()) {
-//            if (field.getName().equals(var)) {
-//                field.setAccessible(true);
-//                try {
-//                    field.set(graph, rdfNode.toString());
-//                } catch (IllegalAccessException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        }
-//
-//        return graph;
-//    }
 
     private String apacheDatetimeToInstant(String datetime) {
         return datetime.split("\\^\\^")[0];
@@ -463,7 +426,7 @@ public class ContoService {
     }
 
     private static String getCommand(DiffAdd diffAdd, String baseUri) {
-       String gitInfo = "\"" +
+        String gitInfo = "\"" +
                 diffAdd.gitUrlLeft() + UNIQUE_DELIMITER +
                 diffAdd.gitUrlRight() + UNIQUE_DELIMITER +
                 diffAdd.gitCommitUrlLeft() + UNIQUE_DELIMITER +
@@ -483,18 +446,18 @@ public class ContoService {
 
         String command = getCommand(diffAdd, baseUri);
 
-            Process process = Runtime.getRuntime().exec(command);
-            process.waitFor();
-            val error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            val errorString = error.readLine();
-            StringBuilder errorOutput = new StringBuilder();
-            String line;
-            while ((line = error.readLine()) != null) {
-                errorOutput.append(line).append(System.lineSeparator());
-            }
-            if (errorString != null) {
-                throw new IOException(errorString);
-            }
+        Process process = Runtime.getRuntime().exec(command);
+        process.waitFor();
+        val error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        val errorString = error.readLine();
+        StringBuilder errorOutput = new StringBuilder();
+        String line;
+        while ((line = error.readLine()) != null) {
+            errorOutput.append(line).append(System.lineSeparator());
+        }
+        if (errorString != null) {
+            throw new IOException(errorString);
+        }
     }
 
     private Model readOntology(String ont) {
@@ -535,9 +498,7 @@ public class ContoService {
         if (RDFLanguages.filenameToLang(ont.getName()).equals(Lang.NQUADS)) {
             try {
                 Dataset ds = readDataset(ont.getName(), ont.toPath());
-                ds.listNames().forEachRemaining(name -> {
-                    datasetAccessor.add(name, ds.getNamedModel(name));
-                });
+                ds.listNames().forEachRemaining(name -> datasetAccessor.add(name, ds.getNamedModel(name)));
             } catch (IOException e) {
                 log.error("Error reading dataset{}", e.getMessage(), e);
             }

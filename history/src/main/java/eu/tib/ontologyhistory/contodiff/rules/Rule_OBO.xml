@@ -776,36 +776,6 @@
 </rule>
 
 
-<!--
-<rule description="Generates chgAttValue actions based on the correspondence of two attributes">
-<input>
-	<inputAction number="1" negation="false" name="mapAtt" checkOnly="false">
-		<inputVariable>C_1</inputVariable>
-		<inputVariable>A_1</inputVariable>
-		<inputVariable>V_1</inputVariable>
-		<inputVariable>C_2</inputVariable>
-		<inputVariable>A_2</inputVariable>
-		<inputVariable>V_2</inputVariable>
-	</inputAction>
-</input>
-<constraints>
-	<constraint type="equal" leftSide="C_1" leftSideConstant="false" rightSide="C_2" rightSideConstant="false"/>
-	<constraint type="equal" leftSide="A_1" leftSideConstant="false" rightSide="A_2" rightSideConstant="false"/>
-	<constraint type="unequal" leftSide="V_1" leftSideConstant="false" rightSide="V_2" rightSideConstant="false"/>
-</constraints>
-<result>
-	<resultAction name="chgAttValue">
-		<resultVariable>C_1</resultVariable>
-		<resultVariable>A_1</resultVariable>
-		<resultVariable>V_1</resultVariable>
-		<resultVariable>V_2</resultVariable>
-	</resultAction>
-	<reduction/>
-</result>
-</rule>
--->
-
-
 <rule description="Generates toObsolete actions" maxRound="2">
 <input>
 	<inputAction number="1" negation="false" name="chgAttValue" checkOnly="false">

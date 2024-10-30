@@ -1,5 +1,6 @@
 package eu.tib.ontologyhistory.service;
 
+import eu.tib.ontologyhistory.model.Commit;
 import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.service.network.GithubService;
 import eu.tib.ontologyhistory.service.network.GitlabService;
@@ -9,7 +10,11 @@ import java.net.URI;
 
 public class GitServiceFactory {
 
-    public static GitService<?> getService(String link) {
+    private GitServiceFactory() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    public static GitService<? extends Commit> getService(String link) {
         val uri = URI.create(link);
 
         String host = uri.getHost();

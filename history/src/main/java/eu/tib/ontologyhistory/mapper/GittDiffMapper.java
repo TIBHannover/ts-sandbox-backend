@@ -12,7 +12,7 @@ public interface GittDiffMapper {
 
     List<GitDiffDto> entityToDto(Iterable<GitDiff> gitDiff);
 
-    GitDiff dtoToEntity(GitDiffDto GitDiffDto);
+    GitDiff dtoToEntity(GitDiffDto gitDiffDto);
 
-    List<GitDiff> dtoToEntity(Iterable<GitDiffDto> GitDiffDto);
+    List<GitDiff> dtoToEntity(Iterable<GitDiffDto> gitDiffDto);
 }

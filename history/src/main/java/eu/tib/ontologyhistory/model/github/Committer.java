@@ -2,7 +2,6 @@ package eu.tib.ontologyhistory.model.github;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.view.Views;
 
