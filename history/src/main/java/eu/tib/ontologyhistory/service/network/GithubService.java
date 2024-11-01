@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.model.exception.DecryptionException;
 import eu.tib.ontologyhistory.model.github.GithubCommit;
+import eu.tib.ontologyhistory.service.GitSecretService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -17,6 +19,8 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 
@@ -25,7 +29,17 @@ import java.util.*;
 @AllArgsConstructor
 public class GithubService implements GitService<GithubCommit> {
 
-    private static final String ACCESS_TOKEN = "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";
+    private static final String GITHUB_SECRET_FILE = "github_access_token.txt.secret";
+
+    private static final String ACCESS_TOKEN;
+
+    static {
+        try {
+            ACCESS_TOKEN = Files.readString(Path.of("github_access_token.txt"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public List<DiffAdd> getDiffAdds(String url) {
