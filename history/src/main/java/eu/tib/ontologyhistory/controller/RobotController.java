@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
+import java.net.URI;
 import java.util.*;
 
 @RestController
@@ -76,16 +76,16 @@ public class RobotController {
     }
 
     @GetMapping("/getAllByUrl")
-    @Operation(summary = "Get list of diffs by ontology URL")
+    @Operation(summary = "Get list of diffs by ontology URI")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the diff"),
             @ApiResponse(responseCode = "404", description = "Diff not found", content = @Content)
     })
     public ResponseEntity<List<DiffDto>> getAllByUrl(
-            @Parameter(description = "Raw URL of the ontology used in a calculation of the Robot Diffs")
-            @RequestParam String url) {
+            @Parameter(description = "Raw URI of the ontology used in a calculation of the Robot Diffs")
+            @RequestParam URI uri) {
 
-        val diffs = robotService.findAllByUrl(url);
+        val diffs = robotService.findAllByUrl(uri);
 
         if (diffs.isEmpty()) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
@@ -95,16 +95,16 @@ public class RobotController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "Add new ontology by URL link")
+    @Operation(summary = "Add new ontology by URI link")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Diff created"),
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
     })
     public ResponseEntity<String> add(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url) {
+            @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
+            @RequestParam URI uri) {
 
-        robotService.create(url);
+        robotService.create(uri);
 
         return new ResponseEntity<>("Created", HttpStatus.CREATED);
     }
@@ -134,16 +134,16 @@ public class RobotController {
     }
 
     @DeleteMapping("/deleteAllByUrl")
-    @Operation(summary = "Remove all robot diffs calculated for provided ontology raw URL")
+    @Operation(summary = "Remove all robot diffs calculated for provided ontology raw URI")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Robot diffs deleted", content = @Content)
     })
     public ResponseEntity<String> deleteAllByUrl(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url
+            @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
+            @RequestParam URI uri
     ) {
 
-        robotService.deleteAllByUrl(url);
+        robotService.deleteAllByUrl(uri);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -48,19 +48,19 @@ public class OndetService {
         return new DifferenceMarkdown(robotDiff.markdown(), contoDiff, gitDiff);
     }
 
-    public Optional<DiffDtoTimeline> findFirstByUrl(String url, String dataset) {
+    public Optional<DiffDtoTimeline> findFirstByUrl(URI uri, String dataset) {
 
-        val gitDiff = gitDiffService.findFirstByUrl(url);
+        val gitDiff = gitDiffService.findFirstByUrl(uri);
         if (gitDiff != null) {
             return Optional.of(new DiffDtoTimeline(null, Collections.emptyList(), gitDiff));
         }
 
-        val robotDiff = robotService.findFirstByUrl(url);
+        val robotDiff = robotService.findFirstByUrl(uri);
         if (robotDiff != null) {
             return Optional.of(new DiffDtoTimeline(robotDiff, Collections.emptyList(), null));
         }
 
-        val contoDiff = contoService.findFirstByUrl(url, dataset);
+        val contoDiff = contoService.findFirstByUrl(uri, dataset);
         if (!contoDiff.isEmpty()) {
             return Optional.of(new DiffDtoTimeline(null, contoDiff, null));
         }
@@ -68,22 +68,22 @@ public class OndetService {
         return Optional.empty();
     }
 
-    public Optional<DiffDtoTimeline> create(String url, String dataset) {
-        robotService.deleteAllByUrl(url);
-        gitDiffService.deleteAllByUrl(url);
+    public Optional<DiffDtoTimeline> create(URI uri, String dataset) {
+        robotService.deleteAllByUrl(uri);
+        gitDiffService.deleteAllByUrl(uri);
 
-        val diffAdds = getDiffAdds(url);
-        gitDiffService.create(url, diffAdds);
-        robotService.create(url, diffAdds);
-        contoService.create(url, dataset, diffAdds);
+        val diffAdds = getDiffAdds(uri);
+        gitDiffService.create(uri, diffAdds);
+        robotService.create(uri, diffAdds);
+        contoService.create(uri, dataset, diffAdds);
 
-        return findFirstByUrl(url, dataset);
+        return findFirstByUrl(uri, dataset);
     }
 
-    public List<DiffAdd> getDiffAdds(String url) {
-        GitService<?> gitService = GitServiceFactory.getService(url);
+    public List<DiffAdd> getDiffAdds(URI uri) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        return gitService.getDiffAdds(url);
+        return gitService.getDiffAdds(uri, null);
     }
 
     public void remove(String id) {
@@ -97,9 +97,9 @@ public class OndetService {
         gitDiffService.deleteAll();
     }
 
-    public void removeAllByUrl(String url) {
-        robotService.deleteAllByUrl(url);
-        gitDiffService.deleteAllByUrl(url);
+    public void removeAllByUrl(URI uri) {
+        robotService.deleteAllByUrl(uri);
+        gitDiffService.deleteAllByUrl(uri);
     }
 
     public void update(String id) {
@@ -107,24 +107,24 @@ public class OndetService {
         contoService.update(id);
     }
 
-    public void updateByUrl(String url, Instant datetime, String dataset) {
-        robotService.updateByUrl(url, datetime);
-        contoService.updateByUrl(url, datetime, dataset);
-        gitDiffService.updateByUrl(url, datetime);
+    public void updateByUrl(URI uri, Instant datetime, String dataset) {
+        robotService.updateByUrl(uri, datetime);
+        contoService.updateByUrl(uri, datetime, dataset);
+        gitDiffService.updateByUrl(uri, datetime);
     }
 
-    public List<? extends Commit> getCommits(String url) {
-        GitService<?> gitService = GitServiceFactory.getService(url);
+    public List<? extends Commit> getCommits(URI uri) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val result = gitService.getCommits(URI.create(url));
-        if (result.isPresent()) {
-            return result.get();
+        val result = gitService.getCommits(uri);
+        if (result != null) {
+            return result;
         }
         return Collections.emptyList();
     }
 
-    public GitDiffDto getVersion(String url) {
-        val gitDiffs = gitDiffService.findAllByUrl(url);
+    public GitDiffDto getVersion(URI uri) {
+        val gitDiffs = gitDiffService.findAllByUrl(uri);
 
         if (gitDiffs != null && !gitDiffs.isEmpty()) {
             return gitDiffs.get(gitDiffs.size() - 1);
@@ -132,7 +132,7 @@ public class OndetService {
         return GitDiffDto.defaultValue();
     }
 
-    public Map<String, List<String>> resHistory(String url, Instant datetime, String resourceIRI) {
-        return robotService.resHistory(url, datetime, resourceIRI);
+    public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {
+        return robotService.resHistory(uri, datetime, resourceIRI);
     }
 }

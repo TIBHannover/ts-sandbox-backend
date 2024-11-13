@@ -13,7 +13,6 @@ import org.springframework.web.util.UriUtils;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -36,33 +35,15 @@ public class GitlabService implements GitService<GitlabCommit> {
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Override
-    public List<DiffAdd> getDiffAdds(String url) {
-        val uri = checkUriValidity(url);
-        return getDiffAddsFrom(uri, null);
-    }
+    public List<DiffAdd> getDiffAdds(URI uri, Instant datetime) {
+        String user = getUserFromUrl(uri);
+        String repo = getRepoFromUrl(uri);
+        String branch = getBranchFromUrl(uri);
+        String encodedPath = getEncodedPath(uri);
 
-    @Override
-    public List<DiffAdd> getDiffAdds(String link, Instant datetime) {
-        val uri = checkUriValidity(link);
-        return getDiffAddsFrom(uri, datetime);
-    }
-
-    @Override
-    public List<DiffAdd> getDiffAddsFrom(Optional<URI> uri, Instant datetime) {
-        List<DiffAdd> diffAdds = new ArrayList<>();
-        if (uri.isPresent()) {
-            String user = getUserFromUrl(uri.get());
-            String repo = getRepoFromUrl(uri.get());
-            String branch = getBranchFromUrl(uri.get());
-            String encodedPath = getEncodedPath(uri.get().getPath());
-
-            Optional<List<GitlabCommit>> commits = getCommits(uri.get(), user, repo, branch, encodedPath, datetime);
-            if (commits.isPresent()) {
-                commits.get().sort(Comparator.comparing(GitlabCommit::committed_date));
-                diffAdds.addAll(processCommits(commits.get(), user, repo, encodedPath, uri.get()));
-            }
-        }
-        return diffAdds;
+        List<GitlabCommit> commits = getCommits(uri, user, repo, branch, encodedPath, datetime);
+        commits.sort(Comparator.comparing(GitlabCommit::committed_date));
+        return new ArrayList<>(processCommits(commits, user, repo, encodedPath, uri));
     }
 
     @Override
@@ -87,17 +68,17 @@ public class GitlabService implements GitService<GitlabCommit> {
 
     @Override
     public void processCommitPair(GitlabCommit commit, GitlabCommit parentCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri) {
-        Optional<String> rawFile = getRawFileUrl(uri, user, repo, commit.id(), encodedPath);
-        Optional<String> parentRawFile = getRawFileUrl(uri, user, repo, parentCommit.id(), encodedPath);
+        String rawFile = getRawFileUrl(uri, user, repo, commit.id(), encodedPath);
+        String parentRawFile = getRawFileUrl(uri, user, repo, parentCommit.id(), encodedPath);
 
-        if (rawFile.isPresent() && parentRawFile.isPresent()) {
+        if (rawFile != null && parentRawFile != null) {
             DiffAdd diffAdd = new DiffAdd(
                     String.format("https://gitlab.com/%s/%s/-/raw/%s/%s", user, repo, commit.id(), encodedPath),
                     String.format("https://gitlab.com/%s/%s/-/raw/%s/%s", user, repo, parentCommit.id(), encodedPath),
                     commit.web_url(),
                     parentCommit.web_url(),
-                    rawFile.get(),
-                    parentRawFile.get(),
+                    rawFile,
+                    parentRawFile,
                     commit.id(),
                     parentCommit.id(),
                     commit.committed_date(),
@@ -112,7 +93,7 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     @Override
-    public Optional<String> getRawFileUrl(URI uri, String owner, String repo, String sha, String path) {
+    public String getRawFileUrl(URI uri, String owner, String repo, String sha, String path) {
 
         String link = "https://gitlab.com/api/v4/projects/" + owner + "%2F" + repo + "/repository/files/" + UriUtils.encode(path, StandardCharsets.UTF_8) + "/raw?ref=" + sha;
 
@@ -126,18 +107,18 @@ public class GitlabService implements GitService<GitlabCommit> {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> responseRawParentFile = client.send(requestGetRawFile, HttpResponse.BodyHandlers.ofString());
-            return Optional.of(responseRawParentFile.body());
+            return responseRawParentFile.body();
         } catch (InterruptedException e) {
             log.error("Interrupted with the response: " + e);
             Thread.currentThread().interrupt();
         } catch (IOException e) {
             log.error("IOException happened: " + e);
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override
-    public Optional<List<GitlabCommit>> getCommits(URI uri, String owner, String repo, String path, String ref, Instant datetime) {
+    public List<GitlabCommit> getCommits(URI uri, String owner, String repo, String path, String ref, Instant datetime) {
 
         String link = "https://gitlab.com/api/v4/projects/" + owner + "%2F" + repo + "/repository/commits";
 
@@ -185,36 +166,16 @@ public class GitlabService implements GitService<GitlabCommit> {
         }
 
 
-        return Optional.of(result);
+        return result;
     }
 
     @Override
-    public Optional<List<GitlabCommit>> getCommits(URI uri) {
+    public List<GitlabCommit> getCommits(URI uri) {
         String user = getUserFromUrl(uri);
         String repo = getRepoFromUrl(uri);
         String branch = getBranchFromUrl(uri);
-        String encodedPath = getEncodedPath(uri.getPath());
+        String encodedPath = getEncodedPath(uri);
         return getCommits(uri, user, repo, branch, encodedPath, null);
-    }
-
-    @Override
-    public Optional<List<GitlabCommit>> getCommits(URI uri, Instant datetime) {
-        String user = getUserFromUrl(uri);
-        String repo = getRepoFromUrl(uri);
-        String branch = getBranchFromUrl(uri);
-        String encodedPath = getEncodedPath(uri.getPath());
-        return getCommits(uri, user, repo, branch, encodedPath, datetime);
-    }
-
-    @Override
-    public Optional<URI> checkUriValidity(String url) {
-        try {
-            val uri = new URI(url);
-            return Optional.of(uri);
-        } catch (URISyntaxException uriSyntaxException) {
-            log.error("URISyntaxException with the provided URL: " + url);
-        }
-        return Optional.empty();
     }
 
     @Override
@@ -233,8 +194,8 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     @Override
-    public String getEncodedPath(String url) {
-        String[] segments = url.split("/");
+    public String getEncodedPath(URI uri) {
+        String[] segments = uri.toString().split("/");
         return String.join("/", Arrays.copyOfRange(segments, 6, segments.length));
     }
 }

@@ -4,7 +4,6 @@ import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitDiffDto;
 import eu.tib.ontologyhistory.mapper.GittDiffMapper;
-import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.GitDiff;
 import eu.tib.ontologyhistory.repository.GitDiffRepository;
 import eu.tib.ontologyhistory.service.network.GitService;
@@ -15,6 +14,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,28 +37,28 @@ public class GitDiffService {
 
     private final GittDiffMapper gittDiffMapper;
 
-    public void create(String url) {
-        GitService<?> gitService = GitServiceFactory.getService(url);
+    public void create(URI uri) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(url);
+        val diffAdds = gitService.getDiffAdds(uri, null);
         for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, url);
+            makeDiffFromGit(diffAdd, uri);
         }
     }
 
-    public void create(String url, List<DiffAdd> diffAdds) {
+    public void create(URI uri, List<DiffAdd> diffAdds) {
 
         for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, url);
+            makeDiffFromGit(diffAdd, uri);
         }
     }
 
-    public void updateByUrl(String url, Instant datetime) {
-        GitService<?> gitService = GitServiceFactory.getService(url);
+    public void updateByUrl(URI uri, Instant datetime) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(url, datetime);
+        val diffAdds = gitService.getDiffAdds(uri, datetime);
         for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, url);
+            makeDiffFromGit(diffAdd, uri);
         }
     }
 
@@ -78,29 +78,29 @@ public class GitDiffService {
         return "";
     }
 
-    public GitDiffDto findFirstByUrl(String url) {
-        val gitDiff = gitDiffRepository.findFirstByUrl(url);
+    public GitDiffDto findFirstByUrl(URI uri) {
+        val gitDiff = gitDiffRepository.findFirstByUrl(uri);
         return gittDiffMapper.entityToDto(gitDiff);
     }
 
     public Set<TempGraph> findAllUrls() {
         val gitDiffs = gitDiffRepository.findAll();
-        val urls = new HashSet<TempGraph>();
+        val uris = new HashSet<TempGraph>();
         for (GitDiff item : gitDiffs) {
-            urls.add(new TempGraph(item.getUrl()));
+            uris.add(new TempGraph(String.valueOf(item.getUri())));
         }
-        return urls;
+        return uris;
     }
 
-    public List<GitDiffDto> findAllByUrl(String url) {
-        val gitDiffs = gitDiffRepository.findAllByUrl(url);
+    public List<GitDiffDto> findAllByUrl(URI uri) {
+        val gitDiffs = gitDiffRepository.findAllByUrl(uri);
         gitDiffs.sort(Comparator.comparing(GitDiff::getDatetime));
 
         return gittDiffMapper.entityToDto(gitDiffs);
     }
 
-    public GitDiffDto findFirstByOrderByDatetimeDesc(String url) {
-        val gitDiff = gitDiffRepository.findFirstByUrlOrderByDatetimeDesc(url);
+    public GitDiffDto findFirstByOrderByDatetimeDesc(URI uri) {
+        val gitDiff = gitDiffRepository.findFirstByUrlOrderByDatetimeDesc(uri);
         return gittDiffMapper.entityToDto(gitDiff);
     }
 
@@ -108,17 +108,17 @@ public class GitDiffService {
         gitDiffRepository.deleteAll();
     }
 
-    public void deleteAllByUrl(String url) {
-        gitDiffRepository.deleteAllByUrl(url);
+    public void deleteAllByUrl(URI uri) {
+        gitDiffRepository.deleteAllByUrl(uri);
     }
 
-    public void makeDiffFromGit(DiffAdd diffAdd, String url) {
+    public void makeDiffFromGit(DiffAdd diffAdd, URI uri) {
         try {
             val diff = makeDiff(Files.write(ONTOLOGY_LEFT, diffAdd.gitRawFileLeft().getBytes()),
                     Files.write(ONTOLOGY_RIGHT, diffAdd.gitRawFileRight().getBytes()));
 
             val gitDiff = GitDiff.builder()
-                    .url(url)
+                    .uri(uri)
                     .sha(diffAdd.sha())
                     .parentSha(diffAdd.parentSha())
                     .diff(diff)

@@ -9,7 +9,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GithubCommit(
-        String url,
+        String uri,
 
         String html_url,
 
@@ -26,7 +26,7 @@ public record GithubCommit(
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ParentCommit (
-            String url,
+            String uri,
 
             @JsonView(Views.Short.class)
             String sha

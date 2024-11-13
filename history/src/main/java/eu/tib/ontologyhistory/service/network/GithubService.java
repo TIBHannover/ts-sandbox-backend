@@ -13,7 +13,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -40,33 +39,15 @@ public class GithubService implements GitService<GithubCommit> {
     }
 
     @Override
-    public List<DiffAdd> getDiffAdds(String url) {
-        val uri = checkUriValidity(url);
-        return getDiffAddsFrom(uri, null);
-    }
+    public List<DiffAdd> getDiffAdds(URI uri, Instant datetime) {
+        String user = getUserFromUrl(uri);
+        String repo = getRepoFromUrl(uri);
+        String branch = getBranchFromUrl(uri);
+        String encodedPath = getEncodedPath(uri);
 
-    @Override
-    public List<DiffAdd> getDiffAdds(String link, Instant datetime) {
-        val uri = checkUriValidity(link);
-        return getDiffAddsFrom(uri, datetime);
-    }
-
-    @Override
-    public List<DiffAdd> getDiffAddsFrom(Optional<URI> uri, Instant datetime) {
-        List<DiffAdd> diffAdds = new ArrayList<>();
-        if (uri.isPresent()) {
-            String user = getUserFromUrl(uri.get());
-            String repo = getRepoFromUrl(uri.get());
-            String branch = getBranchFromUrl(uri.get());
-            String encodedPath = getEncodedPath(uri.get().getPath());
-
-            Optional<List<GithubCommit>> commits = getCommits(uri.get(), user, repo, encodedPath, branch, datetime);
-            commits.ifPresent(commitList -> {
-                Collections.reverse(commits.get());
-                diffAdds.addAll(processCommits(commitList, user, repo, encodedPath, uri.get()));
-            });
-        }
-        return diffAdds;
+        List<GithubCommit> commits = getCommits(uri, user, repo, encodedPath, branch, datetime);
+        Collections.reverse(commits);
+        return new ArrayList<>(processCommits(commits, user, repo, encodedPath, uri));
     }
 
     @Override
@@ -86,17 +67,17 @@ public class GithubService implements GitService<GithubCommit> {
 
     @Override
     public void processCommitPair(GithubCommit githubCommit, GithubCommit parentGithubCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri) {
-        Optional<String> rawFile = getRawFileUrl(uri, user, repo, githubCommit.sha(), encodedPath);
-        Optional<String> parentRawFile = getRawFileUrl(uri, user, repo, parentGithubCommit.sha(), encodedPath);
+        String rawFile = getRawFileUrl(uri, user, repo, githubCommit.sha(), encodedPath);
+        String parentRawFile = getRawFileUrl(uri, user, repo, parentGithubCommit.sha(), encodedPath);
 
-        if (rawFile.isPresent() && parentRawFile.isPresent()) {
+        if (rawFile != null && parentRawFile != null) {
             DiffAdd diffAdd = new DiffAdd(
                     String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, githubCommit.sha(), encodedPath),
                     String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentGithubCommit.sha(), encodedPath),
                     githubCommit.html_url(),
                     parentGithubCommit.html_url(),
-                    rawFile.get(),
-                    parentRawFile.get(),
+                    rawFile,
+                    parentRawFile,
                     githubCommit.sha(),
                     parentGithubCommit.sha(),
                     githubCommit.commit().committer().date(),
@@ -109,7 +90,7 @@ public class GithubService implements GitService<GithubCommit> {
     }
 
     @Override
-    public Optional<String> getRawFileUrl(URI uri, String owner, String repo, String sha, String path) {
+    public String getRawFileUrl(URI uri, String owner, String repo, String sha, String path) {
 
         URI githubRawFileApi = UriComponentsBuilder.fromUri(uri)
                 .host("raw.githubusercontent.com")
@@ -125,16 +106,18 @@ public class GithubService implements GitService<GithubCommit> {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> responseRawParentFile = client.send(requestGetRawFile, HttpResponse.BodyHandlers.ofString());
-            return Optional.of(responseRawParentFile.body());
+            return responseRawParentFile.body();
         } catch (InterruptedException e) {
             log.error("Interrupted with the response: " + e);
             Thread.currentThread().interrupt();
-        } catch (IOException e) { log.error("IOException happened: " + e); }
-        return Optional.empty();
+        } catch (IOException e) {
+            log.error("IOException happened: " + e);
+        }
+        return null;
     }
 
     @Override
-    public Optional<List<GithubCommit>> getCommits(URI uri, String owner, String repo, String path, String branch , Instant datetime) {
+    public List<GithubCommit> getCommits(URI uri, String owner, String repo, String path, String branch, Instant datetime) {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(uri)
                 .host("api.github.com")
@@ -164,44 +147,24 @@ public class GithubService implements GitService<GithubCommit> {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-            return Optional.of(objectMapper.readValue(response.body(), new TypeReference<>() {}));
+            return objectMapper.readValue(response.body(), new TypeReference<>() {
+            });
         } catch (InterruptedException e) {
             log.error("Interrupted with the response: " + e);
             Thread.currentThread().interrupt();
         } catch (IOException e) {
             log.error("IOException happened: " + e);
         }
-        return Optional.of(Collections.emptyList());
+        return Collections.emptyList();
     }
 
     @Override
-    public Optional<List<GithubCommit>> getCommits(URI uri) {
+    public List<GithubCommit> getCommits(URI uri) {
         String user = getUserFromUrl(uri);
         String repo = getRepoFromUrl(uri);
         String branch = getBranchFromUrl(uri);
-        String encodedPath = getEncodedPath(uri.getPath());
+        String encodedPath = getEncodedPath(uri);
         return getCommits(uri, user, repo, encodedPath, branch, null);
-    }
-
-    @Override
-    public Optional<List<GithubCommit>> getCommits(URI uri, Instant datetime) {
-        String user = getUserFromUrl(uri);
-        String repo = getRepoFromUrl(uri);
-        String branch = getBranchFromUrl(uri);
-        String encodedPath = getEncodedPath(uri.getPath());
-        return getCommits(uri, user, repo, encodedPath, branch, datetime);
-    }
-
-
-    @Override
-    public Optional<URI> checkUriValidity(String url) {
-        try {
-            val uri = new URI(url);
-            return Optional.of(uri);
-        } catch (URISyntaxException uriSyntaxException) {
-            log.error("URISyntaxException with the provided URL: " + url);
-        }
-        return Optional.empty();
     }
 
     @Override
@@ -221,9 +184,10 @@ public class GithubService implements GitService<GithubCommit> {
     }
 
     @Override
-    public String getEncodedPath(String url) {
-        String[] segments = url.split("/");
-        int startIndex = (url.contains("/refs/heads") || url.contains("/refs/tags")) ? 6 : 4;
+    public String getEncodedPath(URI uri) {
+        val path = uri.getPath();
+        String[] segments = path.split("/");
+        int startIndex = (path.contains("/refs/heads") || path.contains("/refs/tags")) ? 6 : 4;
         return String.join("/", Arrays.copyOfRange(segments, startIndex, segments.length));
     }
 

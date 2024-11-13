@@ -10,25 +10,17 @@ import java.util.Optional;
 
 public interface GitService<T extends Commit> {
 
-    List<DiffAdd> getDiffAdds(String url);
-
-    List<DiffAdd> getDiffAdds(String link, Instant datetime);
-
-    List<DiffAdd> getDiffAddsFrom(Optional<URI> uri, Instant datetime);
+    List<DiffAdd> getDiffAdds(URI uri, Instant datetime);
 
     List<DiffAdd> processCommits(List<T> commits, String user, String repo, String encodedPath, URI uri);
 
     void processCommitPair(T commit, T parentCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri);
 
-    Optional<String> getRawFileUrl(URI uri, String owner, String repo, String sha, String path);
+    String getRawFileUrl(URI uri, String owner, String repo, String sha, String path);
 
-    Optional<List<T>> getCommits(URI uri, String owner, String repo, String path, String branch, Instant datetime);
+    List<T> getCommits(URI uri, String owner, String repo, String path, String branch, Instant datetime);
 
-    Optional<List<T>> getCommits(URI uri);
-
-    Optional<List<T>> getCommits(URI uri, Instant datetime);
-
-    Optional<URI> checkUriValidity(String url);
+    List<T> getCommits(URI uri);
 
     String getUserFromUrl(URI uri);
 
@@ -36,5 +28,6 @@ public interface GitService<T extends Commit> {
 
     String getBranchFromUrl(URI uri);
 
-    String getEncodedPath(String url);
+    String getEncodedPath(URI uri);
+
 }

@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -55,17 +56,17 @@ public class OndetController {
     }
 
     @GetMapping("/checkUrl")
-    @Operation(summary = "Check if object exists by URL")
-    public ResponseEntity<String> findByUrl(@RequestParam String url,
+    @Operation(summary = "Check if object exists by URI")
+    public ResponseEntity<String> findByUrl(@RequestParam URI uri,
                                             HttpServletRequest httpServletRequest) {
 
-        val diff = ondetService.findFirstByUrl(url, DATASET);
+        val diff = ondetService.findFirstByUrl(uri, DATASET);
 
         if (diff.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        val responseUrl = httpServletRequest.getRequestURL().append('?').append(url).toString();
+        val responseUrl = httpServletRequest.getRequestURL().append('?').append(uri).toString();
 
         return new ResponseEntity<>(responseUrl, HttpStatus.OK);
     }
@@ -73,18 +74,18 @@ public class OndetController {
     @PostMapping
     @Operation(summary = "Create one object")
     public ResponseEntity<String> create(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url,
+            @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
+            @RequestParam URI uri,
             HttpServletRequest httpServletRequest
     ) {
 
-        val result = ondetService.create(url, DATASET);
+        val result = ondetService.create(uri, DATASET);
 
         if (result.isEmpty()) {
             return new ResponseEntity<>("Your provided ontology was not added into the system, since all semantic diffs failed", HttpStatus.NOT_FOUND);
         }
 
-        val responseUrl = httpServletRequest.getRequestURL().append('?').append(url).toString();
+        val responseUrl = httpServletRequest.getRequestURL().append('?').append(uri).toString();
 
         return new ResponseEntity<>(responseUrl, HttpStatus.OK);
     }
@@ -108,12 +109,12 @@ public class OndetController {
     }
 
     @DeleteMapping("/removeAllByUrl")
-    @Operation(summary = "Remove all semantic diff for the provided ontology URL")
+    @Operation(summary = "Remove all semantic diff for the provided ontology URI")
     public ResponseEntity<String> removeAllByUrl(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url
+            @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/dev/src/ontology/imports/iao-extracted.owl")
+            @RequestParam URI uri
     ) {
-        ondetService.removeAllByUrl(url);
+        ondetService.removeAllByUrl(uri);
 
         return new ResponseEntity<>("Removed all", HttpStatus.OK);
     }
@@ -130,14 +131,14 @@ public class OndetController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "Update ontology by URL")
+    @Operation(summary = "Update ontology by URI")
     public ResponseEntity<String> updateByUrl(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/monarch-initiative/SEPIO-ontology/master/sepio.owl", required = true)
-            @RequestParam String url,
+            @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/monarch-initiative/SEPIO-ontology/master/sepio.owl", required = true)
+            @RequestParam URI uri,
             @Parameter(description = "Last ISO-8601 time of the semantic diff in the system", example = "YYYY-MM-DDTHH:MM:SSZ")
             @RequestParam Instant datetime) {
 
-        ondetService.updateByUrl(url, datetime, DATASET);
+        ondetService.updateByUrl(uri, datetime, DATASET);
 
         return new ResponseEntity<>("Updated", HttpStatus.OK);
     }
@@ -151,10 +152,10 @@ public class OndetController {
     @JsonView(Views.Short.class)
     public ResponseEntity<List<? extends Commit>> getCommits(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl
+            @RequestParam URI uri
     ) {
 
-        val commits = ondetService.getCommits(ontologyUrl);
+        val commits = ondetService.getCommits(uri);
 
         return new ResponseEntity<>(commits, HttpStatus.OK);
     }
@@ -167,10 +168,10 @@ public class OndetController {
     })
     public ResponseEntity<String> getLatestVerison(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl
+            @RequestParam URI uri
     ) {
 
-        val version = ondetService.getVersion(ontologyUrl);
+        val version = ondetService.getVersion(uri);
 
         if (version.sha().isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -183,15 +184,15 @@ public class OndetController {
     @GetMapping("/resHistory")
     @Operation(summary = "Return resource history in the external ontology")
     public ResponseEntity<Map<String, List<String>>> resHistory(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/monarch-initiative/SEPIO-ontology/master/sepio.owl", required = true)
-            @RequestParam String url,
+            @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/monarch-initiative/SEPIO-ontology/master/sepio.owl", required = true)
+            @RequestParam URI uri,
             @Parameter(description = "Start datetime in ISO-8601 (if absent will return from the first version)", example = "YYYY-MM-DDTHH:MM:SSZ")
             @RequestParam(required = false) Instant datetime,
             @Parameter(description = "Unique resource IRI in the ontology", example = "http://purl.obolibrary.org/obo/COB_0000120", required = true)
             @RequestParam String resourceIRI
     ) {
 
-        val result = ondetService.resHistory(url, datetime, resourceIRI);
+        val result = ondetService.resHistory(uri, datetime, resourceIRI);
 
         if (result.isEmpty()) {
             return new ResponseEntity<>(Collections.emptyMap(), HttpStatus.NOT_FOUND);
