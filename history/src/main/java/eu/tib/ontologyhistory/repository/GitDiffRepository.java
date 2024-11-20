@@ -14,11 +14,11 @@ public interface GitDiffRepository extends MongoRepository<GitDiff, String> {
 
     GitDiff findFirstByParentSha(String parentSha);
 
-    GitDiff findFirstByUrl(URI uri);
+    GitDiff findFirstByUri(URI uri);
 
-    List<GitDiff> findAllByUrl(URI uri);
+    List<GitDiff> findAllByUri(URI uri);
 
-    GitDiff findFirstByUrlOrderByDatetimeDesc(URI uri);
+    GitDiff findFirstByUriOrderByDatetimeDesc(URI uri);
 
-    void deleteAllByUrl(URI uri);
+    void deleteAllByUri(URI uri);
 }

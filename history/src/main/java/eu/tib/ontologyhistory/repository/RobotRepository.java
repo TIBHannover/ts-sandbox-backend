@@ -11,13 +11,13 @@ import java.util.Optional;
 @Repository
 public interface RobotRepository extends MongoRepository<Diff, String> {
 
-    List<Diff> findAllByUrl(URI uri);
+    List<Diff> findAllByUri(URI uri);
 
-    Diff findFirstByUrl(URI uri);
+    Diff findFirstByUri(URI uri);
 
     Optional<Diff> findFirstBySha(String sha);
 
     Optional<Diff> findFirstByParentSha(String parentSha);
 
-    void deleteAllByUrl(URI uri);
+    void deleteAllByUri(URI uri);
 }

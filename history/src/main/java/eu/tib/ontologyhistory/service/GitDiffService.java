@@ -79,7 +79,7 @@ public class GitDiffService {
     }
 
     public GitDiffDto findFirstByUrl(URI uri) {
-        val gitDiff = gitDiffRepository.findFirstByUrl(uri);
+        val gitDiff = gitDiffRepository.findFirstByUri(uri);
         return gittDiffMapper.entityToDto(gitDiff);
     }
 
@@ -93,14 +93,14 @@ public class GitDiffService {
     }
 
     public List<GitDiffDto> findAllByUrl(URI uri) {
-        val gitDiffs = gitDiffRepository.findAllByUrl(uri);
+        val gitDiffs = gitDiffRepository.findAllByUri(uri);
         gitDiffs.sort(Comparator.comparing(GitDiff::getDatetime));
 
         return gittDiffMapper.entityToDto(gitDiffs);
     }
 
     public GitDiffDto findFirstByOrderByDatetimeDesc(URI uri) {
-        val gitDiff = gitDiffRepository.findFirstByUrlOrderByDatetimeDesc(uri);
+        val gitDiff = gitDiffRepository.findFirstByUriOrderByDatetimeDesc(uri);
         return gittDiffMapper.entityToDto(gitDiff);
     }
 
@@ -109,7 +109,7 @@ public class GitDiffService {
     }
 
     public void deleteAllByUrl(URI uri) {
-        gitDiffRepository.deleteAllByUrl(uri);
+        gitDiffRepository.deleteAllByUri(uri);
     }
 
     public void makeDiffFromGit(DiffAdd diffAdd, URI uri) {

@@ -75,12 +75,12 @@ public class RobotService {
     }
 
     public List<DiffDto> findAllByUrl(URI uri) {
-        val diffs = robotRepository.findAllByUrl(uri);
+        val diffs = robotRepository.findAllByUri(uri);
         return diffMapper.entityToDto(diffs);
     }
 
     public DiffDto findFirstByUrl(URI uri) {
-        val diff = robotRepository.findFirstByUrl(uri);
+        val diff = robotRepository.findFirstByUri(uri);
         return diffMapper.entityToDto(diff);
     }
 
@@ -89,7 +89,7 @@ public class RobotService {
     }
 
     public void deleteAllByUrl(URI uri) {
-        robotRepository.deleteAllByUrl(uri);
+        robotRepository.deleteAllByUri(uri);
     }
 
     public void deleteAll() {
