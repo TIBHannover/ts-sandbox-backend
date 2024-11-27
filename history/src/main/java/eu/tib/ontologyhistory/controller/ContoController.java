@@ -7,6 +7,7 @@ import eu.tib.ontologyhistory.dto.conto.TimelineMessage;
 import eu.tib.ontologyhistory.model.InvalidContoDiff;
 import eu.tib.ontologyhistory.repository.InvalidContoDiffRepository;
 import eu.tib.ontologyhistory.service.ContoService;
+import eu.tib.ontologyhistory.service.GitSecretService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.*;
 
@@ -28,9 +30,15 @@ import java.util.*;
 public class ContoController {
 
     private final InvalidContoDiffRepository invalidContoDiffRepository;
+
     private ContoService contoService;
 
     private static final String DATASET = "test";
+
+    private static final String ONDET_REQUIRED_ONTOLOGIES = "https://www.w3.org/2000/01/rdf-schema#, " +
+                                                            "https://www.w3.org/1999/02/22-rdf-syntax-ns#, " +
+                                                            "https://www.w3.org/2002/07/owl#, " +
+                                                            "https://raw.githubusercontent.com/nenadkrdzavac/prov-o/main/prov-o.ttl";
 
     @PostMapping("/add")
     @Operation(summary = "Calculate and save into triple story Semantic Diffs with Conto Diff")
@@ -39,13 +47,29 @@ public class ContoController {
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
     })
     public ResponseEntity<List<String>> createOntology(
-            @Parameter(description = "Raw ontology URL", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam String url
-            ) {
+            @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
+            @RequestParam URI uri
+    ) {
 
-        contoService.create(url, DATASET);
+        contoService.create(uri, DATASET);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/decrypt")
+    @Operation(summary = "decrypt the file")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "decrypted"),
+            @ApiResponse(responseCode = "400", description = "error", content = @Content)
+    })
+    public ResponseEntity<String> decrypt(
+            @Parameter(description = "Encrypted file name", example = "github_access_token.txt.secret")
+            @RequestParam String file
+    ) {
+
+        val token = GitSecretService.decrypt(file);
+
+        return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -86,10 +110,10 @@ public class ContoController {
     })
     public ResponseEntity<List<Timeline>> getTimeline(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl
-            ) {
+            @RequestParam URI uri
+    ) {
 
-        val ontologies = contoService.findByUrl(ontologyUrl, DATASET);
+        val ontologies = contoService.findByUrl(uri, DATASET);
 
         return new ResponseEntity<>(ontologies, HttpStatus.OK);
     }
@@ -103,7 +127,7 @@ public class ContoController {
     public ResponseEntity<Difference> getTimelineElement(
             @Parameter(description = "commitId")
             @RequestParam String commitId
-            ) {
+    ) {
 
         val ontologies = contoService.timeline(commitId, DATASET);
 
@@ -117,11 +141,13 @@ public class ContoController {
             @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
     })
     public ResponseEntity<String> uploadOntlogy(
-            @Parameter(description = "Ontology as a string", example = "https://www.w3.org/1999/02/22-rdf-syntax-ns#")
-            @RequestParam String ontology
-            ) {
+            @Parameter(description = "Set of ontologies to be uploaded into Apache Fuseki (could be one)")
+            @RequestParam(defaultValue = ONDET_REQUIRED_ONTOLOGIES) List<String> ontologies
+    ) {
 
-        contoService.uploadOntologyToFuseki(ontology, DATASET);
+        for (val ontology : ontologies) {
+            contoService.uploadOntologyToFuseki(ontology, DATASET);
+        }
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -134,9 +160,9 @@ public class ContoController {
     })
     public ResponseEntity<List<String>> getOperationsData(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl) {
+            @RequestParam URI uri) {
 
-        val subjects = contoService.operationsData(DATASET, ontologyUrl);
+        val subjects = contoService.operationsData(DATASET, uri);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }
@@ -149,9 +175,9 @@ public class ContoController {
     })
     public ResponseEntity<List<Timeline>> getVersions(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl) {
+            @RequestParam URI uri) {
 
-        val subjects = contoService.getVersions(DATASET, ontologyUrl);
+        val subjects = contoService.getVersions(DATASET, uri);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }
@@ -164,7 +190,7 @@ public class ContoController {
     })
     public ResponseEntity<Map<Instant, Collection<TimelineMessage>>> getVersionElem(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl,
+            @RequestParam URI uri,
 
             @Parameter(description = "resourceUri")
             @RequestParam String resourceUri,
@@ -175,7 +201,7 @@ public class ContoController {
             @Parameter(description = "secondDate")
             @RequestParam String secondDate) {
 
-        val subjects = contoService.timelineMessage(DATASET, ontologyUrl, resourceUri, firstDate, secondDate);
+        val subjects = contoService.timelineMessage(DATASET, uri, resourceUri, firstDate, secondDate);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }
@@ -189,7 +215,7 @@ public class ContoController {
     })
     public ResponseEntity<List<String>> createReport(
             @Parameter(description = "ontologyUrl")
-            @RequestParam String ontologyUrl,
+            @RequestParam URI uri,
 
             @Parameter(description = "firstDate")
             @RequestParam String firstDate,
@@ -197,7 +223,7 @@ public class ContoController {
             @Parameter(description = "secondDate")
             @RequestParam String secondDate) {
 
-        val subjects = contoService.dataInBetweenDates(DATASET, ontologyUrl, firstDate, secondDate);
+        val subjects = contoService.dataInBetweenDates(DATASET, uri, firstDate, secondDate);
 
         return new ResponseEntity<>(subjects, HttpStatus.OK);
     }

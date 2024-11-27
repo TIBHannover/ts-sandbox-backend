@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
 
+import java.net.URI;
 import java.time.Instant;
 
 @Getter
@@ -18,7 +19,7 @@ public class GitDiff {
     @Id
     private String id;
 
-    private String url;
+    private URI uri;
 
     private String sha;
 

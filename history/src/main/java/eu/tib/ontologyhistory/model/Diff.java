@@ -9,6 +9,7 @@ import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class Diff {
     private String id;
 
     @JsonView({Views.Full.class})
-    private String url;
+    private URI uri;
 
     @JsonView({Views.Full.class})
     private String sha;

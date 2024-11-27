@@ -2,13 +2,17 @@ package eu.tib.ontologyhistory.view;
 
 public class Views {
 
-    public static interface Edit {}
+    private Views() {
+        throw new IllegalStateException("Utility class");
+    }
 
-    public static interface Update {}
+    public interface Edit {}
 
-    public static interface Short {}
+    public interface Update {}
 
-    public static interface Add extends Edit {}
+    public interface Short {}
 
-    public static interface Full extends Short, Update, Add {}
+    public interface Add extends Edit {}
+
+    public interface Full extends Short, Update, Add {}
 }

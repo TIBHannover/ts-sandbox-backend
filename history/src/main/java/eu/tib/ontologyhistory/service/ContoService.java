@@ -45,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -90,7 +91,7 @@ public class ContoService {
         return graphs;
     }
 
-    public List<Timeline> findByUrl(String ontologyURL, String dataset) {
+    public List<Timeline> findByUrl(URI uri, String dataset) {
         List<Timeline> timelines = new ArrayList<>();
         fusekiAuthenticate();
 
@@ -101,10 +102,12 @@ public class ContoService {
             Txn.executeRead(conn, () -> {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.WHOLE_ONTOLOGY_TIMELINE);
-                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
+                graphQuery.setParam("ontologyURI", ResourceFactory.createResource(String.valueOf(uri)));
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode commitLabel, message, firstCommitTime;
+                    RDFNode commitLabel;
+                    RDFNode message;
+                    RDFNode firstCommitTime;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         commitLabel = soln.get("commit_label");
@@ -123,7 +126,7 @@ public class ContoService {
         return timelines.subList(1, timelines.size());
     }
 
-    public List<String> findFirstByUrl(String ontologyURL, String dataset) {
+    public List<String> findFirstByUrl(URI uri, String dataset) {
         fusekiAuthenticate();
         val res = new ArrayList<String>();
         String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
@@ -134,7 +137,7 @@ public class ContoService {
             Txn.executeRead(conn, () -> {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.GET_GRAPH_BY_URL);
-                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
+                graphQuery.setParam("ontologyURI", ResourceFactory.createResource(String.valueOf(uri)));
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     if (results.hasNext()) {
@@ -168,7 +171,10 @@ public class ContoService {
                 graphQuery.setLiteral("commitId", commitId);
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode ppLabel, s, p, o;
+                    RDFNode ppLabel;
+                    RDFNode s;
+                    RDFNode p;
+                    RDFNode o;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         ppLabel = soln.get("pp_label");
@@ -185,7 +191,7 @@ public class ContoService {
         return new Difference(result, null);
     }
 
-    public Map<Instant, Collection<TimelineMessage>> timelineMessage(String dataset, String ontologyURL, String resourceUri, String firstCommitTime, String secondCommitTime) {
+    public Map<Instant, Collection<TimelineMessage>> timelineMessage(String dataset, URI uri, String resourceUri, String firstCommitTime, String secondCommitTime) {
         fusekiAuthenticate();
         Multimap<Instant, TimelineMessage> result = ArrayListMultimap.create();
         String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
@@ -195,13 +201,16 @@ public class ContoService {
             Txn.executeRead(conn, () -> {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.WHOLE_ONTOLOGY_TIMELINE_MESSAGE);
-                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
+                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(String.valueOf(uri)));
                 graphQuery.setParam("resourceArg", ResourceFactory.createResource(resourceUri));
                 graphQuery.setLiteral("firstCommitTime", firstCommitTime);
                 graphQuery.setLiteral("secondCommitTime", secondCommitTime);
-                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode ppLabel, commitTime, p, o;
+                    RDFNode ppLabel;
+                    RDFNode commitTime;
+                    RDFNode p;
+                    RDFNode o;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         commitTime = soln.get("first_commit_time");
@@ -214,11 +223,11 @@ public class ContoService {
                 }
             });
         }
-//        result.sort(Comparator.comparing(TimelineMessage::commitTime).reversed());
+
         return result.asMap();
     }
 
-    public List<String> operations(String dataset, String ontologyURL) {
+    public List<String> operations(String dataset, URI uri) {
         List<String> functions = new ArrayList<>();
         fusekiAuthenticate();
 
@@ -229,7 +238,7 @@ public class ContoService {
             Txn.executeRead(conn, () -> {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.ALL_DISTINCT_OPERATIONS);
-                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
+                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(String.valueOf(uri)));
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode function;
@@ -245,7 +254,7 @@ public class ContoService {
         return functions;
     }
 
-    public List<String> operationsData(String dataset, String ontologyURL) {
+    public List<String> operationsData(String dataset, URI uri) {
         List<String> subjects = new ArrayList<>();
         fusekiAuthenticate();
 
@@ -256,7 +265,7 @@ public class ContoService {
             Txn.executeRead(conn, () -> {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.DATA_RELATED_TO_OPERATION);
-                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
+                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(String.valueOf(uri)));
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
                     RDFNode subject;
@@ -272,7 +281,7 @@ public class ContoService {
         return subjects;
     }
 
-    public List<Timeline> getVersions(String dataset, String ontologyURL) {
+    public List<Timeline> getVersions(String dataset, URI uri) {
         List<Timeline> subjects = new ArrayList<>();
         fusekiAuthenticate();
 
@@ -284,10 +293,12 @@ public class ContoService {
             Txn.executeRead(conn, () -> {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.WHOLE_ONTOLOGY_TIMELINE);
-                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
+                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(String.valueOf(uri)));
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode message, versionTime, commitLabel;
+                    RDFNode message;
+                    RDFNode versionTime;
+                    RDFNode commitLabel;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         commitLabel = soln.get("commit_label");
@@ -305,7 +316,7 @@ public class ContoService {
         return subjects;
     }
 
-    public List<String> dataInBetweenDates(String dataset, String ontologyURL, String startDatetime, String endDatetime) {
+    public List<String> dataInBetweenDates(String dataset, URI uri, String startDatetime, String endDatetime) {
         List<String> subjects = new ArrayList<>();
         fusekiAuthenticate();
 
@@ -316,12 +327,15 @@ public class ContoService {
             Txn.executeRead(conn, () -> {
                 ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
                 graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.DATA_BETWEEN_TWO_DATES);
-                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(ontologyURL));
+                graphQuery.setParam("ontologyURL", ResourceFactory.createResource(String.valueOf(uri)));
                 graphQuery.setLiteral("startDatetimeArg", startDatetime);
                 graphQuery.setLiteral("endDatetimeArg", endDatetime);
                 try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
                     ResultSet results = qExec.execSelect();
-                    RDFNode ppLabel, subject, object, predicate;
+                    RDFNode ppLabel;
+                    RDFNode subject;
+                    RDFNode object;
+                    RDFNode predicate;
                     while (results.hasNext()) {
                         QuerySolution soln = results.nextSolution();
                         ppLabel = soln.get("pp_label");
@@ -339,73 +353,29 @@ public class ContoService {
     }
 
     public void remove(String id) {
-
+        // will be extended later
     }
 
     public void deleteAll() {
-
+        // will be extended later
+        invalidContoDiffRepository.deleteAll();
     }
 
     public void update(String id) {
+        // will be extended later
     }
-//    private List<?> runQuery(Query query, String dataset, Object dto) {
-//        List<GraphInfo> graphs = new ArrayList<>();
-//        GraphInfo graph = new GraphInfo();
-//        fusekiAuthenticate();
-//
-//        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
-//        RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
-//                .destination(datasetServiceUrl);
-//
-//        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-//            Txn.executeRead(conn, () -> {
-//                List<Var> vars = query.getProjectVars();
-//                try ( QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, query)) {
-//                    ResultSet results = qExec.execSelect();
-//                    while (results.hasNext()) {
-//                        QuerySolution soln = results.nextSolution();
-//                        for (Var var : vars) {
-//                            RDFNode rdfNode = soln.get(var.getVarName());
-//                            graph = populateGraph(dto, var.getVarName(), rdfNode);
-//                        }
-//                        graphs.add(graph);
-//                    }
-//                }
-//            });
-//        }
-//
-//        return graphs;
-//    }
-//
-//    private GraphInfo populateGraph(Object object, String var, RDFNode rdfNode) {
-//        GraphInfo graph = (GraphInfo) object;
-//        Class<?> dtoClass = graph.getClass();
-//
-//        for (Field field : dtoClass.getDeclaredFields()) {
-//            if (field.getName().equals(var)) {
-//                field.setAccessible(true);
-//                try {
-//                    field.set(graph, rdfNode.toString());
-//                } catch (IllegalAccessException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        }
-//
-//        return graph;
-//    }
 
     private String apacheDatetimeToInstant(String datetime) {
         return datetime.split("\\^\\^")[0];
     }
 
-    public void create(String url, String dataset) {
-        GitService<?> gitService = GitServiceFactory.getService(url);
+    public void create(URI uri, String dataset) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(url);
+        val diffAdds = gitService.getDiffAdds(uri, null);
         for (val diffAdd : diffAdds) {
             try {
-                diffExecute(diffAdd, url);
+                diffExecute(diffAdd, uri);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
             } catch (Exception e) {
@@ -421,10 +391,10 @@ public class ContoService {
         }
     }
 
-    public void create(String url, String dataset, List<DiffAdd> diffAdds) {
+    public void create(URI uri, String dataset, List<DiffAdd> diffAdds) {
         for (val diffAdd : diffAdds) {
             try {
-                diffExecute(diffAdd, url);
+                diffExecute(diffAdd, uri);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
             } catch (Exception e) {
@@ -440,13 +410,13 @@ public class ContoService {
         }
     }
 
-    public void updateByUrl(String url, Instant datetime, String dataset) {
-        GitService<?> gitService = GitServiceFactory.getService(url);
+    public void updateByUrl(URI uri, Instant datetime, String dataset) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(url, datetime);
+        val diffAdds = gitService.getDiffAdds(uri, datetime);
         for (val diffAdd : diffAdds) {
             try {
-                diffExecute(diffAdd, url);
+                diffExecute(diffAdd, uri);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
             } catch (Exception e) {
@@ -462,8 +432,18 @@ public class ContoService {
         }
     }
 
-    private static String getCommand(DiffAdd diffAdd, String baseUri) {
-       String gitInfo = "\"" +
+    private static String getCommand(DiffAdd diffAdd, URI baseUrl) {
+        String ontLeft = null;
+        String ontRight = null;
+        try {
+            ontLeft = Files.write(ONTOLOGY_LEFT, diffAdd.gitRawFileLeft().getBytes()).toString();
+            ontRight = Files.write(ONTOLOGY_RIGHT, diffAdd.gitRawFileRight().getBytes()).toString();
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        String gitInfo = "\"" +
                 diffAdd.gitUrlLeft() + UNIQUE_DELIMITER +
                 diffAdd.gitUrlRight() + UNIQUE_DELIMITER +
                 diffAdd.gitCommitUrlLeft() + UNIQUE_DELIMITER +
@@ -474,27 +454,62 @@ public class ContoService {
                 diffAdd.messageRight().replaceAll("\\s", "_") + "\"";
 
         return "java -jar ContoDiff-1.0-SNAPSHOT-shaded.jar" +
-                " -base-iri " + baseUri +
+                " -oa " + ontLeft +
+                " -ob " + ontRight +
+                " -base-iri " + baseUrl +
                 " -git_info " + gitInfo +
                 " -o " + OUTPUT_FILE;
     }
 
-    private void diffExecute(DiffAdd diffAdd, String baseUri) throws Exception {
+    private void diffExecute(DiffAdd diffAdd, URI uri) throws Exception {
 
-        String command = getCommand(diffAdd, baseUri);
+        String command = getCommand(diffAdd, uri);
 
-            Process process = Runtime.getRuntime().exec(command);
-            process.waitFor();
-            val error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            val errorString = error.readLine();
-            StringBuilder errorOutput = new StringBuilder();
-            String line;
-            while ((line = error.readLine()) != null) {
-                errorOutput.append(line).append(System.lineSeparator());
+        Process process = Runtime.getRuntime().exec(command);
+        log.error("Before process.waitFor()");
+
+        Thread errorStreamThread = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    log.error("ContoDiff Error: " + line);
+                }
+            } catch (IOException e) {
+                log.error("Error reading from error stream");
             }
-            if (errorString != null) {
-                throw new IOException(errorString);
+        });
+        errorStreamThread.start();
+
+        Thread processWaitThread = new Thread(() -> {
+            try {
+                process.waitFor();
+            } catch (InterruptedException e) {
+                log.error("Process was interrupted");
             }
+        });
+        processWaitThread.start();
+
+        long startTime = System.currentTimeMillis();
+        while (process.isAlive()) {
+            if (System.currentTimeMillis() - startTime > 5000) {
+                log.error("Timeout reached, killing the process...");
+                process.destroy();
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new IOException("Error while waiting for process", e);
+            }
+        }
+
+        processWaitThread.join();
+
+        if (!process.isAlive()) {
+            log.error("Process completed or was terminated after timeout.");
+        }
+
+        log.error("AFTER process wait for()");
     }
 
     private Model readOntology(String ont) {
@@ -535,9 +550,7 @@ public class ContoService {
         if (RDFLanguages.filenameToLang(ont.getName()).equals(Lang.NQUADS)) {
             try {
                 Dataset ds = readDataset(ont.getName(), ont.toPath());
-                ds.listNames().forEachRemaining(name -> {
-                    datasetAccessor.add(name, ds.getNamedModel(name));
-                });
+                ds.listNames().forEachRemaining(name -> datasetAccessor.add(name, ds.getNamedModel(name)));
             } catch (IOException e) {
                 log.error("Error reading dataset{}", e.getMessage(), e);
             }

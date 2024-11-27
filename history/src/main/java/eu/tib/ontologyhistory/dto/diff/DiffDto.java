@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.bson.Document;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public record DiffDto (
         String id,
 
         @JsonView({Views.Short.class})
-        String url,
+        URI uri,
 
         @JsonView({Views.Edit.class})
         String sha,

@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Sensible information unencrypted files ###
+/src/github_access_token.txt
+/src/gitlab_access_token.txt
