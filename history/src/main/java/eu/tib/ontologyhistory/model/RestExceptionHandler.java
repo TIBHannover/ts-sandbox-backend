@@ -6,6 +6,7 @@ import eu.tib.ontologyhistory.model.exception.UnloadableCustomImportException;
 import eu.tib.ontologyhistory.model.exception.UnparsableCustomOntologyException;
 import eu.tib.ontologyhistory.model.exception.conto.ContoDiffExecutionException;
 import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -18,16 +19,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
+@AllArgsConstructor
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final String REQUEST_BODY = "requestBody";
 
     private static final String DEFAULT_ONTOLOGY_ID = "default";
-    private final InvalidDiffRepository invalidDiffRepository;
 
-    public RestExceptionHandler(InvalidDiffRepository invalidDiffRepository) {
-        this.invalidDiffRepository = invalidDiffRepository;
-    }
+    private static final String GENERAL_ERROR_MESSAGE = "One or more resources were not loaded. Check left- or right- IRI Files";
+
+    private final InvalidDiffRepository invalidDiffRepository;
 
     @ExceptionHandler(UnloadableCustomImportException.class)
     protected ResponseEntity<Object> handleUnloadableImport(UnloadableCustomImportException ex, WebRequest request) {
@@ -37,7 +38,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .ontologyId(DEFAULT_ONTOLOGY_ID)
                 .status(HttpStatus.FAILED_DEPENDENCY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
-                .message("One or more resources were not loaded. Check left- or right- IRI Files")
+                .message(GENERAL_ERROR_MESSAGE)
                 .timestamp(requestBody.datetime())
                 .leftIriFile(requestBody.gitUrlLeft())
                 .rightIriFile(requestBody.gitUrlRight())
@@ -55,7 +56,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .ontologyId(DEFAULT_ONTOLOGY_ID)
                 .status(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
-                .message("Error happened while parsing an ontology. Check left- or right- IRI Files")
+                .message(GENERAL_ERROR_MESSAGE)
                 .timestamp(requestBody.datetime())
                 .leftIriFile(requestBody.gitUrlLeft())
                 .rightIriFile(requestBody.gitUrlRight())
@@ -73,7 +74,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .ontologyId(DEFAULT_ONTOLOGY_ID)
                 .status(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase())
                 .debugMessage(ex.getMessage())
-                .message("Error happened while parsing an ontology. Check left- or right- IRI Files")
+                .message(GENERAL_ERROR_MESSAGE)
                 .timestamp(requestBody.datetime())
                 .leftIriFile(requestBody.gitUrlLeft())
                 .rightIriFile(requestBody.gitUrlRight())

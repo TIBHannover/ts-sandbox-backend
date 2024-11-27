@@ -12,9 +12,9 @@ import eu.tib.ts.utils.PageUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -30,27 +30,20 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("api/ontology/mapping")
+@AllArgsConstructor
 public class ExternalMappingController {
 
     private final PreProcessingOntologyService preProcessingOntologyService;
+
     private final ExternalMappingService externalMappingService;
+
     private final PagedResourcesAssembler<ExternalMapping> externalMappingPagedResourcesAssembler;
+
     private final ExternalMappingModelAssembler externalMappingModelAssembler;
+
     private final TsRepository tsRepository;
 
-    @Autowired
-    public ExternalMappingController(
-        TsRepository tsRepository,
-        PreProcessingOntologyService preProcessingOntologyService,
-        ExternalMappingService externalMappingService,
-        PagedResourcesAssembler<ExternalMapping> externalMappingPagedResourcesAssembler,
-        ExternalMappingModelAssembler externalMappingModelAssembler){
-        this.tsRepository = tsRepository;
-        this.preProcessingOntologyService=preProcessingOntologyService;
-        this.externalMappingService=externalMappingService;
-        this.externalMappingPagedResourcesAssembler=externalMappingPagedResourcesAssembler;
-        this.externalMappingModelAssembler = externalMappingModelAssembler;
-    }
+
     @Operation(summary = "Mappings between an external ontology and a set of selected TIB TS ontologies")
     @GetMapping(value = "/external/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<ExternalMappingModel>> getMappingsForExternalOntologyUri(

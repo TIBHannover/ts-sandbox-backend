@@ -2,6 +2,10 @@ package eu.tib.ontologyhistory.utils;
 
 public class SparqlQueries {
 
+    private SparqlQueries() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static final String ONDET_PREFIXES = """
             PREFIX pro: <http://purl.org/hpi/patchr#>
             PREFIX pr: <http://purl.org/ontology/prv/core#>
@@ -10,7 +14,6 @@ public class SparqlQueries {
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-            \n
             
             """;
 
@@ -62,7 +65,7 @@ public class SparqlQueries {
             """;
 
     public static final String ONDET_FILTERS_COMMIT_ID = """
-            FILTER(str(?commit) = ?commitId) .
+            FILTER(str(?githubCommit) = ?commitId) .
             """;
 
     public static final String GET_ALL_GRAPHS = """
@@ -70,7 +73,7 @@ public class SparqlQueries {
             
             WHERE {
               ?commit_id prov:generatedAtTime ?first_commit_time .
-              ?commit_id rdfs:label ?commit .
+              ?commit_id rdfs:label ?githubCommit .
               ?commit_id prov:value ?message .
               ?commit_id prov:alternateOf ?ontology_url .
               ?ontology_url rdfs:seeAlso ?graph .
@@ -83,7 +86,7 @@ public class SparqlQueries {
             
             WHERE {
               ?commit_id prov:generatedAtTime ?first_commit_time .
-              ?commit_id rdfs:label ?commit .
+              ?commit_id rdfs:label ?githubCommit .
               ?commit_id prov:value ?message .
               ?commit_id prov:alternateOf ?ontology_url .
               ?ontology_url rdfs:seeAlso ?graph .
@@ -145,7 +148,7 @@ public class SparqlQueries {
             
               ?commit_id prov:wasRevisionOf ?first_commit .
               ?commit_id prov:generatedAtTime ?second_commit_time .
-              ?commit_id rdfs:label ?commit .
+              ?commit_id rdfs:label ?githubCommit .
               ?commit_id prov:value ?message .
               ?commit_id prov:alternateOf ?ontology_url .
               ?ontology_url rdfs:seeAlso ?label .
@@ -159,7 +162,7 @@ public class SparqlQueries {
                 ?s ?p ?o .
               }
             
-              FILTER(str(?commit) = ?commitId) .
+              FILTER(str(?githubCommit) = ?commitId) .
             
             }
             """;

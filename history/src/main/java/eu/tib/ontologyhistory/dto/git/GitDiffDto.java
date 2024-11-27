@@ -2,12 +2,13 @@ package eu.tib.ontologyhistory.dto.git;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.net.URI;
 import java.time.Instant;
 
 public record GitDiffDto(
         String id,
 
-        String url,
+        URI uri,
 
         String sha,
 
@@ -20,6 +21,6 @@ public record GitDiffDto(
 ) {
 
     public static GitDiffDto defaultValue() {
-        return new GitDiffDto("", "", "", "", "", Instant.now());
+        return new GitDiffDto("", URI.create(""), "", "", "", Instant.now());
     }
 }

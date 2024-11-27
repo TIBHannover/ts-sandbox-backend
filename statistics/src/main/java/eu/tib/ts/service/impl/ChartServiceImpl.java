@@ -20,7 +20,6 @@ import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -55,7 +54,7 @@ public class ChartServiceImpl implements ChartService {
                     similarity.getPair().getFirst(), similarity.getPair().getSecond(), similarity.getPercent()
                 )
             )
-            .collect(Collectors.toList());
+            .toList();
 
         DataFrame<String, String> frame = getDataFrame(names, similarities);
         drawChart(frame, request, "TS ontologies", os, width, height);
@@ -82,7 +81,7 @@ public class ChartServiceImpl implements ChartService {
                     similarity.getPair().getFirst(), similarity.getPair().getSecond(), similarity.getPercent()
                 )
             )
-            .collect(Collectors.toList());
+            .toList();
 
         DataFrame<String, String> frame = getDataFrame(names, similarities);
         drawChart(frame, request, ontology.getOntologyId() + " with TS ontologies", os, width, height);
@@ -107,7 +106,7 @@ public class ChartServiceImpl implements ChartService {
                             similarities.stream()
                                 .map(PairwiseSimilarity::getCharacteristics)
                                 .map(map -> map.get(type).getPercent())
-                                .collect(Collectors.toList())
+                                .toList()
                         )
                     )
         );

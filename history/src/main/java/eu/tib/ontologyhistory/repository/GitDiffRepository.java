@@ -4,6 +4,7 @@ import eu.tib.ontologyhistory.model.GitDiff;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.net.URI;
 import java.util.List;
 
 @Repository
@@ -13,11 +14,11 @@ public interface GitDiffRepository extends MongoRepository<GitDiff, String> {
 
     GitDiff findFirstByParentSha(String parentSha);
 
-    GitDiff findFirstByUrl(String url);
+    GitDiff findFirstByUri(URI uri);
 
-    List<GitDiff> findAllByUrl(String url);
+    List<GitDiff> findAllByUri(URI uri);
 
-    GitDiff findFirstByUrlOrderByDatetimeDesc(String url);
+    GitDiff findFirstByUriOrderByDatetimeDesc(URI uri);
 
-    void deleteAllByUrl(String url);
+    void deleteAllByUri(URI uri);
 }

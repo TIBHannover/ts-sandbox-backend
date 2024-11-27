@@ -1,6 +1,7 @@
 package eu.tib.ontologyhistory.model.gitlab;
 
 import com.fasterxml.jackson.annotation.*;
+import eu.tib.ontologyhistory.model.Commit;
 import eu.tib.ontologyhistory.view.Views;
 
 import java.time.Instant;
@@ -26,7 +27,7 @@ public record GitlabCommit(
         Instant committed_date,
 
         List<String> parent_ids
-) {
+) implements Commit {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record ParentId(

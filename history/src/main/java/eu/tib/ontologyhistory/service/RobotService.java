@@ -23,6 +23,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -51,11 +52,11 @@ public class RobotService {
 
     public Set<TempGraph> findAllUrls() {
         val diff = robotRepository.findAll();
-        val urls = new HashSet<TempGraph>();
+        val uris = new HashSet<TempGraph>();
         for (Diff d : diff) {
-            urls.add(new TempGraph(d.getUrl()));
+            uris.add(new TempGraph(String.valueOf(d.getUri())));
         }
-        return urls;
+        return uris;
     }
 
     public DiffDto findById(String id) {
@@ -73,13 +74,13 @@ public class RobotService {
         return diffMapper.entityToDto(diff);
     }
 
-    public List<DiffDto> findAllByUrl(String url) {
-        val diffs = robotRepository.findAllByUrl(url);
+    public List<DiffDto> findAllByUrl(URI uri) {
+        val diffs = robotRepository.findAllByUri(uri);
         return diffMapper.entityToDto(diffs);
     }
 
-    public DiffDto findFirstByUrl(String url) {
-        val diff = robotRepository.findFirstByUrl(url);
+    public DiffDto findFirstByUrl(URI uri) {
+        val diff = robotRepository.findFirstByUri(uri);
         return diffMapper.entityToDto(diff);
     }
 
@@ -87,8 +88,8 @@ public class RobotService {
         robotRepository.deleteById(id);
     }
 
-    public void deleteAllByUrl(String url) {
-        robotRepository.deleteAllByUrl(url);
+    public void deleteAllByUrl(URI uri) {
+        robotRepository.deleteAllByUri(uri);
     }
 
     public void deleteAll() {
@@ -96,33 +97,33 @@ public class RobotService {
     }
 
     public void update(String id) {
-
+        // will be extended later
     }
 
-    public void updateByUrl(String url, Instant datetime) {
-        GitService<?> gitService = GitServiceFactory.getService(url);
+    public void updateByUrl(URI uri, Instant datetime) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(url, datetime);
+        val diffAdds = gitService.getDiffAdds(uri, datetime);
 
         for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, url);
+            makeDiffFromGit(diffAdd, uri);
         }
     }
 
-    public void create(String url) {
-        GitService<?> gitService = GitServiceFactory.getService(url);
+    public void create(URI uri) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(url);
+        val diffAdds = gitService.getDiffAdds(uri, null);
 
         for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, url);
+            makeDiffFromGit(diffAdd, uri);
         }
 
     }
 
-    public void create(String url, List<DiffAdd> diffAdds) {
+    public void create(URI uri, List<DiffAdd> diffAdds) {
         for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, url);
+            makeDiffFromGit(diffAdd, uri);
         }
     }
 
@@ -145,7 +146,7 @@ public class RobotService {
 
     }
 
-    public void makeDiffFromGit(DiffAdd diffAdd, String url) {
+    public void makeDiffFromGit(DiffAdd diffAdd, URI uri) {
         try {
             OWLOntology owlOntologyLeft = OntologyUtils.loadOntology(IRI.create(diffAdd.gitUrlLeft()));
             OWLOntology owlOntologyRight = OntologyUtils.loadOntology(IRI.create(diffAdd.gitUrlRight()));
@@ -158,7 +159,7 @@ public class RobotService {
                 Document markdown = new Document().append(MARKDOWN_DOCUMENT_KEY, axiomsMarkdown.get().markdownOutput());
 
                 val diff = Diff.builder()
-                        .url(url)
+                        .uri(uri)
                         .sha(diffAdd.sha())
                         .parentSha(diffAdd.parentSha())
                         .datetime(diffAdd.parentDatetime())
@@ -176,10 +177,10 @@ public class RobotService {
         }
     }
 
-    public Map<String, List<String>> resHistory(String url, Instant datetime, String resourceIRI) {
-        GitService<?> gitService = GitServiceFactory.getService(url);
+    public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(url, datetime);
+        val diffAdds = gitService.getDiffAdds(uri, datetime);
 
         val objects = new LinkedHashMap<String, List<String>>();
         for (val diffAdd : diffAdds) {
