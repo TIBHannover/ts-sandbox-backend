@@ -39,7 +39,13 @@
         <dependency>
             <groupId>org.obolibrary.robot</groupId>
             <artifactId>robot-command</artifactId>
-            <version>1.9.3</version>
+            <version>1.9.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dbs.leipzig</groupId>
+            <artifactId>conto</artifactId>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
