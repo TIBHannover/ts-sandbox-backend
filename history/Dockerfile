@@ -8,16 +8,15 @@ COPY ./lib/ContoDiff-1.0-SNAPSHOT-shaded.jar ./opt/sandbox/history/ContoDiff-1.0
 COPY ./lib/rules/ChangeActions.xml ./opt/sandbox/history/rules/ChangeActions.xml
 COPY ./lib/rules/Rule_OBO.xml ./opt/sandbox/history/rules/Rule_OBO.xml
 WORKDIR /opt/sandbox/history
-RUN <<EOF
-  ls
-  mvn install:install-file \
-      -Dfile=ContoDiff-1.0-SNAPSHOT-shaded.jar \
-      -DgroupId=org.dbs.leipzig \
-      -DartifactId=conto \
-      -Dversion=1.0 \
-      -Dpackaging=jar \
-      -DgeneratePom=true
-  mvn clean package -DskipTests
+RUN <<EOF ls  && \
+    mvn install:install-file \
+                -Dfile=ContoDiff-1.0-SNAPSHOT-shaded.jar \
+                -DgroupId=org.dbs.leipzig \
+                -DartifactId=conto \
+                -Dversion=1.0 \
+                -Dpackaging=jar \
+                -DgeneratePom=true && \
+    mvn clean package -DskipTests
 EOF
 ENTRYPOINT ["java","-Xmx5G", "-Xms1024m","-jar","/opt/sandbox/history/target/history-back.jar"]
 
