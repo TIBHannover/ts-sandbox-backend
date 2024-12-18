@@ -370,7 +370,7 @@ public class ContoService {
     public void create(URI uri, String dataset) {
         GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(uri, null);
+        val diffAdds = gitService.getDiffAdds(uri, Instant.parse("2023-04-01T15:30:56Z"));
         for (val diffAdd : diffAdds) {
             try {
                 getCommand(diffAdd, uri);
@@ -450,8 +450,8 @@ public class ContoService {
                 .rightCommitUri(diffAdd.gitCommitUrlRight())
                 .leftDatetime(diffAdd.datetime().toString())
                 .rightDatetime(diffAdd.parentDatetime().toString())
-                .leftMessage(diffAdd.messageLeft().replaceAll("\\s", "_"))
-                .rightMessage(diffAdd.messageRight().replaceAll("\\s", "_"))
+                .leftMessage(diffAdd.messageLeft().replaceAll("\\s", "_").replace("\"", "'"))
+                .rightMessage(diffAdd.messageRight().replaceAll("\\s", "_").replace("\"", "'"))
                 .outputFile(OUTPUT_FILE)
                 .allDiffsNQuadFile(QUAD_FILE)
                 .build();
