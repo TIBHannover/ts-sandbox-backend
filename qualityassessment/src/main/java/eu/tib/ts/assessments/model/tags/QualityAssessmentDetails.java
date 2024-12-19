@@ -9,13 +9,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Value
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Document(collection = "community_assessment_details")
-public class CommunityAssessmentDetails {
+@Document(collection = "quality_assessment_details")
+public class QualityAssessmentDetails {
     String ontologyId;
     String title;
     String repoUrl;
-    Integer watches;
+    Boolean hasReleases;
+    Boolean hasReadMe;
+    Boolean hasLicense;
+    Integer watchers;
     Integer forks;
-    Integer likes;
+    Integer stars;
+    float dataAssessmentScore;
     float communityAssessmentScore;
 }

@@ -1,8 +1,7 @@
 package eu.tib.ts.assessments.services.impl;
 
 import eu.tib.ts.assessments.model.tags.*;
-import eu.tib.ts.assessments.repository.DataAssessment;
-import eu.tib.ts.assessments.repository.CommunityAssessment;
+import eu.tib.ts.assessments.repository.QualityAssessment;
 import eu.tib.ts.assessments.repository.GitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -29,10 +28,7 @@ public class GitRepoImpl {
     private GitRepository gitRepository;
 
     @Autowired
-    private DataAssessment dataAssessment;
-
-    @Autowired
-    private CommunityAssessment communityAssessment;
+    private QualityAssessment qualityAssessment;
     private final RestTemplate restTemplate;
     private final ArrayList<GitFinalResponse> gitFinalResponsesArray = new ArrayList<>();
 
@@ -54,11 +50,8 @@ public class GitRepoImpl {
     }
 
     private void resetAssessments() {
-        if (!dataAssessment.findAll().isEmpty()) {
-            dataAssessment.deleteAll();
-        }
-        if (!communityAssessment.findAll().isEmpty()) {
-            communityAssessment.deleteAll();
+        if (!qualityAssessment.findAll().isEmpty()) {
+            qualityAssessment.deleteAll();
         }
     }
 
@@ -83,12 +76,12 @@ public class GitRepoImpl {
                         .title(repo.getTitle())
                         .repoUrl(repo.getRepoUrl())
                         .forks(forkCount)
-                        .watches(watchCount)
-                        .likes(starCount)
-                        .releases(hasReleases)
-                        .readMe(hasReadMe)
-                        .license(hasLicense)
-                        .booleanEstimation(estimatedValue)
+                        .watchers(watchCount)
+                        .stars(starCount)
+                        .hasReleases(hasReleases)
+                        .hasReadMe(hasReadMe)
+                        .hasLicense(hasLicense)
+                        .dataAssessmentScore(estimatedValue)
                         .build()
         );
     }

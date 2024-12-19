@@ -22,6 +22,17 @@ services:
         - my_shared_network
       links:
         - mongodb
+    quality-assessment-back:
+      image: quality-assessment-back:1.0
+      container_name: quality-assessment-back
+      build:
+        context: qualityassessment
+      ports:
+        - "9696:9696"
+      networks:
+        - my_shared_network
+      links:
+        - mongodb
     history-back:
       image: history-back:1.0
       container_name: history-back

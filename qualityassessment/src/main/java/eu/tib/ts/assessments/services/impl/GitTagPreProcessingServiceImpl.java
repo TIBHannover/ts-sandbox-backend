@@ -2,14 +2,12 @@ package eu.tib.ts.assessments.services.impl;
 
 
 import eu.tib.ts.assessments.controller.AssessmentController;
-import eu.tib.ts.assessments.model.tags.DataAssessmentDetails;
 import eu.tib.ts.assessments.model.tags.GitFinalResponse;
-import eu.tib.ts.assessments.model.tags.CommunityAssessmentDetails;
+import eu.tib.ts.assessments.model.tags.QualityAssessmentDetails;
 import eu.tib.ts.assessments.model.tags.GitRepo;
 import eu.tib.ts.assessments.model.tags.ontology.TsOntology;
 import eu.tib.ts.assessments.services.GitPreProcessingService;
-import eu.tib.ts.assessments.repository.DataAssessment;
-import eu.tib.ts.assessments.repository.CommunityAssessment;
+import eu.tib.ts.assessments.repository.QualityAssessment;
 import eu.tib.ts.assessments.repository.GitRepository;
 import eu.tib.ts.assessments.repository.TsRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +24,7 @@ public class GitTagPreProcessingServiceImpl implements GitPreProcessingService {
     private final TsRepository tsRepository;
     private final AssessmentController assessmentController;
     private final GitRepository gitRepository;
-    private final DataAssessment dataAssessment;
-    private final CommunityAssessment communityAssessment;
+    private final QualityAssessment qualityAssessment;
     private final GitRepoImpl gitRepoImp;
 
     @Autowired
@@ -36,15 +33,13 @@ public class GitTagPreProcessingServiceImpl implements GitPreProcessingService {
             AssessmentController assessmentController,
             GitRepository gitRepository,
             GitRepoImpl gitRepoImp,
-            DataAssessment dataAssessment,
-            CommunityAssessment communityAssessment
+            QualityAssessment qualityAssessment
     ) {
         this.tsRepository = tsRepository;
         this.assessmentController = assessmentController;
         this.gitRepository = gitRepository;
         this.gitRepoImp = gitRepoImp;
-        this.dataAssessment = dataAssessment;
-        this.communityAssessment = communityAssessment;
+        this.qualityAssessment = qualityAssessment;
         log.info("GitTagPreProcessingService initialized");
     }
 
@@ -105,22 +100,21 @@ public class GitTagPreProcessingServiceImpl implements GitPreProcessingService {
         }
 
         // Calculate maximum metrics
-        int maxWatches = gitFinalResponses.stream().mapToInt(GitFinalResponse::getWatches).max().orElse(1);
+        int maxWatches = gitFinalResponses.stream().mapToInt(GitFinalResponse::getWatchers).max().orElse(1);
         int maxForks = gitFinalResponses.stream().mapToInt(GitFinalResponse::getForks).max().orElse(1);
-        int maxStars = gitFinalResponses.stream().mapToInt(GitFinalResponse::getLikes).max().orElse(1);
+        int maxStars = gitFinalResponses.stream().mapToInt(GitFinalResponse::getStars).max().orElse(1);
 
         log.info("Max values - Watches: {}, Forks: {}, Stars: {}", maxWatches, maxForks, maxStars);
 
         // Process each repository's metrics
         gitFinalResponses.forEach(response -> {
-            float watchesScore = calculateNormalizedScore(response.getWatches(), maxWatches);
+            float watchesScore = calculateNormalizedScore(response.getWatchers(), maxWatches);
             float forksScore = calculateNormalizedScore(response.getForks(), maxForks);
-            float starsScore = calculateNormalizedScore(response.getLikes(), maxStars);
+            float starsScore = calculateNormalizedScore(response.getStars(), maxStars);
 
             float communityScore = watchesScore + forksScore + starsScore;
 
-            saveDataAssessment(response);
-            saveCommunityAssessment(response, communityScore);
+            saveQualityAssessment(response, communityScore);
         });
 
         log.info("Repository metrics processing completed");
@@ -130,33 +124,22 @@ public class GitTagPreProcessingServiceImpl implements GitPreProcessingService {
         return (value * 33.33f) / maxValue;
     }
 
-    private void saveDataAssessment(GitFinalResponse response) {
-        DataAssessmentDetails dataAssessment = DataAssessmentDetails.builder()
+    private void saveQualityAssessment(GitFinalResponse response, float communityScore) {
+        QualityAssessmentDetails communityAssessment = QualityAssessmentDetails.builder()
                 .ontologyId(response.getOntologyId())
                 .title(response.getTitle())
                 .repoUrl(response.getRepoUrl())
-                .releases(response.getReleases())
-                .readMe(response.getReadMe())
-                .license(response.getLicense())
-                .dataAssessmentScore(response.getBooleanEstimation())
-                .build();
-
-        this.dataAssessment.save(dataAssessment);
-        log.info("Saved Data Assessment: {}", dataAssessment);
-    }
-
-    private void saveCommunityAssessment(GitFinalResponse response, float communityScore) {
-        CommunityAssessmentDetails communityAssessment = CommunityAssessmentDetails.builder()
-                .ontologyId(response.getOntologyId())
-                .title(response.getTitle())
-                .repoUrl(response.getRepoUrl())
+                .hasReleases(response.getHasReleases())
+                .hasReadMe(response.getHasReadMe())
+                .hasLicense(response.getHasLicense())
                 .forks(response.getForks())
-                .watches(response.getWatches())
-                .likes(response.getLikes())
+                .watchers(response.getWatchers())
+                .stars(response.getStars())
+                .dataAssessmentScore(response.getDataAssessmentScore())
                 .communityAssessmentScore(communityScore)
                 .build();
 
-        this.communityAssessment.save(communityAssessment);
+        this.qualityAssessment.save(communityAssessment);
         log.info("Saved Community Assessment: {}", communityAssessment);
     }
 
