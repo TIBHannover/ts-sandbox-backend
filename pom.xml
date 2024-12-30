@@ -12,6 +12,7 @@
         <module>history</module>
         <module>statistics</module>
         <module>tiva</module>
+        <module>qualityassessment</module>
     </modules>
 
     <properties>
