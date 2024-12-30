@@ -22,7 +22,7 @@ public class GitRepoImpl {
 
     private static final String GITHUB_API_BASE_URL = "https://api.github.com/repos";
     private static final float METRIC_WEIGHT = 33.33f;
-    private final String GITHUB_ACCESS_TOKEN = "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";
+    private final String GITHUB_ACCESS_TOKEN = "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";
 
     @Autowired
     private GitRepository gitRepository;
