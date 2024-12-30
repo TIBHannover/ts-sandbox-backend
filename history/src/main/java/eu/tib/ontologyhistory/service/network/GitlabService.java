@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 @AllArgsConstructor
 public class GitlabService implements GitService<GitlabCommit> {
 
-    private static final String ACCESS_TOKEN = "glpat-TAU5FEyCBcyBbwDsMb5J";
+    private static final String ACCESS_TOKEN = "glpat-hN2KLLbi_WGdEKnyQ8_T";
 
     private static final ExecutorService executor = Executors.newFixedThreadPool(10);
 

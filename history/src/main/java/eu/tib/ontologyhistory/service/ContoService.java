@@ -2,10 +2,7 @@ package eu.tib.ontologyhistory.service;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import eu.tib.ontologyhistory.dto.conto.Difference;
-import eu.tib.ontologyhistory.dto.conto.TempGraph;
-import eu.tib.ontologyhistory.dto.conto.Timeline;
-import eu.tib.ontologyhistory.dto.conto.TimelineMessage;
+import eu.tib.ontologyhistory.dto.conto.*;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.model.InvalidContoDiff;
 import eu.tib.ontologyhistory.repository.InvalidContoDiffRepository;
@@ -15,6 +12,7 @@ import eu.tib.ontologyhistory.utils.SparqlQueries;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.ContoDiffMain;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -35,7 +33,9 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.system.Txn;
 import org.apache.jena.tdb.TDBFactory;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.stereotype.Service;
+import org.webdifftool.client.model.DiffContext;
 
 import java.io.*;
 import java.net.URI;
@@ -53,8 +53,6 @@ import java.util.concurrent.TimeUnit;
 public class ContoService {
 
     private final InvalidContoDiffRepository invalidContoDiffRepository;
-
-    private static final Character UNIQUE_DELIMITER = '\u001f';
 
     private static final String FUSEKI_DOCKER_CONN_STRING = "http://fuseki:3030/";
 
@@ -372,10 +370,10 @@ public class ContoService {
     public void create(URI uri, String dataset) {
         GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(uri, null);
+        val diffAdds = gitService.getDiffAdds(uri, Instant.parse("2023-04-01T15:30:56Z"));
         for (val diffAdd : diffAdds) {
             try {
-                diffExecute(diffAdd, uri);
+                getCommand(diffAdd, uri);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
             } catch (Exception e) {
@@ -394,7 +392,7 @@ public class ContoService {
     public void create(URI uri, String dataset, List<DiffAdd> diffAdds) {
         for (val diffAdd : diffAdds) {
             try {
-                diffExecute(diffAdd, uri);
+                getCommand(diffAdd, uri);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
             } catch (Exception e) {
@@ -416,7 +414,7 @@ public class ContoService {
         val diffAdds = gitService.getDiffAdds(uri, datetime);
         for (val diffAdd : diffAdds) {
             try {
-                diffExecute(diffAdd, uri);
+                getCommand(diffAdd, uri);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
                 uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
             } catch (Exception e) {
@@ -432,7 +430,7 @@ public class ContoService {
         }
     }
 
-    private static String getCommand(DiffAdd diffAdd, URI baseUrl) {
+    private static void getCommand(DiffAdd diffAdd, URI baseUrl) {
         String ontLeft = null;
         String ontRight = null;
         try {
@@ -443,73 +441,27 @@ public class ContoService {
             log.error(e.getMessage(), e);
         }
 
-        String gitInfo = "\"" +
-                diffAdd.gitUrlLeft() + UNIQUE_DELIMITER +
-                diffAdd.gitUrlRight() + UNIQUE_DELIMITER +
-                diffAdd.gitCommitUrlLeft() + UNIQUE_DELIMITER +
-                diffAdd.gitCommitUrlRight() + UNIQUE_DELIMITER +
-                diffAdd.datetime() + UNIQUE_DELIMITER +
-                diffAdd.parentDatetime() + UNIQUE_DELIMITER +
-                diffAdd.messageLeft().replaceAll("\\s", "_") + UNIQUE_DELIMITER +
-                diffAdd.messageRight().replaceAll("\\s", "_") + "\"";
+        val diffContext = DiffContext.builder()
+                .fileLeft(ontLeft)
+                .fileRight(ontRight)
+                .rawUrlLeft(diffAdd.gitUrlLeft())
+                .rawUrlRight(diffAdd.gitUrlRight())
+                .leftCommitUri(diffAdd.gitCommitUrlLeft())
+                .rightCommitUri(diffAdd.gitCommitUrlRight())
+                .leftDatetime(diffAdd.datetime().toString())
+                .rightDatetime(diffAdd.parentDatetime().toString())
+                .leftMessage(diffAdd.messageLeft().replaceAll("\\s", "_").replace("\"", "'"))
+                .rightMessage(diffAdd.messageRight().replaceAll("\\s", "_").replace("\"", "'"))
+                .outputFile(OUTPUT_FILE)
+                .allDiffsNQuadFile(QUAD_FILE)
+                .build();
 
-        return "java -jar ContoDiff-1.0-SNAPSHOT-shaded.jar" +
-                " -oa " + ontLeft +
-                " -ob " + ontRight +
-                " -base-iri " + baseUrl +
-                " -git_info " + gitInfo +
-                " -o " + OUTPUT_FILE;
-    }
-
-    private void diffExecute(DiffAdd diffAdd, URI uri) throws Exception {
-
-        String command = getCommand(diffAdd, uri);
-
-        Process process = Runtime.getRuntime().exec(command);
-        log.error("Before process.waitFor()");
-
-        Thread errorStreamThread = new Thread(() -> {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    log.error("ContoDiff Error: " + line);
-                }
-            } catch (IOException e) {
-                log.error("Error reading from error stream");
-            }
-        });
-        errorStreamThread.start();
-
-        Thread processWaitThread = new Thread(() -> {
-            try {
-                process.waitFor();
-            } catch (InterruptedException e) {
-                log.error("Process was interrupted");
-            }
-        });
-        processWaitThread.start();
-
-        long startTime = System.currentTimeMillis();
-        while (process.isAlive()) {
-            if (System.currentTimeMillis() - startTime > 5000) {
-                log.error("Timeout reached, killing the process...");
-                process.destroy();
-                break;
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new IOException("Error while waiting for process", e);
-            }
+        try {
+            ContoDiffMain.makeContoDiff(diffContext, String.valueOf(baseUrl));
+        } catch (OWLOntologyCreationException | IOException e) {
+            throw new RuntimeException(e);
         }
 
-        processWaitThread.join();
-
-        if (!process.isAlive()) {
-            log.error("Process completed or was terminated after timeout.");
-        }
-
-        log.error("AFTER process wait for()");
     }
 
     private Model readOntology(String ont) {

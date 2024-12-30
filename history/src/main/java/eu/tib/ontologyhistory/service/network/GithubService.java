@@ -26,7 +26,7 @@ import java.util.*;
 @AllArgsConstructor
 public class GithubService implements GitService<GithubCommit> {
 
-    private static final String ACCESS_TOKEN = "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";
+    private static final String ACCESS_TOKEN = "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";
 
     @Override
     public List<DiffAdd> getDiffAdds(URI uri, Instant datetime) {
