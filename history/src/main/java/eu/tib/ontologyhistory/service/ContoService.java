@@ -370,7 +370,7 @@ public class ContoService {
     public void create(URI uri, String dataset) {
         GitService<?> gitService = GitServiceFactory.getService(uri);
 
-        val diffAdds = gitService.getDiffAdds(uri, Instant.parse("2023-04-01T15:30:56Z"));
+        val diffAdds = gitService.getDiffAdds(uri, null);
         for (val diffAdd : diffAdds) {
             try {
                 getCommand(diffAdd, uri);
