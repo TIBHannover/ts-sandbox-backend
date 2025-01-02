@@ -12,7 +12,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +48,7 @@ public class GitRepoImpl {
         return new ArrayList<>(gitFinalResponsesArray);
     }
 
+
     private void resetAssessments() {
         if (!qualityAssessment.findAll().isEmpty()) {
             qualityAssessment.deleteAll();
@@ -61,9 +61,12 @@ public class GitRepoImpl {
         HttpHeaders headers = createHeaders();
         HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
 
-        int watchCount = getItemCount(GITHUB_API_BASE_URL + repositoryName + "/subscribers", entity, new ParameterizedTypeReference<List<WatchItem>>() {});
-        int starCount = getItemCount(GITHUB_API_BASE_URL + repositoryName + "/stargazers", entity, new ParameterizedTypeReference<List<WatchItem>>() {});
-        int forkCount = getItemCount(GITHUB_API_BASE_URL + repositoryName + "/forks", entity, new ParameterizedTypeReference<List<Forks>>() {});
+        GitHubRepository gitHubRepository = fetchRepositoryData(GITHUB_API_BASE_URL + repositoryName, entity);
+
+        int watchCount = gitHubRepository != null ? gitHubRepository.getSubscribersCount() : 0;
+        int starCount = gitHubRepository != null ? gitHubRepository.getStargazersCount() : 0;
+        int forkCount = gitHubRepository != null ? gitHubRepository.getForksCount() : 0;
+
         boolean hasReleases = checkIfExists(GITHUB_API_BASE_URL + repositoryName + "/releases", entity, new ParameterizedTypeReference<List<Releases>>() {});
         boolean hasReadMe = checkIfExists(GITHUB_API_BASE_URL + repositoryName + "/readme", entity, new ParameterizedTypeReference<ReadMeItem>() {});
         boolean hasLicense = checkIfExists(GITHUB_API_BASE_URL + repositoryName + "/license", entity, new ParameterizedTypeReference<LicenseItem>() {});
@@ -84,6 +87,15 @@ public class GitRepoImpl {
                         .dataAssessmentScore(estimatedValue)
                         .build()
         );
+    }
+
+    private GitHubRepository fetchRepositoryData(String url, HttpEntity<String> entity) {
+        try {
+            ResponseEntity<GitHubRepository> response = restTemplate.exchange(url, HttpMethod.GET, entity, GitHubRepository.class);
+            return response.getBody();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private HttpHeaders createHeaders() {
