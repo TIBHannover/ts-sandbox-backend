@@ -149,7 +149,7 @@ public class GithubService implements GitService<GithubCommit> {
                 result.addAll(commits);
 
                 nextPage = response.headers().firstValue("link");
-                if (nextPage.isPresent()) {
+                if (nextPage.isPresent() && nextPage.get().contains("rel=\"next\"")) {
                     Matcher matcher = pattern.matcher(nextPage.get());
                     if (matcher.find()) {
                         githubApiUri = URI.create(matcher.group());
