@@ -140,7 +140,7 @@ public class GitlabService implements GitService<GitlabCommit> {
 
 
         URI gitlabUri = URI.create(link);
-        Optional<String> nextPage = Optional.of("1");
+        Optional<String> nextPage = Optional.of("init");
 
         while (nextPage.isPresent()) {
             HttpRequest request = HttpRequest.newBuilder()
@@ -150,8 +150,7 @@ public class GitlabService implements GitService<GitlabCommit> {
 
             try {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                List<GitlabCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {
-                });
+                List<GitlabCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {});
                 result.addAll(commits);
 
                 nextPage = response.headers().firstValue("x-next-page");

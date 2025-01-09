@@ -16,10 +16,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -27,6 +27,10 @@ import java.util.*;
 public class GithubService implements GitService<GithubCommit> {
 
     private static final String ACCESS_TOKEN = "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";
+
+    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    private static final String GITHUB_NEXT_PAGE_REGEX = "(?<=<)(\\S*)(?=>; rel=\"next\")";
 
     @Override
     public List<DiffAdd> getDiffAdds(URI uri, Instant datetime) {
@@ -108,6 +112,7 @@ public class GithubService implements GitService<GithubCommit> {
 
     @Override
     public List<GithubCommit> getCommits(URI uri, String owner, String repo, String path, String branch, Instant datetime) {
+        Pattern pattern = Pattern.compile(GITHUB_NEXT_PAGE_REGEX);
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(uri)
                 .host("api.github.com")
@@ -127,25 +132,41 @@ public class GithubService implements GitService<GithubCommit> {
                 .buildAndExpand(owner, repo)
                 .toUri();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(githubApiUri)
-                .header("Authorization", "Bearer " + ACCESS_TOKEN)
-                .build();
+        Optional<String> nextPage = Optional.of("init");
+        List<GithubCommit> result = new ArrayList<>();
 
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        while (nextPage.isPresent()) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(githubApiUri)
+                    .header("Authorization", "Bearer " + ACCESS_TOKEN)
+                    .build();
 
-            ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-            return objectMapper.readValue(response.body(), new TypeReference<>() {
-            });
-        } catch (InterruptedException e) {
-            log.error("Interrupted with the response: " + e);
-            Thread.currentThread().interrupt();
-        } catch (IOException e) {
-            log.error("IOException happened: " + e);
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                List<GithubCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {});
+                result.addAll(commits);
+
+                nextPage = response.headers().firstValue("link");
+                if (nextPage.isPresent()) {
+                    Matcher matcher = pattern.matcher(nextPage.get());
+                    if (matcher.find()) {
+                        githubApiUri = URI.create(matcher.group());
+                    }
+                } else {
+                    nextPage = Optional.empty();
+                }
+            } catch (InterruptedException e) {
+                log.error("Interrupted with the response: " + e);
+                Thread.currentThread().interrupt();
+            } catch (IOException e) {
+                log.error("IOException happened: " + e);
+            }
         }
-        return Collections.emptyList();
+
+
+        return result;
     }
 
     @Override
