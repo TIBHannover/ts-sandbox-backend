@@ -17,9 +17,9 @@ public class GitServiceFactory {
 
         String host = uri.getHost();
 
-        if (host.contains("gitlab")) {
+        if (host.equals("gitlab.com")) {
             return new GitlabService();
-        } else if (host.contains("github")) {
+        } else if (host.equals("raw.githubusercontent.com")) {
             return new GithubService();
         } else {
             throw new IllegalArgumentException("Unsupported Git service: " + host);
