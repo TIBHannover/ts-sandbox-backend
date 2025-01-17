@@ -3,6 +3,8 @@ package eu.tib.ontologyhistory.service.network;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.model.github.GithubCommit;
 import lombok.AllArgsConstructor;
@@ -142,10 +144,26 @@ public class GithubService implements GitService<GithubCommit> {
                     .build();
 
             try {
-                HttpClient client = HttpClient.newHttpClient();
+                val commits = new ArrayList<GithubCommit>();
+                        HttpClient client = HttpClient.newHttpClient();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                List<GithubCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {});
+                val responseBody = JsonParser.parseString(response.body());
+                if (responseBody.isJsonArray()) {
+                    commits.addAll(objectMapper.readValue(response.body(), new TypeReference<>() {}));
+                }
+                if (responseBody.isJsonObject()) {
+                    JsonObject jsonObject = responseBody.getAsJsonObject();
+                    if (jsonObject.get("message").getAsString().equals("Moved Permanently")) {
+                        request = HttpRequest.newBuilder()
+                                .uri(URI.create(jsonObject.get("url").getAsString()))
+                                .header("Authorization", "Bearer " + ACCESS_TOKEN)
+                                .build();
+
+                        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                        commits.addAll(objectMapper.readValue(response.body(), new TypeReference<>() {}));
+                    }
+                }
                 result.addAll(commits);
 
                 nextPage = response.headers().firstValue("link");
