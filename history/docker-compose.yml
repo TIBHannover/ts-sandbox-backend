@@ -24,8 +24,8 @@ services:
       ADMIN_PASSWORD: fuseki
       QUERY_TIMEOUT: 600000
     volumes:
-      - /home/terminology/fuseki/fuseki-data:/fuseki-base/databases
-      - /home/terminology/fuseki/fuseki-configuration:/fuseki-base/configuration
+      - /data/terminology/fuseki/fuseki-data:/fuseki-base/databases
+      - /data/terminology/fuseki/fuseki-configuration:/fuseki-base/configuration
   history-back:
     image: history-back:1.0
     container_name: history-back
