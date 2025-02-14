@@ -39,4 +39,5 @@ services:
 networks:
   #sdiff-inet:
   my_shared_network:
+    name: my_shared_network
     driver: bridge

@@ -1,77 +1,78 @@
 version: '3'
 
 services:
-    mongodb:
-      #image: mongo:3.6.23
-      image: mongo:latest
-      container_name: "mongodb"
-      ports:
-        - "27017:27017"
-      networks:
-        - my_shared_network
-      volumes:
-        - ${HOME_PATH_LINUX}:/data/db
-    ts-statistics-back:
-      image: ts-statistics-back:1.0
-      container_name: ts-statistics-back
-      build:
-        context: statistics
-      ports:
-        - "9191:9191"
-      networks:
-        - my_shared_network
-      links:
-        - mongodb
-    quality-assessment-back:
-      image: quality-assessment-back:1.0
-      container_name: quality-assessment-back
-      build:
-        context: qualityassessment
-      ports:
-        - "9696:9696"
-      networks:
-        - my_shared_network
-      links:
-        - mongodb
-    history-back:
-      image: history-back:1.0
-      container_name: history-back
-      build:
-        context: history
-      ports:
-        - "9090:9090"
-      networks:
-        - my_shared_network
-      links:
-        - mongodb
-        - fuseki
-    fuseki:
-      image: secoresearch/fuseki
-      container_name: fuseki
-      ports:
-        - "3030:3030"
-      networks:
-        - my_shared_network
-        #- sdiff-inet
-      environment:
-        ADMIN_PASSWORD: fuseki
-        QUERY_TIMEOUT: 600000
-      volumes:
-        - /data/terminology/fuseki/fuseki-data:/fuseki-base/databases
-        - /data/terminology/fuseki/fuseki-configuration:/fuseki-base/configuration
-    tiva-statistics-back:
-      image: tiva-statistics-back:1.0
-      container_name: tiva-statistics-back
-      build:
-        context: tiva
-      ports:
-       - "9494:9494"
-      networks:
-        - my_shared_network
-      links:
-       - mongodb
+  mongodb:
+    #image: mongo:3.6.23
+    image: mongo:latest
+    container_name: "mongodb"
+    ports:
+      - "27017:27017"
+    networks:
+      - my_shared_network
+    volumes:
+      - ${HOME_PATH_LINUX}:/data/db
+  ts-statistics-back:
+    image: ts-statistics-back:1.0
+    container_name: ts-statistics-back
+    build:
+      context: statistics
+    ports:
+      - "9191:9191"
+    networks:
+      - my_shared_network
+    links:
+      - mongodb
+  quality-assessment-back:
+    image: quality-assessment-back:1.0
+    container_name: quality-assessment-back
+    build:
+      context: qualityassessment
+    ports:
+      - "9696:9696"
+    networks:
+      - my_shared_network
+    links:
+      - mongodb
+  history-back:
+    image: history-back:1.0
+    container_name: history-back
+    build:
+      context: history
+    ports:
+      - "9090:9090"
+    networks:
+      - my_shared_network
+    links:
+      - mongodb
+      - fuseki
+  fuseki:
+    image: secoresearch/fuseki
+    container_name: fuseki
+    ports:
+      - "3030:3030"
+    networks:
+      - my_shared_network
+      #- sdiff-inet
+    environment:
+      ADMIN_PASSWORD: fuseki
+      QUERY_TIMEOUT: 600000
+    volumes:
+      - /data/terminology/fuseki/fuseki-data:/fuseki-base/databases
+      - /data/terminology/fuseki/fuseki-configuration:/fuseki-base/configuration
+  tiva-statistics-back:
+    image: tiva-statistics-back:1.0
+    container_name: tiva-statistics-back
+    build:
+      context: tiva
+    ports:
+      - "9494:9494"
+    networks:
+      - my_shared_network
+    links:
+      - mongodb
 networks:
   #sdiff-inet:
    # driver: bridge
   my_shared_network:
+    name: my_shared_network
     driver: bridge
