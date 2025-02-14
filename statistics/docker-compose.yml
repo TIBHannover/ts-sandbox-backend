@@ -1,27 +1,28 @@
 version: '3'
 
 services:
-    mongodb:
-      #image: mongo:3.6.23
-      image: mongo:latest
-      container_name: "mongodb"
-      ports:
-        - "27017:27017"
-      volumes:
-        - ${HOME_PATH_LINUX}:/data/db
-      networks:
-        - my_shared_network
-    ts-statistics-back:
-      image: ts-statistics-back:1.0
-      container_name: ts-statistics-back
-      build:
-        context: .
-      ports:
-        - "9191:9191"
-      networks:
-        - my_shared_network
-      links:
-        - mongodb
+  mongodb:
+    #image: mongo:3.6.23
+    image: mongo:latest
+    container_name: "mongodb"
+    ports:
+      - "27017:27017"
+    volumes:
+      - ${HOME_PATH_LINUX}:/data/db
+    networks:
+      - my_shared_network
+  ts-statistics-back:
+    image: ts-statistics-back:1.0
+    container_name: ts-statistics-back
+    build:
+      context: .
+    ports:
+      - "9191:9191"
+    networks:
+      - my_shared_network
+    links:
+      - mongodb
 networks:
-    my_shared_network:
-      driver: bridge
+  my_shared_network:
+    name: my_shared_network
+    driver: bridge
