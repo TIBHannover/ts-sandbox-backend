@@ -1,5 +1,6 @@
 package eu.tib.ontologyhistory.service;
 
+import com.google.gson.JsonParser;
 import eu.tib.ontologyhistory.dto.DiffDtoTimeline;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
@@ -12,11 +13,18 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bson.Document;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -101,6 +109,11 @@ public class OndetService {
         return result;
     }
 
+    @Async
+    public CompletableFuture<Map<String, List<String>>> createBatchAsync(List<URI> uris, String dataset) {
+        return CompletableFuture.supplyAsync(() -> create(uris, dataset));
+    }
+
     public List<DiffAdd> getDiffAdds(URI uri) {
         GitService<?> gitService = GitServiceFactory.getService(uri);
 
@@ -155,5 +168,32 @@ public class OndetService {
 
     public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {
         return robotService.resHistory(uri, datetime, resourceIRI);
+    }
+
+    public List<URI> getTSOntologies() {
+        HttpRequest getOntologies = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.terminology.tib.eu/api/ontologies/filterby?schema=collection&classification=NFDI4ING&page=0&size=1000"))
+                .build();
+
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(getOntologies, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                val parsedResponseBody = JsonParser.parseString(response.body());
+                val jsonObject = parsedResponseBody.getAsJsonObject();
+                val array = jsonObject.get("_embedded").getAsJsonObject().get("ontologies").getAsJsonArray();
+                return array.asList().stream()
+                        .map(item -> URI.create(item.getAsJsonObject().get("config").getAsJsonObject().get("fileLocation").getAsString()))
+                        .toList();
+            } else {
+                return Collections.emptyList();
+            }
+        } catch (InterruptedException e) {
+            log.error("Interrupted with the response: " + e);
+            Thread.currentThread().interrupt();
+        } catch (IOException e) {
+            log.error("IOException happened: " + e);
+        }
+        return Collections.emptyList();
     }
 }
