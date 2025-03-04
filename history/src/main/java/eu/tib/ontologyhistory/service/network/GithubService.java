@@ -3,7 +3,10 @@ package eu.tib.ontologyhistory.service.network;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.dto.git.GitServiceRequest;
 import eu.tib.ontologyhistory.model.github.GithubCommit;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,25 +37,22 @@ public class GithubService implements GitService<GithubCommit> {
 
     @Override
     public List<DiffAdd> getDiffAdds(URI uri, Instant datetime) {
-        String user = getUserFromUrl(uri);
-        String repo = getRepoFromUrl(uri);
-        String branch = getBranchFromUrl(uri);
-        String encodedPath = getEncodedPath(uri);
+        val request = buildGitServiceObject(uri);
 
-        List<GithubCommit> commits = getCommits(uri, user, repo, encodedPath, branch, datetime);
+        List<GithubCommit> commits = getCommits(uri, request, datetime);
         Collections.reverse(commits);
-        return new ArrayList<>(processCommits(commits, user, repo, encodedPath, uri));
+        return new ArrayList<>(processCommits(uri, commits, request));
     }
 
     @Override
-    public List<DiffAdd> processCommits(List<GithubCommit> githubCommits, String user, String repo, String encodedPath, URI uri) {
+    public List<DiffAdd> processCommits(URI uri, List<GithubCommit> githubCommits, GitServiceRequest request) {
         List<DiffAdd> diffAdds = new ArrayList<>();
         ListIterator<GithubCommit> iterator = githubCommits.listIterator();
         GithubCommit current = null;
         while (iterator.hasNext()) {
             val next = iterator.next();
             if (current != null) {
-                processCommitPair(current, next, user, repo, encodedPath, diffAdds, uri);
+                processCommitPair(uri, current, next, request, diffAdds);
             }
             current = next;
         }
@@ -60,14 +60,14 @@ public class GithubService implements GitService<GithubCommit> {
     }
 
     @Override
-    public void processCommitPair(GithubCommit githubCommit, GithubCommit parentGithubCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri) {
-        String rawFile = getRawFileUrl(uri, user, repo, githubCommit.sha(), encodedPath);
-        String parentRawFile = getRawFileUrl(uri, user, repo, parentGithubCommit.sha(), encodedPath);
+    public void processCommitPair(URI uri, GithubCommit githubCommit, GithubCommit parentGithubCommit, GitServiceRequest request, List<DiffAdd> diffAdds) {
+        String rawFile = getRawFileUrl(uri, request, githubCommit.sha());
+        String parentRawFile = getRawFileUrl(uri, request, parentGithubCommit.sha());
 
         if (rawFile != null && parentRawFile != null) {
             DiffAdd diffAdd = new DiffAdd(
-                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, githubCommit.sha(), encodedPath),
-                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", user, repo, parentGithubCommit.sha(), encodedPath),
+                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", request.owner(), request.repo(), githubCommit.sha(), request.path()),
+                    String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", request.owner(), request.repo(), parentGithubCommit.sha(), request.path()),
                     githubCommit.html_url(),
                     parentGithubCommit.html_url(),
                     rawFile,
@@ -84,12 +84,12 @@ public class GithubService implements GitService<GithubCommit> {
     }
 
     @Override
-    public String getRawFileUrl(URI uri, String owner, String repo, String sha, String path) {
+    public String getRawFileUrl(URI uri, GitServiceRequest request, String sha) {
 
         URI githubRawFileApi = UriComponentsBuilder.fromUri(uri)
                 .host("raw.githubusercontent.com")
                 .replacePath("/{owner}/{repo}/{sha}/{path}")
-                .buildAndExpand(owner, repo, sha, path)
+                .buildAndExpand(request.owner(), request.repo(), sha, request.path())
                 .toUri();
 
         HttpRequest requestGetRawFile = HttpRequest.newBuilder()
@@ -111,17 +111,23 @@ public class GithubService implements GitService<GithubCommit> {
     }
 
     @Override
-    public List<GithubCommit> getCommits(URI uri, String owner, String repo, String path, String branch, Instant datetime) {
+    public List<GithubCommit> getCommits(URI uri) {
+        val request = buildGitServiceObject(uri);
+        return getCommits(uri, request, null);
+    }
+
+    @Override
+    public List<GithubCommit> getCommits(URI uri, GitServiceRequest request, Instant datetime) {
         Pattern pattern = Pattern.compile(GITHUB_NEXT_PAGE_REGEX);
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(uri)
                 .host("api.github.com")
                 .replacePath("/repos/{owner}/{repo}/commits");
 
-        uriBuilder.queryParam("sha", branch);
+        uriBuilder.queryParam("sha", request.branch());
 
-        if (path != null) {
-            uriBuilder.queryParam("path", path);
+        if (request.path() != null) {
+            uriBuilder.queryParam("path", request.path());
         }
 
         if (datetime != null) {
@@ -129,23 +135,39 @@ public class GithubService implements GitService<GithubCommit> {
         }
 
         URI githubApiUri = uriBuilder
-                .buildAndExpand(owner, repo)
+                .buildAndExpand(request.owner(), request.repo())
                 .toUri();
 
         Optional<String> nextPage = Optional.of("init");
         List<GithubCommit> result = new ArrayList<>();
 
         while (nextPage.isPresent()) {
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(githubApiUri)
                     .header("Authorization", "Bearer " + ACCESS_TOKEN)
                     .build();
 
             try {
-                HttpClient client = HttpClient.newHttpClient();
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                val commits = new ArrayList<GithubCommit>();
+                        HttpClient client = HttpClient.newHttpClient();
+                HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-                List<GithubCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {});
+                val responseBody = JsonParser.parseString(response.body());
+                if (responseBody.isJsonArray()) {
+                    commits.addAll(objectMapper.readValue(response.body(), new TypeReference<>() {}));
+                }
+                if (responseBody.isJsonObject()) {
+                    JsonObject jsonObject = responseBody.getAsJsonObject();
+                    if (jsonObject.get("message").getAsString().equals("Moved Permanently")) {
+                        httpRequest = HttpRequest.newBuilder()
+                                .uri(URI.create(jsonObject.get("url").getAsString()))
+                                .header("Authorization", "Bearer " + ACCESS_TOKEN)
+                                .build();
+
+                        response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+                        commits.addAll(objectMapper.readValue(response.body(), new TypeReference<>() {}));
+                    }
+                }
                 result.addAll(commits);
 
                 nextPage = response.headers().firstValue("link");
@@ -170,16 +192,7 @@ public class GithubService implements GitService<GithubCommit> {
     }
 
     @Override
-    public List<GithubCommit> getCommits(URI uri) {
-        String user = getUserFromUrl(uri);
-        String repo = getRepoFromUrl(uri);
-        String branch = getBranchFromUrl(uri);
-        String encodedPath = getEncodedPath(uri);
-        return getCommits(uri, user, repo, encodedPath, branch, null);
-    }
-
-    @Override
-    public String getUserFromUrl(URI uri) {
+    public String getOwnerFromUrl(URI uri) {
         return uri.getPath().split("/")[1];
     }
 
@@ -202,4 +215,17 @@ public class GithubService implements GitService<GithubCommit> {
         return String.join("/", Arrays.copyOfRange(segments, startIndex, segments.length));
     }
 
+    private GitServiceRequest buildGitServiceObject(URI uri) {
+        String owner = getOwnerFromUrl(uri);
+        String repo = getRepoFromUrl(uri);
+        String branch = getBranchFromUrl(uri);
+        String encodedPath = getEncodedPath(uri);
+
+        return GitServiceRequest.builder()
+                .owner(owner)
+                .repo(repo)
+                .branch(branch)
+                .path(encodedPath)
+                .build();
+    }
 }

@@ -3,7 +3,9 @@ package eu.tib.ontologyhistory.service.network;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.JsonParser;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
+import eu.tib.ontologyhistory.dto.git.GitServiceRequest;
 import eu.tib.ontologyhistory.model.gitlab.GitlabCommit;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,20 +36,21 @@ public class GitlabService implements GitService<GitlabCommit> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
+    private static final String GITLAB_REST_API_V4_BASE_URL = "https://gitlab.com/api/v4/";
+
+    private static final String GITLAB_REST_API_PROJECTS_CONTEXT = "projects/";
+
     @Override
     public List<DiffAdd> getDiffAdds(URI uri, Instant datetime) {
-        String user = getUserFromUrl(uri);
-        String repo = getRepoFromUrl(uri);
-        String branch = getBranchFromUrl(uri);
-        String encodedPath = getEncodedPath(uri);
+        val request = buildGitServiceObject(uri);
 
-        List<GitlabCommit> commits = getCommits(uri, user, repo, encodedPath, branch , datetime);
+        List<GitlabCommit> commits = getCommits(uri, request, datetime);
         commits.sort(Comparator.comparing(GitlabCommit::committed_date));
-        return new ArrayList<>(processCommits(commits, user, repo, encodedPath, uri));
+        return new ArrayList<>(processCommits(uri, commits, request));
     }
 
     @Override
-    public List<DiffAdd> processCommits(List<GitlabCommit> commits, String user, String repo, String encodedPath, URI uri) {
+    public List<DiffAdd> processCommits(URI uri, List<GitlabCommit> commits, GitServiceRequest request) {
         List<DiffAdd> diffAdds = new ArrayList<>();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         ListIterator<GitlabCommit> iterator = commits.listIterator();
@@ -56,7 +59,7 @@ public class GitlabService implements GitService<GitlabCommit> {
             val next = iterator.next();
             if (current != null) {
                 GitlabCommit finalCurrent = current;
-                futures.add(CompletableFuture.runAsync(() -> processCommitPair(finalCurrent, next, user, repo, encodedPath, diffAdds, uri), executor));
+                futures.add(CompletableFuture.runAsync(() -> processCommitPair(uri, finalCurrent, next, request, diffAdds), executor));
             }
             current = next;
         }
@@ -67,14 +70,17 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     @Override
-    public void processCommitPair(GitlabCommit commit, GitlabCommit parentCommit, String user, String repo, String encodedPath, List<DiffAdd> diffAdds, URI uri) {
-        String rawFile = getRawFileUrl(uri, user, repo, commit.id(), encodedPath);
-        String parentRawFile = getRawFileUrl(uri, user, repo, parentCommit.id(), encodedPath);
+    public void processCommitPair(URI uri, GitlabCommit commit, GitlabCommit parentCommit, GitServiceRequest request, List<DiffAdd> diffAdds) {
+        String rawFile = getRawFileUrl(uri, request, commit.id());
+        String parentRawFile = null;
+        if (rawFile != null) {
+            parentRawFile = getRawFileUrl(uri, request, parentCommit.id());
+        }
 
         if (rawFile != null && parentRawFile != null) {
             DiffAdd diffAdd = new DiffAdd(
-                    String.format("https://gitlab.com/%s/%s/-/raw/%s/%s", user, repo, commit.id(), encodedPath),
-                    String.format("https://gitlab.com/%s/%s/-/raw/%s/%s", user, repo, parentCommit.id(), encodedPath),
+                    String.format("https://gitlab.com/%s/-/raw/%s/%s", request.projectId(), commit.id(), request.path()),
+                    String.format("https://gitlab.com/%s/-/raw/%s/%s", request.projectId(), parentCommit.id(), request.path()),
                     commit.web_url(),
                     parentCommit.web_url(),
                     rawFile,
@@ -93,9 +99,9 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     @Override
-    public String getRawFileUrl(URI uri, String owner, String repo, String sha, String path) {
+    public String getRawFileUrl(URI uri, GitServiceRequest request, String sha) {
 
-        String link = "https://gitlab.com/api/v4/projects/" + owner + "%2F" + repo + "/repository/files/" + UriUtils.encode(path, StandardCharsets.UTF_8) + "/raw?ref=" + sha;
+        String link = GITLAB_REST_API_V4_BASE_URL + GITLAB_REST_API_PROJECTS_CONTEXT + request.projectId() + "/repository/files/" + UriUtils.encode(request.path(), StandardCharsets.UTF_8) + "/raw?ref=" + sha;
 
         URI gitlabUri = URI.create(link);
 
@@ -106,8 +112,12 @@ public class GitlabService implements GitService<GitlabCommit> {
 
         try {
             HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> responseRawParentFile = client.send(requestGetRawFile, HttpResponse.BodyHandlers.ofString());
-            return responseRawParentFile.body();
+            HttpResponse<String> response = client.send(requestGetRawFile, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return response.body();
+            } else {
+                return null;
+            }
         } catch (InterruptedException e) {
             log.error("Interrupted with the response: " + e);
             Thread.currentThread().interrupt();
@@ -118,16 +128,22 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     @Override
-    public List<GitlabCommit> getCommits(URI uri, String owner, String repo, String path, String ref, Instant datetime) {
+    public List<GitlabCommit> getCommits(URI uri) {
+        val request = buildGitServiceObject(uri);
+        return getCommits(uri, request, null);
+    }
 
-        String link = "https://gitlab.com/api/v4/projects/" + owner + "%2F" + repo + "/repository/commits";
+    @Override
+    public List<GitlabCommit> getCommits(URI uri, GitServiceRequest request, Instant datetime) {
 
-        if (path != null) {
-            link += "?path=" + path;
+        String link = GITLAB_REST_API_V4_BASE_URL + GITLAB_REST_API_PROJECTS_CONTEXT + request.projectId() + "/repository/commits";
+
+        if (request.path() != null) {
+            link += "?path=" + request.path();
         }
 
-        if (ref != null) {
-            link += "&ref_name=" + ref;
+        if (request.branch() != null) {
+            link += "&ref_name=" + request.branch();
         }
 
         if (datetime != null) {
@@ -143,13 +159,13 @@ public class GitlabService implements GitService<GitlabCommit> {
         Optional<String> nextPage = Optional.of("init");
 
         while (nextPage.isPresent()) {
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(gitlabUri)
                     .header("Authorization", "Bearer " + ACCESS_TOKEN)
                     .build();
 
             try {
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
                 List<GitlabCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {});
                 result.addAll(commits);
 
@@ -173,16 +189,7 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     @Override
-    public List<GitlabCommit> getCommits(URI uri) {
-        String user = getUserFromUrl(uri);
-        String repo = getRepoFromUrl(uri);
-        String branch = getBranchFromUrl(uri);
-        String encodedPath = getEncodedPath(uri);
-        return getCommits(uri, user, repo, encodedPath, branch, null);
-    }
-
-    @Override
-    public String getUserFromUrl(URI uri) {
+    public String getOwnerFromUrl(URI uri) {
         return uri.getPath().split("/")[1];
     }
 
@@ -193,12 +200,74 @@ public class GitlabService implements GitService<GitlabCommit> {
 
     @Override
     public String getBranchFromUrl(URI uri) {
-        return uri.getPath().split("/")[5];
+        String[] segments = uri.getPath().split("/");
+        String branch = "undefined";
+        for (int i = 1; i < segments.length; i++) {
+            if (segments[i].equals("-") && segments[i + 1].equals("raw")) {
+                return segments[i + 2];
+            }
+        }
+        return branch;
     }
 
     @Override
     public String getEncodedPath(URI uri) {
         String[] segments = uri.getPath().split("/");
-        return String.join("/", Arrays.copyOfRange(segments, 6, segments.length));
+        String path = "undefined";
+        for (int i = 1; i < segments.length; i++) {
+            if (segments[i].equals("-") && segments[i + 1].equals("raw")) {
+                return String.join("/", Arrays.copyOfRange(segments, i + 3, segments.length));
+            }
+        }
+        return path;
+    }
+
+    public String getProjectId(URI uri) {
+        val encodedProjectPath = getEncodedProjectPath(uri);
+        String link = GITLAB_REST_API_V4_BASE_URL + GITLAB_REST_API_PROJECTS_CONTEXT + encodedProjectPath;
+        HttpClient client = HttpClient.newHttpClient();
+        URI gitlabUri = URI.create(link);
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(gitlabUri)
+                .header("Authorization", "Bearer " + ACCESS_TOKEN)
+                .build();
+        try {
+            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            val parsedResponseBody = JsonParser.parseString(response.body());
+            val jsonObject = parsedResponseBody.getAsJsonObject();
+            return jsonObject.get("id").getAsString();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted: {}", String.valueOf(e));
+            Thread.currentThread().interrupt();
+        } catch (IOException e) {
+            log.error("IoException during receiving of project ID: {}", String.valueOf(e));
+        }
+        return null;
+    }
+
+    private String getEncodedProjectPath(URI uri) {
+        String[] segments = uri.getPath().split("/");
+        StringBuilder projectId = new StringBuilder();
+        for(int i = 1; i < segments.length; i++) {
+            if (!segments[i+1].equals("-")) {
+                projectId.append(segments[i]).append("%2F");
+            } else {
+                projectId.append(segments[i]);
+                break;
+            }
+        }
+        return projectId.toString();
+    }
+
+    private GitServiceRequest buildGitServiceObject(URI uri) {
+        String projectId = getProjectId(uri);
+        String branch = getBranchFromUrl(uri);
+        String encodedPath = getEncodedPath(uri);
+
+        return GitServiceRequest.builder()
+                .projectId(projectId)
+                .branch(branch)
+                .path(encodedPath)
+                .build();
     }
 }

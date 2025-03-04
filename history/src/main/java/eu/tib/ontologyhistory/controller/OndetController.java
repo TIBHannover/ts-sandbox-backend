@@ -62,7 +62,7 @@ public class OndetController {
 
         val diff = ondetService.findFirstByUrl(uri, DATASET);
 
-        if (diff.isEmpty()) {
+        if (diff == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -81,13 +81,25 @@ public class OndetController {
 
         val result = ondetService.create(uri, DATASET);
 
-        if (result.isEmpty()) {
+        if (result == null) {
             return new ResponseEntity<>("Your provided ontology was not added into the system, since all semantic diffs failed", HttpStatus.NOT_FOUND);
         }
 
         val responseUrl = httpServletRequest.getRequestURL().append('?').append(uri).toString();
 
         return new ResponseEntity<>(responseUrl, HttpStatus.OK);
+    }
+
+    @PostMapping("/createBatch")
+    @Operation(summary = "Create a group of ontologies")
+    public ResponseEntity<Map<String, List<String>>> create(
+            @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
+            @RequestParam List<URI> uris
+    ) {
+
+        val result = ondetService.create(uris, DATASET);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

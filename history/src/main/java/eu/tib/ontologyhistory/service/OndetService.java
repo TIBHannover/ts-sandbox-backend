@@ -48,36 +48,57 @@ public class OndetService {
         return new DifferenceMarkdown(robotDiff.markdown(), contoDiff, gitDiff);
     }
 
-    public Optional<DiffDtoTimeline> findFirstByUrl(URI uri, String dataset) {
+    public DiffDtoTimeline findFirstByUrl(URI uri, String dataset) {
 
         val gitDiff = gitDiffService.findFirstByUrl(uri);
         if (gitDiff != null) {
-            return Optional.of(new DiffDtoTimeline(null, Collections.emptyList(), gitDiff));
+            return new DiffDtoTimeline(null, Collections.emptyList(), gitDiff);
         }
 
         val robotDiff = robotService.findFirstByUrl(uri);
         if (robotDiff != null) {
-            return Optional.of(new DiffDtoTimeline(robotDiff, Collections.emptyList(), null));
+            return new DiffDtoTimeline(robotDiff, Collections.emptyList(), null);
         }
 
         val contoDiff = contoService.findFirstByUrl(uri, dataset);
         if (!contoDiff.isEmpty()) {
-            return Optional.of(new DiffDtoTimeline(null, contoDiff, null));
+            return new DiffDtoTimeline(null, contoDiff, null);
         }
 
-        return Optional.empty();
+        return null;
     }
 
-    public Optional<DiffDtoTimeline> create(URI uri, String dataset) {
+    public DiffDtoTimeline create(URI uri, String dataset) {
         robotService.deleteAllByUrl(uri);
         gitDiffService.deleteAllByUrl(uri);
 
-        val diffAdds = getDiffAdds(uri);
+        List<DiffAdd> diffAdds;
+        try {
+            diffAdds = getDiffAdds(uri);
+        } catch (Exception e) {
+            return null;
+        }
         gitDiffService.create(uri, diffAdds);
         robotService.create(uri, diffAdds);
         contoService.create(uri, dataset, diffAdds);
 
         return findFirstByUrl(uri, dataset);
+    }
+
+    public Map<String, List<String>> create(List<URI> uris, String dataset) {
+        val result = new HashMap<String, List<String>>();
+        val addedList = new ArrayList<String>();
+        val notAddedList = new ArrayList<String>();
+        for (URI uri : uris) {
+            if (create(uri, dataset) != null) {
+                addedList.add(String.valueOf(uri));
+            } else {
+                notAddedList.add(String.valueOf(uri));
+            }
+        }
+        result.put("added", addedList);
+        result.put("notAdded", notAddedList);
+        return result;
     }
 
     public List<DiffAdd> getDiffAdds(URI uri) {

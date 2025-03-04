@@ -4,6 +4,7 @@ import java.time.Instant;
 
 
 public record DiffAdd (
+
         String gitUrlLeft,
 
         String gitUrlRight,
