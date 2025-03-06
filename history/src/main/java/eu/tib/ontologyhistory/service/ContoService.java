@@ -390,8 +390,7 @@ public class ContoService {
     }
 
     public void create(URI uri, String dataset, List<DiffAdd> diffAdds) {
-        List<CompletableFuture<Void>> futures = diffAdds.stream()
-                .map(diffAdd -> CompletableFuture.runAsync(() -> {
+        diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> {
             try {
                 getCommand(diffAdd, uri);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
@@ -406,10 +405,7 @@ public class ContoService {
                 invalidContoDiffRepository.insert(invalidContoDiff);
                 log.error(e.getMessage(), e);
             }
-        }))
-                .toList();
-
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        }));
     }
 
     public void updateByUrl(URI uri, Instant datetime, String dataset) {
