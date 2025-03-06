@@ -48,7 +48,11 @@ public class GitDiffService {
     }
 
     public void create(URI uri, List<DiffAdd> diffAdds) {
-        diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
+        List<CompletableFuture<Void>> futures = diffAdds.stream()
+                .map(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)))
+                .toList();
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     public void updateByUrl(URI uri, Instant datetime) {
