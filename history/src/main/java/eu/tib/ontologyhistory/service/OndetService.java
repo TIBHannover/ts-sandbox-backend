@@ -21,10 +21,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
@@ -36,11 +36,23 @@ public class OndetService {
     private final GitDiffService gitDiffService;
 
     public Set<TempGraph> findAll() {
-        val robotDiffs = robotService.findAllUrls();
-        val gitDiffs = gitDiffService.findAllUrls();
+        val result = new HashSet<TempGraph>();
+        CompletableFuture<Set<TempGraph>> robotFuture = CompletableFuture.supplyAsync(robotService::findAllUrls);
+        CompletableFuture<Set<TempGraph>> gitDiffFuture = CompletableFuture.supplyAsync(gitDiffService::findAllUrls);
 
-        val result = new HashSet<>(robotDiffs);
-        result.addAll(gitDiffs);
+        CompletableFuture<Void> allFuture = CompletableFuture.allOf(robotFuture, gitDiffFuture);
+
+        try {
+            allFuture.get();
+            result.addAll(robotFuture.get());
+            result.addAll(gitDiffFuture.get());
+        } catch (ExecutionException e) {
+            log.error("Error while fetching ontologies: ", e);
+        } catch (InterruptedException e) {
+            log.error("Interrupted!", e);
+            Thread.currentThread().interrupt();
+        }
+
         return result;
     }
 
