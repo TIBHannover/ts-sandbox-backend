@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,16 +116,11 @@ public class RobotService {
 
         val diffAdds = gitService.getDiffAdds(uri, null);
 
-        for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, uri);
-        }
-
+        diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
     }
 
     public void create(URI uri, List<DiffAdd> diffAdds) {
-        for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, uri);
-        }
+        diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
     }
 
     private void diffExecute(DiffAdd diffAdd, File output) {

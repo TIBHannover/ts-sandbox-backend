@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -47,10 +48,7 @@ public class GitDiffService {
     }
 
     public void create(URI uri, List<DiffAdd> diffAdds) {
-
-        for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, uri);
-        }
+        diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
     }
 
     public void updateByUrl(URI uri, Instant datetime) {
