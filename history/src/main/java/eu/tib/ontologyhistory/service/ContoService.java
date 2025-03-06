@@ -409,7 +409,7 @@ public class ContoService {
         }))
                 .toList();
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
     public void updateByUrl(URI uri, Instant datetime, String dataset) {

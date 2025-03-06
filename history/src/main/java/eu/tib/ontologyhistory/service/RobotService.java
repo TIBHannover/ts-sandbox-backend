@@ -124,7 +124,7 @@ public class RobotService {
                 .map(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)))
                 .toList();
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
     private void diffExecute(DiffAdd diffAdd, File output) {
