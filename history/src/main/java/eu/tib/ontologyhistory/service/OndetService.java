@@ -99,9 +99,11 @@ public class OndetService {
             return null;
         }
 
-        gitDiffService.create(uri, diffAdds);
-        robotService.create(uri, diffAdds);
-        contoService.create(uri, dataset, diffAdds);
+        val gitDiffFutures = CompletableFuture.runAsync(() -> gitDiffService.create(uri, diffAdds));
+        val robotDiffFutures = CompletableFuture.runAsync(() -> robotService.create(uri, diffAdds));
+        val contoFutures = CompletableFuture.runAsync(() -> contoService.create(uri, dataset, diffAdds));
+
+        CompletableFuture.allOf(gitDiffFutures, robotDiffFutures, contoFutures).join();
 
         return findFirstByUrl(uri, dataset);
     }
