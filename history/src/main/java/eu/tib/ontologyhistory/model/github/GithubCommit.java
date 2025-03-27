@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.model.Commit;
 import eu.tib.ontologyhistory.view.Views;
 
+import java.time.Instant;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,6 +24,12 @@ public record GithubCommit(
         List<ParentCommit> parents
 
 ) implements Commit {
+
+
+    @Override
+    public Instant getDatetime() {
+        return commit.committer().date();
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ParentCommit (

@@ -14,9 +14,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -25,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/ondet/sdiffs")
 @AllArgsConstructor
@@ -38,7 +43,7 @@ public class OndetController {
 
     @GetMapping
     @Operation(summary = "Find all objects")
-    public ResponseEntity<Set<TempGraph>> findAll(
+    public ResponseEntity<Set<URI>> findAll(
     ) {
         val objects = ondetService.findAll();
 
@@ -98,9 +103,8 @@ public class OndetController {
             @RequestParam List<URI> uris
     ) {
 
-        val array = ondetService.getTSOntologies();
         val jobId = UUID.randomUUID().toString();
-        val future = ondetService.createBatchAsync(array, DATASET);
+        val future = ondetService.createBatchAsync(uris, DATASET);
         jobs.put(jobId, future);
 
         return ResponseEntity.ok(Collections.singletonMap("jobId", jobId));
@@ -124,6 +128,32 @@ public class OndetController {
         } else {
             return ResponseEntity.ok(Collections.singletonMap("status", "in progress"));
         }
+    }
+
+    @Scheduled(cron = "0 0 * * * 1-5")
+    public void scheduledOntologyCheck() {
+        log.error("Ondet check started");
+//        val tsOntologies = ondetService.getTSOntologies();
+//        val filteresTsOntologies = ondetService.filterUnsupportedOntologyTypes(tsOntologies);
+//        val existingOntologes = ondetService.findAll();
+//        filteresTsOntologies.removeAll(existingOntologes);
+//        if (!filteresTsOntologies.isEmpty()) {
+//            ondetService.createBatchAsync(filteresTsOntologies, DATASET);
+//        }
+    }
+
+    @Scheduled(fixedRate = 5000)
+//    @Scheduled(cron = "0 0 * * * 1-5")
+    public void scheduledCheckNewOntologyVersions() {
+        log.error("Scheduled check old ontology versions");
+//        val ontologies = ondetService.findAll();
+//        for (val ontology : ontologies) {
+//            val lastTsVersion = ondetService.getVersion(ontology);
+//            val lastRemoteVersion = ondetService.getCommits(ontology).get(0);
+//            if (lastRemoteVersion.getDatetime().isAfter(lastTsVersion.datetime())) {
+//                ondetService.updateByUrl(ontology, lastTsVersion.datetime(), DATASET);
+//            }
+//        }
     }
 
     @DeleteMapping("/{id}")

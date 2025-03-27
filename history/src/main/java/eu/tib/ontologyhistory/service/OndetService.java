@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -35,10 +36,10 @@ public class OndetService {
     private final ContoService contoService;
     private final GitDiffService gitDiffService;
 
-    public Set<TempGraph> findAll() {
-        val result = new HashSet<TempGraph>();
-        CompletableFuture<Set<TempGraph>> robotFuture = CompletableFuture.supplyAsync(robotService::findAllUrls);
-        CompletableFuture<Set<TempGraph>> gitDiffFuture = CompletableFuture.supplyAsync(gitDiffService::findAllUrls);
+    public Set<URI> findAll() {
+        val result = new HashSet<URI>();
+        CompletableFuture<Set<URI>> robotFuture = CompletableFuture.supplyAsync(robotService::findAllUrls);
+        CompletableFuture<Set<URI>> gitDiffFuture = CompletableFuture.supplyAsync(gitDiffService::findAllUrls);
 
         CompletableFuture<Void> allFuture = CompletableFuture.allOf(robotFuture, gitDiffFuture);
 
@@ -210,5 +211,11 @@ public class OndetService {
             log.error("IOException happened: " + e);
         }
         return Collections.emptyList();
+    }
+
+    public List<URI> filterUnsupportedOntologyTypes(List<URI> uris) {
+        return uris.stream()
+                .filter(GitServiceFactory::isHostSupported)
+                .collect(Collectors.toList());
     }
 }

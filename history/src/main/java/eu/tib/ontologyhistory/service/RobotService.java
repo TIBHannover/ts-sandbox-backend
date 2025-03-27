@@ -51,11 +51,11 @@ public class RobotService {
         return diffMapper.entityToDto(diff);
     }
 
-    public Set<TempGraph> findAllUrls() {
+    public Set<URI> findAllUrls() {
         val diff = robotRepository.findAll();
-        val uris = new HashSet<TempGraph>();
+        val uris = new HashSet<URI>();
         for (Diff d : diff) {
-            uris.add(new TempGraph(String.valueOf(d.getUri())));
+            uris.add(d.getUri());
         }
         return uris;
     }

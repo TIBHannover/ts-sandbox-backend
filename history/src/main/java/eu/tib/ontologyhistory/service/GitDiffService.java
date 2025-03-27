@@ -81,11 +81,11 @@ public class GitDiffService {
         return gittDiffMapper.entityToDto(gitDiff);
     }
 
-    public Set<TempGraph> findAllUrls() {
+    public Set<URI> findAllUrls() {
         val gitDiffs = gitDiffRepository.findAll();
-        val uris = new HashSet<TempGraph>();
+        val uris = new HashSet<URI>();
         for (GitDiff item : gitDiffs) {
-            uris.add(new TempGraph(String.valueOf(item.getUri())));
+            uris.add(item.getUri());
         }
         return uris;
     }
