@@ -130,6 +130,7 @@ public class OndetController {
         }
     }
 
+    @EventListener(ApplicationReadyEvent.class)
     @Scheduled(cron = "0 0 * * * 1-5")
     public void scheduledOntologyCheck() {
         log.error("Ondet check started");
@@ -142,8 +143,8 @@ public class OndetController {
 //        }
     }
 
-    @Scheduled(fixedRate = 5000)
-//    @Scheduled(cron = "0 0 * * * 1-5")
+    @EventListener(ApplicationReadyEvent.class)
+    @Scheduled(cron = "0 0 * * * 1-5")
     public void scheduledCheckNewOntologyVersions() {
         log.error("Scheduled check old ontology versions");
 //        val ontologies = ondetService.findAll();
