@@ -179,7 +179,7 @@ public class OndetService {
         if (gitDiffs != null && !gitDiffs.isEmpty()) {
             return gitDiffs.get(gitDiffs.size() - 1);
         }
-        return GitDiffDto.defaultValue();
+        return null;
     }
 
     public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {

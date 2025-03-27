@@ -100,7 +100,7 @@ public class OndetController {
     @Operation(summary = "Create a group of ontologies")
     public ResponseEntity<Map<String, String>> create(
             @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam List<URI> uris
+            @RequestBody List<URI> uris
     ) {
 
         val jobId = UUID.randomUUID().toString();
@@ -131,30 +131,35 @@ public class OndetController {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(cron = "0 0 * * * 1-5")
-    public void scheduledOntologyCheck() {
-        log.error("Ondet check started");
-//        val tsOntologies = ondetService.getTSOntologies();
-//        val filteresTsOntologies = ondetService.filterUnsupportedOntologyTypes(tsOntologies);
-//        val existingOntologes = ondetService.findAll();
-//        filteresTsOntologies.removeAll(existingOntologes);
-//        if (!filteresTsOntologies.isEmpty()) {
-//            ondetService.createBatchAsync(filteresTsOntologies, DATASET);
-//        }
+    @Scheduled(cron = "0 0 7,12,16,19 * * 1-5")
+    public void scheduledOntologyChecks() {
+        scheduledNewTsOntologies();
+        scheduledCheckNewOntologyVersions();
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(cron = "0 0 * * * 1-5")
-    public void scheduledCheckNewOntologyVersions() {
-        log.error("Scheduled check old ontology versions");
-//        val ontologies = ondetService.findAll();
-//        for (val ontology : ontologies) {
-//            val lastTsVersion = ondetService.getVersion(ontology);
-//            val lastRemoteVersion = ondetService.getCommits(ontology).get(0);
-//            if (lastRemoteVersion.getDatetime().isAfter(lastTsVersion.datetime())) {
-//                ondetService.updateByUrl(ontology, lastTsVersion.datetime(), DATASET);
-//            }
-//        }
+    private void scheduledNewTsOntologies() {
+        log.info("Ondet check started");
+        val tsOntologies = ondetService.getTSOntologies();
+        val filteresTsOntologies = ondetService.filterUnsupportedOntologyTypes(tsOntologies);
+        val existingOntologes = ondetService.findAll();
+        filteresTsOntologies.removeAll(existingOntologes);
+        if (!filteresTsOntologies.isEmpty()) {
+            ondetService.createBatchAsync(filteresTsOntologies, DATASET);
+        }
+    }
+
+    private void scheduledCheckNewOntologyVersions() {
+        log.info("Scheduled check old ontology versions");
+        val ontologies = ondetService.findAll();
+        for (val ontology : ontologies) {
+            val lastTsVersion = ondetService.getVersion(ontology);
+            if (lastTsVersion != null) {
+                val lastRemoteVersion = ondetService.getCommits(ontology).get(0);
+                if (lastRemoteVersion.getDatetime().isAfter(lastTsVersion.datetime())) {
+                    ondetService.updateByUrl(ontology, lastTsVersion.datetime(), DATASET);
+                }
+            }
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -240,7 +245,7 @@ public class OndetController {
 
         val version = ondetService.getVersion(uri);
 
-        if (version.sha().isEmpty()) {
+        if (version == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 

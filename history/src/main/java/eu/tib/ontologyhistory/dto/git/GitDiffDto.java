@@ -19,8 +19,4 @@ public record GitDiffDto(
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
         Instant datetime
 ) {
-
-    public static GitDiffDto defaultValue() {
-        return new GitDiffDto("", URI.create(""), "", "", "", Instant.now());
-    }
 }

@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class GithubService implements GitService<GithubCommit> {
 
-    private static final String ACCESS_TOKEN = "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";
+    private static final String ACCESS_TOKEN = "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";
 
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
