@@ -130,8 +130,8 @@ public class OndetController {
         }
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(cron = "0 0 7,12,16,19 * * 1-5")
+//    @EventListener(ApplicationReadyEvent.class)
+//    @Scheduled(cron = "0 0 7,12,16,19 * * 1-5")
     public void scheduledOntologyChecks() {
         scheduledNewTsOntologies();
         scheduledCheckNewOntologyVersions();
