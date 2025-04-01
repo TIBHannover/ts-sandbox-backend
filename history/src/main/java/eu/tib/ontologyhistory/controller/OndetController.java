@@ -130,15 +130,15 @@ public class OndetController {
         }
     }
 
-//    @EventListener(ApplicationReadyEvent.class)
-//    @Scheduled(cron = "0 0 7,12,16,19 * * 1-5")
+    @EventListener(ApplicationReadyEvent.class)
+    @Scheduled(cron = "0 0 7,12,16,19 * * 1-5")
     public void scheduledOntologyChecks() {
         scheduledNewTsOntologies();
         scheduledCheckNewOntologyVersions();
     }
 
     private void scheduledNewTsOntologies() {
-        log.info("Ondet check started");
+        log.error("Ondet check started");
         val tsOntologies = ondetService.getTSOntologies();
         val filteresTsOntologies = ondetService.filterUnsupportedOntologyTypes(tsOntologies);
         val existingOntologes = ondetService.findAll();
@@ -149,7 +149,7 @@ public class OndetController {
     }
 
     private void scheduledCheckNewOntologyVersions() {
-        log.info("Scheduled check old ontology versions");
+        log.error("Scheduled check old ontology versions");
         val ontologies = ondetService.findAll();
         for (val ontology : ontologies) {
             val lastTsVersion = ondetService.getVersion(ontology);
