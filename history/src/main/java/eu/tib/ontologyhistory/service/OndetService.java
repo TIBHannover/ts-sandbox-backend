@@ -188,7 +188,7 @@ public class OndetService {
 
     public List<URI> getTSOntologies() {
         HttpRequest getOntologies = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.terminology.tib.eu/api/ontologies/filterby?schema=collection&classification=NFDI4ING&page=0&size=1000"))
+                .uri(URI.create("https://api.terminology.tib.eu/api/v2/ontologies?size=1000"))
                 .build();
 
         try {
@@ -197,9 +197,10 @@ public class OndetService {
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 val parsedResponseBody = JsonParser.parseString(response.body());
                 val jsonObject = parsedResponseBody.getAsJsonObject();
-                val array = jsonObject.get("_embedded").getAsJsonObject().get("ontologies").getAsJsonArray();
+                val array = jsonObject.get("elements").getAsJsonArray();
                 return array.asList().stream()
-                        .map(item -> URI.create(item.getAsJsonObject().get("config").getAsJsonObject().get("fileLocation").getAsString()))
+                        .filter(e -> e.getAsJsonObject().has("versioned_url"))
+                        .map(item -> URI.create(item.getAsJsonObject().get("versioned_url").getAsString()))
                         .toList();
             } else {
                 return Collections.emptyList();
