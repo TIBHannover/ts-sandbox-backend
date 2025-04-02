@@ -82,12 +82,7 @@ public class GitDiffService {
     }
 
     public Set<URI> findAllUrls() {
-        val gitDiffs = gitDiffRepository.findAll();
-        val uris = new HashSet<URI>();
-        for (GitDiff item : gitDiffs) {
-            uris.add(item.getUri());
-        }
-        return uris;
+        return gitDiffRepository.findAllUris();
     }
 
     public List<GitDiffDto> findAllByUrl(URI uri) {

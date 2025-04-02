@@ -52,12 +52,7 @@ public class RobotService {
     }
 
     public Set<URI> findAllUrls() {
-        val diff = robotRepository.findAll();
-        val uris = new HashSet<URI>();
-        for (Diff d : diff) {
-            uris.add(d.getUri());
-        }
-        return uris;
+        return robotRepository.findAllUris();
     }
 
     public DiffDto findById(String id) {
