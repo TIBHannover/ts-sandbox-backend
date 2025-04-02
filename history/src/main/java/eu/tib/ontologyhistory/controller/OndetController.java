@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
+
 @RestController
 @RequestMapping("/api/ondet/sdiffs")
 @AllArgsConstructor
@@ -127,38 +127,6 @@ public class OndetController {
             }
         } else {
             return ResponseEntity.ok(Collections.singletonMap("status", "in progress"));
-        }
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    @Scheduled(cron = "0 0 7,12,16,19 * * 1-5")
-    public void scheduledOntologyChecks() {
-        scheduledNewTsOntologies();
-        scheduledCheckNewOntologyVersions();
-    }
-
-    private void scheduledNewTsOntologies() {
-        log.error("Ondet check started");
-        val tsOntologies = ondetService.getTSOntologies();
-        val filteresTsOntologies = ondetService.filterUnsupportedOntologyTypes(tsOntologies);
-        val existingOntologes = ondetService.findAll();
-        filteresTsOntologies.removeAll(existingOntologes);
-        if (!filteresTsOntologies.isEmpty()) {
-            ondetService.createBatchAsync(filteresTsOntologies, DATASET);
-        }
-    }
-
-    private void scheduledCheckNewOntologyVersions() {
-        log.error("Scheduled check old ontology versions");
-        val ontologies = ondetService.findAll();
-        for (val ontology : ontologies) {
-            val lastTsVersion = ondetService.getVersion(ontology);
-            if (lastTsVersion != null) {
-                val lastRemoteVersion = ondetService.getCommits(ontology).get(0);
-                if (lastRemoteVersion.getDatetime().isAfter(lastTsVersion.datetime())) {
-                    ondetService.updateByUrl(ontology, lastTsVersion.datetime(), DATASET);
-                }
-            }
         }
     }
 

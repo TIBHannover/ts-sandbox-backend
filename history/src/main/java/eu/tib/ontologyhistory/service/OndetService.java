@@ -136,6 +136,12 @@ public class OndetService {
         return gitService.getDiffAdds(uri, null);
     }
 
+    public List<DiffAdd> getDiffAdds(URI uri, Instant datetime) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
+
+        return gitService.getDiffAdds(uri, datetime);
+    }
+
     public void remove(String id) {
         robotService.deleteById(id);
         contoService.remove(id);
@@ -161,6 +167,17 @@ public class OndetService {
         robotService.updateByUrl(uri, datetime);
         contoService.updateByUrl(uri, datetime, dataset);
         gitDiffService.updateByUrl(uri, datetime);
+    }
+
+    @Async
+    public void updateByUrlAsync(URI uri, Instant datetime, String dataset) {
+        val diffAdds = getDiffAdds(uri, datetime);
+
+        val gitDiffFutures = CompletableFuture.runAsync(() -> gitDiffService.create(uri, diffAdds));
+        val robotDiffFutures = CompletableFuture.runAsync(() -> robotService.create(uri, diffAdds));
+        val contoFutures = CompletableFuture.runAsync(() -> contoService.create(uri, dataset, diffAdds));
+
+        CompletableFuture.allOf(gitDiffFutures, robotDiffFutures, contoFutures).join();
     }
 
     public List<? extends Commit> getCommits(URI uri) {
