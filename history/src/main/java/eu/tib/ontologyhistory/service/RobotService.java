@@ -55,7 +55,7 @@ public class RobotService {
     public Set<URI> findAllUrls() {
         return robotRepository.findAllUris()
                 .stream()
-                .map(URI::create)
+                .map(item -> URI.create(item.getString("uri")))
                 .collect(Collectors.toSet());
     }
 

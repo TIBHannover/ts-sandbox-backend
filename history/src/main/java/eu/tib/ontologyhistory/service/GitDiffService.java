@@ -85,7 +85,7 @@ public class GitDiffService {
     public Set<URI> findAllUrls() {
         return gitDiffRepository.findAllUris()
                 .stream()
-                .map(URI::create)
+                .map(item -> URI.create(item.getString("uri")))
                 .collect(Collectors.toSet());
     }
 
