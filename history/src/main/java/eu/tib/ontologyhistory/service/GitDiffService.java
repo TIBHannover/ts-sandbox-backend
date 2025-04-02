@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -82,7 +83,10 @@ public class GitDiffService {
     }
 
     public Set<URI> findAllUrls() {
-        return gitDiffRepository.findAllUris();
+        return gitDiffRepository.findAllUris()
+                .stream()
+                .map(URI::create)
+                .collect(Collectors.toSet());
     }
 
     public List<GitDiffDto> findAllByUrl(URI uri) {

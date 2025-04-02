@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -52,7 +53,10 @@ public class RobotService {
     }
 
     public Set<URI> findAllUrls() {
-        return robotRepository.findAllUris();
+        return robotRepository.findAllUris()
+                .stream()
+                .map(URI::create)
+                .collect(Collectors.toSet());
     }
 
     public DiffDto findById(String id) {

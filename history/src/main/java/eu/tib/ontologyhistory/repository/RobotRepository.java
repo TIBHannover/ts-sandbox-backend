@@ -1,6 +1,7 @@
 package eu.tib.ontologyhistory.repository;
 
 import eu.tib.ontologyhistory.model.Diff;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,8 +16,10 @@ public interface RobotRepository extends MongoRepository<Diff, String> {
 
     List<Diff> findAllByUri(URI uri);
 
-    @Query(value = "{}", fields = "{ 'uri' :  1 }")
-    Set<URI> findAllUris();
+    @Aggregation(pipeline = {
+            "{ $project: { _id: 0, uri: 1 } }"
+    })
+    Set<String> findAllUris();
 
     Diff findFirstByUri(URI uri);
 

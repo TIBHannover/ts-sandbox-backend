@@ -1,6 +1,7 @@
 package eu.tib.ontologyhistory.repository;
 
 import eu.tib.ontologyhistory.model.GitDiff;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,8 +17,10 @@ public interface GitDiffRepository extends MongoRepository<GitDiff, String> {
 
     GitDiff findFirstByParentSha(String parentSha);
 
-    @Query(value = "{}", fields = "{ 'uri' :  1 }")
-    Set<URI> findAllUris();
+    @Aggregation(pipeline = {
+            "{ $project: { _id: 0, uri: 1 } }"
+    })
+    Set<String> findAllUris();
 
     GitDiff findFirstByUri(URI uri);
 
