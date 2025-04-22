@@ -29,6 +29,11 @@ public record GitlabCommit(
         List<String> parent_ids
 ) implements Commit {
 
+    @Override
+    public Instant getDatetime() {
+        return committed_date;
+    }
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record ParentId(
             String parentId

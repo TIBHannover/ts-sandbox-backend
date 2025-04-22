@@ -23,6 +23,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -47,10 +49,7 @@ public class GitDiffService {
     }
 
     public void create(URI uri, List<DiffAdd> diffAdds) {
-
-        for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, uri);
-        }
+        diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
     }
 
     public void updateByUrl(URI uri, Instant datetime) {
@@ -83,13 +82,11 @@ public class GitDiffService {
         return gittDiffMapper.entityToDto(gitDiff);
     }
 
-    public Set<TempGraph> findAllUrls() {
-        val gitDiffs = gitDiffRepository.findAll();
-        val uris = new HashSet<TempGraph>();
-        for (GitDiff item : gitDiffs) {
-            uris.add(new TempGraph(String.valueOf(item.getUri())));
-        }
-        return uris;
+    public Set<URI> findAllUrls() {
+        return gitDiffRepository.findAllUris()
+                .stream()
+                .map(item -> URI.create(item.getString("uri")))
+                .collect(Collectors.toSet());
     }
 
     public List<GitDiffDto> findAllByUrl(URI uri) {

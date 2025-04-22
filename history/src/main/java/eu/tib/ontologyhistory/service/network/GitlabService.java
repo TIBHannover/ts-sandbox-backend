@@ -32,7 +32,7 @@ public class GitlabService implements GitService<GitlabCommit> {
 
     private static final String ACCESS_TOKEN = "glpat-hN2KLLbi_WGdEKnyQ8_T";
 
-    private static final ExecutorService executor = Executors.newFixedThreadPool(10);
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 

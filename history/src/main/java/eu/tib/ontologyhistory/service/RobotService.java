@@ -28,8 +28,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -50,13 +52,11 @@ public class RobotService {
         return diffMapper.entityToDto(diff);
     }
 
-    public Set<TempGraph> findAllUrls() {
-        val diff = robotRepository.findAll();
-        val uris = new HashSet<TempGraph>();
-        for (Diff d : diff) {
-            uris.add(new TempGraph(String.valueOf(d.getUri())));
-        }
-        return uris;
+    public Set<URI> findAllUrls() {
+        return robotRepository.findAllUris()
+                .stream()
+                .map(item -> URI.create(item.getString("uri")))
+                .collect(Collectors.toSet());
     }
 
     public DiffDto findById(String id) {
@@ -115,16 +115,11 @@ public class RobotService {
 
         val diffAdds = gitService.getDiffAdds(uri, null);
 
-        for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, uri);
-        }
-
+        diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
     }
 
     public void create(URI uri, List<DiffAdd> diffAdds) {
-        for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, uri);
-        }
+        diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
     }
 
     private void diffExecute(DiffAdd diffAdd, File output) {

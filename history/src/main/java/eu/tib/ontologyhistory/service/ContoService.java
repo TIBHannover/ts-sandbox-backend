@@ -45,7 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -390,7 +390,7 @@ public class ContoService {
     }
 
     public void create(URI uri, String dataset, List<DiffAdd> diffAdds) {
-        for (val diffAdd : diffAdds) {
+        diffAdds.forEach(diffAdd -> {
             try {
                 getCommand(diffAdd, uri);
                 uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
@@ -405,7 +405,7 @@ public class ContoService {
                 invalidContoDiffRepository.insert(invalidContoDiff);
                 log.error(e.getMessage(), e);
             }
-        }
+        });
     }
 
     public void updateByUrl(URI uri, Instant datetime, String dataset) {

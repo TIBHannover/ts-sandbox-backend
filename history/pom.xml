@@ -74,12 +74,6 @@
             <version>1.5.5.Final</version>
         </dependency>
 
-        <dependency>
-            <groupId>de.flapdoodle.embed</groupId>
-            <artifactId>de.flapdoodle.embed.mongo</artifactId>
-            <version>4.12.1</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

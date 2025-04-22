@@ -14,22 +14,28 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 @RestController
 @RequestMapping("/api/ondet/sdiffs")
 @AllArgsConstructor
 public class OndetController {
+
+    private final Map<String, CompletableFuture<Map<String, List<String>>>> jobs = new ConcurrentHashMap<>();
 
     private final OndetService ondetService;
 
@@ -37,7 +43,7 @@ public class OndetController {
 
     @GetMapping
     @Operation(summary = "Find all objects")
-    public ResponseEntity<Set<TempGraph>> findAll(
+    public ResponseEntity<Set<URI>> findAll(
     ) {
         val objects = ondetService.findAll();
 
@@ -92,14 +98,36 @@ public class OndetController {
 
     @PostMapping("/createBatch")
     @Operation(summary = "Create a group of ontologies")
-    public ResponseEntity<Map<String, List<String>>> create(
+    public ResponseEntity<Map<String, String>> create(
             @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestParam List<URI> uris
+            @RequestBody List<URI> uris
     ) {
 
-        val result = ondetService.create(uris, DATASET);
+        val jobId = UUID.randomUUID().toString();
+        val future = ondetService.createBatchAsync(uris, DATASET);
+        jobs.put(jobId, future);
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return ResponseEntity.ok(Collections.singletonMap("jobId", jobId));
+    }
+
+    @GetMapping("/jobStatus/{jobId}")
+    public ResponseEntity<Map<String, Object>> getJobStatus(
+            @PathVariable String jobId
+    ) {
+        val future = jobs.get(jobId);
+        if (future == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "Job not found"));
+        }
+        if (future.isDone()) {
+            try {
+                val result = future.get();
+                return ResponseEntity.ok(Collections.singletonMap("result", result));
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", e.getMessage()));
+            }
+        } else {
+            return ResponseEntity.ok(Collections.singletonMap("status", "in progress"));
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -185,7 +213,7 @@ public class OndetController {
 
         val version = ondetService.getVersion(uri);
 
-        if (version.sha().isEmpty()) {
+        if (version == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 

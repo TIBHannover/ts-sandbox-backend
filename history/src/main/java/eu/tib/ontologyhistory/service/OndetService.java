@@ -1,5 +1,6 @@
 package eu.tib.ontologyhistory.service;
 
+import com.google.gson.JsonParser;
 import eu.tib.ontologyhistory.dto.DiffDtoTimeline;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.conto.GraphInfo;
@@ -12,11 +13,19 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bson.Document;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,12 +36,24 @@ public class OndetService {
     private final ContoService contoService;
     private final GitDiffService gitDiffService;
 
-    public Set<TempGraph> findAll() {
-        val robotDiffs = robotService.findAllUrls();
-        val gitDiffs = gitDiffService.findAllUrls();
+    public Set<URI> findAll() {
+        val result = new HashSet<URI>();
+        CompletableFuture<Set<URI>> robotFuture = CompletableFuture.supplyAsync(robotService::findAllUrls);
+        CompletableFuture<Set<URI>> gitDiffFuture = CompletableFuture.supplyAsync(gitDiffService::findAllUrls);
 
-        val result = new HashSet<>(robotDiffs);
-        result.addAll(gitDiffs);
+        CompletableFuture<Void> allFuture = CompletableFuture.allOf(robotFuture, gitDiffFuture);
+
+        try {
+            allFuture.get();
+            result.addAll(robotFuture.get());
+            result.addAll(gitDiffFuture.get());
+        } catch (ExecutionException e) {
+            log.error("Error while fetching ontologies: ", e);
+        } catch (InterruptedException e) {
+            log.error("Interrupted!", e);
+            Thread.currentThread().interrupt();
+        }
+
         return result;
     }
 
@@ -78,9 +99,12 @@ public class OndetService {
         } catch (Exception e) {
             return null;
         }
-        gitDiffService.create(uri, diffAdds);
-        robotService.create(uri, diffAdds);
-        contoService.create(uri, dataset, diffAdds);
+
+        val gitDiffFutures = CompletableFuture.runAsync(() -> gitDiffService.create(uri, diffAdds));
+        val robotDiffFutures = CompletableFuture.runAsync(() -> robotService.create(uri, diffAdds));
+        val contoFutures = CompletableFuture.runAsync(() -> contoService.create(uri, dataset, diffAdds));
+
+        CompletableFuture.allOf(gitDiffFutures, robotDiffFutures, contoFutures).join();
 
         return findFirstByUrl(uri, dataset);
     }
@@ -101,10 +125,21 @@ public class OndetService {
         return result;
     }
 
+    @Async
+    public CompletableFuture<Map<String, List<String>>> createBatchAsync(List<URI> uris, String dataset) {
+        return CompletableFuture.supplyAsync(() -> create(uris, dataset));
+    }
+
     public List<DiffAdd> getDiffAdds(URI uri) {
         GitService<?> gitService = GitServiceFactory.getService(uri);
 
         return gitService.getDiffAdds(uri, null);
+    }
+
+    public List<DiffAdd> getDiffAdds(URI uri, Instant datetime) {
+        GitService<?> gitService = GitServiceFactory.getService(uri);
+
+        return gitService.getDiffAdds(uri, datetime);
     }
 
     public void remove(String id) {
@@ -134,6 +169,17 @@ public class OndetService {
         gitDiffService.updateByUrl(uri, datetime);
     }
 
+    @Async
+    public void updateByUrlAsync(URI uri, Instant datetime, String dataset) {
+        val diffAdds = getDiffAdds(uri, datetime);
+
+        val gitDiffFutures = CompletableFuture.runAsync(() -> gitDiffService.create(uri, diffAdds));
+        val robotDiffFutures = CompletableFuture.runAsync(() -> robotService.create(uri, diffAdds));
+        val contoFutures = CompletableFuture.runAsync(() -> contoService.create(uri, dataset, diffAdds));
+
+        CompletableFuture.allOf(gitDiffFutures, robotDiffFutures, contoFutures).join();
+    }
+
     public List<? extends Commit> getCommits(URI uri) {
         GitService<?> gitService = GitServiceFactory.getService(uri);
 
@@ -150,10 +196,44 @@ public class OndetService {
         if (gitDiffs != null && !gitDiffs.isEmpty()) {
             return gitDiffs.get(gitDiffs.size() - 1);
         }
-        return GitDiffDto.defaultValue();
+        return null;
     }
 
     public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {
         return robotService.resHistory(uri, datetime, resourceIRI);
+    }
+
+    public List<URI> getTSOntologies() {
+        HttpRequest getOntologies = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.terminology.tib.eu/api/v2/ontologies?size=1000"))
+                .build();
+
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(getOntologies, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                val parsedResponseBody = JsonParser.parseString(response.body());
+                val jsonObject = parsedResponseBody.getAsJsonObject();
+                val array = jsonObject.get("elements").getAsJsonArray();
+                return array.asList().stream()
+                        .filter(e -> e.getAsJsonObject().has("versioned_url"))
+                        .map(item -> URI.create(item.getAsJsonObject().get("versioned_url").getAsString()))
+                        .toList();
+            } else {
+                return Collections.emptyList();
+            }
+        } catch (InterruptedException e) {
+            log.error("Interrupted with the response: " + e);
+            Thread.currentThread().interrupt();
+        } catch (IOException e) {
+            log.error("IOException happened: " + e);
+        }
+        return Collections.emptyList();
+    }
+
+    public List<URI> filterUnsupportedOntologyTypes(List<URI> uris) {
+        return uris.stream()
+                .filter(GitServiceFactory::isHostSupported)
+                .collect(Collectors.toList());
     }
 }
