@@ -111,8 +111,10 @@ public class GitDiffService {
 
     public void makeDiffFromGit(DiffAdd diffAdd, URI uri) {
         try {
-            val diff = makeDiff(Files.write(ONTOLOGY_LEFT, diffAdd.gitRawFileLeft().getBytes()),
-                    Files.write(ONTOLOGY_RIGHT, diffAdd.gitRawFileRight().getBytes()));
+            val ontLeft = Files.createTempFile("left-file", ".txt");
+            val ontRight = Files.createTempFile("right-file", ".txt");
+            val diff = makeDiff(Files.write(ontLeft, diffAdd.gitRawFileLeft().getBytes()),
+                    Files.write(ontRight, diffAdd.gitRawFileRight().getBytes()));
 
             val gitDiff = GitDiff.builder()
                     .uri(uri)
@@ -123,6 +125,9 @@ public class GitDiffService {
                     .build();
 
             gitDiffRepository.insert(gitDiff);
+
+            ontLeft.toFile().delete();
+            ontRight.toFile().delete();
 
         } catch (IOException e) {
             log.error(e.getMessage(), e);
