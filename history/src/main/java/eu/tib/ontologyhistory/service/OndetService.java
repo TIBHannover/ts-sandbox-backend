@@ -91,6 +91,19 @@ public class OndetService {
         robotService.deleteAllByUrl(uri);
         gitDiffService.deleteAllByUrl(uri);
 
+        val diffAdds = getDiffAdds(uri);
+        gitDiffService.create(uri, diffAdds);
+        robotService.create(uri, diffAdds);
+        contoService.create(uri, dataset, diffAdds);
+
+        return findFirstByUrl(uri, dataset);
+    }
+
+
+    public DiffDtoTimeline createAsync(URI uri, String dataset) {
+        robotService.deleteAllByUrl(uri);
+        gitDiffService.deleteAllByUrl(uri);
+
         List<DiffAdd> diffAdds;
         try {
             diffAdds = getDiffAdds(uri);
