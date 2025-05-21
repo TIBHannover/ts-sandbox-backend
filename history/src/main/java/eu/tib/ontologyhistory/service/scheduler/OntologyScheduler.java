@@ -23,8 +23,8 @@ public class OntologyScheduler {
 
     private final AtomicReference<CompletableFuture<Void>> running = new AtomicReference<>();
 
-//    @EventListener(ApplicationReadyEvent.class)
-//    @Scheduled(cron = "0 0 7,12,19 * * 1-5")
+    @EventListener(ApplicationReadyEvent.class)
+    @Scheduled(cron = "0 0 7,12,19 * * 1-5")
     public void scheduledOntologyChecks() {
         if (running.get() != null && !running.get().isDone()) {
             log.error("Scheduled tasks are already running. New execution skipped.");
