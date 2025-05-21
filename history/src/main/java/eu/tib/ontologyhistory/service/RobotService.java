@@ -109,6 +109,13 @@ public class RobotService {
         }
     }
 
+    public void create(URI uri, List<DiffAdd> diffAdds) {
+
+        for (val diffAdd : diffAdds) {
+            makeDiffFromGit(diffAdd, uri);
+        }
+    }
+
     public void create(URI uri) {
         GitService<?> gitService = GitServiceType.createService(uri);
 
@@ -117,7 +124,7 @@ public class RobotService {
         diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
     }
 
-    public void create(URI uri, List<DiffAdd> diffAdds) {
+    public void createAsync(URI uri, List<DiffAdd> diffAdds) {
         diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
     }
 
