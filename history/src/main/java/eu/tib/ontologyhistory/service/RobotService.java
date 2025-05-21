@@ -149,8 +149,10 @@ public class RobotService {
 
     public void makeDiffFromGit(DiffAdd diffAdd, URI uri) {
         try {
-            OWLOntology owlOntologyLeft = OntologyUtils.loadOntology(IRI.create(diffAdd.gitUrlLeft()));
-            OWLOntology owlOntologyRight = OntologyUtils.loadOntology(IRI.create(diffAdd.gitUrlRight()));
+            val ontLeft = Files.createTempFile("left-file", ".txt");
+            val ontRight = Files.createTempFile("right-file", ".txt");
+            OWLOntology owlOntologyLeft = OntologyUtils.loadOntology(Files.write(ontLeft, diffAdd.gitRawFileLeft().getBytes()).toFile());
+            OWLOntology owlOntologyRight = OntologyUtils.loadOntology(Files.write(ontRight, diffAdd.gitRawFileRight().getBytes()).toFile());
 
             val ontologySetProvider = OntologyUtils.getOwlOntologySetProvider(owlOntologyLeft, owlOntologyRight);
             val axiomsMarkdown = OntologyUtils.getAxiomsMarkdown(owlOntologyLeft, owlOntologyRight, ontologySetProvider);
@@ -172,7 +174,8 @@ public class RobotService {
 
                 robotRepository.insert(diff);
             }
-
+            ontLeft.toFile().delete();
+            ontRight.toFile().delete();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

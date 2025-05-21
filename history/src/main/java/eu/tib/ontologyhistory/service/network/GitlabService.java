@@ -31,10 +31,13 @@ public class GitlabService implements GitService<GitlabCommit> {
 
     private String ACCESS_TOKEN;
 
+    private String HOST;
+
     private static String GITLAB_REST_API_V4_BASE_URL;
 
     public GitlabService(GitTokenType tokenType, String host) {
         GITLAB_REST_API_V4_BASE_URL =  "https://" + host + "/api/v4/";
+        HOST = host;
         try {
             ACCESS_TOKEN = System.getenv(tokenType.name());
             if (ACCESS_TOKEN == null) {
@@ -93,8 +96,8 @@ public class GitlabService implements GitService<GitlabCommit> {
 
         if (rawFile != null && parentRawFile != null) {
             DiffAdd diffAdd = new DiffAdd(
-                    String.format("https://gitlab.com/%s/-/raw/%s/%s", request.projectId(), commit.id(), request.path()),
-                    String.format("https://gitlab.com/%s/-/raw/%s/%s", request.projectId(), parentCommit.id(), request.path()),
+                    String.format("https://" + HOST + "/%s/-/raw/%s/%s", request.projectId(), commit.id(), request.path()),
+                    String.format("https://" + HOST + "/%s/-/raw/%s/%s", request.projectId(), parentCommit.id(), request.path()),
                     commit.web_url(),
                     parentCommit.web_url(),
                     rawFile,
