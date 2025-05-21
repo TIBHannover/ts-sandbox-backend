@@ -31,6 +31,7 @@ services:
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - GITLAB_TOKEN=${GITLAB_TOKEN}
+      - GIT_AACHEN_TOKEN=${GIT_AACHEN_TOKEN}
     ports:
       - "9090:9090"
 volumes:

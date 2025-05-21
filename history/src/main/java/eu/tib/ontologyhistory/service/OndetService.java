@@ -125,7 +125,7 @@ public class OndetService {
         val addedList = new ArrayList<String>();
         val notAddedList = new ArrayList<String>();
         for (URI uri : uris) {
-            if (create(uri, dataset) != null) {
+            if (createAsync(uri, dataset) != null) {
                 addedList.add(String.valueOf(uri));
             } else {
                 notAddedList.add(String.valueOf(uri));
