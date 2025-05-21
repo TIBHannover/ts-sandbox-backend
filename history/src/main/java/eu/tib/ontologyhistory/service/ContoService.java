@@ -6,7 +6,6 @@ import eu.tib.ontologyhistory.dto.conto.*;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.model.InvalidContoDiff;
 import eu.tib.ontologyhistory.repository.InvalidContoDiffRepository;
-import eu.tib.ontologyhistory.repository.InvalidDiffRepository;
 import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.utils.SparqlQueries;
 import lombok.AllArgsConstructor;
@@ -45,7 +44,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -368,7 +366,7 @@ public class ContoService {
     }
 
     public void create(URI uri, String dataset) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         val diffAdds = gitService.getDiffAdds(uri, null);
         for (val diffAdd : diffAdds) {
@@ -409,7 +407,7 @@ public class ContoService {
     }
 
     public void updateByUrl(URI uri, Instant datetime, String dataset) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         val diffAdds = gitService.getDiffAdds(uri, datetime);
         for (val diffAdd : diffAdds) {

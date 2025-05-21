@@ -3,8 +3,6 @@ package eu.tib.ontologyhistory.service;
 import com.google.gson.JsonParser;
 import eu.tib.ontologyhistory.dto.DiffDtoTimeline;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
-import eu.tib.ontologyhistory.dto.conto.GraphInfo;
-import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitDiffDto;
 import eu.tib.ontologyhistory.model.Commit;
@@ -131,13 +129,13 @@ public class OndetService {
     }
 
     public List<DiffAdd> getDiffAdds(URI uri) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         return gitService.getDiffAdds(uri, null);
     }
 
     public List<DiffAdd> getDiffAdds(URI uri, Instant datetime) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         return gitService.getDiffAdds(uri, datetime);
     }
@@ -181,7 +179,7 @@ public class OndetService {
     }
 
     public List<? extends Commit> getCommits(URI uri) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         val result = gitService.getCommits(uri);
         if (result != null) {
@@ -233,7 +231,7 @@ public class OndetService {
 
     public List<URI> filterUnsupportedOntologyTypes(List<URI> uris) {
         return uris.stream()
-                .filter(GitServiceFactory::isHostSupported)
+                .filter(GitServiceType::isHostSupported)
                 .collect(Collectors.toList());
     }
 }

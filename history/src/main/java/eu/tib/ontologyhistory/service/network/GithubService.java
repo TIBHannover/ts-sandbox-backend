@@ -8,10 +8,9 @@ import com.google.gson.JsonParser;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitServiceRequest;
 import eu.tib.ontologyhistory.model.github.GithubCommit;
-import lombok.AllArgsConstructor;
+import eu.tib.ontologyhistory.service.GitTokenType;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -25,11 +24,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-@Service
-@AllArgsConstructor
 public class GithubService implements GitService<GithubCommit> {
 
-    private static final String ACCESS_TOKEN = "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";
+    private static final String NO_GITHUB_TOKEN_SET = "github_access_token_not_set";
+
+    private static String ACCESS_TOKEN;
+
+    public GithubService(GitTokenType tokenType, String host) {
+        try {
+            ACCESS_TOKEN = System.getenv(tokenType.name());
+            if (ACCESS_TOKEN == null) {
+                log.warn("Github token not set, using default");
+                ACCESS_TOKEN = NO_GITHUB_TOKEN_SET;
+            }
+        } catch (NullPointerException e) {
+            log.error("You tried to set the null value for {} environment variable: \n{}", tokenType, e);
+        } catch (SecurityException e) {
+            log.error("Security manager did not allow to get the value of {} environment variable: \n{}", tokenType, e);
+        }
+    }
 
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
@@ -92,10 +105,7 @@ public class GithubService implements GitService<GithubCommit> {
                 .buildAndExpand(request.owner(), request.repo(), sha, request.path())
                 .toUri();
 
-        HttpRequest requestGetRawFile = HttpRequest.newBuilder()
-                .uri(githubRawFileApi)
-                .header("Authorization", "Bearer " + ACCESS_TOKEN)
-                .build();
+        HttpRequest requestGetRawFile = buildHttpRequestCheckToken(githubRawFileApi);
 
         try {
             HttpClient client = HttpClient.newHttpClient();
@@ -142,10 +152,7 @@ public class GithubService implements GitService<GithubCommit> {
         List<GithubCommit> result = new ArrayList<>();
 
         while (nextPage.isPresent()) {
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(githubApiUri)
-                    .header("Authorization", "Bearer " + ACCESS_TOKEN)
-                    .build();
+            HttpRequest httpRequest = buildHttpRequestCheckToken(githubApiUri);
 
             try {
                 val commits = new ArrayList<GithubCommit>();
@@ -159,10 +166,7 @@ public class GithubService implements GitService<GithubCommit> {
                 if (responseBody.isJsonObject()) {
                     JsonObject jsonObject = responseBody.getAsJsonObject();
                     if (jsonObject.get("message").getAsString().equals("Moved Permanently")) {
-                        httpRequest = HttpRequest.newBuilder()
-                                .uri(URI.create(jsonObject.get("url").getAsString()))
-                                .header("Authorization", "Bearer " + ACCESS_TOKEN)
-                                .build();
+                        httpRequest = buildHttpRequestCheckToken(URI.create(jsonObject.get("url").getAsString()));
 
                         response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
                         commits.addAll(objectMapper.readValue(response.body(), new TypeReference<>() {}));
@@ -227,5 +231,16 @@ public class GithubService implements GitService<GithubCommit> {
                 .branch(branch)
                 .path(encodedPath)
                 .build();
+    }
+
+    private HttpRequest buildHttpRequestCheckToken(URI uri) {
+        val requestBuilder = HttpRequest.newBuilder()
+                .uri(uri);
+
+        if (!ACCESS_TOKEN.equals(NO_GITHUB_TOKEN_SET)) {
+            requestBuilder.header("Authorization", "Bearer " + ACCESS_TOKEN);
+        }
+
+        return requestBuilder.build();
     }
 }

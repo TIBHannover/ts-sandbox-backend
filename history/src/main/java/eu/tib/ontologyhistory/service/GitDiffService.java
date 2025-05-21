@@ -1,6 +1,5 @@
 package eu.tib.ontologyhistory.service;
 
-import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitDiffDto;
 import eu.tib.ontologyhistory.mapper.GittDiffMapper;
@@ -20,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -31,16 +29,12 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class GitDiffService {
 
-    private static final Path ONTOLOGY_LEFT = Path.of("ontology-left.txt");
-
-    private static final Path ONTOLOGY_RIGHT = Path.of("ontology-right.txt");
-
     private final GitDiffRepository gitDiffRepository;
 
     private final GittDiffMapper gittDiffMapper;
 
     public void create(URI uri) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         val diffAdds = gitService.getDiffAdds(uri, null);
         for (val diffAdd : diffAdds) {
@@ -53,20 +47,12 @@ public class GitDiffService {
     }
 
     public void updateByUrl(URI uri, Instant datetime) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         val diffAdds = gitService.getDiffAdds(uri, datetime);
         for (val diffAdd : diffAdds) {
             makeDiffFromGit(diffAdd, uri);
         }
-    }
-
-    public String findBySha(String sha) {
-        val gitDiff = gitDiffRepository.findFirstBySha(sha);
-        if (gitDiff != null) {
-            return gitDiff.getDiff();
-        }
-        return "";
     }
 
     public String findByParentSha(String parentSha) {
@@ -94,11 +80,6 @@ public class GitDiffService {
         gitDiffs.sort(Comparator.comparing(GitDiff::getDatetime));
 
         return gittDiffMapper.entityToDto(gitDiffs);
-    }
-
-    public GitDiffDto findFirstByOrderByDatetimeDesc(URI uri) {
-        val gitDiff = gitDiffRepository.findFirstByUriOrderByDatetimeDesc(uri);
-        return gittDiffMapper.entityToDto(gitDiff);
     }
 
     public void deleteAll() {

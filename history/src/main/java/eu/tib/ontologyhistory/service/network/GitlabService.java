@@ -7,10 +7,9 @@ import com.google.gson.JsonParser;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitServiceRequest;
 import eu.tib.ontologyhistory.model.gitlab.GitlabCommit;
-import lombok.AllArgsConstructor;
+import eu.tib.ontologyhistory.service.GitTokenType;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriUtils;
 
 import java.io.IOException;
@@ -26,17 +25,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Slf4j
-@Service
-@AllArgsConstructor
 public class GitlabService implements GitService<GitlabCommit> {
 
-    private static final String ACCESS_TOKEN = "glpat-cd7FBbUsG8oCXdNZHa7B";
+    private static final String NO_GITLAB_TOKEN_SET = "gitlab_access_token_not_set";
+
+    private String ACCESS_TOKEN;
+
+    private static String GITLAB_REST_API_V4_BASE_URL;
+
+    public GitlabService(GitTokenType tokenType, String host) {
+        GITLAB_REST_API_V4_BASE_URL =  "https://" + host + "/api/v4/";
+        try {
+            ACCESS_TOKEN = System.getenv(tokenType.name());
+            if (ACCESS_TOKEN == null) {
+                log.warn("Gitlab-related token not set, using default");
+                ACCESS_TOKEN = NO_GITLAB_TOKEN_SET;
+            }
+        } catch (NullPointerException e) {
+            log.error("You tried to set the null value for {} environment variable: \n{}", tokenType, e);
+        } catch (SecurityException e) {
+            log.error("Security manager did not allow to get the value of {} environment variable: \n{}", tokenType, e);
+        }
+    }
 
     private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-
-    private static final String GITLAB_REST_API_V4_BASE_URL = "https://gitlab.com/api/v4/";
 
     private static final String GITLAB_REST_API_PROJECTS_CONTEXT = "projects/";
 
@@ -105,10 +119,7 @@ public class GitlabService implements GitService<GitlabCommit> {
 
         URI gitlabUri = URI.create(link);
 
-        HttpRequest requestGetRawFile = HttpRequest.newBuilder()
-                .uri(gitlabUri)
-                .header("Authorization", "Bearer " + ACCESS_TOKEN)
-                .build();
+        HttpRequest requestGetRawFile = buildHttpRequestCheckToken(gitlabUri);
 
         try {
             HttpClient client = HttpClient.newHttpClient();
@@ -159,11 +170,7 @@ public class GitlabService implements GitService<GitlabCommit> {
         Optional<String> nextPage = Optional.of("init");
 
         while (nextPage.isPresent()) {
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(gitlabUri)
-                    .header("Authorization", "Bearer " + ACCESS_TOKEN)
-                    .build();
-
+            HttpRequest httpRequest = buildHttpRequestCheckToken(gitlabUri);
             try {
                 HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
                 List<GitlabCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {});
@@ -227,10 +234,8 @@ public class GitlabService implements GitService<GitlabCommit> {
         String link = GITLAB_REST_API_V4_BASE_URL + GITLAB_REST_API_PROJECTS_CONTEXT + encodedProjectPath;
         HttpClient client = HttpClient.newHttpClient();
         URI gitlabUri = URI.create(link);
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(gitlabUri)
-                .header("Authorization", "Bearer " + ACCESS_TOKEN)
-                .build();
+        HttpRequest httpRequest = buildHttpRequestCheckToken(gitlabUri);
+
         try {
             HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             val parsedResponseBody = JsonParser.parseString(response.body());
@@ -269,5 +274,16 @@ public class GitlabService implements GitService<GitlabCommit> {
                 .branch(branch)
                 .path(encodedPath)
                 .build();
+    }
+
+    private HttpRequest buildHttpRequestCheckToken(URI uri) {
+        val requestBuilder = HttpRequest.newBuilder()
+                .uri(uri);
+
+        if (!ACCESS_TOKEN.equals(NO_GITLAB_TOKEN_SET)) {
+            requestBuilder.header("Authorization", "Bearer " + ACCESS_TOKEN);
+        }
+
+        return requestBuilder.build();
     }
 }

@@ -1,6 +1,5 @@
 package eu.tib.ontologyhistory.service;
 
-import eu.tib.ontologyhistory.dto.conto.TempGraph;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.mapper.DiffMapper;
@@ -101,7 +100,7 @@ public class RobotService {
     }
 
     public void updateByUrl(URI uri, Instant datetime) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         val diffAdds = gitService.getDiffAdds(uri, datetime);
 
@@ -111,7 +110,7 @@ public class RobotService {
     }
 
     public void create(URI uri) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         val diffAdds = gitService.getDiffAdds(uri, null);
 
@@ -173,7 +172,7 @@ public class RobotService {
     }
 
     public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {
-        GitService<?> gitService = GitServiceFactory.getService(uri);
+        GitService<?> gitService = GitServiceType.createService(uri);
 
         val diffAdds = gitService.getDiffAdds(uri, datetime);
 

@@ -1,43 +1,46 @@
-version: '3'
-
 services:
   mongodb:
-    #image: mongo:3.6.23
     image: mongo:latest
     container_name: "mongodb"
     networks:
       - my_shared_network
-      #- sdiff-inet
     ports:
       - "27017:27017"
     volumes:
-      - ${HOME_PATH_LINUX}:/data/db
+      - mongodb_volume:/data/db
   fuseki:
     image: secoresearch/fuseki
     container_name: fuseki
     networks:
       - my_shared_network
-      #- sdiff-inet
     ports:
       - "3030:3030"
     environment:
       ADMIN_PASSWORD: fuseki
       QUERY_TIMEOUT: 600000
     volumes:
-      - /data/terminology/fuseki/fuseki-data:/fuseki-base/databases
-      - /data/terminology/fuseki/fuseki-configuration:/fuseki-base/configuration
+      - fuseki_data_volume:/fuseki-base/databases
+      - fuseki_configuration_volume:/fuseki-base/configuration
   history-back:
     image: history-back:1.0
     container_name: history-back
     networks:
       - my_shared_network
-      #- sdiff-inet
     build:
       context: .
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITLAB_TOKEN=${GITLAB_TOKEN}
     ports:
       - "9090:9090"
+volumes:
+  mongodb_volume:
+    driver: local
+  fuseki_data_volume:
+    driver: local
+  fuseki_configuration_volume:
+    driver: local
 networks:
-  #sdiff-inet:
   my_shared_network:
     name: my_shared_network
     driver: bridge
