@@ -46,8 +46,8 @@ public class OntologyScheduler {
     @EventListener(ApplicationReadyEvent.class)
     @Scheduled(cron = "0 0 7,12,19 * * 1-7")
     public void scheduledOntologyChecks() {
-//        scheduledNewTsOntologies();
-//        scheduledCheckNewOntologyVersions(false);
+        scheduledNewTsOntologies();
+        scheduledCheckNewOntologyVersions(false);
     }
 
     private List<URI> getNewOntologies() {
@@ -71,9 +71,6 @@ public class OntologyScheduler {
         val filteredTsOntologies = getNewOntologies();
         if (!filteredTsOntologies.isEmpty()) {
             for (val ontology : filteredTsOntologies) {
-                if (ontology.toString().equals("https://raw.githubusercontent.com/BONSAMURAIS/ontology/master/core/ontology_v0.2.tt")) {
-                    continue;
-                }
                 ondetService.create(ontology, DATASET);
             }
         }
@@ -90,9 +87,6 @@ public class OntologyScheduler {
                     if (updatedAsync) {
                         ondetService.updateAsync(ontology, lastTsVersion.datetime(), DATASET);
                     } else {
-                        if (ontology.toString().equals("https://raw.githubusercontent.com/BONSAMURAIS/ontology/master/core/ontology_v0.2.tt")) {
-                            continue;
-                        }
                         ondetService.update(ontology, lastTsVersion.datetime(), DATASET);
                     }
                 }
