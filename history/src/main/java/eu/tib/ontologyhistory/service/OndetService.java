@@ -35,6 +35,12 @@ public class OndetService {
     private final GitDiffService gitDiffService;
 
     public Set<URI> findAll() {
+        val result = new HashSet<>(robotService.findAllUrls());
+        result.addAll(gitDiffService.findAllUrls());
+        return result;
+    }
+
+    public Set<URI> findAllAsync() {
         val result = new HashSet<URI>();
         CompletableFuture<Set<URI>> robotFuture = CompletableFuture.supplyAsync(robotService::findAllUrls);
         CompletableFuture<Set<URI>> gitDiffFuture = CompletableFuture.supplyAsync(gitDiffService::findAllUrls);

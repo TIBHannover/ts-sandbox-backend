@@ -39,7 +39,7 @@ public class OndetController {
     @Operation(summary = "Find all objects")
     public ResponseEntity<Set<URI>> findAll(
     ) {
-        val objects = ondetService.findAll();
+        val objects = ondetService.findAllAsync();
 
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
