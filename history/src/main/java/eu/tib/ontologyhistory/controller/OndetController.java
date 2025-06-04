@@ -172,7 +172,7 @@ public class OndetController {
             @Parameter(description = "Last ISO-8601 time of the semantic diff in the system", example = "YYYY-MM-DDTHH:MM:SSZ")
             @RequestParam Instant datetime) {
 
-        ondetService.updateByUrl(uri, datetime, DATASET);
+        ondetService.update(uri, datetime, DATASET);
 
         return new ResponseEntity<>("Updated", HttpStatus.OK);
     }
