@@ -46,7 +46,7 @@ public class OntologyScheduler {
     @EventListener(ApplicationReadyEvent.class)
     @Scheduled(cron = "0 0 7,12,19 * * 1-7")
     public void scheduledOntologyChecks() {
-        scheduledNewTsOntologies();
+//        scheduledNewTsOntologies();
         scheduledCheckNewOntologyVersions(false);
     }
 
