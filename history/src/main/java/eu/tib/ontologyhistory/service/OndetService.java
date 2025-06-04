@@ -94,7 +94,7 @@ public class OndetService {
         val diffAdds = getDiffAdds(uri);
         gitDiffService.create(uri, diffAdds);
         robotService.create(uri, diffAdds);
-        contoService.create(uri, dataset, diffAdds);
+        contoService.create(uri, diffAdds, dataset);
 
         return findFirstByUrl(uri, dataset);
     }
@@ -114,13 +114,13 @@ public class OndetService {
         val gitDiffFutures = CompletableFuture.runAsync(() -> gitDiffService.create(uri, diffAdds));
         val robotDiffFutures = CompletableFuture.runAsync(() -> robotService.create(uri, diffAdds));
         CompletableFuture.allOf(gitDiffFutures, robotDiffFutures).join();
-        contoService.create(uri, dataset, diffAdds);
+        contoService.create(uri, diffAdds, dataset);
 
 
         return findFirstByUrl(uri, dataset);
     }
 
-    public Map<String, List<String>> create(List<URI> uris, String dataset) {
+    public Map<String, List<String>> createAsync(List<URI> uris, String dataset) {
         val result = new HashMap<String, List<String>>();
         val addedList = new ArrayList<String>();
         val notAddedList = new ArrayList<String>();
@@ -138,7 +138,7 @@ public class OndetService {
 
     @Async
     public CompletableFuture<Map<String, List<String>>> createBatchAsync(List<URI> uris, String dataset) {
-        return CompletableFuture.supplyAsync(() -> create(uris, dataset));
+        return CompletableFuture.supplyAsync(() -> createAsync(uris, dataset));
     }
 
     public List<DiffAdd> getDiffAdds(URI uri) {
@@ -170,23 +170,24 @@ public class OndetService {
     }
 
     public void update(String id) {
-        robotService.update(id);
-        contoService.update(id);
+        // TODO check if update by id (probably commit sha) is still needed
     }
 
-    public void updateByUrl(URI uri, Instant datetime, String dataset) {
-        robotService.updateByUrl(uri, datetime);
-        contoService.updateByUrl(uri, datetime, dataset);
-        gitDiffService.updateByUrl(uri, datetime);
+    public void update(URI uri, Instant datetime, String dataset) {
+        val diffAdds = getDiffAdds(uri, datetime);
+
+        gitDiffService.create(uri, diffAdds);
+        robotService.create(uri, diffAdds);
+        contoService.create(uri, diffAdds, dataset);
     }
 
     @Async
-    public void updateByUrlAsync(URI uri, Instant datetime, String dataset) {
+    public void updateAsync(URI uri, Instant datetime, String dataset) {
         val diffAdds = getDiffAdds(uri, datetime);
 
-        val gitDiffFutures = CompletableFuture.runAsync(() -> gitDiffService.create(uri, diffAdds));
-        val robotDiffFutures = CompletableFuture.runAsync(() -> robotService.create(uri, diffAdds));
-        val contoFutures = CompletableFuture.runAsync(() -> contoService.create(uri, dataset, diffAdds));
+        val gitDiffFutures = CompletableFuture.runAsync(() -> gitDiffService.createAsync(uri, diffAdds));
+        val robotDiffFutures = CompletableFuture.runAsync(() -> robotService.createAsync(uri, diffAdds));
+        val contoFutures = CompletableFuture.runAsync(() -> contoService.create(uri, diffAdds, dataset));
 
         CompletableFuture.allOf(gitDiffFutures, robotDiffFutures, contoFutures).join();
     }

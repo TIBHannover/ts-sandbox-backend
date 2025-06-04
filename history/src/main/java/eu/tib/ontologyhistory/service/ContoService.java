@@ -387,7 +387,7 @@ public class ContoService {
         }
     }
 
-    public void create(URI uri, String dataset, List<DiffAdd> diffAdds) {
+    public void create(URI uri, List<DiffAdd> diffAdds, String dataset) {
         diffAdds.forEach(diffAdd -> {
             try {
                 getCommand(diffAdd, uri);
@@ -404,28 +404,6 @@ public class ContoService {
                 log.error(e.getMessage(), e);
             }
         });
-    }
-
-    public void updateByUrl(URI uri, Instant datetime, String dataset) {
-        GitService<?> gitService = GitServiceType.createService(uri);
-
-        val diffAdds = gitService.getDiffAdds(uri, datetime);
-        for (val diffAdd : diffAdds) {
-            try {
-                getCommand(diffAdd, uri);
-                uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
-                uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
-            } catch (Exception e) {
-                val invalidContoDiff = InvalidContoDiff.builder()
-                        .sha(diffAdd.sha())
-                        .parentSha(diffAdd.parentSha())
-                        .message(e.getMessage())
-                        .build();
-
-                invalidContoDiffRepository.insert(invalidContoDiff);
-                log.error(e.getMessage(), e);
-            }
-        }
     }
 
     private static void getCommand(DiffAdd diffAdd, URI baseUrl) {

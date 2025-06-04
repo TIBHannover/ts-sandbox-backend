@@ -104,7 +104,7 @@ public class RobotController {
             @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
             @RequestParam URI uri) {
 
-        robotService.create(uri);
+        robotService.createAsync(uri);
 
         return new ResponseEntity<>("Created", HttpStatus.CREATED);
     }

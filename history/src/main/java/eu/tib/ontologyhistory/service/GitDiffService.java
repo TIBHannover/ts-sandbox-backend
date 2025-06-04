@@ -43,7 +43,6 @@ public class GitDiffService {
     }
 
     public void create(URI uri, List<DiffAdd> diffAdds) {
-
         for (val diffAdd : diffAdds) {
             makeDiffFromGit(diffAdd, uri);
         }
@@ -51,15 +50,6 @@ public class GitDiffService {
 
     public void createAsync(URI uri, List<DiffAdd> diffAdds) {
         diffAdds.forEach(diffAdd -> CompletableFuture.runAsync(() -> makeDiffFromGit(diffAdd, uri)));
-    }
-
-    public void updateByUrl(URI uri, Instant datetime) {
-        GitService<?> gitService = GitServiceType.createService(uri);
-
-        val diffAdds = gitService.getDiffAdds(uri, datetime);
-        for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, uri);
-        }
     }
 
     public String findByParentSha(String parentSha) {

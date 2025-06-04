@@ -95,28 +95,13 @@ public class RobotService {
         robotRepository.deleteAll();
     }
 
-    public void update(String id) {
-        // will be extended later
-    }
-
-    public void updateByUrl(URI uri, Instant datetime) {
-        GitService<?> gitService = GitServiceType.createService(uri);
-
-        val diffAdds = gitService.getDiffAdds(uri, datetime);
-
-        for (val diffAdd : diffAdds) {
-            makeDiffFromGit(diffAdd, uri);
-        }
-    }
-
     public void create(URI uri, List<DiffAdd> diffAdds) {
-
         for (val diffAdd : diffAdds) {
             makeDiffFromGit(diffAdd, uri);
         }
     }
 
-    public void create(URI uri) {
+    public void createAsync(URI uri) {
         GitService<?> gitService = GitServiceType.createService(uri);
 
         val diffAdds = gitService.getDiffAdds(uri, null);
