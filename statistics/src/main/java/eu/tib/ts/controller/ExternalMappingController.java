@@ -4,7 +4,6 @@ import eu.tib.ts.controller.assember.ExternalMappingModelAssembler;
 import eu.tib.ts.controller.dto.ExternalMappingModel;
 import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
-import eu.tib.ts.repository.TsRepository;
 import eu.tib.ts.service.ExternalMappingService;
 import eu.tib.ts.service.PreProcessingOntologyService;
 import eu.tib.ts.utils.HttpUtils;
@@ -40,8 +39,6 @@ public class ExternalMappingController {
     private final PagedResourcesAssembler<ExternalMapping> externalMappingPagedResourcesAssembler;
 
     private final ExternalMappingModelAssembler externalMappingModelAssembler;
-
-    private final TsRepository tsRepository;
 
 
     @Operation(summary = "Mappings between an external ontology and a set of selected TIB TS ontologies")
@@ -105,13 +102,13 @@ public class ExternalMappingController {
     }
 
     @Operation(summary = "Mappings between ontology files uploaded from local machine")
-    @PostMapping(value="/eccenca")
+    @PostMapping(value="/eccenca", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PagedModel<ExternalMappingModel>> produceMultipartFileMapping(
-            @Parameter(description = "Source ontology file path", example = "-F file=@C://Users//userName//git//ontologies//scor//scor.ttl")
+            @Parameter(description = "Source ontology file (e.g., 2.3.ttl, source.owl)")
             @RequestPart("file") MultipartFile file,
-            @Parameter(description = "One or more target ontology file paths", example = "-F files=@C://Users//userName//git//ontologies//scor//scor.ttl")
+            @Parameter(description = "One or more target ontology files (e.g., aeon.owl, target.owl)")
             @RequestPart(value = "files") MultipartFile[] files,
-            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "true, false")
+            @Parameter(description = "Enable or disable to check classes satisfiability using HermiT reasoner", example = "false")
             @RequestParam boolean sat,
             Pageable pageable
             ) throws OWLOntologyCreationException, IOException {
