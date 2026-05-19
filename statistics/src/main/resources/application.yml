@@ -21,8 +21,8 @@ preprocessing:
   run: true
 
 ts:
-  ontologies.list.size: 200
-  base.uri: https://api.terminology.tib.eu/api/v2/ontologies
+  ontologies-list-size: 200
+  base-uri: https://api.terminology.tib.eu/api/v2/ontologies
   classifications:
     - NFDI4ING
     - NFDI4Energy

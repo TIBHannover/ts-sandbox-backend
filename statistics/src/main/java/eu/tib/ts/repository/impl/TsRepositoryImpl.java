@@ -1,12 +1,12 @@
 package eu.tib.ts.repository.impl;
 
+import eu.tib.ts.configuration.TsProperties;
 import eu.tib.ts.model.ontology.TibOntologyApiV2Response;
 import eu.tib.ts.model.ontology.TsOntology;
 import eu.tib.ts.repository.TsRepository;
 import eu.tib.ts.repository.exception.TsRepositoryException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -31,20 +31,13 @@ public class TsRepositoryImpl implements TsRepository {
     private static final String QUERY_PARAM_EXCLUSIVE = "exclusive";
     private static final String QUERY_PARAM_OPTION = "option";
 
-    @Value("${ts.base.uri}")
-    private String tsBaseUri;
-
-    @Value("${ts.ontologies.list.size}")
-    private int ontologiesListSize;
-
-    @Value("${ts.classifications:}")
-    private List<String> classifications;
-
     private final RestTemplate restTemplate;
+    private final TsProperties tsProperties;
 
     @Autowired
-    public TsRepositoryImpl(RestTemplate restTemplate) {
+    public TsRepositoryImpl(RestTemplate restTemplate, TsProperties tsProperties) {
         this.restTemplate = restTemplate;
+        this.tsProperties = tsProperties;
     }
 
     @Override
@@ -53,9 +46,9 @@ public class TsRepositoryImpl implements TsRepository {
         int currentPage = 0;
         boolean hasMore = true;
 
-        log.info("Starting to fetch ontologies from TIB API v2: {} (limit: {})", tsBaseUri, ontologiesListSize);
-        if (!CollectionUtils.isEmpty(classifications)) {
-            log.info("Classifications filter: {}", classifications);
+        log.info("Starting to fetch ontologies from TIB API v2: {} (limit: {})", tsProperties.getBaseUri(), tsProperties.getOntologiesListSize());
+        if (!CollectionUtils.isEmpty(tsProperties.getClassifications())) {
+            log.info("Classifications filter: {}", tsProperties.getClassifications());
         } else {
             log.warn("No classifications configured - will fetch all ontologies");
         }
@@ -73,12 +66,12 @@ public class TsRepositoryImpl implements TsRepository {
                         currentPage, pageOntologies.size(), allOntologies.size());
 
                 // Stop if we've reached the limit
-                if (allOntologies.size() >= ontologiesListSize) {
+                if (allOntologies.size() >= tsProperties.getOntologiesListSize()) {
                     allOntologies = allOntologies.stream()
-                            .limit(ontologiesListSize)
+                            .limit(tsProperties.getOntologiesListSize())
                             .collect(Collectors.toList());
                     hasMore = false;
-                    log.info("Reached ontologies limit of {}", ontologiesListSize);
+                    log.info("Reached ontologies limit of {}", tsProperties.getOntologiesListSize());
                 } else if (response.getPage() < response.getTotalPages() - 1) {
                     currentPage++;
                 } else {
@@ -96,9 +89,9 @@ public class TsRepositoryImpl implements TsRepository {
     private TibOntologyApiV2Response fetchOntologiesPage(int page) {
         try {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder
-                    .fromHttpUrl(tsBaseUri)
+                    .fromHttpUrl(tsProperties.getBaseUri())
                     .queryParam(QUERY_PARAM_PAGE, page)
-                    .queryParam(QUERY_PARAM_SIZE, ontologiesListSize)
+                    .queryParam(QUERY_PARAM_SIZE, tsProperties.getOntologiesListSize())
                     .queryParam(QUERY_PARAM_EXACT_MATCH, false)
                     .queryParam(QUERY_PARAM_INCLUDE_OBSOLETE, false)
                     .queryParam(QUERY_PARAM_SCHEMA, "collection")
@@ -106,11 +99,11 @@ public class TsRepositoryImpl implements TsRepository {
                     .queryParam(QUERY_PARAM_OPTION, "COMPOSITE");
 
             // Add classification filters if configured
-            if (!CollectionUtils.isEmpty(classifications)) {
-                for (String classification : classifications) {
+            if (!CollectionUtils.isEmpty(tsProperties.getClassifications())) {
+                for (String classification : tsProperties.getClassifications()) {
                     uriBuilder.queryParam("classification", classification);
                 }
-                log.info("Filtering ontologies by classifications: {}", classifications);
+                log.info("Filtering ontologies by classifications: {}", tsProperties.getClassifications());
             }
 
             String url = uriBuilder.build().toUriString();
