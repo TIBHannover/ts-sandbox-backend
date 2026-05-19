@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public enum CharacteristicsType implements MostCommonlyUsable {
+public enum CharacteristicsType {
     PROPERTY {
         @Override
         public <T extends ExtendedOntology> Set<String> getOntologyCharacteristics(T ontology) {
@@ -57,5 +57,9 @@ public enum CharacteristicsType implements MostCommonlyUsable {
         return getOntologyCharacteristics(ontology).stream()
             .map(String::toLowerCase)
             .collect(Collectors.toSet());
+    }
+
+    public boolean consideredForCommonlyUsed() {
+        return true;
     }
 }
