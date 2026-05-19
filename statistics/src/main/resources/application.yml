@@ -21,20 +21,15 @@ preprocessing:
   run: true
 
 ts:
-  ontologies.list.size: 200
-  # base.uri: https://service.tib.eu/ts4tib/api/ontologies #https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu #https://service.tib.eu/ts4tib/api/ontologies #https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu #https://service.tib.eu/ts4tib/api/ontologies #https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=CoyPu #https://service.tib.eu/ts4tib/api/ontologies #
-  base.uri: https://service.tib.eu/ts4tib/api/ontologies/filterby?schema=collection&classification=NFDI4Energy&classification=CoyPu&classification=NFDI4ING
+  ontologies.list.size: 20
+  base.uri: https://api.terminology.tib.eu/api/v2/ontologies
+  classifications:
+    - NFDI4ING
+    - NFDI4Energy
+    - CoyPu
   timeout:
     connect: 10000
     read: 10000
-
-similarity:
-  weight:
-    property: 0.2
-    class: 0.2
-    namespace: 0.2
-    import: 0.2
-    individual: 0.2
 
 #list ontology ids in lower case
 # hp,gaxcore,tema,fibo,chiro,chebi,efo,bau,raum,hoom,ms,ncit,ordo40,ordo42,snomedct,envo,pato,bto,obi,mop,edam,chmo,afo,sto,enm,sepio,infosecsos,

@@ -14,7 +14,9 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 public class RestTemplateConfiguration {
@@ -23,6 +25,11 @@ public class RestTemplateConfiguration {
     public RestTemplate restTemplate(MappingJackson2HttpMessageConverter messageConverter) {
         RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
         restTemplate.setMessageConverters(Collections.singletonList(messageConverter));
+        
+        // Add interceptor to include caller header for request tracking
+        List<org.springframework.http.client.ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
+        interceptors.add(new CallerHeaderInterceptor());
+        restTemplate.setInterceptors(interceptors);
 
         return restTemplate;
     }

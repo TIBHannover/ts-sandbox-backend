@@ -21,7 +21,6 @@ public class Config {
     Object tracker;
     Object logo;
     List<String> creators;
-    Annotation annotation;
     String fileLocation;
     String reasonerType;
     boolean oboSlims;

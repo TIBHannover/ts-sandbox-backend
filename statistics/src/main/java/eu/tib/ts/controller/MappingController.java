@@ -3,9 +3,7 @@ package eu.tib.ts.controller;
 import eu.tib.ts.controller.dto.MappingGropedBySourceOntologyDto;
 
 import eu.tib.ts.controller.dto.SourceOntologyObjectSetModel;
-import eu.tib.ts.service.MappingFilterService;
 import eu.tib.ts.service.ProcessedMappingService;
-import eu.tib.ts.service.impl.MappingServiceImpl;
 import eu.tib.ts.utils.HttpUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,19 +27,9 @@ public class MappingController {
 
     private final ProcessedMappingService processedMappingService;
 
-    private final MappingFilterService mappingFilterService;
-
-    private final MappingServiceImpl mappingService;
-
     @Autowired
-    public MappingController(
-            ProcessedMappingService processedMappingService,
-            MappingFilterService mappingFilterService,
-            MappingServiceImpl mappingService) {
-
+    public MappingController(ProcessedMappingService processedMappingService) {
         this.processedMappingService = processedMappingService;
-        this.mappingFilterService = mappingFilterService;
-        this.mappingService = mappingService;
     }
 
     @Operation(summary="List mappings between a pair of ontologies grouped by source ontology")
