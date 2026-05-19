@@ -54,6 +54,11 @@ public class TsRepositoryImpl implements TsRepository {
         boolean hasMore = true;
 
         log.info("Starting to fetch ontologies from TIB API v2: {} (limit: {})", tsBaseUri, ontologiesListSize);
+        if (!CollectionUtils.isEmpty(classifications)) {
+            log.info("Classifications filter: {}", classifications);
+        } else {
+            log.warn("No classifications configured - will fetch all ontologies");
+        }
 
         while (hasMore) {
             TibOntologyApiV2Response response = fetchOntologiesPage(currentPage);
@@ -109,7 +114,7 @@ public class TsRepositoryImpl implements TsRepository {
             }
 
             String url = uriBuilder.build().toUriString();
-            log.debug("Requesting ontologies from: {}", url);
+            log.info("Requesting ontologies from: {}", url);
 
             ResponseEntity<TibOntologyApiV2Response> responseEntity = restTemplate.exchange(
                     url,
