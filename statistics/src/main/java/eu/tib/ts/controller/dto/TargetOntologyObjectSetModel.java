@@ -18,13 +18,15 @@ import java.util.Set;
 public class TargetOntologyObjectSetModel {
 
     long id;
-    int numberOfMappings;
-    int numberOfConflictiveMappings;
+
+    OntologyDto targetOntology;
+
+    StatisticsDto statistics;
 
     String mappingException;
 
-    Set<OntologyDto> targetOntology;
     Set<MappingObjectSetModel> mappingList;
-    Set<MappingObjectSetModel> conflictiveMappingsList;
+
+    Set<MappingObjectSetModel> conflictiveMappingList;
 
 }

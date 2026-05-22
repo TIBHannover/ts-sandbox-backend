@@ -12,9 +12,13 @@ public class MappingObjectSetModel {
 
     String  sourceIRI;
 
+    String sourceLabel;
+
     int mappingDirection;
 
     String targetIRI;
+
+    String targetLabel;
 
     int typeOfMapping;
 

@@ -5,6 +5,7 @@ import eu.tib.ts.controller.dto.MappingObjectSetModel;
 import eu.tib.ts.controller.dto.OntologyDto;
 import eu.tib.ts.controller.dto.SourceOntologyObjectSetModel;
 import eu.tib.ts.controller.dto.TargetOntologyObjectSetModel;
+import eu.tib.ts.controller.dto.StatisticsDto;
 import eu.tib.ts.model.ontology.ProcessedMapping;
 import eu.tib.ts.model.ontology.ProcessedOntology;
 import eu.tib.ts.model.ontology.TsOntology;
@@ -205,12 +206,17 @@ public class PreProcessingServiceImpl implements PreProcessingService {
                                 " \t \t " + Runtime.getRuntime().maxMemory());
 
                         TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
-                        targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
-                        targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
-                        targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+                        OntologyDto targetOntologyObj = targetOntologySet.isEmpty() ? null : targetOntologySet.iterator().next();
+                        targetOntologyObjectSetModel.setTargetOntology(targetOntologyObj);
+                        StatisticsDto statistics = StatisticsDto.builder()
+                                .numberOfMappings(logmap2Mappings.size())
+                                .numberOfConflictiveMappings(conflictiveLogmap2Mappings.size())
+                                .numberOfTargetOntologies(1)
+                                .build();
+                        targetOntologyObjectSetModel.setStatistics(statistics);
 
                         targetOntologyObjectSetModel.setMappingList(getMappingList(logmap2Mappings));
-                        targetOntologyObjectSetModel.setConflictiveMappingsList(getMappingList(conflictiveLogmap2Mappings));
+                        targetOntologyObjectSetModel.setConflictiveMappingList(getMappingList(conflictiveLogmap2Mappings));
 
                         targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel);
                         log.info("targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel) Java heap memory: ");

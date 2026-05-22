@@ -17,5 +17,7 @@ public class SourceOntologyObjectSetModel {
      * ontology collection
      */
     Set<String> collection;
+    String description;
+    StatisticsDto statistics;
 
 }

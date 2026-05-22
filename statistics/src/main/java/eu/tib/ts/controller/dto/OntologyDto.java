@@ -20,6 +20,7 @@ public class OntologyDto {
     ontology collection
      */
     Set<String> collection;
+    String description;
 
     public static OntologyDto of(ProcessedOntology processedOntology) {
 
@@ -28,6 +29,7 @@ public class OntologyDto {
                 .ontologyId(processedOntology.getOntologyId())
                 .uri(processedOntology.getUri())
                 .title(processedOntology.getTitle())
+                .description(processedOntology.getDescription())
                 .build();
 
     }
@@ -40,6 +42,7 @@ public class OntologyDto {
                 .uri(processedOntology.getUri())
                 .title(processedOntology.getTitle())
                 .collection(processedOntology.getCollection())
+                .description(processedOntology.getDescription())
                 .build();
 
     }

@@ -5,12 +5,14 @@ import eu.tib.ts.controller.dto.*;
 import eu.tib.ts.model.external.mapping.ExternalMapping;
 import eu.tib.ts.model.ontology.*;
 import eu.tib.ts.repository.ProcessedMongoOntologyRepository;
+import eu.tib.ts.repository.ProcessedMongoMappingRepository;
 import eu.tib.ts.repository.TsRepository;
 import eu.tib.ts.service.*;
 
 import eu.tib.ts.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import com.github.jsonldjava.shaded.com.google.common.collect.Lists;
 import org.semanticweb.owlapi.model.*;
 
 import org.semanticweb.owlapi.reasoner.InconsistentOntologyException;
@@ -41,6 +43,7 @@ import java.util.stream.StreamSupport;
 public class ExternalMappingServiceImpl implements ExternalMappingService {
 
     private final ProcessedMongoOntologyRepository ProcessedMongoOntologyRepository;
+    private final ProcessedMongoMappingRepository processedMongoMappingRepository;
 
     OWLOntologyManager ontologyManager;
 
@@ -61,6 +64,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     @Autowired
     protected ExternalMappingServiceImpl(
             ProcessedMongoOntologyRepository processedMongoOntologyRepository,
+            ProcessedMongoMappingRepository processedMongoMappingRepository,
             OntologyStorageService ontologyStorageService,
             TsRepository tsRepository,
             ProcessedOntologyService processedOntologyService,
@@ -73,6 +77,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
     ){
 
     this.ProcessedMongoOntologyRepository=processedMongoOntologyRepository;
+        this.processedMongoMappingRepository=processedMongoMappingRepository;
         this.ontologyStorageService=ontologyStorageService;
         this.tsRepository=tsRepository;
         this.processedOntologyService=processedOntologyService;
@@ -150,9 +155,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             targetOntologySet.add(targetTSOntDto);
 
             /**
-             * target ontology set
+             * target ontology - extract single object from set
              */
-            targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+            OntologyDto targetOntology = targetOntologySet.isEmpty() ? null : targetOntologySet.iterator().next();
+            targetOntologyObjectSetModel.setTargetOntology(targetOntology);
 
             try {
 
@@ -181,8 +187,12 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                      * Number of mappings
                      * Number of conflictive mappings
                      */
-                    targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
-                    targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+                    StatisticsDto statistics = StatisticsDto.builder()
+                            .numberOfMappings(logmap2Mappings.size())
+                            .numberOfConflictiveMappings(conflictiveLogmap2Mappings.size())
+                            .numberOfTargetOntologies(1)
+                            .build();
+                    targetOntologyObjectSetModel.setStatistics(statistics);
 
                     Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
 
@@ -206,7 +216,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                     /**
                      * conflictive mappings list
                      */
-                    targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
+                    targetOntologyObjectSetModel.setConflictiveMappingList(conflictiveMappingList);
                 }
 
             }catch(Exception e){
@@ -377,9 +387,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             targetOntologySet.add(targetTSOntDto);
 
                 /**
-                 * target ontology set
+                 * target ontology - extract single object from set
                  */
-            targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+            OntologyDto targetOntology = targetOntologySet.isEmpty() ? null : targetOntologySet.iterator().next();
+            targetOntologyObjectSetModel.setTargetOntology(targetOntology);
 
                 try {
 /**
@@ -411,8 +422,12 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                      * Number of mappings
                      * Number of conflictive mappings
                      */
-                    targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
-                    targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+                    StatisticsDto statistics = StatisticsDto.builder()
+                            .numberOfMappings(logmap2Mappings.size())
+                            .numberOfConflictiveMappings(conflictiveLogmap2Mappings.size())
+                            .numberOfTargetOntologies(1)
+                            .build();
+                    targetOntologyObjectSetModel.setStatistics(statistics);
 
                     Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
 
@@ -436,7 +451,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                     /**
                      * conflictive mappings list
                      */
-                    targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
+                    targetOntologyObjectSetModel.setConflictiveMappingList(conflictiveMappingList);
                 }
 
             }catch(Exception e){
@@ -536,17 +551,16 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         }
 
         /**
-         * Get all mappimgs stored in MongoDB
+         * Get all mappings stored in MongoDB
          */
-        List<MappingGropedBySourceOntologyDto> mappingGropedBySourceOntologyDtoList =
-                processedMappingService.getAllMappingsGroupedBySourceOntology();
+        List<ProcessedMapping> allMappings = Lists.newArrayList(processedMongoMappingRepository.findAll());
 
         /**
          * If mappings stored in MongoDB are empty then this post request terminates.
          */
-        if (mappingGropedBySourceOntologyDtoList.isEmpty()) {
+        if (allMappings.isEmpty()) {
 
-            log.info("--Mappings grouped by source ontology is empty or null. ");
+            log.info("--Mappings stored in MongoDB is empty or null. ");
 
             return PageUtils.toPage(Collections.emptyList(), pageable);
         }
@@ -559,9 +573,9 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
          * Iterates through all mappings and creates list of all source and target ontologies
          * from Mongo DB that are used in mappings.
          */
-        for(MappingGropedBySourceOntologyDto mongoData: mappingGropedBySourceOntologyDtoList){
+        for(ProcessedMapping mongoData: allMappings){
 
-            Set<SourceOntologyObjectSetModel> sourceOntologyList = mongoData.getSourceOntology();
+            Set<SourceOntologyObjectSetModel> sourceOntologyList = mongoData.getSourceOntologyObjectSetModelSet();
             Set<TargetOntologyObjectSetModel> targetOntologyList = mongoData.getTargetOntologyList();
 
             for(SourceOntologyObjectSetModel source: sourceOntologyList) {
@@ -579,15 +593,15 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
 
             for(TargetOntologyObjectSetModel target: targetOntologyList){
 
-                Set<OntologyDto> targetOntologySet = target.getTargetOntology();
+                OntologyDto targetOntologyDto = target.getTargetOntology();
 
-                for(OntologyDto ontDto: targetOntologySet) {
+                if(targetOntologyDto != null) {
 
                     OntologyDto targetOntDto = OntologyDto.builder()
-                            .ontologyId(ontDto.getOntologyId())
-                            .uri(ontDto.getUri())
-                            .title(ontDto.getTitle())
-                            .collection(ontDto.getCollection())
+                            .ontologyId(targetOntologyDto.getOntologyId())
+                            .uri(targetOntologyDto.getUri())
+                            .title(targetOntologyDto.getTitle())
+                            .collection(targetOntologyDto.getCollection())
                             .build();
 
                     uniqueTargetOntologyDtoList.add(targetOntDto);
@@ -773,12 +787,17 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                         " \t " + Runtime.getRuntime().maxMemory());
 
                 TargetOntologyObjectSetModel targetOntologyObjectSetModel = new TargetOntologyObjectSetModel();
-                targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
-                targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
-                targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+                OntologyDto targetOntology = targetOntologySet.isEmpty() ? null : targetOntologySet.iterator().next();
+                targetOntologyObjectSetModel.setTargetOntology(targetOntology);
+                StatisticsDto statistics = StatisticsDto.builder()
+                        .numberOfMappings(logmap2Mappings.size())
+                        .numberOfConflictiveMappings(conflictiveLogmap2Mappings.size())
+                        .numberOfTargetOntologies(1)
+                        .build();
+                targetOntologyObjectSetModel.setStatistics(statistics);
 
                 targetOntologyObjectSetModel.setMappingList(getMappingList(logmap2Mappings));
-                targetOntologyObjectSetModel.setConflictiveMappingsList(getMappingList(conflictiveLogmap2Mappings));
+                targetOntologyObjectSetModel.setConflictiveMappingList(getMappingList(conflictiveLogmap2Mappings));
 
                 targetOntologyObjectSetModelSet.add(targetOntologyObjectSetModel);
 
@@ -935,9 +954,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
             targetOntologySet.add(targetTSOntDto);
 
             /**
-             * target ontology set
+             * target ontology - extract single object from set
              */
-            targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+            OntologyDto extractedTargetOntology = targetOntologySet.isEmpty() ? null : targetOntologySet.iterator().next();
+            targetOntologyObjectSetModel.setTargetOntology(extractedTargetOntology);
 
             targetOntologyObjectSetModel.setMappingException(getExeptionMessage(e, "ontologies " +
                     ont2.getUri().toString() +" and " + ont1.getUri() + " have equal URLs."));
@@ -991,9 +1011,10 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
         targetOntologySet.add(targetTSOntDto);
 
         /**
-         * target ontology set
+         * target ontology - extract single object from set
          */
-        targetOntologyObjectSetModel.setTargetOntology(targetOntologySet);
+        OntologyDto extractedTargetOntology = targetOntologySet.isEmpty() ? null : targetOntologySet.iterator().next();
+        targetOntologyObjectSetModel.setTargetOntology(extractedTargetOntology);
 
         try {
 /**
@@ -1025,8 +1046,12 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                  * Number of mappings
                  * Number of conflictive mappings
                  */
-                targetOntologyObjectSetModel.setNumberOfMappings(logmap2Mappings.size());
-                targetOntologyObjectSetModel.setNumberOfConflictiveMappings(conflictiveLogmap2Mappings.size());
+                StatisticsDto statistics = StatisticsDto.builder()
+                        .numberOfMappings(logmap2Mappings.size())
+                        .numberOfConflictiveMappings(conflictiveLogmap2Mappings.size())
+                        .numberOfTargetOntologies(1)
+                        .build();
+                targetOntologyObjectSetModel.setStatistics(statistics);
 
                 Set<MappingObjectSetModel> mappingList = new HashSet<MappingObjectSetModel>();
 
@@ -1050,7 +1075,7 @@ public class ExternalMappingServiceImpl implements ExternalMappingService {
                 /**
                  * conflictive mappings list
                  */
-                targetOntologyObjectSetModel.setConflictiveMappingsList(conflictiveMappingList);
+                targetOntologyObjectSetModel.setConflictiveMappingList(conflictiveMappingList);
             }
 
         }catch(Exception e){

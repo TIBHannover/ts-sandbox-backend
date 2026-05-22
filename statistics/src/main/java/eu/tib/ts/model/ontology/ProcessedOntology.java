@@ -70,6 +70,7 @@ public class ProcessedOntology implements ExtendedOntology {
 
     private String uri;
     private String title;
+    private String description;
 
     public boolean equalsTsOntology(Ontology ontology) {
         return Objects.nonNull(ontology) &&
