@@ -51,5 +51,11 @@ public record DiffDto (
         String gitDiff,
 
         @JsonView({Views.Edit.class})
-        String message
+        String message,
+
+        @JsonView({Views.Full.class})
+        String processingStatus,
+
+        @JsonView({Views.Full.class})
+        String error
 ) {}

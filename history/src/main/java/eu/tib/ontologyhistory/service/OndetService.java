@@ -7,6 +7,7 @@ import eu.tib.ontologyhistory.dto.DiffAvailabilitySummary;
 import eu.tib.ontologyhistory.dto.DiffDtoTimeline;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.conto.Difference;
+import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitDiffDto;
 import eu.tib.ontologyhistory.model.*;
@@ -115,7 +116,7 @@ public class OndetService {
         val contoDiff = contoService.timeline(sha, dataset);
         val robotMarkdown = robotDiff == null ? new Document() : robotDiff.markdown();
         val status = new DiffAvailabilitySummary(
-                robotStatus(robotMarkdown),
+                robotStatus(robotDiff, robotMarkdown),
                 contoStatus(contoDiff),
                 gitStatus(gitDiff, gitDiffUrl, includeGitDiff, gitDiffSizeBytes, maxGitDiffBytes)
         );
@@ -123,7 +124,10 @@ public class OndetService {
         return new DifferenceMarkdown(robotMarkdown, contoDiff, gitDiff, gitDiffUrl, status);
     }
 
-    private DiffAvailability robotStatus(Document robotMarkdown) {
+    private DiffAvailability robotStatus(DiffDto robotDiff, Document robotMarkdown) {
+        if (robotDiff != null && robotDiff.error() != null && !robotDiff.error().isBlank()) {
+            return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE, robotDiff.error(), null, null, null);
+        }
         if (robotMarkdown != null && robotMarkdown.getString("file") != null && !robotMarkdown.getString("file").isBlank()) {
             return new DiffAvailability(DiffAvailabilityStatus.AVAILABLE, "ROBOT diff is available", null, null, null);
         }

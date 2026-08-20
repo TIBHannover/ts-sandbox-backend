@@ -44,6 +44,14 @@ public class RobotService {
 
     private static final int MAX_MONGO_DOCUMENT_BYTES = 15_000_000;
 
+    private static final int MAX_ERROR_MESSAGE_LENGTH = 2_000;
+
+    private static final String STATUS_AVAILABLE = "AVAILABLE";
+
+    private static final String STATUS_FAILED = "FAILED";
+
+    private static final String STATUS_SKIPPED = "SKIPPED";
+
     private final RobotRepository robotRepository;
 
     private final DiffMapper diffMapper;
@@ -149,8 +157,10 @@ public class RobotService {
                 Document markdown = new Document().append(MARKDOWN_DOCUMENT_KEY, axiomsMarkdown.get().markdownOutput());
 
                 if (markdown.toJson().getBytes().length > MAX_MONGO_DOCUMENT_BYTES) {
-                    log.warn("Skipping ROBOT diff for ontology {} commit {} because markdown is larger than MongoDB document limit",
-                            uri, diffAdd.parentSha());
+                    val error = String.format("ROBOT diff generated markdown larger than the MongoDB document limit (%d bytes)",
+                            MAX_MONGO_DOCUMENT_BYTES);
+                    log.warn("Skipping ROBOT diff for ontology {} commit {}: {}", uri, diffAdd.parentSha(), error);
+                    insertRobotFailure(uri, diffAdd, STATUS_SKIPPED, error);
                     return;
                 }
 
@@ -158,11 +168,12 @@ public class RobotService {
                         .uri(uri)
                         .sha(diffAdd.sha())
                         .parentSha(diffAdd.parentSha())
-                        .datetime(diffAdd.parentDatetime())
+                        .datetime(diffAdd.datetime())
                         .parentDatetime(diffAdd.parentDatetime())
                         .message(diffAdd.messageLeft())
                         .markdown(markdown)
                         .axioms(axioms)
+                        .processingStatus(STATUS_AVAILABLE)
                         .build();
 
                 robotRepository.insert(diff);
@@ -170,8 +181,44 @@ public class RobotService {
             ontLeft.toFile().delete();
             ontRight.toFile().delete();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            val error = describeRobotFailure(e);
+            log.error("ROBOT diff failed for ontology {} commit {}: {}", uri, diffAdd.parentSha(), error, e);
+            insertRobotFailure(uri, diffAdd, STATUS_FAILED, error);
         }
+    }
+
+    private void insertRobotFailure(URI uri, DiffAdd diffAdd, String processingStatus, String error) {
+        val diff = Diff.builder()
+                .uri(uri)
+                .sha(diffAdd.sha())
+                .parentSha(diffAdd.parentSha())
+                .datetime(diffAdd.datetime())
+                .parentDatetime(diffAdd.parentDatetime())
+                .message(diffAdd.messageLeft())
+                .markdown(new Document())
+                .axioms(Collections.emptyMap())
+                .processingStatus(processingStatus)
+                .error(error)
+                .build();
+
+        robotRepository.insert(diff);
+    }
+
+    private String describeRobotFailure(Exception exception) {
+        Throwable cause = ExceptionUtils.findRootCause(exception);
+        String message = cause.getMessage();
+        if (message == null || message.isBlank()) {
+            message = exception.getMessage();
+        }
+        if (message == null || message.isBlank()) {
+            message = "No detailed error message was provided";
+        }
+
+        String result = cause.getClass().getSimpleName() + ": " + message;
+        if (result.length() > MAX_ERROR_MESSAGE_LENGTH) {
+            return result.substring(0, MAX_ERROR_MESSAGE_LENGTH) + "...";
+        }
+        return result;
     }
 
     public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {
