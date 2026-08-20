@@ -34,6 +34,7 @@ services:
       - GIT_AACHEN_TOKEN=${GIT_AACHEN_TOKEN}
       - GIT_TIB_EU_TOKEN=${GIT_TIB_EU_TOKEN}
       - GIT_ETSI_TOKEN=${GIT_ETSI_TOKEN}
+      - ROBOT_CATALOG_PATH=${ROBOT_CATALOG_PATH:-}
     ports:
       - "9090:9090"
 volumes:

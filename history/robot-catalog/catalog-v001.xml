@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <uri name="http://www.w3.org/2004/02/skos/core#" uri="imports/skos.rdf"/>
+  <uri name="http://www.w3.org/2004/02/skos/core" uri="imports/skos.rdf"/>
+</catalog>

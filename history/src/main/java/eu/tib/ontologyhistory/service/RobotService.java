@@ -13,7 +13,7 @@ import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.utils.ExceptionUtils;
 import eu.tib.ontologyhistory.utils.OntologyUtils;
 import eu.tib.ontologyhistory.utils.ParserUtils;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bson.Document;
@@ -21,6 +21,7 @@ import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.DiffCommand;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class RobotService {
 
@@ -55,6 +56,11 @@ public class RobotService {
     private final RobotRepository robotRepository;
 
     private final DiffMapper diffMapper;
+
+    @Value("${ondet.robot.catalog.path:}")
+    private String robotCatalogPath;
+
+    private volatile boolean robotCatalogWarningLogged;
 
     public List<DiffDto> findAll() {
         val diff = robotRepository.findAll();
@@ -148,8 +154,9 @@ public class RobotService {
         try {
             val ontLeft = Files.createTempFile("left-file", ".txt");
             val ontRight = Files.createTempFile("right-file", ".txt");
-            OWLOntology owlOntologyLeft = OntologyUtils.loadOntology(Files.write(ontLeft, diffAdd.gitRawFileLeft().getBytes()).toFile());
-            OWLOntology owlOntologyRight = OntologyUtils.loadOntology(Files.write(ontRight, diffAdd.gitRawFileRight().getBytes()).toFile());
+            File catalogFile = robotCatalogFile().orElse(null);
+            OWLOntology owlOntologyLeft = OntologyUtils.loadOntology(Files.write(ontLeft, diffAdd.gitRawFileLeft().getBytes()).toFile(), catalogFile);
+            OWLOntology owlOntologyRight = OntologyUtils.loadOntology(Files.write(ontRight, diffAdd.gitRawFileRight().getBytes()).toFile(), catalogFile);
 
             val ontologySetProvider = OntologyUtils.getOwlOntologySetProvider(owlOntologyLeft, owlOntologyRight);
             val axiomsMarkdown = OntologyUtils.getAxiomsMarkdown(owlOntologyLeft, owlOntologyRight, ontologySetProvider);
@@ -210,6 +217,23 @@ public class RobotService {
 
     private RobotDiffFailure describeRobotFailure(Exception exception) {
         return RobotDiffFailureClassifier.classify(exception);
+    }
+
+    private Optional<File> robotCatalogFile() {
+        if (robotCatalogPath == null || robotCatalogPath.isBlank()) {
+            return Optional.empty();
+        }
+
+        File catalogFile = Path.of(robotCatalogPath).toFile();
+        if (catalogFile.isFile()) {
+            return Optional.of(catalogFile);
+        }
+
+        if (!robotCatalogWarningLogged) {
+            log.warn("ROBOT catalog path is configured but does not point to a readable file: {}", robotCatalogPath);
+            robotCatalogWarningLogged = true;
+        }
+        return Optional.empty();
     }
 
     public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {

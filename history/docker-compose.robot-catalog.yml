@@ -1,0 +1,4 @@
+services:
+  history-back:
+    volumes:
+      - ./robot-catalog:/app/robot-catalog:ro
