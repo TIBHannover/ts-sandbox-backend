@@ -31,6 +31,12 @@ public enum GitServiceType {
             return new GitlabService(GitTokenType.GIT_TIB_EU_TOKEN, GitServiceType.GIT_TIB_EU.getHost());
         }
     },
+    GIT_ETSI("labs.etsi.org") {
+        @Override
+        public GitService<? extends Commit> createService() {
+            return new GitlabService(GitTokenType.GIT_ETSI_TOKEN, GitServiceType.GIT_ETSI.getHost(), "/rep");
+        }
+    },
     GITHUB("raw.githubusercontent.com") {
         @Override
         public GitService<? extends Commit> createService() {
@@ -61,10 +67,26 @@ public enum GitServiceType {
     public abstract GitService<? extends Commit> createService();
 
     public static boolean isHostSupported(URI uri) {
+        if (uri == null || uri.getHost() == null) {
+            return false;
+        }
         return GIT_SERVICES.containsKey(uri.getHost());
     }
 
+    public static boolean isUriSupported(URI uri) {
+        if (!isHostSupported(uri) || uri.getPath() == null) {
+            return false;
+        }
+        if ("raw.githubusercontent.com".equals(uri.getHost())) {
+            return uri.getPath().split("/").length > 4;
+        }
+        return uri.getPath().contains("/-/raw/");
+    }
+
     public static GitService<? extends Commit> createService(URI uri) throws IllegalArgumentException{
+        if (uri == null || uri.getHost() == null) {
+            throw new IllegalArgumentException("Unknown host: " + uri);
+        }
         GitServiceType type = getService(uri.getHost());
         if (type == null) {
             throw new IllegalArgumentException("Unknown host: " + uri);

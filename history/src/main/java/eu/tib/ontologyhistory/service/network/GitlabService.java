@@ -29,26 +29,35 @@ public class GitlabService implements GitService<GitlabCommit> {
 
     private static final String NO_GITLAB_TOKEN_SET = "gitlab_access_token_not_set";
 
-    private String ACCESS_TOKEN;
+    private final String ACCESS_TOKEN;
 
-    private String HOST;
+    private final String HOST;
 
-    private static String GITLAB_REST_API_V4_BASE_URL;
+    private final String webContextPath;
+
+    private final String gitlabRestApiV4BaseUrl;
 
     public GitlabService(GitTokenType tokenType, String host) {
-        GITLAB_REST_API_V4_BASE_URL =  "https://" + host + "/api/v4/";
+        this(tokenType, host, "");
+    }
+
+    public GitlabService(GitTokenType tokenType, String host, String webContextPath) {
+        this.webContextPath = normalizeWebContextPath(webContextPath);
+        gitlabRestApiV4BaseUrl = "https://" + host + this.webContextPath + "/api/v4/";
         HOST = host;
+        String token = NO_GITLAB_TOKEN_SET;
         try {
-            ACCESS_TOKEN = System.getenv(tokenType.name());
-            if (ACCESS_TOKEN == null) {
+            token = System.getenv(tokenType.name());
+            if (token == null) {
                 log.warn("Gitlab-related token not set, using default");
-                ACCESS_TOKEN = NO_GITLAB_TOKEN_SET;
+                token = NO_GITLAB_TOKEN_SET;
             }
         } catch (NullPointerException e) {
             log.error("You tried to set the null value for {} environment variable: \n{}", tokenType, e);
         } catch (SecurityException e) {
             log.error("Security manager did not allow to get the value of {} environment variable: \n{}", tokenType, e);
         }
+        ACCESS_TOKEN = token;
     }
 
     private static final ExecutorService executor = Executors.newCachedThreadPool();
@@ -118,7 +127,7 @@ public class GitlabService implements GitService<GitlabCommit> {
     @Override
     public String getRawFileUrl(URI uri, GitServiceRequest request, String sha) {
 
-        String link = GITLAB_REST_API_V4_BASE_URL + GITLAB_REST_API_PROJECTS_CONTEXT + request.projectId() + "/repository/files/" + UriUtils.encode(request.path(), StandardCharsets.UTF_8) + "/raw?ref=" + sha;
+        String link = gitlabRestApiV4BaseUrl + GITLAB_REST_API_PROJECTS_CONTEXT + request.projectId() + "/repository/files/" + UriUtils.encode(request.path(), StandardCharsets.UTF_8) + "/raw?ref=" + sha;
 
         URI gitlabUri = URI.create(link);
 
@@ -127,9 +136,15 @@ public class GitlabService implements GitService<GitlabCommit> {
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(requestGetRawFile, HttpResponse.BodyHandlers.ofString());
+            if ((response.statusCode() < 200 || response.statusCode() >= 300) && hasUsableToken()) {
+                log.warn("GitLab raw-file request with configured token failed with status {}; retrying unauthenticated request for {}",
+                        response.statusCode(), gitlabUri);
+                response = client.send(buildHttpRequest(gitlabUri, false), HttpResponse.BodyHandlers.ofString());
+            }
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 return response.body();
             } else {
+                log.warn("GitLab raw-file request failed with status {} for {}", response.statusCode(), gitlabUri);
                 return null;
             }
         } catch (InterruptedException e) {
@@ -150,7 +165,7 @@ public class GitlabService implements GitService<GitlabCommit> {
     @Override
     public List<GitlabCommit> getCommits(URI uri, GitServiceRequest request, Instant datetime) {
 
-        String link = GITLAB_REST_API_V4_BASE_URL + GITLAB_REST_API_PROJECTS_CONTEXT + request.projectId() + "/repository/commits";
+        String link = gitlabRestApiV4BaseUrl + GITLAB_REST_API_PROJECTS_CONTEXT + request.projectId() + "/repository/commits";
 
         if (request.path() != null) {
             link += "?path=" + request.path();
@@ -176,6 +191,16 @@ public class GitlabService implements GitService<GitlabCommit> {
             HttpRequest httpRequest = buildHttpRequestCheckToken(gitlabUri);
             try {
                 HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+                if ((response.statusCode() < 200 || response.statusCode() >= 300) && hasUsableToken()) {
+                    log.warn("GitLab commits request with configured token failed with status {}; retrying unauthenticated request for {}",
+                            response.statusCode(), gitlabUri);
+                    response = client.send(buildHttpRequest(gitlabUri, false), HttpResponse.BodyHandlers.ofString());
+                }
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    throw new IllegalArgumentException(String.format(
+                            "GitLab commits request failed with HTTP %d for %s",
+                            response.statusCode(), uri));
+                }
                 List<GitlabCommit> commits = objectMapper.readValue(response.body(), new TypeReference<>() {});
                 result.addAll(commits);
 
@@ -234,15 +259,28 @@ public class GitlabService implements GitService<GitlabCommit> {
 
     public String getProjectId(URI uri) {
         val encodedProjectPath = getEncodedProjectPath(uri);
-        String link = GITLAB_REST_API_V4_BASE_URL + GITLAB_REST_API_PROJECTS_CONTEXT + encodedProjectPath;
+        String link = gitlabRestApiV4BaseUrl + GITLAB_REST_API_PROJECTS_CONTEXT + encodedProjectPath;
         HttpClient client = HttpClient.newHttpClient();
         URI gitlabUri = URI.create(link);
         HttpRequest httpRequest = buildHttpRequestCheckToken(gitlabUri);
 
         try {
             HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            if ((response.statusCode() < 200 || response.statusCode() >= 300) && hasUsableToken()) {
+                log.warn("GitLab project lookup with configured token failed with status {}; retrying unauthenticated request for {}",
+                        response.statusCode(), gitlabUri);
+                response = client.send(buildHttpRequest(gitlabUri, false), HttpResponse.BodyHandlers.ofString());
+            }
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new IllegalArgumentException(String.format(
+                        "GitLab project lookup failed with HTTP %d for %s",
+                        response.statusCode(), uri));
+            }
             val parsedResponseBody = JsonParser.parseString(response.body());
             val jsonObject = parsedResponseBody.getAsJsonObject();
+            if (!jsonObject.has("id") || jsonObject.get("id").isJsonNull()) {
+                throw new IllegalArgumentException("GitLab project lookup response does not contain project id for " + uri);
+            }
             return jsonObject.get("id").getAsString();
         } catch (InterruptedException e) {
             log.warn("Interrupted: {}", String.valueOf(e));
@@ -256,15 +294,42 @@ public class GitlabService implements GitService<GitlabCommit> {
     private String getEncodedProjectPath(URI uri) {
         String[] segments = uri.getPath().split("/");
         StringBuilder projectId = new StringBuilder();
-        for(int i = 1; i < segments.length; i++) {
-            if (!segments[i+1].equals("-")) {
+        int startIndex = getProjectPathStartIndex(segments);
+        for(int i = startIndex; i < segments.length - 1; i++) {
+            if (!segments[i + 1].equals("-")) {
                 projectId.append(segments[i]).append("%2F");
             } else {
                 projectId.append(segments[i]);
                 break;
             }
         }
+        if (projectId.isEmpty()) {
+            throw new IllegalArgumentException("Unsupported GitLab raw URL: " + uri);
+        }
         return projectId.toString();
+    }
+
+    private int getProjectPathStartIndex(String[] segments) {
+        if (webContextPath.isBlank()) {
+            return 1;
+        }
+
+        String contextSegment = webContextPath.substring(1);
+        if (segments.length > 1 && contextSegment.equals(segments[1])) {
+            return 2;
+        }
+        return 1;
+    }
+
+    private String normalizeWebContextPath(String webContextPath) {
+        if (webContextPath == null || webContextPath.isBlank() || "/".equals(webContextPath)) {
+            return "";
+        }
+        String normalized = webContextPath.startsWith("/") ? webContextPath : "/" + webContextPath;
+        if (normalized.endsWith("/")) {
+            return normalized.substring(0, normalized.length() - 1);
+        }
+        return normalized;
     }
 
     private GitServiceRequest buildGitServiceObject(URI uri) {
@@ -280,10 +345,18 @@ public class GitlabService implements GitService<GitlabCommit> {
     }
 
     private HttpRequest buildHttpRequestCheckToken(URI uri) {
+        return buildHttpRequest(uri, hasUsableToken());
+    }
+
+    private boolean hasUsableToken() {
+        return ACCESS_TOKEN != null && !ACCESS_TOKEN.isBlank() && !ACCESS_TOKEN.equals(NO_GITLAB_TOKEN_SET);
+    }
+
+    private HttpRequest buildHttpRequest(URI uri, boolean includeToken) {
         val requestBuilder = HttpRequest.newBuilder()
                 .uri(uri);
 
-        if (!ACCESS_TOKEN.equals(NO_GITLAB_TOKEN_SET)) {
+        if (includeToken) {
             requestBuilder.header("Authorization", "Bearer " + ACCESS_TOKEN);
         }
 

@@ -53,8 +53,11 @@ public class GithubService implements GitService<GithubCommit> {
         val request = buildGitServiceObject(uri);
 
         List<GithubCommit> commits = getCommits(uri, request, datetime);
+        log.warn("GitHub returned {} commit(s) for {}", commits.size(), uri);
         Collections.reverse(commits);
-        return new ArrayList<>(processCommits(uri, commits, request));
+        val diffAdds = new ArrayList<>(processCommits(uri, commits, request));
+        log.warn("GitHub produced {} raw diff pair(s) for {}", diffAdds.size(), uri);
+        return diffAdds;
     }
 
     @Override
@@ -93,6 +96,9 @@ public class GithubService implements GitService<GithubCommit> {
                     parentGithubCommit.commit().message()
             );
             diffAdds.add(diffAdd);
+        } else {
+            log.warn("Skipped GitHub diff pair {} -> {} for {} because raw file content was unavailable",
+                    githubCommit.sha(), parentGithubCommit.sha(), uri);
         }
     }
 
@@ -105,12 +111,13 @@ public class GithubService implements GitService<GithubCommit> {
                 .buildAndExpand(request.owner(), request.repo(), sha, request.path())
                 .toUri();
 
-        HttpRequest requestGetRawFile = buildHttpRequestCheckToken(githubRawFileApi);
-
         try {
             HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> responseRawParentFile = client.send(requestGetRawFile, HttpResponse.BodyHandlers.ofString());
-            return responseRawParentFile.body();
+            HttpResponse<String> responseRawParentFile = sendGet(client, githubRawFileApi);
+            if (responseRawParentFile.statusCode() >= 200 && responseRawParentFile.statusCode() < 300) {
+                return responseRawParentFile.body();
+            }
+            log.warn("GitHub raw file request failed with status {} for {}", responseRawParentFile.statusCode(), githubRawFileApi);
         } catch (InterruptedException e) {
             log.error("Interrupted with the response: " + e);
             Thread.currentThread().interrupt();
@@ -152,12 +159,15 @@ public class GithubService implements GitService<GithubCommit> {
         List<GithubCommit> result = new ArrayList<>();
 
         while (nextPage.isPresent()) {
-            HttpRequest httpRequest = buildHttpRequestCheckToken(githubApiUri);
-
             try {
                 val commits = new ArrayList<GithubCommit>();
-                        HttpClient client = HttpClient.newHttpClient();
-                HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+                HttpClient client = HttpClient.newHttpClient();
+                HttpResponse<String> response = sendGet(client, githubApiUri);
+
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    log.warn("GitHub commits request failed with status {} for {}", response.statusCode(), githubApiUri);
+                    return result;
+                }
 
                 val responseBody = JsonParser.parseString(response.body());
                 if (responseBody.isJsonArray()) {
@@ -166,9 +176,7 @@ public class GithubService implements GitService<GithubCommit> {
                 if (responseBody.isJsonObject()) {
                     JsonObject jsonObject = responseBody.getAsJsonObject();
                     if (jsonObject.get("message").getAsString().equals("Moved Permanently")) {
-                        httpRequest = buildHttpRequestCheckToken(URI.create(jsonObject.get("url").getAsString()));
-
-                        response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+                        response = sendGet(client, URI.create(jsonObject.get("url").getAsString()));
                         commits.addAll(objectMapper.readValue(response.body(), new TypeReference<>() {}));
                     }
                 }
@@ -234,13 +242,31 @@ public class GithubService implements GitService<GithubCommit> {
     }
 
     private HttpRequest buildHttpRequestCheckToken(URI uri) {
+        return buildHttpRequest(uri, true);
+    }
+
+    private HttpRequest buildHttpRequest(URI uri, boolean withAccessToken) {
         val requestBuilder = HttpRequest.newBuilder()
                 .uri(uri);
 
-        if (!ACCESS_TOKEN.equals(NO_GITHUB_TOKEN_SET)) {
+        if (withAccessToken && hasUsableAccessToken()) {
             requestBuilder.header("Authorization", "Bearer " + ACCESS_TOKEN);
         }
 
         return requestBuilder.build();
+    }
+
+    private HttpResponse<String> sendGet(HttpClient client, URI uri) throws IOException, InterruptedException {
+        HttpResponse<String> response = client.send(buildHttpRequestCheckToken(uri), HttpResponse.BodyHandlers.ofString());
+        if ((response.statusCode() < 200 || response.statusCode() >= 300) && hasUsableAccessToken()) {
+            log.warn("GitHub request with configured token failed with status {}; retrying unauthenticated request for {}",
+                    response.statusCode(), uri);
+            response = client.send(buildHttpRequest(uri, false), HttpResponse.BodyHandlers.ofString());
+        }
+        return response;
+    }
+
+    private static boolean hasUsableAccessToken() {
+        return ACCESS_TOKEN != null && !ACCESS_TOKEN.isBlank() && !ACCESS_TOKEN.equals(NO_GITHUB_TOKEN_SET);
     }
 }
