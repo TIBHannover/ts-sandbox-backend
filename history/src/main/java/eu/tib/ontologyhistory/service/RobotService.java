@@ -177,6 +177,9 @@ public class RobotService {
                         .build();
 
                 robotRepository.insert(diff);
+            } else {
+                insertRobotFailure(uri, diffAdd, STATUS_FAILED,
+                        "ROBOT diff execution finished, but no markdown output was produced");
             }
             ontLeft.toFile().delete();
             ontRight.toFile().delete();
