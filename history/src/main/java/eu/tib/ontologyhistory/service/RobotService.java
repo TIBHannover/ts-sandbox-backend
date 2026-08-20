@@ -42,6 +42,8 @@ public class RobotService {
 
     private static final String DIFF_PLAIN_OUTPUT_FILE = "diff-plain.txt";
 
+    private static final int MAX_MONGO_DOCUMENT_BYTES = 15_000_000;
+
     private final RobotRepository robotRepository;
 
     private final DiffMapper diffMapper;
@@ -145,6 +147,12 @@ public class RobotService {
             if (axiomsMarkdown.isPresent()) {
                 Map<String, List<Axiom>> axioms = ParserUtils.parseAxioms(axiomsMarkdown.get().plainOutput());
                 Document markdown = new Document().append(MARKDOWN_DOCUMENT_KEY, axiomsMarkdown.get().markdownOutput());
+
+                if (markdown.toJson().getBytes().length > MAX_MONGO_DOCUMENT_BYTES) {
+                    log.warn("Skipping ROBOT diff for ontology {} commit {} because markdown is larger than MongoDB document limit",
+                            uri, diffAdd.parentSha());
+                    return;
+                }
 
                 val diff = Diff.builder()
                         .uri(uri)

@@ -10,6 +10,10 @@ public record DifferenceMarkdown(
 
         Difference difference,
 
-        String gitDiff
+        String gitDiff,
+
+        String gitDiffUrl,
+
+        DiffAvailabilitySummary status
 ) {
 }
