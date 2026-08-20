@@ -27,6 +27,12 @@ public class GitDiff {
 
     private String diff;
 
+    private String rawFileUrl;
+
+    private String repositoryFileUrl;
+
+    private String repositoryTreeUrl;
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Instant datetime;
 
