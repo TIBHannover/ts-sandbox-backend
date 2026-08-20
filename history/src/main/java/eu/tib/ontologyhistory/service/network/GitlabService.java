@@ -3,6 +3,8 @@ package eu.tib.ontologyhistory.service.network;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.JsonParser;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
 import eu.tib.ontologyhistory.dto.git.GitServiceRequest;
@@ -28,6 +30,8 @@ import java.util.concurrent.Executors;
 public class GitlabService implements GitService<GitlabCommit> {
 
     private static final String NO_GITLAB_TOKEN_SET = "gitlab_access_token_not_set";
+
+    private static final int RESPONSE_PREVIEW_LENGTH = 240;
 
     private final String ACCESS_TOKEN;
 
@@ -266,18 +270,19 @@ public class GitlabService implements GitService<GitlabCommit> {
 
         try {
             HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            Integer tokenFailureStatus = null;
             if ((response.statusCode() < 200 || response.statusCode() >= 300) && hasUsableToken()) {
+                tokenFailureStatus = response.statusCode();
                 log.warn("GitLab project lookup with configured token failed with status {}; retrying unauthenticated request for {}",
                         response.statusCode(), gitlabUri);
                 response = client.send(buildHttpRequest(gitlabUri, false), HttpResponse.BodyHandlers.ofString());
             }
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 throw new IllegalArgumentException(String.format(
-                        "GitLab project lookup failed with HTTP %d for %s",
-                        response.statusCode(), uri));
+                        "GitLab project lookup failed with HTTP %d for %s%s",
+                        response.statusCode(), uri, tokenFailureMessage(tokenFailureStatus)));
             }
-            val parsedResponseBody = JsonParser.parseString(response.body());
-            val jsonObject = parsedResponseBody.getAsJsonObject();
+            val jsonObject = parseGitlabJsonObject(response.body(), uri, "project lookup", tokenFailureStatus);
             if (!jsonObject.has("id") || jsonObject.get("id").isJsonNull()) {
                 throw new IllegalArgumentException("GitLab project lookup response does not contain project id for " + uri);
             }
@@ -285,10 +290,46 @@ public class GitlabService implements GitService<GitlabCommit> {
         } catch (InterruptedException e) {
             log.warn("Interrupted: {}", String.valueOf(e));
             Thread.currentThread().interrupt();
+            throw new IllegalArgumentException("GitLab project lookup was interrupted for " + uri, e);
         } catch (IOException e) {
             log.error("IoException during receiving of project ID: {}", String.valueOf(e));
+            throw new IllegalArgumentException("GitLab project lookup failed because of an IO error for " + uri, e);
         }
-        return null;
+    }
+
+    private JsonObject parseGitlabJsonObject(String body, URI uri, String operation, Integer tokenFailureStatus) {
+        try {
+            val parsedResponseBody = JsonParser.parseString(body);
+            if (!parsedResponseBody.isJsonObject()) {
+                throw new IllegalArgumentException(String.format(
+                        "GitLab %s response was not a JSON object for %s%s. Response preview: %s",
+                        operation, uri, tokenFailureMessage(tokenFailureStatus), responsePreview(body)));
+            }
+            return parsedResponseBody.getAsJsonObject();
+        } catch (JsonSyntaxException e) {
+            throw new IllegalArgumentException(String.format(
+                    "GitLab %s response was not valid JSON for %s%s. This usually means the GitLab API returned an HTML login/error page, anti-bot challenge, or the token cannot access the project. Response preview: %s",
+                    operation, uri, tokenFailureMessage(tokenFailureStatus), responsePreview(body)), e);
+        }
+    }
+
+    private String tokenFailureMessage(Integer tokenFailureStatus) {
+        if (tokenFailureStatus == null) {
+            return "";
+        }
+        return String.format(". The configured token for %s was rejected with HTTP %d before retrying without a token",
+                HOST, tokenFailureStatus);
+    }
+
+    private String responsePreview(String body) {
+        if (body == null || body.isBlank()) {
+            return "<empty>";
+        }
+        String normalized = body.replaceAll("\\s+", " ").trim();
+        if (normalized.length() > RESPONSE_PREVIEW_LENGTH) {
+            return normalized.substring(0, RESPONSE_PREVIEW_LENGTH) + "...";
+        }
+        return normalized;
     }
 
     private String getEncodedProjectPath(URI uri) {

@@ -96,4 +96,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex) {
+        ApiError response = ApiError.builder()
+                .ontologyId(DEFAULT_ONTOLOGY_ID)
+                .status(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .debugMessage(ex.getMessage())
+                .message(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 }
