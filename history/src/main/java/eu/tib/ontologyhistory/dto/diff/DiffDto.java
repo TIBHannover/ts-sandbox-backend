@@ -57,5 +57,8 @@ public record DiffDto (
         String processingStatus,
 
         @JsonView({Views.Full.class})
-        String error
+        String error,
+
+        @JsonView({Views.Full.class})
+        String errorCode
 ) {}

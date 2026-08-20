@@ -7,6 +7,8 @@ import eu.tib.ontologyhistory.model.Axiom;
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.exception.RobotDiffExecutionException;
 import eu.tib.ontologyhistory.repository.RobotRepository;
+import eu.tib.ontologyhistory.service.robot.RobotDiffFailure;
+import eu.tib.ontologyhistory.service.robot.RobotDiffFailureClassifier;
 import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.utils.ExceptionUtils;
 import eu.tib.ontologyhistory.utils.OntologyUtils;
@@ -43,8 +45,6 @@ public class RobotService {
     private static final String DIFF_PLAIN_OUTPUT_FILE = "diff-plain.txt";
 
     private static final int MAX_MONGO_DOCUMENT_BYTES = 15_000_000;
-
-    private static final int MAX_ERROR_MESSAGE_LENGTH = 2_000;
 
     private static final String STATUS_AVAILABLE = "AVAILABLE";
 
@@ -159,10 +159,9 @@ public class RobotService {
                 Document markdown = new Document().append(MARKDOWN_DOCUMENT_KEY, axiomsMarkdown.get().markdownOutput());
 
                 if (markdown.toJson().getBytes().length > MAX_MONGO_DOCUMENT_BYTES) {
-                    val error = String.format("ROBOT diff generated markdown larger than the MongoDB document limit (%d bytes)",
-                            MAX_MONGO_DOCUMENT_BYTES);
-                    log.warn("Skipping ROBOT diff for ontology {} commit {}: {}", uri, diffAdd.parentSha(), error);
-                    insertRobotFailure(uri, diffAdd, STATUS_SKIPPED, error);
+                    val failure = RobotDiffFailureClassifier.outputTooLarge(MAX_MONGO_DOCUMENT_BYTES);
+                    log.warn("Skipping ROBOT diff for ontology {} commit {}: {}", uri, diffAdd.parentSha(), failure.message());
+                    insertRobotFailure(uri, diffAdd, STATUS_SKIPPED, failure);
                     return;
                 }
 
@@ -180,19 +179,18 @@ public class RobotService {
 
                 robotRepository.insert(diff);
             } else {
-                insertRobotFailure(uri, diffAdd, STATUS_FAILED,
-                        "ROBOT diff execution finished, but no markdown output was produced");
+                insertRobotFailure(uri, diffAdd, STATUS_FAILED, RobotDiffFailureClassifier.outputMissing());
             }
             ontLeft.toFile().delete();
             ontRight.toFile().delete();
         } catch (Exception e) {
-            val error = describeRobotFailure(e);
-            log.error("ROBOT diff failed for ontology {} commit {}: {}", uri, diffAdd.parentSha(), error, e);
-            insertRobotFailure(uri, diffAdd, STATUS_FAILED, error);
+            val failure = describeRobotFailure(e);
+            log.error("ROBOT diff failed for ontology {} commit {}: {}", uri, diffAdd.parentSha(), failure.message(), e);
+            insertRobotFailure(uri, diffAdd, STATUS_FAILED, failure);
         }
     }
 
-    private void insertRobotFailure(URI uri, DiffAdd diffAdd, String processingStatus, String error) {
+    private void insertRobotFailure(URI uri, DiffAdd diffAdd, String processingStatus, RobotDiffFailure failure) {
         val diff = Diff.builder()
                 .uri(uri)
                 .sha(diffAdd.sha())
@@ -203,27 +201,15 @@ public class RobotService {
                 .markdown(new Document())
                 .axioms(Collections.emptyMap())
                 .processingStatus(processingStatus)
-                .error(error)
+                .error(failure.message())
+                .errorCode(failure.code().name())
                 .build();
 
         robotRepository.insert(diff);
     }
 
-    private String describeRobotFailure(Exception exception) {
-        Throwable cause = ExceptionUtils.findRootCause(exception);
-        String message = cause.getMessage();
-        if (message == null || message.isBlank()) {
-            message = exception.getMessage();
-        }
-        if (message == null || message.isBlank()) {
-            message = "No detailed error message was provided";
-        }
-
-        String result = cause.getClass().getSimpleName() + ": " + message;
-        if (result.length() > MAX_ERROR_MESSAGE_LENGTH) {
-            return result.substring(0, MAX_ERROR_MESSAGE_LENGTH) + "...";
-        }
-        return result;
+    private RobotDiffFailure describeRobotFailure(Exception exception) {
+        return RobotDiffFailureClassifier.classify(exception);
     }
 
     public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {

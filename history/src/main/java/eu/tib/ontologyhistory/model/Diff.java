@@ -58,4 +58,7 @@ public class Diff {
     @JsonView({Views.Full.class})
     private String error;
 
+    @JsonView({Views.Full.class})
+    private String errorCode;
+
 }

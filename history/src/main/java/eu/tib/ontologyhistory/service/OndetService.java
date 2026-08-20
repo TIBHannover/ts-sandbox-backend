@@ -127,36 +127,36 @@ public class OndetService {
 
     private DiffAvailability robotStatus(DiffDto robotDiff, Document robotMarkdown, DiffAvailability gitStatus) {
         if (robotDiff != null && robotDiff.error() != null && !robotDiff.error().isBlank()) {
-            return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE, robotDiff.error(), null, null, null);
+            return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE, robotDiff.error(), null, null, null, robotDiff.errorCode());
         }
         if (robotMarkdown != null && robotMarkdown.getString("file") != null && !robotMarkdown.getString("file").isBlank()) {
-            return new DiffAvailability(DiffAvailabilityStatus.AVAILABLE, "ROBOT diff is available", null, null, null);
+            return new DiffAvailability(DiffAvailabilityStatus.AVAILABLE, "ROBOT diff is available", null, null, null, null);
         }
         if (gitStatus.status() == DiffAvailabilityStatus.NOT_APPLICABLE) {
             return new DiffAvailability(DiffAvailabilityStatus.NOT_APPLICABLE,
                     "ROBOT diff is not applicable for this selected commit because it is not a stored adjacent ontology-file version. The ontology file may not have existed yet, may not have changed in this commit, or this commit was not part of the processed diff pairs.",
-                    null, null, null);
+                    null, null, null, null);
         }
         return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE,
                 "ROBOT diff was not stored for this commit. The diff may have failed, timed out, or exceeded processing limits.",
-                null, null, null);
+                null, null, null, null);
     }
 
     private DiffAvailability contoStatus(Difference contoDiff, DiffAvailability gitStatus) {
         if (contoDiff != null && contoDiff.error() != null && !contoDiff.error().isBlank()) {
-            return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE, contoDiff.error(), null, null, null);
+            return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE, contoDiff.error(), null, null, null, null);
         }
         if (contoDiff != null && contoDiff.changes() != null && !contoDiff.changes().isEmpty()) {
-            return new DiffAvailability(DiffAvailabilityStatus.AVAILABLE, "COnto diff is available", null, null, null);
+            return new DiffAvailability(DiffAvailabilityStatus.AVAILABLE, "COnto diff is available", null, null, null, null);
         }
         if (gitStatus.status() == DiffAvailabilityStatus.NOT_APPLICABLE) {
             return new DiffAvailability(DiffAvailabilityStatus.NOT_APPLICABLE,
                     "COnto diff is not applicable for this selected commit because it is not a stored adjacent ontology-file version.",
-                    null, null, null);
+                    null, null, null, null);
         }
         return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE,
                 "COnto diff was not stored for this commit. The diff may have failed, timed out, or produced no queryable result.",
-                null, null, null);
+                null, null, null, null);
     }
 
     private DiffAvailability gitStatus(String gitDiff, String gitDiffUrl, boolean includeGitDiff,
@@ -166,24 +166,24 @@ public class OndetService {
                     includeGitDiff && gitDiff != null && !gitDiff.isBlank()
                             ? "Syntax diff is available inline."
                             : "Syntax diff is small enough to load inline.",
-                    gitDiffUrl, gitDiffSizeBytes, true);
+                    gitDiffUrl, gitDiffSizeBytes, true, null);
         }
         if (gitDiffSizeBytes != null && gitDiffUrl != null && !gitDiffUrl.isBlank()) {
             return new DiffAvailability(DiffAvailabilityStatus.EXTERNAL_URL,
                     "Syntax diff is too large to load inline. Open it in the source repository compare view.",
-                    gitDiffUrl, gitDiffSizeBytes, false);
+                    gitDiffUrl, gitDiffSizeBytes, false, null);
         }
         if (includeGitDiff && gitDiff != null && !gitDiff.isBlank()) {
-            return new DiffAvailability(DiffAvailabilityStatus.AVAILABLE, "Syntax diff is available", null, gitDiffSizeBytes, true);
+            return new DiffAvailability(DiffAvailabilityStatus.AVAILABLE, "Syntax diff is available", null, gitDiffSizeBytes, true, null);
         }
         if (gitDiffUrl != null && !gitDiffUrl.isBlank()) {
             return new DiffAvailability(DiffAvailabilityStatus.EXTERNAL_URL,
                     "Syntax diff can be opened in the source repository compare view.",
-                    gitDiffUrl, gitDiffSizeBytes, false);
+                    gitDiffUrl, gitDiffSizeBytes, false, null);
         }
         return new DiffAvailability(DiffAvailabilityStatus.NOT_APPLICABLE,
                 "Syntax diff is not stored for this selected commit. It may not correspond to an adjacent ontology-file version, the ontology file may not have existed yet, or the file may not have changed in this commit.",
-                null, gitDiffSizeBytes, false);
+                null, gitDiffSizeBytes, false, null);
     }
 
     public DiffDtoTimeline findFirstByUrl(URI uri, String dataset) {

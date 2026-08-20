@@ -8,6 +8,7 @@ public record DiffAvailability(
         String message,
         String url,
         Integer sizeBytes,
-        Boolean inlineRecommended
+        Boolean inlineRecommended,
+        String reasonCode
 ) {
 }
