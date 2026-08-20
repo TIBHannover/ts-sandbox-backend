@@ -16,12 +16,6 @@ public record GitDiffDto(
 
         String diff,
 
-        String rawFileUrl,
-
-        String repositoryFileUrl,
-
-        String repositoryTreeUrl,
-
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
         Instant datetime
 ) {

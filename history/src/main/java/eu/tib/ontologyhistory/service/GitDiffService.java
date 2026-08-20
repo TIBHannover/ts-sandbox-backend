@@ -100,7 +100,6 @@ public class GitDiffService {
 
     public GitDiffDto findFirstByUrl(URI uri) {
         val gitDiff = gitDiffRepository.findFirstByUri(uri);
-        hydrateRepositoryLinks(gitDiff);
         return gittDiffMapper.entityToDto(gitDiff);
     }
 
@@ -113,7 +112,6 @@ public class GitDiffService {
 
     public List<GitDiffDto> findAllByUrl(URI uri) {
         val gitDiffs = gitDiffRepository.findAllByUri(uri);
-        gitDiffs.forEach(this::hydrateRepositoryLinks);
         gitDiffs.sort(Comparator.comparing(GitDiff::getDatetime));
 
         return gittDiffMapper.entityToDto(gitDiffs);
@@ -147,11 +145,6 @@ public class GitDiffService {
                     .sha(diffAdd.sha())
                     .parentSha(diffAdd.parentSha())
                     .diff(diff)
-                    .rawFileUrl(diffAdd.gitUrlLeft() == null || diffAdd.gitUrlLeft().isBlank()
-                            ? buildRawFileUrl(uri, diffAdd.sha())
-                            : diffAdd.gitUrlLeft())
-                    .repositoryFileUrl(buildRepositoryFileUrl(uri, diffAdd.sha()))
-                    .repositoryTreeUrl(buildRepositoryTreeUrl(uri, diffAdd.sha()))
                     .datetime(diffAdd.parentDatetime())
                     .build();
 
@@ -215,158 +208,6 @@ public class GitDiffService {
         }
 
         return "";
-    }
-
-    private String buildRepositoryFileUrl(URI uri, String sha) {
-        if (uri == null || uri.getHost() == null || sha == null) {
-            return "";
-        }
-
-        if ("raw.githubusercontent.com".equals(uri.getHost())) {
-            String[] segments = uri.getPath().split("/");
-            String path = githubFilePath(segments);
-            if (!path.isBlank()) {
-                return String.format("https://github.com/%s/%s/blob/%s/%s", segments[1], segments[2], sha, path);
-            }
-        }
-
-        if (isGitlabHost(uri.getHost())) {
-            GitlabUrlParts parts = gitlabUrlParts(uri);
-            if (parts != null) {
-                return String.format("https://%s/%s/-/blob/%s/%s", uri.getHost(), parts.projectPath(), sha, parts.filePath());
-            }
-        }
-
-        return "";
-    }
-
-    private String buildRawFileUrl(URI uri, String sha) {
-        if (uri == null || uri.getHost() == null || sha == null) {
-            return "";
-        }
-
-        if ("raw.githubusercontent.com".equals(uri.getHost())) {
-            String[] segments = uri.getPath().split("/");
-            String path = githubFilePath(segments);
-            if (!path.isBlank()) {
-                return String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", segments[1], segments[2], sha, path);
-            }
-        }
-
-        if (isGitlabHost(uri.getHost())) {
-            GitlabUrlParts parts = gitlabUrlParts(uri);
-            if (parts != null) {
-                return String.format("https://%s/%s/-/raw/%s/%s", uri.getHost(), parts.projectPath(), sha, parts.filePath());
-            }
-        }
-
-        return "";
-    }
-
-    private String buildRepositoryTreeUrl(URI uri, String sha) {
-        if (uri == null || uri.getHost() == null || sha == null) {
-            return "";
-        }
-
-        if ("raw.githubusercontent.com".equals(uri.getHost())) {
-            String[] segments = uri.getPath().split("/");
-            String path = githubFilePath(segments);
-            if (!path.isBlank()) {
-                String directory = repositoryDirectory(List.of(path.split("/")));
-                return String.format("https://github.com/%s/%s/tree/%s/%s", segments[1], segments[2], sha, directory);
-            }
-        }
-
-        if (isGitlabHost(uri.getHost())) {
-            GitlabUrlParts parts = gitlabUrlParts(uri);
-            if (parts != null) {
-                return String.format("https://%s/%s/-/tree/%s/%s", uri.getHost(), parts.projectPath(), sha,
-                        repositoryDirectory(List.of(parts.filePath().split("/"))));
-            }
-        }
-
-        return "";
-    }
-
-    private boolean isGitlabHost(String host) {
-        return host.equals("gitlab.com")
-                || host.equals("git.rwth-aachen.de")
-                || host.equals("git.tib.eu")
-                || host.equals("labs.etsi.org");
-    }
-
-    private String githubFilePath(String[] segments) {
-        if (segments.length <= 4) {
-            return "";
-        }
-
-        int filePathStart = 4;
-        if (segments.length > 6 && "refs".equals(segments[3])
-                && ("heads".equals(segments[4]) || "tags".equals(segments[4]))) {
-            filePathStart = 6;
-        }
-
-        if (segments.length <= filePathStart) {
-            return "";
-        }
-        return String.join("/", List.of(segments).subList(filePathStart, segments.length));
-    }
-
-    private String repositoryDirectory(List<String> pathSegments) {
-        if (pathSegments.size() <= 1) {
-            return "";
-        }
-        return String.join("/", pathSegments.subList(0, pathSegments.size() - 1));
-    }
-
-    private GitlabUrlParts gitlabUrlParts(URI uri) {
-        String[] segments = uri.getPath().split("/");
-        StringBuilder projectPath = new StringBuilder();
-        StringBuilder filePath = new StringBuilder();
-        boolean inFilePath = false;
-
-        for (int i = 1; i < segments.length; i++) {
-            if (i + 1 < segments.length && "-".equals(segments[i]) && "raw".equals(segments[i + 1])) {
-                i += 2;
-                inFilePath = true;
-                continue;
-            }
-
-            if (inFilePath) {
-                if (!filePath.isEmpty()) {
-                    filePath.append("/");
-                }
-                filePath.append(segments[i]);
-            } else {
-                if (!projectPath.isEmpty()) {
-                    projectPath.append("/");
-                }
-                projectPath.append(segments[i]);
-            }
-        }
-
-        if (projectPath.isEmpty() || filePath.isEmpty()) {
-            return null;
-        }
-        return new GitlabUrlParts(projectPath.toString(), filePath.toString());
-    }
-
-    private record GitlabUrlParts(String projectPath, String filePath) {
-    }
-
-    private void hydrateRepositoryLinks(GitDiff gitDiff) {
-        if (gitDiff == null) {
-            return;
-        }
-        if (gitDiff.getRawFileUrl() == null || gitDiff.getRawFileUrl().isBlank()) {
-            gitDiff.setRawFileUrl(buildRawFileUrl(gitDiff.getUri(), gitDiff.getSha()));
-        }
-        if (gitDiff.getRepositoryFileUrl() == null || gitDiff.getRepositoryFileUrl().isBlank()) {
-            gitDiff.setRepositoryFileUrl(buildRepositoryFileUrl(gitDiff.getUri(), gitDiff.getSha()));
-        }
-        if (gitDiff.getRepositoryTreeUrl() == null || gitDiff.getRepositoryTreeUrl().isBlank()) {
-            gitDiff.setRepositoryTreeUrl(buildRepositoryTreeUrl(gitDiff.getUri(), gitDiff.getSha()));
-        }
     }
 
 }
