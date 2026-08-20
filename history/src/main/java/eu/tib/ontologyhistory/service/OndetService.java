@@ -115,33 +115,44 @@ public class OndetService {
         val gitDiffSizeBytes = gitDiffService.findDiffSizeBytesByParentSha(sha);
         val contoDiff = contoService.timeline(sha, dataset);
         val robotMarkdown = robotDiff == null ? new Document() : robotDiff.markdown();
+        val gitStatus = gitStatus(gitDiff, gitDiffUrl, includeGitDiff, gitDiffSizeBytes, maxGitDiffBytes);
         val status = new DiffAvailabilitySummary(
-                robotStatus(robotDiff, robotMarkdown),
-                contoStatus(contoDiff),
-                gitStatus(gitDiff, gitDiffUrl, includeGitDiff, gitDiffSizeBytes, maxGitDiffBytes)
+                robotStatus(robotDiff, robotMarkdown, gitStatus),
+                contoStatus(contoDiff, gitStatus),
+                gitStatus
         );
 
         return new DifferenceMarkdown(robotMarkdown, contoDiff, gitDiff, gitDiffUrl, status);
     }
 
-    private DiffAvailability robotStatus(DiffDto robotDiff, Document robotMarkdown) {
+    private DiffAvailability robotStatus(DiffDto robotDiff, Document robotMarkdown, DiffAvailability gitStatus) {
         if (robotDiff != null && robotDiff.error() != null && !robotDiff.error().isBlank()) {
             return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE, robotDiff.error(), null, null, null);
         }
         if (robotMarkdown != null && robotMarkdown.getString("file") != null && !robotMarkdown.getString("file").isBlank()) {
             return new DiffAvailability(DiffAvailabilityStatus.AVAILABLE, "ROBOT diff is available", null, null, null);
         }
+        if (gitStatus.status() == DiffAvailabilityStatus.NOT_APPLICABLE) {
+            return new DiffAvailability(DiffAvailabilityStatus.NOT_APPLICABLE,
+                    "ROBOT diff is not applicable for this selected commit because it is not a stored adjacent ontology-file version. The ontology file may not have existed yet, may not have changed in this commit, or this commit was not part of the processed diff pairs.",
+                    null, null, null);
+        }
         return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE,
                 "ROBOT diff was not stored for this commit. The diff may have failed, timed out, or exceeded processing limits.",
                 null, null, null);
     }
 
-    private DiffAvailability contoStatus(Difference contoDiff) {
+    private DiffAvailability contoStatus(Difference contoDiff, DiffAvailability gitStatus) {
         if (contoDiff != null && contoDiff.error() != null && !contoDiff.error().isBlank()) {
             return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE, contoDiff.error(), null, null, null);
         }
         if (contoDiff != null && contoDiff.changes() != null && !contoDiff.changes().isEmpty()) {
             return new DiffAvailability(DiffAvailabilityStatus.AVAILABLE, "COnto diff is available", null, null, null);
+        }
+        if (gitStatus.status() == DiffAvailabilityStatus.NOT_APPLICABLE) {
+            return new DiffAvailability(DiffAvailabilityStatus.NOT_APPLICABLE,
+                    "COnto diff is not applicable for this selected commit because it is not a stored adjacent ontology-file version.",
+                    null, null, null);
         }
         return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE,
                 "COnto diff was not stored for this commit. The diff may have failed, timed out, or produced no queryable result.",
@@ -170,8 +181,8 @@ public class OndetService {
                     "Syntax diff can be opened in the source repository compare view.",
                     gitDiffUrl, gitDiffSizeBytes, false);
         }
-        return new DiffAvailability(DiffAvailabilityStatus.NOT_AVAILABLE,
-                "Syntax diff is not available for this commit.",
+        return new DiffAvailability(DiffAvailabilityStatus.NOT_APPLICABLE,
+                "Syntax diff is not stored for this selected commit. It may not correspond to an adjacent ontology-file version, the ontology file may not have existed yet, or the file may not have changed in this commit.",
                 null, gitDiffSizeBytes, false);
     }
 

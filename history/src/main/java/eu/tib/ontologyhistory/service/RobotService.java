@@ -79,7 +79,9 @@ public class RobotService {
     }
 
     public DiffDto findByParentSha(String parentSha) {
-        val diff = robotRepository.findFirstByParentSha(parentSha).orElse(null);
+        val diff = robotRepository.findFirstByParentSha(parentSha)
+                .or(() -> robotRepository.findFirstBySha(parentSha))
+                .orElse(null);
         return diffMapper.entityToDto(diff);
     }
 

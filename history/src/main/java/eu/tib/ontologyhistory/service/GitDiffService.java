@@ -55,7 +55,7 @@ public class GitDiffService {
     }
 
     public String findByParentSha(String parentSha) {
-        val gitDiff = gitDiffRepository.findFirstByParentSha(parentSha);
+        val gitDiff = findByParentShaOrSha(parentSha);
         if (gitDiff != null) {
             return gitDiff.getDiff();
         }
@@ -63,7 +63,7 @@ public class GitDiffService {
     }
 
     public String findByParentSha(String parentSha, int maxBytes) {
-        val gitDiff = gitDiffRepository.findFirstByParentSha(parentSha);
+        val gitDiff = findByParentShaOrSha(parentSha);
         if (gitDiff == null || gitDiff.getDiff() == null) {
             return "";
         }
@@ -74,7 +74,7 @@ public class GitDiffService {
     }
 
     public Integer findDiffSizeBytesByParentSha(String parentSha) {
-        val gitDiff = gitDiffRepository.findFirstByParentSha(parentSha);
+        val gitDiff = findByParentShaOrSha(parentSha);
         if (gitDiff == null || gitDiff.getDiff() == null) {
             return null;
         }
@@ -82,12 +82,20 @@ public class GitDiffService {
     }
 
     public String findRemoteDiffUrlByParentSha(String parentSha) {
-        val gitDiff = gitDiffRepository.findFirstByParentSha(parentSha);
+        val gitDiff = findByParentShaOrSha(parentSha);
         if (gitDiff == null) {
             return "";
         }
 
         return buildRemoteDiffUrl(gitDiff.getUri(), gitDiff.getSha(), gitDiff.getParentSha());
+    }
+
+    private GitDiff findByParentShaOrSha(String sha) {
+        val gitDiff = gitDiffRepository.findFirstByParentSha(sha);
+        if (gitDiff != null) {
+            return gitDiff;
+        }
+        return gitDiffRepository.findFirstBySha(sha);
     }
 
     public GitDiffDto findFirstByUrl(URI uri) {
