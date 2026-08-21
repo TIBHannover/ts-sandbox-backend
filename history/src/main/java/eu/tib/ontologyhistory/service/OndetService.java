@@ -311,7 +311,8 @@ public class OndetService {
                 val diffAdds = getDiffAdds(uri);
                 if (diffAdds.isEmpty()) {
                     finishBatchResult(jobId, result, BatchOntologyStatus.NO_COMPARABLE_VERSIONS,
-                            "No adjacent ontology versions were found for this file", 0);
+                            "No comparable downloadable ontology-file versions were found for this file. The Git provider may have returned file-history commits where the file is missing at that commit/path.",
+                            0);
                     continue;
                 }
 
