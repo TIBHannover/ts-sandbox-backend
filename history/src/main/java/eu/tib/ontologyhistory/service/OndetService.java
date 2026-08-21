@@ -6,6 +6,7 @@ import eu.tib.ontologyhistory.dto.DiffAvailabilityStatus;
 import eu.tib.ontologyhistory.dto.DiffAvailabilitySummary;
 import eu.tib.ontologyhistory.dto.DiffDtoTimeline;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
+import eu.tib.ontologyhistory.dto.ProcessedDiffTimelineItem;
 import eu.tib.ontologyhistory.dto.conto.Difference;
 import eu.tib.ontologyhistory.dto.diff.DiffDto;
 import eu.tib.ontologyhistory.dto.diff.DiffAdd;
@@ -499,6 +500,78 @@ public class OndetService {
             return result;
         }
         return Collections.emptyList();
+    }
+
+    public List<ProcessedDiffTimelineItem> getProcessedTimeline(URI uri) {
+        val timelineByHeadSha = new LinkedHashMap<String, ProcessedDiffTimelineItem>();
+
+        for (val robotDiff : robotService.findAllByUrl(uri)) {
+            val headSha = firstNonBlank(robotDiff.parentSha(), robotDiff.sha());
+            if (headSha == null) {
+                continue;
+            }
+            timelineByHeadSha.put(headSha, new ProcessedDiffTimelineItem(
+                    robotDiff.uri(),
+                    headSha,
+                    robotDiff.sha(),
+                    firstNonNull(robotDiff.parentDatetime(), robotDiff.datetime()),
+                    robotDiff.datetime(),
+                    robotDiff.message(),
+                    robotDiff.processingStatus(),
+                    robotDiff.errorCode(),
+                    false
+            ));
+        }
+
+        for (val gitDiff : gitDiffService.findAllByUrl(uri)) {
+            val headSha = firstNonBlank(gitDiff.parentSha(), gitDiff.sha());
+            if (headSha == null) {
+                continue;
+            }
+            val existing = timelineByHeadSha.get(headSha);
+            timelineByHeadSha.put(headSha, new ProcessedDiffTimelineItem(
+                    gitDiff.uri(),
+                    headSha,
+                    gitDiff.sha(),
+                    firstNonNull(existing == null ? null : existing.date(), gitDiff.datetime()),
+                    existing == null ? null : existing.parentDate(),
+                    firstNonBlank(existing == null ? null : existing.message(), gitDiff.message()),
+                    existing == null ? null : existing.robotStatus(),
+                    existing == null ? null : existing.robotErrorCode(),
+                    true
+            ));
+        }
+
+        return timelineByHeadSha.values().stream()
+                .sorted(this::compareTimelineItemsNewestFirst)
+                .toList();
+    }
+
+    private int compareTimelineItemsNewestFirst(ProcessedDiffTimelineItem left, ProcessedDiffTimelineItem right) {
+        if (left.date() == null && right.date() == null) {
+            return 0;
+        }
+        if (left.date() == null) {
+            return 1;
+        }
+        if (right.date() == null) {
+            return -1;
+        }
+        return right.date().compareTo(left.date());
+    }
+
+    private String firstNonBlank(String first, String second) {
+        if (first != null && !first.isBlank()) {
+            return first;
+        }
+        if (second != null && !second.isBlank()) {
+            return second;
+        }
+        return null;
+    }
+
+    private Instant firstNonNull(Instant first, Instant second) {
+        return first == null ? second : first;
     }
 
     public GitDiffDto getVersion(URI uri) {

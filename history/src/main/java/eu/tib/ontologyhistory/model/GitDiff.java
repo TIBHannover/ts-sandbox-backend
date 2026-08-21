@@ -27,6 +27,8 @@ public class GitDiff {
 
     private String diff;
 
+    private String message;
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Instant datetime;
 

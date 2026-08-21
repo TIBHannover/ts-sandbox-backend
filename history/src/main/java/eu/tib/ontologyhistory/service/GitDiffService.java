@@ -145,6 +145,7 @@ public class GitDiffService {
                     .sha(diffAdd.sha())
                     .parentSha(diffAdd.parentSha())
                     .diff(diff)
+                    .message(diffAdd.messageRight())
                     .datetime(diffAdd.parentDatetime())
                     .build();
 

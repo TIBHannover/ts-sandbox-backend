@@ -2,8 +2,8 @@ package eu.tib.ontologyhistory.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
+import eu.tib.ontologyhistory.dto.ProcessedDiffTimelineItem;
 import eu.tib.ontologyhistory.model.BatchProcessingJob;
-import eu.tib.ontologyhistory.model.Commit;
 import eu.tib.ontologyhistory.service.OndetService;
 import eu.tib.ontologyhistory.view.Views;
 import io.swagger.v3.oas.annotations.Operation;
@@ -170,18 +170,18 @@ public class OndetController {
     }
 
     @GetMapping("/commits")
-    @Operation(summary = "Get timeline for the ontology")
+    @Operation(summary = "Get processed diff timeline for the ontology")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the timeline"),
             @ApiResponse(responseCode = "404", description = "No timeline found", content = @Content)
     })
     @JsonView(Views.Short.class)
-    public ResponseEntity<List<? extends Commit>> getCommits(
+    public ResponseEntity<List<ProcessedDiffTimelineItem>> getCommits(
             @Parameter(description = "ontologyUrl")
             @RequestParam URI uri
     ) {
 
-        val commits = ondetService.getCommits(uri);
+        val commits = ondetService.getProcessedTimeline(uri);
 
         return new ResponseEntity<>(commits, HttpStatus.OK);
     }
