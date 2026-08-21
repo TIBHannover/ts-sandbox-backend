@@ -63,31 +63,42 @@ public class GithubService implements GitService<GithubCommit> {
     @Override
     public List<DiffAdd> processCommits(URI uri, List<GithubCommit> githubCommits, GitServiceRequest request) {
         List<DiffAdd> diffAdds = new ArrayList<>();
+        SkippedPairCounts skippedPairCounts = new SkippedPairCounts();
         ListIterator<GithubCommit> iterator = githubCommits.listIterator();
         GithubCommit current = null;
         while (iterator.hasNext()) {
             val next = iterator.next();
             if (current != null) {
-                processCommitPair(uri, current, next, request, diffAdds);
+                processCommitPair(uri, current, next, request, diffAdds, skippedPairCounts);
             }
             current = next;
+        }
+        if (skippedPairCounts.missingFilePairs() > 0 || skippedPairCounts.unavailableFilePairs() > 0) {
+            log.info("Skipped {} GitHub commit pair(s) for {} because the ontology file was missing at one side of the pair; skipped {} additional pair(s) because raw file content was unavailable.",
+                    skippedPairCounts.missingFilePairs(), uri, skippedPairCounts.unavailableFilePairs());
         }
         return diffAdds;
     }
 
     @Override
     public void processCommitPair(URI uri, GithubCommit githubCommit, GithubCommit parentGithubCommit, GitServiceRequest request, List<DiffAdd> diffAdds) {
-        String rawFile = getRawFileUrl(uri, request, githubCommit.sha());
-        String parentRawFile = getRawFileUrl(uri, request, parentGithubCommit.sha());
+        processCommitPair(uri, githubCommit, parentGithubCommit, request, diffAdds, null);
+    }
 
-        if (rawFile != null && parentRawFile != null) {
+    private void processCommitPair(URI uri, GithubCommit githubCommit, GithubCommit parentGithubCommit,
+                                   GitServiceRequest request, List<DiffAdd> diffAdds,
+                                   SkippedPairCounts skippedPairCounts) {
+        RawFileResponse rawFile = getRawFileResponse(uri, request, githubCommit.sha());
+        RawFileResponse parentRawFile = getRawFileResponse(uri, request, parentGithubCommit.sha());
+
+        if (rawFile.isAvailable() && parentRawFile.isAvailable()) {
             DiffAdd diffAdd = new DiffAdd(
                     String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", request.owner(), request.repo(), githubCommit.sha(), request.path()),
                     String.format("https://raw.githubusercontent.com/%s/%s/%s/%s", request.owner(), request.repo(), parentGithubCommit.sha(), request.path()),
                     githubCommit.html_url(),
                     parentGithubCommit.html_url(),
-                    rawFile,
-                    parentRawFile,
+                    rawFile.body(),
+                    parentRawFile.body(),
                     githubCommit.sha(),
                     parentGithubCommit.sha(),
                     githubCommit.commit().committer().date(),
@@ -96,14 +107,25 @@ public class GithubService implements GitService<GithubCommit> {
                     parentGithubCommit.commit().message()
             );
             diffAdds.add(diffAdd);
+            return;
+        }
+
+        if (skippedPairCounts == null) {
+            return;
+        }
+        if (rawFile.isMissing() || parentRawFile.isMissing()) {
+            skippedPairCounts.incrementMissingFilePairs();
         } else {
-            log.warn("Skipped GitHub diff pair {} -> {} for {} because raw file content was unavailable",
-                    githubCommit.sha(), parentGithubCommit.sha(), uri);
+            skippedPairCounts.incrementUnavailableFilePairs();
         }
     }
 
     @Override
     public String getRawFileUrl(URI uri, GitServiceRequest request, String sha) {
+        return getRawFileResponse(uri, request, sha).body();
+    }
+
+    private RawFileResponse getRawFileResponse(URI uri, GitServiceRequest request, String sha) {
 
         URI githubRawFileApi = UriComponentsBuilder.fromUri(uri)
                 .host("raw.githubusercontent.com")
@@ -115,16 +137,56 @@ public class GithubService implements GitService<GithubCommit> {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> responseRawParentFile = sendGet(client, githubRawFileApi);
             if (responseRawParentFile.statusCode() >= 200 && responseRawParentFile.statusCode() < 300) {
-                return responseRawParentFile.body();
+                return new RawFileResponse(responseRawParentFile.body(), responseRawParentFile.statusCode());
             }
-            log.warn("GitHub raw file request failed with status {} for {}", responseRawParentFile.statusCode(), githubRawFileApi);
+            if (responseRawParentFile.statusCode() == 404) {
+                log.debug("GitHub raw file request returned 404 for {}", githubRawFileApi);
+            } else {
+                log.warn("GitHub raw file request failed with status {} for {}", responseRawParentFile.statusCode(), githubRawFileApi);
+            }
+            return new RawFileResponse(null, responseRawParentFile.statusCode());
         } catch (InterruptedException e) {
             log.error("Interrupted with the response: " + e);
             Thread.currentThread().interrupt();
         } catch (IOException e) {
             log.error("IOException happened: " + e);
         }
-        return null;
+        return RawFileResponse.unavailable();
+    }
+
+    private record RawFileResponse(String body, int statusCode) {
+        static RawFileResponse unavailable() {
+            return new RawFileResponse(null, -1);
+        }
+
+        boolean isAvailable() {
+            return body != null;
+        }
+
+        boolean isMissing() {
+            return statusCode == 404;
+        }
+    }
+
+    private static class SkippedPairCounts {
+        private int missingFilePairs;
+        private int unavailableFilePairs;
+
+        int missingFilePairs() {
+            return missingFilePairs;
+        }
+
+        int unavailableFilePairs() {
+            return unavailableFilePairs;
+        }
+
+        void incrementMissingFilePairs() {
+            missingFilePairs++;
+        }
+
+        void incrementUnavailableFilePairs() {
+            unavailableFilePairs++;
+        }
     }
 
     @Override
