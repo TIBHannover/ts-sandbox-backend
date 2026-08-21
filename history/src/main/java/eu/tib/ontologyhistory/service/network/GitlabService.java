@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class GitlabService implements GitService<GitlabCommit> {
@@ -83,38 +84,53 @@ public class GitlabService implements GitService<GitlabCommit> {
     public List<DiffAdd> processCommits(URI uri, List<GitlabCommit> commits, GitServiceRequest request) {
         List<DiffAdd> diffAdds = new ArrayList<>();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
+        AtomicInteger skippedMissingFilePairs = new AtomicInteger();
+        AtomicInteger skippedUnavailableFilePairs = new AtomicInteger();
         ListIterator<GitlabCommit> iterator = commits.listIterator();
         GitlabCommit current = null;
         while (iterator.hasNext()) {
             val next = iterator.next();
             if (current != null) {
                 GitlabCommit finalCurrent = current;
-                futures.add(CompletableFuture.runAsync(() -> processCommitPair(uri, finalCurrent, next, request, diffAdds), executor));
+                futures.add(CompletableFuture.runAsync(
+                        () -> processCommitPair(uri, finalCurrent, next, request, diffAdds,
+                                skippedMissingFilePairs, skippedUnavailableFilePairs),
+                        executor));
             }
             current = next;
         }
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        if (skippedMissingFilePairs.get() > 0 || skippedUnavailableFilePairs.get() > 0) {
+            log.info("Skipped {} GitLab commit pair(s) for {} because the ontology file was missing at one side of the pair; skipped {} additional pair(s) because raw file content was unavailable.",
+                    skippedMissingFilePairs.get(), uri, skippedUnavailableFilePairs.get());
+        }
 
         return diffAdds;
     }
 
     @Override
     public void processCommitPair(URI uri, GitlabCommit commit, GitlabCommit parentCommit, GitServiceRequest request, List<DiffAdd> diffAdds) {
-        String rawFile = getRawFileUrl(uri, request, commit.id());
-        String parentRawFile = null;
-        if (rawFile != null) {
-            parentRawFile = getRawFileUrl(uri, request, parentCommit.id());
+        processCommitPair(uri, commit, parentCommit, request, diffAdds, null, null);
+    }
+
+    private void processCommitPair(URI uri, GitlabCommit commit, GitlabCommit parentCommit, GitServiceRequest request,
+                                   List<DiffAdd> diffAdds, AtomicInteger skippedMissingFilePairs,
+                                   AtomicInteger skippedUnavailableFilePairs) {
+        RawFileResponse rawFile = getRawFileResponse(uri, request, commit.id());
+        RawFileResponse parentRawFile = null;
+        if (rawFile.isAvailable()) {
+            parentRawFile = getRawFileResponse(uri, request, parentCommit.id());
         }
 
-        if (rawFile != null && parentRawFile != null) {
+        if (rawFile.isAvailable() && parentRawFile != null && parentRawFile.isAvailable()) {
             DiffAdd diffAdd = new DiffAdd(
                     String.format("https://" + HOST + "/%s/-/raw/%s/%s", request.projectId(), commit.id(), request.path()),
                     String.format("https://" + HOST + "/%s/-/raw/%s/%s", request.projectId(), parentCommit.id(), request.path()),
                     commit.web_url(),
                     parentCommit.web_url(),
-                    rawFile,
-                    parentRawFile,
+                    rawFile.body(),
+                    parentRawFile.body(),
                     commit.id(),
                     parentCommit.id(),
                     commit.committed_date(),
@@ -125,11 +141,25 @@ public class GitlabService implements GitService<GitlabCommit> {
             synchronized (this) {
                 diffAdds.add(diffAdd);
             }
+            return;
+        }
+
+        if (skippedMissingFilePairs == null || skippedUnavailableFilePairs == null) {
+            return;
+        }
+        if (rawFile.isMissing() || (parentRawFile != null && parentRawFile.isMissing())) {
+            skippedMissingFilePairs.incrementAndGet();
+        } else {
+            skippedUnavailableFilePairs.incrementAndGet();
         }
     }
 
     @Override
     public String getRawFileUrl(URI uri, GitServiceRequest request, String sha) {
+        return getRawFileResponse(uri, request, sha).body();
+    }
+
+    private RawFileResponse getRawFileResponse(URI uri, GitServiceRequest request, String sha) {
 
         String link = gitlabRestApiV4BaseUrl + GITLAB_REST_API_PROJECTS_CONTEXT + request.projectId() + "/repository/files/" + UriUtils.encode(request.path(), StandardCharsets.UTF_8) + "/raw?ref=" + sha;
 
@@ -146,10 +176,14 @@ public class GitlabService implements GitService<GitlabCommit> {
                 response = client.send(buildHttpRequest(gitlabUri, false), HttpResponse.BodyHandlers.ofString());
             }
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                return response.body();
+                return new RawFileResponse(response.body(), response.statusCode());
             } else {
-                log.warn("GitLab raw-file request failed with status {} for {}", response.statusCode(), gitlabUri);
-                return null;
+                if (response.statusCode() == 404) {
+                    log.debug("GitLab raw-file request returned 404 for {}", gitlabUri);
+                } else {
+                    log.warn("GitLab raw-file request failed with status {} for {}", response.statusCode(), gitlabUri);
+                }
+                return new RawFileResponse(null, response.statusCode());
             }
         } catch (InterruptedException e) {
             log.error("Interrupted with the response: " + e);
@@ -157,7 +191,21 @@ public class GitlabService implements GitService<GitlabCommit> {
         } catch (IOException e) {
             log.error("IOException happened: " + e);
         }
-        return null;
+        return RawFileResponse.unavailable();
+    }
+
+    private record RawFileResponse(String body, int statusCode) {
+        static RawFileResponse unavailable() {
+            return new RawFileResponse(null, -1);
+        }
+
+        boolean isAvailable() {
+            return body != null;
+        }
+
+        boolean isMissing() {
+            return statusCode == 404;
+        }
     }
 
     @Override
