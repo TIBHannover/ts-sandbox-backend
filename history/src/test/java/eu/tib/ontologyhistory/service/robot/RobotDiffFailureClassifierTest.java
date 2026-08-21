@@ -49,6 +49,16 @@ class RobotDiffFailureClassifierTest {
         assertThat(failure.message()).contains("MongoDB document limit");
     }
 
+    @Test
+    void classifiesMongoDocumentLimitFailureAsOutputTooLarge() {
+        Exception exception = new RuntimeException("Payload document size is larger than maximum of 16777216.");
+
+        RobotDiffFailure failure = RobotDiffFailureClassifier.classify(exception);
+
+        assertThat(failure.code()).isEqualTo(RobotDiffFailureCode.OUTPUT_TOO_LARGE);
+        assertThat(failure.message()).contains("MongoDB document limit");
+    }
+
     private static UnloadableImportException importException(String importIri,
                                                             org.semanticweb.owlapi.model.OWLOntologyCreationException cause) {
         return new UnloadableImportException(cause,

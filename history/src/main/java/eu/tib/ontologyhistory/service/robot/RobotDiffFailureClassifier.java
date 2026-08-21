@@ -12,6 +12,8 @@ public final class RobotDiffFailureClassifier {
 
     private static final int MAX_MESSAGE_LENGTH = 2_000;
 
+    private static final int MONGODB_DOCUMENT_LIMIT_BYTES = 16_777_216;
+
     private static final Pattern IMPORT_IRI_PATTERN = Pattern.compile("imported ontology: <([^>]+)>");
 
     private static final Pattern HTTP_STATUS_PATTERN = Pattern.compile("HTTP response code: (\\d+)");
@@ -35,6 +37,10 @@ public final class RobotDiffFailureClassifier {
                     "ROBOT could not parse one of the ontology versions for this commit. "
                             + "The downloaded file at this commit may not be valid RDF/OWL, may be empty, or may contain HTML/error content instead of ontology content. "
                             + "Technical detail: " + firstUsefulMessage(mostSpecific, exception));
+        }
+
+        if (isMongoDocumentSizeFailure(combinedMessage)) {
+            return outputTooLarge(MONGODB_DOCUMENT_LIMIT_BYTES);
         }
 
         return failure(RobotDiffFailureCode.UNKNOWN,
@@ -89,6 +95,12 @@ public final class RobotDiffFailureClassifier {
                 || lower.contains("rdfa")
                 || lower.contains("<!doctype html")
                 || lower.contains("<!doctype html");
+    }
+
+    private static boolean isMongoDocumentSizeFailure(String message) {
+        String lower = message.toLowerCase();
+        return lower.contains("payload document size is larger than maximum")
+                || lower.contains("bsonmaximumsizeexceededexception");
     }
 
     private static List<Throwable> causes(Throwable throwable) {
