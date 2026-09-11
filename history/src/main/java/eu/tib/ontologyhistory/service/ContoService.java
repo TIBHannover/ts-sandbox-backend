@@ -64,6 +64,8 @@ public class ContoService {
 
     private static final String STAGE_CONTO_EXECUTION = "CONTO_EXECUTION";
 
+    private static final String STAGE_CONTO_PARSE_ERROR = "CONTO_PARSE_ERROR";
+
     private static final String STAGE_OUTPUT_VALIDATION = "OUTPUT_VALIDATION";
 
     private static final String STAGE_EMPTY_CHANGE_GRAPH = "EMPTY_CHANGE_GRAPH";
@@ -370,7 +372,13 @@ public class ContoService {
         try {
             generatedFiles = getCommand(diffAdd, uri);
         } catch (Exception e) {
-            recordInvalidDiff(uri, diffAdd, STAGE_CONTO_EXECUTION, "COnto execution failed before output files could be validated.", e, null, null);
+            if (isContoParseFailure(e)) {
+                recordInvalidDiff(uri, diffAdd, STAGE_CONTO_PARSE_ERROR,
+                        "COnto could not parse one ontology version for this commit. The downloaded file may not be valid RDF/OWL for COnto.",
+                        e, null, null);
+            } else {
+                recordInvalidDiff(uri, diffAdd, STAGE_CONTO_EXECUTION, "COnto execution failed before output files could be validated.", e, null, null);
+            }
             return;
         }
 
@@ -538,9 +546,7 @@ public class ContoService {
 
     private void recordInvalidDiff(URI uri, DiffAdd diffAdd, String stage, String userMessage, Exception exception,
                                    Long outputSizeBytes, Long quadSizeBytes) {
-        val technicalDetail = exception == null || exception.getMessage() == null
-                ? ""
-                : " Technical detail: " + exception.getMessage();
+        val technicalDetail = exception == null ? "" : formatTechnicalDetail(exception);
         val message = userMessage + technicalDetail;
         val invalidContoDiff = InvalidContoDiff.builder()
                 .uri(String.valueOf(uri))
@@ -557,10 +563,95 @@ public class ContoService {
         if (exception == null) {
             log.warn("COnto diff issue for ontology {} commit {} at stage {}: {} output.ttl={} bytes all_diffs.nq={} bytes",
                     uri, diffAdd.parentSha(), stage, message, outputSizeBytes, quadSizeBytes);
+        } else if (STAGE_CONTO_PARSE_ERROR.equals(stage)) {
+            log.warn("COnto diff failed for ontology {} commit {} at stage {}: {} output.ttl={} bytes all_diffs.nq={} bytes",
+                    uri, diffAdd.parentSha(), stage, message, outputSizeBytes, quadSizeBytes);
         } else {
             log.error("COnto diff failed for ontology {} commit {} at stage {}: {} output.ttl={} bytes all_diffs.nq={} bytes",
                     uri, diffAdd.parentSha(), stage, message, outputSizeBytes, quadSizeBytes, exception);
         }
+    }
+
+    private static boolean isContoParseFailure(Throwable throwable) {
+        val text = collectExceptionText(throwable).toLowerCase(Locale.ROOT);
+        return text.contains("unparsableontologyexception")
+                || text.contains("could not parse ontology")
+                || text.contains("problem parsing")
+                || text.contains("parseexception")
+                || text.contains("rdfparseexception");
+    }
+
+    private static String formatTechnicalDetail(Throwable throwable) {
+        val rawText = collectExceptionText(throwable);
+        if (rawText.isBlank()) {
+            return "";
+        }
+
+        val parserDetail = findParserDetail(rawText);
+        val detail = parserDetail.isBlank() ? rawText : parserDetail;
+        return " Technical detail: " + truncate(cleanExceptionDetail(detail), 700);
+    }
+
+    private static String collectExceptionText(Throwable throwable) {
+        StringBuilder text = new StringBuilder();
+        Throwable current = throwable;
+        while (current != null) {
+            if (current.getClass().getSimpleName() != null && !current.getClass().getSimpleName().isBlank()) {
+                text.append(current.getClass().getSimpleName());
+            }
+            if (current.getMessage() != null && !current.getMessage().isBlank()) {
+                text.append(": ").append(current.getMessage());
+            }
+            text.append('\n');
+            current = current.getCause();
+        }
+        return text.toString();
+    }
+
+    private static String findParserDetail(String rawText) {
+        val priorities = List.of(
+                "Expected ",
+                "IRI included an unencoded space",
+                "Content is not allowed in prolog",
+                "Encountered ",
+                "Lexical error",
+                "RDFParseException",
+                "ParseException",
+                "Problem parsing"
+        );
+
+        for (val priority : priorities) {
+            for (val line : rawText.split("\\R")) {
+                val trimmed = line.trim();
+                if (trimmed.contains(priority)) {
+                    return trimmed;
+                }
+            }
+        }
+
+        for (val line : rawText.split("\\R")) {
+            val trimmed = line.trim();
+            if (!trimmed.isBlank()) {
+                return trimmed;
+            }
+        }
+
+        return "";
+    }
+
+    private static String cleanExceptionDetail(String detail) {
+        return detail
+                .replaceAll("file:/tmp/conto-diff-[^\\s)]*/", "")
+                .replaceAll("/tmp/conto-diff-[^\\s)]*/", "")
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    private static String truncate(String text, int maxLength) {
+        if (text.length() <= maxLength) {
+            return text;
+        }
+        return text.substring(0, maxLength - 3) + "...";
     }
 
     private String formatInvalidDiffMessage(InvalidContoDiff invalidDiff) {
