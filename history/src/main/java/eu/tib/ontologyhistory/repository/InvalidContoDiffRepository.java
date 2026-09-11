@@ -7,5 +7,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InvalidContoDiffRepository extends MongoRepository<InvalidContoDiff, String>  {
 
-    InvalidContoDiff findFirstByParentSha(String parentSha);
+    InvalidContoDiff findFirstByParentShaOrderByCreatedAtDesc(String parentSha);
+
+    void deleteAllByUri(String uri);
+
+    void deleteAllByUriAndParentSha(String uri, String parentSha);
 }

@@ -58,9 +58,17 @@ public class ContoService {
 
     private static final String QUAD_FILE = "all_diffs.nq";
 
-    private static final Path ONTOLOGY_LEFT = Path.of("ontology-left.txt");
+    private static final String ONTOLOGY_LEFT = "ontology-left.txt";
 
-    private static final Path ONTOLOGY_RIGHT = Path.of("ontology-right.txt");
+    private static final String ONTOLOGY_RIGHT = "ontology-right.txt";
+
+    private static final String STAGE_CONTO_EXECUTION = "CONTO_EXECUTION";
+
+    private static final String STAGE_OUTPUT_VALIDATION = "OUTPUT_VALIDATION";
+
+    private static final String STAGE_FUSEKI_UPLOAD = "FUSEKI_UPLOAD";
+
+    private static final String STAGE_QUERY_VERIFICATION = "QUERY_VERIFICATION";
 
     public Set<TempGraph> findAll(String dataset) {
         val graphs = new HashSet<TempGraph>();
@@ -150,41 +158,13 @@ public class ContoService {
 
     public Difference timeline(String commitId, String dataset) {
 
-        val invalidDiff = invalidContoDiffRepository.findFirstByParentSha(commitId);
+        val invalidDiff = invalidContoDiffRepository.findFirstByParentShaOrderByCreatedAtDesc(commitId);
         if (invalidDiff != null) {
-            return new Difference(null, invalidDiff.getMessage());
+            return new Difference(null, formatInvalidDiffMessage(invalidDiff));
         }
 
         fusekiAuthenticate();
-        List<String> result = new ArrayList<>();
-        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
-        RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
-                .destination(datasetServiceUrl);
-        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
-            Txn.executeRead(conn, () -> {
-                ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
-                graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.WHOLE_ONTOLOGY_TIMELINE_ELEMENT);
-                graphQuery.setLiteral("commitId", commitId);
-                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
-                    ResultSet results = qExec.execSelect();
-                    RDFNode ppLabel;
-                    RDFNode s;
-                    RDFNode p;
-                    RDFNode o;
-                    while (results.hasNext()) {
-                        QuerySolution soln = results.nextSolution();
-                        ppLabel = soln.get("pp_label");
-                        s = soln.get("s");
-                        p = soln.get("p");
-                        o = soln.get("o");
-                        String change = ppLabel.toString() + " " + s.toString() + " " + p.toString() + " " + o.toString();
-                        result.add(change);
-                    }
-                }
-            });
-        }
-
-        return new Difference(result, null);
+        return new Difference(findTimelineChanges(commitId, dataset), null);
     }
 
     public Map<Instant, Collection<TimelineMessage>> timelineMessage(String dataset, URI uri, String resourceUri, String firstCommitTime, String secondCommitTime) {
@@ -369,57 +349,68 @@ public class ContoService {
         GitService<?> gitService = GitServiceType.createService(uri);
 
         val diffAdds = gitService.getDiffAdds(uri, null);
+        invalidContoDiffRepository.deleteAllByUri(String.valueOf(uri));
         for (val diffAdd : diffAdds) {
-            try {
-                getCommand(diffAdd, uri);
-                uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
-                uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
-            } catch (Exception e) {
-                val invalidContoDiff = InvalidContoDiff.builder()
-                        .sha(diffAdd.sha())
-                        .parentSha(diffAdd.parentSha())
-                        .message(e.getMessage())
-                        .build();
-
-                invalidContoDiffRepository.insert(invalidContoDiff);
-                log.error(e.getMessage(), e);
-            }
+            create(uri, diffAdd, dataset);
         }
     }
 
     public void create(URI uri, List<DiffAdd> diffAdds, String dataset) {
-        diffAdds.forEach(diffAdd -> {
-            try {
-                getCommand(diffAdd, uri);
-                uploadOntologyToFuseki(new File(OUTPUT_FILE), dataset);
-                uploadOntologyToFuseki(new File(QUAD_FILE), dataset);
-            } catch (Exception e) {
-                val invalidContoDiff = InvalidContoDiff.builder()
-                        .sha(diffAdd.sha())
-                        .parentSha(diffAdd.parentSha())
-                        .message(e.getMessage())
-                        .build();
-
-                invalidContoDiffRepository.insert(invalidContoDiff);
-                log.error(e.getMessage(), e);
-            }
-        });
+        invalidContoDiffRepository.deleteAllByUri(String.valueOf(uri));
+        diffAdds.forEach(diffAdd -> create(uri, diffAdd, dataset));
     }
 
-    private static void getCommand(DiffAdd diffAdd, URI baseUrl) {
-        String ontLeft = null;
-        String ontRight = null;
+    private void create(URI uri, DiffAdd diffAdd, String dataset) {
+        invalidContoDiffRepository.deleteAllByUriAndParentSha(String.valueOf(uri), diffAdd.parentSha());
+        ContoGeneratedFiles generatedFiles;
         try {
-            ontLeft = Files.write(ONTOLOGY_LEFT, diffAdd.gitRawFileLeft().getBytes()).toString();
-            ontRight = Files.write(ONTOLOGY_RIGHT, diffAdd.gitRawFileRight().getBytes()).toString();
-
+            generatedFiles = getCommand(diffAdd, uri);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            recordInvalidDiff(uri, diffAdd, STAGE_CONTO_EXECUTION, "COnto execution failed before output files could be validated.", e, null, null);
+            return;
         }
 
+        try {
+            validateGeneratedFile(generatedFiles.outputFile(), OUTPUT_FILE);
+            validateGeneratedFile(generatedFiles.quadFile(), QUAD_FILE);
+        } catch (Exception e) {
+            recordInvalidDiff(uri, diffAdd, STAGE_OUTPUT_VALIDATION, "COnto finished, but one or more generated output files were missing or empty.", e, generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
+            return;
+        }
+
+        try {
+            uploadOntologyToFuseki(generatedFiles.outputFile().toFile(), dataset);
+            uploadOntologyToFuseki(generatedFiles.quadFile().toFile(), dataset);
+        } catch (Exception e) {
+            recordInvalidDiff(uri, diffAdd, STAGE_FUSEKI_UPLOAD, "COnto generated output, but the output could not be uploaded to Fuseki.", e, generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
+            return;
+        }
+
+        try {
+            val changes = findTimelineChanges(diffAdd.parentSha(), dataset);
+            if (changes.isEmpty()) {
+                recordInvalidDiff(uri, diffAdd, STAGE_QUERY_VERIFICATION,
+                        "COnto generated and uploaded output, but no queryable changes were found for this commit. This usually means the generated RDF shape does not match the SPARQL query assumptions or COnto produced metadata without concrete change triples.",
+                        null, generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
+            } else {
+                log.info("COnto generated {} queryable change(s) for ontology {} commit {}. output.ttl={} bytes, all_diffs.nq={} bytes",
+                        changes.size(), uri, diffAdd.parentSha(), generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
+            }
+        } catch (Exception e) {
+            recordInvalidDiff(uri, diffAdd, STAGE_QUERY_VERIFICATION, "COnto generated and uploaded output, but querying the stored changes failed.", e, generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
+        }
+    }
+
+    private static ContoGeneratedFiles getCommand(DiffAdd diffAdd, URI baseUrl) throws IOException {
+        val runDirectory = Files.createTempDirectory("conto-diff-");
+        val ontLeft = Files.writeString(runDirectory.resolve(ONTOLOGY_LEFT), diffAdd.gitRawFileLeft());
+        val ontRight = Files.writeString(runDirectory.resolve(ONTOLOGY_RIGHT), diffAdd.gitRawFileRight());
+        val outputFile = runDirectory.resolve(OUTPUT_FILE);
+        val quadFile = runDirectory.resolve(QUAD_FILE);
+
         val diffContext = DiffContext.builder()
-                .fileLeft(ontLeft)
-                .fileRight(ontRight)
+                .fileLeft(ontLeft.toString())
+                .fileRight(ontRight.toString())
                 .rawUrlLeft(diffAdd.gitUrlLeft())
                 .rawUrlRight(diffAdd.gitUrlRight())
                 .leftCommitUri(diffAdd.gitCommitUrlLeft())
@@ -428,8 +419,8 @@ public class ContoService {
                 .rightDatetime(diffAdd.parentDatetime().toString())
                 .leftMessage(diffAdd.messageLeft().replaceAll("\\s", "_").replace("\"", "'"))
                 .rightMessage(diffAdd.messageRight().replaceAll("\\s", "_").replace("\"", "'"))
-                .outputFile(OUTPUT_FILE)
-                .allDiffsNQuadFile(QUAD_FILE)
+                .outputFile(outputFile.toString())
+                .allDiffsNQuadFile(quadFile.toString())
                 .build();
 
         try {
@@ -438,6 +429,90 @@ public class ContoService {
             throw new RuntimeException(e);
         }
 
+        return new ContoGeneratedFiles(outputFile, quadFile, fileSize(outputFile), fileSize(quadFile));
+    }
+
+    private static long fileSize(Path file) {
+        try {
+            return Files.exists(file) ? Files.size(file) : 0;
+        } catch (IOException e) {
+            return 0;
+        }
+    }
+
+    private void validateGeneratedFile(Path file, String label) {
+        if (!Files.exists(file)) {
+            throw new IllegalStateException(label + " was not created by COnto");
+        }
+        if (fileSize(file) == 0) {
+            throw new IllegalStateException(label + " was created by COnto but is empty");
+        }
+    }
+
+    private List<String> findTimelineChanges(String commitId, String dataset) {
+        List<String> result = new ArrayList<>();
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
+        RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
+                .destination(datasetServiceUrl);
+        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
+            Txn.executeRead(conn, () -> {
+                ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
+                graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + SparqlQueries.WHOLE_ONTOLOGY_TIMELINE_ELEMENT);
+                graphQuery.setLiteral("commitId", commitId);
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                    ResultSet results = qExec.execSelect();
+                    RDFNode ppLabel;
+                    RDFNode s;
+                    RDFNode p;
+                    RDFNode o;
+                    while (results.hasNext()) {
+                        QuerySolution soln = results.nextSolution();
+                        ppLabel = soln.get("pp_label");
+                        s = soln.get("s");
+                        p = soln.get("p");
+                        o = soln.get("o");
+                        String change = ppLabel.toString() + " " + s.toString() + " " + p.toString() + " " + o.toString();
+                        result.add(change);
+                    }
+                }
+            });
+        }
+        return result;
+    }
+
+    private void recordInvalidDiff(URI uri, DiffAdd diffAdd, String stage, String userMessage, Exception exception,
+                                   Long outputSizeBytes, Long quadSizeBytes) {
+        val technicalDetail = exception == null || exception.getMessage() == null
+                ? ""
+                : " Technical detail: " + exception.getMessage();
+        val message = userMessage + technicalDetail;
+        val invalidContoDiff = InvalidContoDiff.builder()
+                .uri(String.valueOf(uri))
+                .sha(diffAdd.sha())
+                .parentSha(diffAdd.parentSha())
+                .stage(stage)
+                .message(message)
+                .outputSizeBytes(outputSizeBytes)
+                .quadSizeBytes(quadSizeBytes)
+                .createdAt(Instant.now())
+                .build();
+
+        invalidContoDiffRepository.insert(invalidContoDiff);
+        if (exception == null) {
+            log.warn("COnto diff issue for ontology {} commit {} at stage {}: {} output.ttl={} bytes all_diffs.nq={} bytes",
+                    uri, diffAdd.parentSha(), stage, message, outputSizeBytes, quadSizeBytes);
+        } else {
+            log.error("COnto diff failed for ontology {} commit {} at stage {}: {} output.ttl={} bytes all_diffs.nq={} bytes",
+                    uri, diffAdd.parentSha(), stage, message, outputSizeBytes, quadSizeBytes, exception);
+        }
+    }
+
+    private String formatInvalidDiffMessage(InvalidContoDiff invalidDiff) {
+        val stage = invalidDiff.getStage() == null ? "UNKNOWN" : invalidDiff.getStage();
+        val outputSize = invalidDiff.getOutputSizeBytes() == null ? "unknown" : invalidDiff.getOutputSizeBytes().toString();
+        val quadSize = invalidDiff.getQuadSizeBytes() == null ? "unknown" : invalidDiff.getQuadSizeBytes().toString();
+        return String.format("COnto diff is not available for this commit. Stage: %s. %s Output size: output.ttl=%s bytes, all_diffs.nq=%s bytes.",
+                stage, invalidDiff.getMessage(), outputSize, quadSize);
     }
 
     private Model readOntology(String ont) {
@@ -475,12 +550,12 @@ public class ContoService {
         fusekiAuthenticate();
         String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
         DatasetAccessor datasetAccessor = DatasetAccessorFactory.createHTTP(datasetServiceUrl);
-        if (RDFLanguages.filenameToLang(ont.getName()).equals(Lang.NQUADS)) {
+        if (Lang.NQUADS.equals(RDFLanguages.filenameToLang(ont.getName()))) {
             try {
                 Dataset ds = readDataset(ont.getName(), ont.toPath());
                 ds.listNames().forEachRemaining(name -> datasetAccessor.add(name, ds.getNamedModel(name)));
             } catch (IOException e) {
-                log.error("Error reading dataset{}", e.getMessage(), e);
+                throw new IllegalStateException("Error reading generated COnto dataset " + ont.getName(), e);
             }
         } else {
             try {
@@ -492,7 +567,7 @@ public class ContoService {
                     conn.load(ontologyModel);
                 }
             } catch (IOException e) {
-                log.error("Error reading ontology{}", e.getMessage(), e);
+                throw new IllegalStateException("Error reading generated COnto ontology " + ont.getName(), e);
             }
         }
     }
@@ -522,5 +597,12 @@ public class ContoService {
         HttpOp.setDefaultHttpClient(httpclient);
     }
 
-}
+    private record ContoGeneratedFiles(
+            Path outputFile,
+            Path quadFile,
+            long outputSizeBytes,
+            long quadSizeBytes
+    ) {
+    }
 
+}
