@@ -610,22 +610,29 @@ public class ContoService {
 
     private static String findParserDetail(String rawText) {
         val priorities = List.of(
+                "RDFParseException",
+                "ParseException",
                 "Expected ",
                 "IRI included an unencoded space",
                 "Content is not allowed in prolog",
                 "Encountered ",
                 "Lexical error",
-                "RDFParseException",
-                "ParseException",
                 "Problem parsing"
         );
 
         for (val priority : priorities) {
+            val fallbackCandidates = new ArrayList<String>();
             for (val line : rawText.split("\\R")) {
                 val trimmed = line.trim();
                 if (trimmed.contains(priority)) {
-                    return trimmed;
+                    if (!trimmed.contains("ManchesterOWLSyntaxOntologyParser")) {
+                        return trimmed;
+                    }
+                    fallbackCandidates.add(trimmed);
                 }
+            }
+            if (!fallbackCandidates.isEmpty()) {
+                return fallbackCandidates.get(0);
             }
         }
 
@@ -643,6 +650,7 @@ public class ContoService {
         return detail
                 .replaceAll("file:/tmp/conto-diff-[^\\s)]*/", "")
                 .replaceAll("/tmp/conto-diff-[^\\s)]*/", "")
+                .replaceAll("\\s+[\\w.$]+\\([\\w.]+\\.java:\\d+\\).*", "")
                 .replaceAll("\\s+", " ")
                 .trim();
     }
