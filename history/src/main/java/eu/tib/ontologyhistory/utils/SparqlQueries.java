@@ -119,14 +119,17 @@ public class SparqlQueries {
             
               ?second_commit prov:wasRevisionOf ?first_commit .
               ?second_commit prov:generatedAtTime ?second_commit_time .
+              ?second_commit rdfs:label ?second_commit_label .
               ?first_commit prov:value ?first_commit_title .
               ?first_commit prov:generatedAtTime ?first_commit_time .
-              ?operation ?pp ?second_commit .
+              ?operation ?pp ?operation_commit .
               FILTER(?pp != prov:atLocation &&
                      ?pp != prov:wasAssociatedWith &&
                      ?pp != prov:dm &&
                      ?pp != rdf:type &&
                      ?pp != rdfs:label) .
+              BIND(REPLACE(STR(?operation_commit), "^.*/", "") AS ?operation_commit_label) .
+              FILTER(?operation_commit = ?second_commit || ?operation_commit_label = STR(?second_commit_label)) .
               OPTIONAL { ?pp rdfs:label ?operation_label . }
               BIND(COALESCE(?operation_label, STRAFTER(STR(?pp), "#"), STR(?pp)) AS ?pp_label) .
               ?operation prov:atLocation ?location .
@@ -157,12 +160,14 @@ public class SparqlQueries {
               ?commit_id prov:value ?message .
               ?commit_id prov:alternateOf ?ontology_url .
               ?ontology_url rdfs:seeAlso ?label .
-              ?operation ?pp ?commit_id .
+              ?operation ?pp ?operation_commit .
               FILTER(?pp != prov:atLocation &&
                      ?pp != prov:wasAssociatedWith &&
                      ?pp != prov:dm &&
                      ?pp != rdf:type &&
                      ?pp != rdfs:label) .
+              BIND(REPLACE(STR(?operation_commit), "^.*/", "") AS ?operation_commit_label) .
+              FILTER(?operation_commit = ?commit_id || ?operation_commit_label = STR(?githubCommit)) .
               OPTIONAL { ?pp rdfs:label ?operation_label . }
               BIND(COALESCE(?operation_label, STRAFTER(STR(?pp), "#"), STR(?pp)) AS ?pp_label) .
               ?operation prov:atLocation ?location .
@@ -186,15 +191,18 @@ public class SparqlQueries {
               ?first_commit prov:wasRevisionOf ?second_commit .
               ?first_commit prov:generatedAtTime ?first_commit_time .
               ?first_commit prov:value ?first_commit_title .
-              ?operation ?function ?first_commit .
+              ?first_commit rdfs:label ?first_commit_label .
+              ?operation ?function ?operation_commit .
               FILTER(?function != prov:atLocation &&
                      ?function != prov:wasAssociatedWith &&
                      ?function != prov:dm &&
                      ?function != rdf:type &&
                      ?function != rdfs:label) .
+              BIND(REPLACE(STR(?operation_commit), "^.*/", "") AS ?operation_commit_label) .
+              FILTER(?operation_commit = ?first_commit || ?operation_commit_label = STR(?first_commit_label)) .
               ?operation prov:atLocation ?location .
               ?location prov:dm ?diff .
-              ?commit_id prov:alternateOf ?ontology_url .
+              ?first_commit prov:alternateOf ?ontology_url .
               ?ontology_url rdfs:seeAlso ?label .
             
               GRAPH ?diff {
@@ -211,7 +219,17 @@ public class SparqlQueries {
             
              WHERE {
             
+               ?commit_id rdfs:label ?githubCommit .
+               ?commit_id prov:alternateOf ?ontology_url .
                ?operation prov:atLocation ?location .
+               ?operation ?pp ?operation_commit .
+               FILTER(?pp != prov:atLocation &&
+                      ?pp != prov:wasAssociatedWith &&
+                      ?pp != prov:dm &&
+                      ?pp != rdf:type &&
+                      ?pp != rdfs:label) .
+               BIND(REPLACE(STR(?operation_commit), "^.*/", "") AS ?operation_commit_label) .
+               FILTER(?operation_commit = ?commit_id || ?operation_commit_label = STR(?githubCommit)) .
                ?location prov:dm ?diff .
                ?ontology_url rdfs:seeAlso ?label .
             
@@ -232,12 +250,15 @@ public class SparqlQueries {
               ?second_commit prov:generatedAtTime ?second_commit_time .
               ?first_commit prov:value ?first_commit_title .
               ?first_commit prov:generatedAtTime ?first_commit_time .
-              ?operation ?pp ?second_commit .
+              ?second_commit rdfs:label ?second_commit_label .
+              ?operation ?pp ?operation_commit .
               FILTER(?pp != prov:atLocation &&
                      ?pp != prov:wasAssociatedWith &&
                      ?pp != prov:dm &&
                      ?pp != rdf:type &&
                      ?pp != rdfs:label) .
+              BIND(REPLACE(STR(?operation_commit), "^.*/", "") AS ?operation_commit_label) .
+              FILTER(?operation_commit = ?second_commit || ?operation_commit_label = STR(?second_commit_label)) .
               OPTIONAL { ?pp rdfs:label ?operation_label . }
               BIND(COALESCE(?operation_label, STRAFTER(STR(?pp), "#"), STR(?pp)) AS ?pp_label) .
               ?operation prov:atLocation ?location .

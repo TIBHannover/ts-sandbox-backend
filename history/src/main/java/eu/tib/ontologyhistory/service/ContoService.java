@@ -523,12 +523,14 @@ public class ContoService {
                         ASK
                         WHERE {
                           ?commit_id rdfs:label ?githubCommit .
-                          ?operation ?pp ?commit_id .
+                          ?operation ?pp ?operation_commit .
                           FILTER(?pp != prov:atLocation &&
                                  ?pp != prov:wasAssociatedWith &&
                                  ?pp != prov:dm &&
                                  ?pp != rdf:type &&
                                  ?pp != rdfs:label) .
+                          BIND(REPLACE(STR(?operation_commit), "^.*/", "") AS ?operation_commit_label) .
+                          FILTER(?operation_commit = ?commit_id || ?operation_commit_label = STR(?githubCommit)) .
                           ?operation prov:atLocation ?location .
                           ?location prov:dm ?diff .
 
