@@ -68,6 +68,8 @@ public class ContoService {
 
     private static final String STAGE_EMPTY_CHANGE_GRAPH = "EMPTY_CHANGE_GRAPH";
 
+    private static final String STAGE_UNLINKED_CHANGE_GRAPH = "UNLINKED_CHANGE_GRAPH";
+
     private static final String STAGE_FUSEKI_UPLOAD = "FUSEKI_UPLOAD";
 
     private static final String STAGE_QUERY_VERIFICATION = "QUERY_VERIFICATION";
@@ -398,9 +400,15 @@ public class ContoService {
         try {
             val changes = findTimelineChanges(diffAdd.parentSha(), dataset);
             if (changes.isEmpty()) {
-                recordInvalidDiff(uri, diffAdd, STAGE_QUERY_VERIFICATION,
-                        "COnto generated and uploaded output, but no queryable changes were found for this commit. This usually means the generated RDF shape does not match the SPARQL query assumptions or COnto produced metadata without concrete change triples.",
-                        null, generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
+                if (hasTimelineOperationLinks(diffAdd.parentSha(), dataset)) {
+                    recordInvalidDiff(uri, diffAdd, STAGE_QUERY_VERIFICATION,
+                            "COnto generated and uploaded output, but no queryable changes were found for this commit. This usually means the generated RDF shape does not match the SPARQL query assumptions.",
+                            null, generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
+                } else {
+                    recordInvalidDiff(uri, diffAdd, STAGE_UNLINKED_CHANGE_GRAPH,
+                            "COnto generated N-Quads, but did not link any change operation to this commit. The output cannot be displayed reliably because the commit metadata and change graphs are disconnected.",
+                            null, generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
+                }
             } else {
                 log.info("COnto generated {} queryable change(s) for ontology {} commit {}. output.ttl={} bytes, all_diffs.nq={} bytes",
                         changes.size(), uri, diffAdd.parentSha(), generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
@@ -493,6 +501,39 @@ public class ContoService {
             });
         }
         return result;
+    }
+
+    private boolean hasTimelineOperationLinks(String commitId, String dataset) {
+        String datasetServiceUrl = FUSEKI_DOCKER_CONN_STRING + dataset;
+        RDFConnectionRemoteBuilder builder = RDFConnectionFuseki.create()
+                .destination(datasetServiceUrl);
+        val hasOperation = new boolean[]{false};
+        try (RDFConnectionFuseki conn = (RDFConnectionFuseki) builder.build()) {
+            Txn.executeRead(conn, () -> {
+                ParameterizedSparqlString graphQuery = new ParameterizedSparqlString();
+                graphQuery.setCommandText(SparqlQueries.ONDET_PREFIXES + """
+                        ASK
+                        WHERE {
+                          ?commit_id rdfs:label ?githubCommit .
+                          ?operation ?pp ?commit_id .
+                          FILTER(?pp != prov:atLocation &&
+                                 ?pp != prov:wasAssociatedWith &&
+                                 ?pp != prov:dm &&
+                                 ?pp != rdf:type &&
+                                 ?pp != rdfs:label) .
+                          ?operation prov:atLocation ?location .
+                          ?location prov:dm ?diff .
+
+                          FILTER(str(?githubCommit) = ?commitId) .
+                        }
+                        """);
+                graphQuery.setLiteral("commitId", commitId);
+                try (QueryExecution qExec = QueryExecutionFactory.sparqlService(datasetServiceUrl, graphQuery.asQuery())) {
+                    hasOperation[0] = qExec.execAsk();
+                }
+            });
+        }
+        return hasOperation[0];
     }
 
     private void recordInvalidDiff(URI uri, DiffAdd diffAdd, String stage, String userMessage, Exception exception,
