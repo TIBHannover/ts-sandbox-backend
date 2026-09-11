@@ -66,6 +66,8 @@ public class ContoService {
 
     private static final String STAGE_OUTPUT_VALIDATION = "OUTPUT_VALIDATION";
 
+    private static final String STAGE_EMPTY_CHANGE_GRAPH = "EMPTY_CHANGE_GRAPH";
+
     private static final String STAGE_FUSEKI_UPLOAD = "FUSEKI_UPLOAD";
 
     private static final String STAGE_QUERY_VERIFICATION = "QUERY_VERIFICATION";
@@ -372,9 +374,16 @@ public class ContoService {
 
         try {
             validateGeneratedFile(generatedFiles.outputFile(), OUTPUT_FILE);
-            validateGeneratedFile(generatedFiles.quadFile(), QUAD_FILE);
+            validateGeneratedChangeGraph(generatedFiles.quadFile());
         } catch (Exception e) {
             recordInvalidDiff(uri, diffAdd, STAGE_OUTPUT_VALIDATION, "COnto finished, but one or more generated output files were missing or empty.", e, generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
+            return;
+        }
+
+        if (generatedFiles.quadSizeBytes() == 0) {
+            recordInvalidDiff(uri, diffAdd, STAGE_EMPTY_CHANGE_GRAPH,
+                    "COnto did not produce queryable change triples for this commit. Git diff and ROBOT may still show changes, but this edit was not represented by COnto's change model.",
+                    null, generatedFiles.outputSizeBytes(), generatedFiles.quadSizeBytes());
             return;
         }
 
@@ -446,6 +455,12 @@ public class ContoService {
         }
         if (fileSize(file) == 0) {
             throw new IllegalStateException(label + " was created by COnto but is empty");
+        }
+    }
+
+    private void validateGeneratedChangeGraph(Path file) {
+        if (!Files.exists(file)) {
+            throw new IllegalStateException(QUAD_FILE + " was not created by COnto");
         }
     }
 
