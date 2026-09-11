@@ -122,8 +122,13 @@ public class SparqlQueries {
               ?first_commit prov:value ?first_commit_title .
               ?first_commit prov:generatedAtTime ?first_commit_time .
               ?operation ?pp ?second_commit .
-              ?pp rdfs:subPropertyOf ?property .
-              ?pp rdfs:label ?pp_label .
+              FILTER(?pp != prov:atLocation &&
+                     ?pp != prov:wasAssociatedWith &&
+                     ?pp != prov:dm &&
+                     ?pp != rdf:type &&
+                     ?pp != rdfs:label) .
+              OPTIONAL { ?pp rdfs:label ?operation_label . }
+              BIND(COALESCE(?operation_label, STRAFTER(STR(?pp), "#"), STR(?pp)) AS ?pp_label) .
               ?operation prov:atLocation ?location .
               ?location prov:dm ?diff .
               ?second_commit prov:alternateOf ?ontology_url .
@@ -153,8 +158,13 @@ public class SparqlQueries {
               ?commit_id prov:alternateOf ?ontology_url .
               ?ontology_url rdfs:seeAlso ?label .
               ?operation ?pp ?commit_id .
-              ?pp rdfs:subPropertyOf ?property .
-              ?pp rdfs:label ?pp_label .
+              FILTER(?pp != prov:atLocation &&
+                     ?pp != prov:wasAssociatedWith &&
+                     ?pp != prov:dm &&
+                     ?pp != rdf:type &&
+                     ?pp != rdfs:label) .
+              OPTIONAL { ?pp rdfs:label ?operation_label . }
+              BIND(COALESCE(?operation_label, STRAFTER(STR(?pp), "#"), STR(?pp)) AS ?pp_label) .
               ?operation prov:atLocation ?location .
               ?location prov:dm ?diff .
             
@@ -177,7 +187,11 @@ public class SparqlQueries {
               ?first_commit prov:generatedAtTime ?first_commit_time .
               ?first_commit prov:value ?first_commit_title .
               ?operation ?function ?first_commit .
-              ?function rdfs:subPropertyOf ?property .
+              FILTER(?function != prov:atLocation &&
+                     ?function != prov:wasAssociatedWith &&
+                     ?function != prov:dm &&
+                     ?function != rdf:type &&
+                     ?function != rdfs:label) .
               ?operation prov:atLocation ?location .
               ?location prov:dm ?diff .
               ?commit_id prov:alternateOf ?ontology_url .
@@ -219,8 +233,13 @@ public class SparqlQueries {
               ?first_commit prov:value ?first_commit_title .
               ?first_commit prov:generatedAtTime ?first_commit_time .
               ?operation ?pp ?second_commit .
-              ?pp rdfs:subPropertyOf ?property .
-              ?pp rdfs:label ?pp_label .
+              FILTER(?pp != prov:atLocation &&
+                     ?pp != prov:wasAssociatedWith &&
+                     ?pp != prov:dm &&
+                     ?pp != rdf:type &&
+                     ?pp != rdfs:label) .
+              OPTIONAL { ?pp rdfs:label ?operation_label . }
+              BIND(COALESCE(?operation_label, STRAFTER(STR(?pp), "#"), STR(?pp)) AS ?pp_label) .
               ?operation prov:atLocation ?location .
               ?location prov:dm ?diff .
               ?second_commit prov:alternateOf ?ontology_url .
