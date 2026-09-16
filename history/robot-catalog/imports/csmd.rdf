@@ -1,0 +1,3138 @@
+@prefix : <http://www.purl.org/net/CSMD/4.0/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix CSMD: <http://www.purl.org/net/CSMD/4.0#> .
+@prefix csmd: <csmd:> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd2: <xsd:> .
+@base <http://www.purl.org/net/CSMD/4.0> .
+
+<http://www.purl.org/net/CSMD/4.0> rdf:type owl:Ontology .
+
+
+#################################################################
+#
+#    Annotation properties
+#
+#################################################################
+
+
+###  csmd:datafile_datafileFormat
+
+csmd:datafile_datafileFormat rdf:type owl:AnnotationProperty ;
+                             
+                             rdfs:label "datafile_datafileFormat" ;
+                             
+                             rdfs:comment "" .
+
+
+
+###  csmd:datafile_dataset
+
+csmd:datafile_dataset rdf:type owl:AnnotationProperty ;
+                      
+                      rdfs:label "datafile_dataset" ;
+                      
+                      rdfs:comment "The dataset which holds this file" .
+
+
+
+###  csmd:datafileformat_facility
+
+csmd:datafileformat_facility rdf:type owl:AnnotationProperty ;
+                             
+                             rdfs:label "datafileformat_facility" ;
+                             
+                             rdfs:comment "The facility which has defined this format" .
+
+
+
+###  csmd:datafileparameter_datafile
+
+csmd:datafileparameter_datafile rdf:type owl:AnnotationProperty ;
+                                
+                                rdfs:label "datafileparameter_datafile" ;
+                                
+                                rdfs:comment "The associated data file" .
+
+
+
+###  csmd:dataset_investigation
+
+csmd:dataset_investigation rdf:type owl:AnnotationProperty ;
+                           
+                           rdfs:label "dataset_investigation" ;
+                           
+                           rdfs:comment "The investigation associated with an dataset" ,
+                                        "" .
+
+
+
+###  csmd:dataset_sample
+
+csmd:dataset_sample rdf:type owl:AnnotationProperty ;
+                    
+                    rdfs:label "dataset_sample" ;
+                    
+                    rdfs:comment "" ,
+                                 "A Sample associated with a dataset" .
+
+
+
+###  csmd:dataset_type
+
+csmd:dataset_type rdf:type owl:AnnotationProperty ;
+                  
+                  rdfs:label "dataset_type" ;
+                  
+                  rdfs:comment "The type of a dataset" ,
+                               "" .
+
+
+
+###  csmd:datasetparameter_dataset
+
+csmd:datasetparameter_dataset rdf:type owl:AnnotationProperty ;
+                              
+                              rdfs:label "datasetparameter_dataset" ;
+                              
+                              rdfs:comment "The associated data set" .
+
+
+
+###  csmd:datasettype_facility
+
+csmd:datasettype_facility rdf:type owl:AnnotationProperty ;
+                          
+                          rdfs:label "datasettype_facility" ;
+                          
+                          rdfs:comment "The facility which has defined this data set type" .
+
+
+
+###  csmd:facilitycycle_facility
+
+csmd:facilitycycle_facility rdf:type owl:AnnotationProperty ;
+                            
+                            rdfs:label "facilitycycle_facility" ;
+                            
+                            rdfs:comment "The facility which has this cycle" .
+
+
+
+###  csmd:instrument_facility
+
+csmd:instrument_facility rdf:type owl:AnnotationProperty ;
+                         
+                         rdfs:label "instrument_facility" ;
+                         
+                         rdfs:comment "The facility which has this instrument" .
+
+
+
+###  csmd:investigation_facility
+
+csmd:investigation_facility rdf:type owl:AnnotationProperty ;
+                            
+                            rdfs:label "investigation_facility" ;
+                            
+                            rdfs:comment "The facility an investigation takes place within" ,
+                                         "" .
+
+
+
+###  csmd:investigation_facilityCycle
+
+csmd:investigation_facilityCycle rdf:type owl:AnnotationProperty ;
+                                 
+                                 rdfs:label "investigation_facilityCycle" ;
+                                 
+                                 rdfs:comment "The facility cycle an investigation takes place in" ,
+                                              "" .
+
+
+
+###  csmd:investigation_instrument
+
+csmd:investigation_instrument rdf:type owl:AnnotationProperty ;
+                              
+                              rdfs:label "investigation_instrument" ;
+                              
+                              rdfs:comment "The instrument used in an investigation" ,
+                                           "" .
+
+
+
+###  csmd:investigation_type
+
+csmd:investigation_type rdf:type owl:AnnotationProperty ;
+                        
+                        rdfs:label "investigation_type" ;
+                        
+                        rdfs:comment "" ,
+                                     "The type of an investigation" .
+
+
+
+###  csmd:investigationparameter_investigation
+
+csmd:investigationparameter_investigation rdf:type owl:AnnotationProperty ;
+                                          
+                                          rdfs:label "investigationparameter_investigation" ;
+                                          
+                                          rdfs:comment "The associated investigation of a parameter" ,
+                                                       "The associated investigation" .
+
+
+
+###  csmd:investigationtype_facility
+
+csmd:investigationtype_facility rdf:type owl:AnnotationProperty ;
+                                
+                                rdfs:label "investigationtype_facility" ;
+                                
+                                rdfs:comment "The facility which has defined this investigation type" .
+
+
+
+###  csmd:investigationuser_investigation
+
+csmd:investigationuser_investigation rdf:type owl:AnnotationProperty ;
+                                     
+                                     rdfs:label "investigationuser_investigation" ;
+                                     
+                                     rdfs:comment "" ,
+                                                  "The investigation a user contributes to in a particular role" .
+
+
+
+###  csmd:investigationuser_user
+
+csmd:investigationuser_user rdf:type owl:AnnotationProperty ;
+                            
+                            rdfs:label "investigationuser_user" ;
+                            
+                            rdfs:comment "" .
+
+
+
+###  csmd:job_application
+
+csmd:job_application rdf:type owl:AnnotationProperty ;
+                     
+                     rdfs:label "job_application" ;
+                     
+                     rdfs:comment "A Software Application used to run a job" ,
+                                  "" .
+
+
+
+###  csmd:keyword_investigation
+
+csmd:keyword_investigation rdf:type owl:AnnotationProperty ;
+                           
+                           rdfs:label "keyword_investigation" ;
+                           
+                           rdfs:comment "The investigation to which this keyword applies" .
+
+
+
+###  csmd:parametertype_facility
+
+csmd:parametertype_facility rdf:type owl:AnnotationProperty ;
+                            
+                            rdfs:label "parametertype_facility" ;
+                            
+                            rdfs:comment "The facility which has defined this data set type" .
+
+
+
+###  csmd:permissiblestringvalue_type
+
+csmd:permissiblestringvalue_type rdf:type owl:AnnotationProperty ;
+                                 
+                                 rdfs:label "permissiblestringvalue_parametertype" ;
+                                 
+                                 rdfs:comment "The parameter type to which this permissible string value applies" .
+
+
+
+###  csmd:publication_investigation
+
+csmd:publication_investigation rdf:type owl:AnnotationProperty ;
+                               
+                               rdfs:label "publication_investigation" ;
+                               
+                               rdfs:comment "" .
+
+
+
+###  csmd:relateddatafile_destDatafile
+
+csmd:relateddatafile_destDatafile rdf:type owl:AnnotationProperty ;
+                                  
+                                  rdfs:label "relateddatafile_destDatafile" ;
+                                  
+                                  rdfs:comment "" .
+
+
+
+###  csmd:relateddatafile_sourceDatafile
+
+csmd:relateddatafile_sourceDatafile rdf:type owl:AnnotationProperty ;
+                                    
+                                    rdfs:label "relateddatafile_sourceDatafile" ;
+                                    
+                                    rdfs:comment "" .
+
+
+
+###  csmd:rule_group
+
+csmd:rule_group rdf:type owl:AnnotationProperty ;
+                
+                rdfs:label "rule_group" ;
+                
+                rdfs:comment "" ;
+                
+                rdfs:domain csmd:Rule .
+
+
+
+###  csmd:sample_investigation
+
+csmd:sample_investigation rdf:type owl:AnnotationProperty ;
+                          
+                          rdfs:label "sample_investigation" ;
+                          
+                          rdfs:comment "" .
+
+
+
+###  csmd:sample_type
+
+csmd:sample_type rdf:type owl:AnnotationProperty ;
+                 
+                 rdfs:label "sample_type" ;
+                 
+                 rdfs:comment "" .
+
+
+
+###  csmd:sampleparameter_sample
+
+csmd:sampleparameter_sample rdf:type owl:AnnotationProperty ;
+                            
+                            rdfs:label "sampleparameter_sample" ;
+                            
+                            rdfs:comment "The associated sample" .
+
+
+
+###  csmd:sampletype_facility
+
+csmd:sampletype_facility rdf:type owl:AnnotationProperty ;
+                         
+                         rdfs:label "sampletype_facility" ;
+                         
+                         rdfs:comment "The facility which has defined this sample type" .
+
+
+
+###  csmd:shift_investigation
+
+csmd:shift_investigation rdf:type owl:AnnotationProperty ;
+                         
+                         rdfs:label "shift_investigation" ;
+                         
+                         rdfs:comment "" .
+
+
+
+###  csmd:study_user
+
+csmd:study_user rdf:type owl:AnnotationProperty ;
+                
+                rdfs:label "study_user" ;
+                
+                rdfs:comment "The user responsible for the study" .
+
+
+
+###  csmd:studyinvestigation_investigation
+
+csmd:studyinvestigation_investigation rdf:type owl:AnnotationProperty ;
+                                      
+                                      rdfs:label "studyinvestigation_investigation" ;
+                                      
+                                      rdfs:comment "" .
+
+
+
+###  csmd:studyinvestigation_study
+
+csmd:studyinvestigation_study rdf:type owl:AnnotationProperty ;
+                              
+                              rdfs:label "studyinvestigation_study" ;
+                              
+                              rdfs:comment "" .
+
+
+
+###  csmd:usergroup_group
+
+csmd:usergroup_group rdf:type owl:AnnotationProperty ;
+                     
+                     rdfs:label "usergroup_group" ;
+                     
+                     rdfs:comment "" ;
+                     
+                     rdfs:domain csmd:UserGroup .
+
+
+
+
+
+#################################################################
+#
+#    Datatypes
+#
+#################################################################
+
+
+###  http://www.w3.org/2001/XMLSchema#date
+
+xsd:date rdf:type rdfs:Datatype .
+
+
+
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+###  csmd:application_job
+
+csmd:application_job rdf:type owl:ObjectProperty ;
+                     
+                     rdfs:label "application_job" ;
+                     
+                     rdfs:comment "" ;
+                     
+                     rdfs:domain csmd:Application ;
+                     
+                     rdfs:range csmd:Job ;
+                     
+                     owl:inverseOf csmd:job_application .
+
+
+
+###  csmd:datafile_datafileFormat
+
+csmd:datafile_datafileFormat rdf:type owl:FunctionalProperty ,
+                                      owl:ObjectProperty ;
+                             
+                             rdfs:label "datafile_datafileFormat" ;
+                             
+                             rdfs:comment "" ;
+                             
+                             rdfs:domain csmd:Datafile ;
+                             
+                             rdfs:range csmd:DatafileFormat ;
+                             
+                             owl:inverseOf csmd:datafileformat_datafile .
+
+
+
+###  csmd:datafile_dataset
+
+csmd:datafile_dataset rdf:type owl:FunctionalProperty ,
+                               owl:ObjectProperty ;
+                      
+                      rdfs:label "datafile_dataset" ;
+                      
+                      rdfs:comment "The dataset which holds this file" ;
+                      
+                      rdfs:domain csmd:Datafile ;
+                      
+                      rdfs:range csmd:Dataset ;
+                      
+                      owl:inverseOf csmd:dataset_datafile .
+
+
+
+###  csmd:datafile_destDatafile
+
+csmd:datafile_destDatafile rdf:type owl:ObjectProperty ;
+                           
+                           rdfs:label "datafile_destDatafile" ;
+                           
+                           rdfs:comment "the destination data file in a datafile-datafile relation" ;
+                           
+                           rdfs:domain csmd:Datafile ;
+                           
+                           rdfs:range csmd:RelatedDatafile .
+
+
+
+###  csmd:datafile_parameter
+
+csmd:datafile_parameter rdf:type owl:ObjectProperty ;
+                        
+                        rdfs:label "datafile_parameter" ;
+                        
+                        rdfs:comment """Association of a datafile and a parameter
+        associated with that datafile""" ;
+                        
+                        rdfs:domain csmd:Datafile ;
+                        
+                        rdfs:range csmd:DatafileParameter .
+
+
+
+###  csmd:datafile_sourceDatafile
+
+csmd:datafile_sourceDatafile rdf:type owl:ObjectProperty ;
+                             
+                             rdfs:label "datafile_sourceDatafile" ;
+                             
+                             rdfs:comment "the destination data file in a datafile-datafile relation" ;
+                             
+                             rdfs:domain csmd:Datafile ;
+                             
+                             rdfs:range csmd:RelatedDatafile .
+
+
+
+###  csmd:datafileformat_datafile
+
+csmd:datafileformat_datafile rdf:type owl:ObjectProperty ;
+                             
+                             rdfs:label "datafileformat_datafile" ;
+                             
+                             rdfs:comment "Files with this format" ;
+                             
+                             rdfs:range csmd:Datafile ;
+                             
+                             rdfs:domain csmd:DatafileFormat .
+
+
+
+###  csmd:datafileformat_facility
+
+csmd:datafileformat_facility rdf:type owl:FunctionalProperty ,
+                                      owl:ObjectProperty ;
+                             
+                             rdfs:label "datafileformat_facility" ;
+                             
+                             rdfs:comment "The facility which has defined this format" ;
+                             
+                             rdfs:domain csmd:DatafileFormat ;
+                             
+                             rdfs:range csmd:Facility ;
+                             
+                             owl:inverseOf csmd:facility_datafileFormat .
+
+
+
+###  csmd:datafileparameter_datafile
+
+csmd:datafileparameter_datafile rdf:type owl:FunctionalProperty ,
+                                         owl:ObjectProperty ;
+                                
+                                rdfs:label "datafileparameter_datafile" ;
+                                
+                                rdfs:comment "The associated data file" ;
+                                
+                                rdfs:range csmd:Datafile ;
+                                
+                                rdfs:domain csmd:DatafileParameter ;
+                                
+                                owl:inverseOf csmd:datafile_parameter .
+
+
+
+###  csmd:dataset_datafile
+
+csmd:dataset_datafile rdf:type owl:ObjectProperty ;
+                      
+                      rdfs:label "dataset_datafile" ;
+                      
+                      rdfs:comment "A data file within the dataset" ;
+                      
+                      rdfs:range csmd:Datafile ;
+                      
+                      rdfs:domain csmd:Dataset .
+
+
+
+###  csmd:dataset_investigation
+
+csmd:dataset_investigation rdf:type owl:FunctionalProperty ,
+                                    owl:ObjectProperty ;
+                           
+                           rdfs:label "dataset_investigation" ;
+                           
+                           rdfs:comment "The investigation associated with an dataset" ,
+                                        "" ;
+                           
+                           rdfs:domain csmd:Dataset ;
+                           
+                           rdfs:range csmd:Investigation ;
+                           
+                           owl:inverseOf csmd:investigation_dataset .
+
+
+
+###  csmd:dataset_parameter
+
+csmd:dataset_parameter rdf:type owl:ObjectProperty ;
+                       
+                       rdfs:label "dataset_parameter" ;
+                       
+                       rdfs:comment "A Parameter associated with a Dataset" ;
+                       
+                       rdfs:domain csmd:Dataset ;
+                       
+                       rdfs:range csmd:DatasetParameter .
+
+
+
+###  csmd:dataset_sample
+
+csmd:dataset_sample rdf:type owl:FunctionalProperty ,
+                             owl:ObjectProperty ;
+                    
+                    rdfs:label "dataset_sample" ;
+                    
+                    rdfs:comment "" ,
+                                 "A Sample associated with a dataset" ;
+                    
+                    rdfs:domain csmd:Dataset ;
+                    
+                    rdfs:range csmd:Sample ;
+                    
+                    owl:inverseOf csmd:sample_dataset .
+
+
+
+###  csmd:dataset_type
+
+csmd:dataset_type rdf:type owl:FunctionalProperty ,
+                           owl:ObjectProperty ;
+                  
+                  rdfs:label "dataset_type" ;
+                  
+                  rdfs:comment "The type of a dataset" ,
+                               "" ;
+                  
+                  rdfs:domain csmd:Dataset ;
+                  
+                  rdfs:range csmd:DatasetType ;
+                  
+                  owl:inverseOf csmd:datasettype_dataset .
+
+
+
+###  csmd:datasetparameter_dataset
+
+csmd:datasetparameter_dataset rdf:type owl:FunctionalProperty ,
+                                       owl:ObjectProperty ;
+                              
+                              rdfs:label "datasetparameter_dataset" ;
+                              
+                              rdfs:comment "The associated data set" ;
+                              
+                              rdfs:range csmd:Dataset ;
+                              
+                              rdfs:domain csmd:DatasetParameter ;
+                              
+                              owl:inverseOf csmd:dataset_parameter .
+
+
+
+###  csmd:datasettype_dataset
+
+csmd:datasettype_dataset rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:label "datasettype_dataset" ;
+                         
+                         rdfs:comment "A dataset which is of a given type." ;
+                         
+                         rdfs:range csmd:Dataset ;
+                         
+                         rdfs:domain csmd:DatasetType .
+
+
+
+###  csmd:datasettype_facility
+
+csmd:datasettype_facility rdf:type owl:FunctionalProperty ,
+                                   owl:ObjectProperty ;
+                          
+                          rdfs:label "datasettype_facility" ;
+                          
+                          rdfs:comment "The facility which has defined this data set type" ;
+                          
+                          rdfs:domain csmd:DatasetType ;
+                          
+                          rdfs:range csmd:Facility ;
+                          
+                          owl:inverseOf csmd:facility_datasetType .
+
+
+
+###  csmd:facility_datafileFormat
+
+csmd:facility_datafileFormat rdf:type owl:ObjectProperty ;
+                             
+                             rdfs:label "facility_datafileformat" ;
+                             
+                             rdfs:comment "A datafile format supported by a facility" ;
+                             
+                             rdfs:range csmd:DatafileFormat ;
+                             
+                             rdfs:domain csmd:Facility .
+
+
+
+###  csmd:facility_datasetType
+
+csmd:facility_datasetType rdf:type owl:ObjectProperty ;
+                          
+                          rdfs:label "facility_datasetType" ;
+                          
+                          rdfs:comment "The types of datasets supported by a facility" ;
+                          
+                          rdfs:range csmd:DatasetType ;
+                          
+                          rdfs:domain csmd:Facility .
+
+
+
+###  csmd:facility_facilityCycle
+
+csmd:facility_facilityCycle rdf:type owl:ObjectProperty ;
+                            
+                            rdfs:label "facility_facilityCycle" ;
+                            
+                            rdfs:comment "A Facility cycle (period of facility availability) offered by a facility." ;
+                            
+                            rdfs:domain csmd:Facility ;
+                            
+                            rdfs:range csmd:FacilityCycle ;
+                            
+                            owl:inverseOf csmd:facilitycycle_facility .
+
+
+
+###  csmd:facility_instrument
+
+csmd:facility_instrument rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:label "facility_instrument" ;
+                         
+                         rdfs:comment "An Instrument supported by a facility." ;
+                         
+                         rdfs:domain csmd:Facility ;
+                         
+                         rdfs:range csmd:Instrument ;
+                         
+                         owl:inverseOf csmd:instrument_facility .
+
+
+
+###  csmd:facility_investigation
+
+csmd:facility_investigation rdf:type owl:ObjectProperty ;
+                            
+                            rdfs:label "facility_investigation" ;
+                            
+                            rdfs:comment "An Investigation undertaken within a facility" ;
+                            
+                            rdfs:domain csmd:Facility ;
+                            
+                            rdfs:range csmd:Investigation ;
+                            
+                            owl:inverseOf csmd:investigation_facility .
+
+
+
+###  csmd:facility_investigationType
+
+csmd:facility_investigationType rdf:type owl:ObjectProperty ;
+                                
+                                rdfs:label "facility_investigationType" ;
+                                
+                                rdfs:comment "An Investigation Type supported by a facility" ;
+                                
+                                rdfs:domain csmd:Facility ;
+                                
+                                rdfs:range csmd:InvestigationType ;
+                                
+                                owl:inverseOf csmd:investigationtype_facility .
+
+
+
+###  csmd:facility_parameterType
+
+csmd:facility_parameterType rdf:type owl:ObjectProperty ;
+                            
+                            rdfs:label "facility_parameterType" ;
+                            
+                            rdfs:comment "A parameter type supported by a facility" ;
+                            
+                            rdfs:domain csmd:Facility ;
+                            
+                            rdfs:range csmd:ParameterType ;
+                            
+                            owl:inverseOf csmd:parametertype_facility .
+
+
+
+###  csmd:facility_sampleType
+
+csmd:facility_sampleType rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:label "facility_sampleType" ;
+                         
+                         rdfs:comment "A Sample type supported by a facility" ;
+                         
+                         rdfs:domain csmd:Facility ;
+                         
+                         rdfs:range csmd:SampleType ;
+                         
+                         owl:inverseOf csmd:sampletype_facility .
+
+
+
+###  csmd:facilitycycle_facility
+
+csmd:facilitycycle_facility rdf:type owl:FunctionalProperty ,
+                                     owl:ObjectProperty ;
+                            
+                            rdfs:label "facilitycycle_facility" ;
+                            
+                            rdfs:comment "The facility which has this cycle" ;
+                            
+                            rdfs:range csmd:Facility ;
+                            
+                            rdfs:domain csmd:FacilityCycle .
+
+
+
+###  csmd:facilitycycle_investigation
+
+csmd:facilitycycle_investigation rdf:type owl:ObjectProperty ;
+                                 
+                                 rdfs:label "facilitycycle_investigation" ;
+                                 
+                                 rdfs:comment "an investigation within a particular facility cycle" ;
+                                 
+                                 rdfs:domain csmd:FacilityCycle ;
+                                 
+                                 rdfs:range csmd:Investigation ;
+                                 
+                                 owl:inverseOf csmd:investigation_facilityCycle .
+
+
+
+###  csmd:inputdatafile
+
+csmd:inputdatafile rdf:type owl:ObjectProperty ;
+                   
+                   rdfs:label "inputdatafile" ;
+                   
+                   rdfs:comment "an input datafile of a job " ;
+                   
+                   rdfs:range csmd:Datafile ;
+                   
+                   rdfs:domain csmd:Job .
+
+
+
+###  csmd:inputdataset
+
+csmd:inputdataset rdf:type owl:ObjectProperty ;
+                  
+                  rdfs:label "inputdataset" ,
+                             "user_studies" ;
+                  
+                  rdfs:comment "" ,
+                               "an input dataset of a job " ;
+                  
+                  rdfs:range csmd:Dataset ;
+                  
+                  rdfs:domain csmd:Job .
+
+
+
+###  csmd:instrument_facility
+
+csmd:instrument_facility rdf:type owl:FunctionalProperty ,
+                                  owl:ObjectProperty ;
+                         
+                         rdfs:label "instrument_facility" ;
+                         
+                         rdfs:comment "The facility which has this instrument" ;
+                         
+                         rdfs:range csmd:Facility ;
+                         
+                         rdfs:domain csmd:Instrument .
+
+
+
+###  csmd:instrument_instrumentScientist
+
+csmd:instrument_instrumentScientist rdf:type owl:ObjectProperty ;
+                                    
+                                    rdfs:label "instrument_instrumentScientist" ;
+                                    
+                                    rdfs:comment "An instrument scientist is a particular user with expertise on the instrument" ;
+                                    
+                                    rdfs:domain csmd:Instrument ;
+                                    
+                                    rdfs:range csmd:User ;
+                                    
+                                    owl:inverseOf csmd:instrumentscientist_instrument .
+
+
+
+###  csmd:instrument_investigation
+
+csmd:instrument_investigation rdf:type owl:ObjectProperty ;
+                              
+                              rdfs:label "instrument_investigation" ;
+                              
+                              rdfs:comment "an investigation which has be undertaken on an instrument" ;
+                              
+                              rdfs:domain csmd:Instrument ;
+                              
+                              rdfs:range csmd:Investigation ;
+                              
+                              owl:inverseOf csmd:investigation_instrument .
+
+
+
+###  csmd:instrumentscientist_instrument
+
+csmd:instrumentscientist_instrument rdf:type owl:ObjectProperty ;
+                                    
+                                    rdfs:label "instrumentscientist_instrument" ;
+                                    
+                                    rdfs:comment "" ;
+                                    
+                                    rdfs:range csmd:Instrument ;
+                                    
+                                    rdfs:domain csmd:User .
+
+
+
+###  csmd:investigation_dataset
+
+csmd:investigation_dataset rdf:type owl:InverseFunctionalProperty ,
+                                    owl:ObjectProperty ;
+                           
+                           rdfs:label "investigation_dataset" ;
+                           
+                           rdfs:comment "" ;
+                           
+                           rdfs:range csmd:Dataset ;
+                           
+                           rdfs:domain csmd:Investigation .
+
+
+
+###  csmd:investigation_facility
+
+csmd:investigation_facility rdf:type owl:FunctionalProperty ,
+                                     owl:ObjectProperty ;
+                            
+                            rdfs:label "investigation_facility" ;
+                            
+                            rdfs:comment "The facility an investigation takes place within" ,
+                                         "" ;
+                            
+                            rdfs:range csmd:Facility ;
+                            
+                            rdfs:domain csmd:Investigation .
+
+
+
+###  csmd:investigation_facilityCycle
+
+csmd:investigation_facilityCycle rdf:type owl:FunctionalProperty ,
+                                          owl:ObjectProperty ;
+                                 
+                                 rdfs:label "investigation_facilityCycle" ;
+                                 
+                                 rdfs:comment "The facility cycle an investigation takes place in" ,
+                                              "" ;
+                                 
+                                 rdfs:range csmd:FacilityCycle ;
+                                 
+                                 rdfs:domain csmd:Investigation .
+
+
+
+###  csmd:investigation_instrument
+
+csmd:investigation_instrument rdf:type owl:ObjectProperty ;
+                              
+                              rdfs:label "investigation_instrument" ;
+                              
+                              rdfs:comment "The instrument used in an investigation" ,
+                                           "" ;
+                              
+                              rdfs:range csmd:Instrument ;
+                              
+                              rdfs:domain csmd:Investigation .
+
+
+
+###  csmd:investigation_investigationUser
+
+csmd:investigation_investigationUser rdf:type owl:ObjectProperty ;
+                                     
+                                     rdfs:label "investigation_investigationUser" ;
+                                     
+                                     rdfs:comment "The user which contributes to an investigation" ;
+                                     
+                                     rdfs:domain csmd:Investigation ;
+                                     
+                                     rdfs:range csmd:InvestigationUser ;
+                                     
+                                     owl:inverseOf csmd:investigationuser_investigation .
+
+
+
+###  csmd:investigation_keyword
+
+csmd:investigation_keyword rdf:type owl:ObjectProperty ;
+                           
+                           rdfs:label "investigation_keyword" ;
+                           
+                           rdfs:comment "A keyword associated with an investigation" ;
+                           
+                           rdfs:domain csmd:Investigation ;
+                           
+                           rdfs:range csmd:Keyword ;
+                           
+                           owl:inverseOf csmd:keyword_investigation .
+
+
+
+###  csmd:investigation_parameter
+
+csmd:investigation_parameter rdf:type owl:ObjectProperty ;
+                             
+                             rdfs:label "investigation_parameter" ;
+                             
+                             rdfs:comment "A parameter associated with an investigation" ;
+                             
+                             rdfs:domain csmd:Investigation ;
+                             
+                             rdfs:range csmd:InvestigationParameter ;
+                             
+                             owl:inverseOf csmd:investigationparameter_investigation .
+
+
+
+###  csmd:investigation_publication
+
+csmd:investigation_publication rdf:type owl:ObjectProperty ;
+                               
+                               rdfs:label "investigation_publication" ;
+                               
+                               rdfs:comment "A publication associated with an investigation" ;
+                               
+                               rdfs:domain csmd:Investigation ;
+                               
+                               rdfs:range csmd:Publication ;
+                               
+                               owl:inverseOf csmd:publication_investigation .
+
+
+
+###  csmd:investigation_sample
+
+csmd:investigation_sample rdf:type owl:ObjectProperty ;
+                          
+                          rdfs:label "investigation_sample" ;
+                          
+                          rdfs:comment "A sample used within an investigation" ;
+                          
+                          rdfs:domain csmd:Investigation ;
+                          
+                          rdfs:range csmd:Sample ;
+                          
+                          owl:inverseOf csmd:sample_investigation .
+
+
+
+###  csmd:investigation_shift
+
+csmd:investigation_shift rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:label "investigation_shift" ;
+                         
+                         rdfs:comment "A shift in which the investifation took place." ;
+                         
+                         rdfs:domain csmd:Investigation ;
+                         
+                         rdfs:range csmd:Shift ;
+                         
+                         owl:inverseOf csmd:shift_investigation .
+
+
+
+###  csmd:investigation_study
+
+csmd:investigation_study rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:label "investigation_study" ;
+                         
+                         rdfs:comment "Association of a Study to an investigation" ;
+                         
+                         rdfs:domain csmd:Investigation ;
+                         
+                         rdfs:range csmd:Study ;
+                         
+                         owl:inverseOf csmd:study_investigation .
+
+
+
+###  csmd:investigation_type
+
+csmd:investigation_type rdf:type owl:FunctionalProperty ,
+                                 owl:ObjectProperty ;
+                        
+                        rdfs:label "investigation_type" ;
+                        
+                        rdfs:comment "" ,
+                                     "The type of an investigation" ;
+                        
+                        rdfs:domain csmd:Investigation ;
+                        
+                        rdfs:range csmd:InvestigationType ;
+                        
+                        owl:inverseOf csmd:investigationtype_investigation .
+
+
+
+###  csmd:investigationparameter_investigation
+
+csmd:investigationparameter_investigation rdf:type owl:FunctionalProperty ,
+                                                   owl:ObjectProperty ;
+                                          
+                                          rdfs:label "investigationparameter_investigation" ;
+                                          
+                                          rdfs:comment "The associated investigation of a parameter" ,
+                                                       "The associated investigation" ;
+                                          
+                                          rdfs:range csmd:Investigation ;
+                                          
+                                          rdfs:domain csmd:InvestigationParameter .
+
+
+
+###  csmd:investigationtype_facility
+
+csmd:investigationtype_facility rdf:type owl:FunctionalProperty ,
+                                         owl:ObjectProperty ;
+                                
+                                rdfs:label "investigationtype_facility" ;
+                                
+                                rdfs:comment "The facility which has defined this investigation type" ;
+                                
+                                rdfs:range csmd:Facility ;
+                                
+                                rdfs:domain csmd:InvestigationType .
+
+
+
+###  csmd:investigationtype_investigation
+
+csmd:investigationtype_investigation rdf:type owl:ObjectProperty ;
+                                     
+                                     rdfs:label "investigationtype_investigation" ;
+                                     
+                                     rdfs:comment "An investigation witha a particular type" ;
+                                     
+                                     rdfs:range csmd:Investigation ;
+                                     
+                                     rdfs:domain csmd:InvestigationType .
+
+
+
+###  csmd:investigationuser_investigation
+
+csmd:investigationuser_investigation rdf:type owl:FunctionalProperty ,
+                                              owl:ObjectProperty ;
+                                     
+                                     rdfs:label "investigationuser_investigation" ;
+                                     
+                                     rdfs:comment "" ,
+                                                  "The investigation a user contributes to in a particular role" ;
+                                     
+                                     rdfs:range csmd:Investigation ;
+                                     
+                                     rdfs:domain csmd:InvestigationUser .
+
+
+
+###  csmd:investigationuser_user
+
+csmd:investigationuser_user rdf:type owl:FunctionalProperty ,
+                                     owl:ObjectProperty ;
+                            
+                            rdfs:label "investigationuser_user" ;
+                            
+                            rdfs:comment "" ;
+                            
+                            rdfs:domain csmd:InvestigationUser ;
+                            
+                            rdfs:range csmd:User ;
+                            
+                            owl:inverseOf csmd:user_investigationUser .
+
+
+
+###  csmd:job_application
+
+csmd:job_application rdf:type owl:FunctionalProperty ,
+                              owl:ObjectProperty ;
+                     
+                     rdfs:label "job_application" ;
+                     
+                     rdfs:comment "A Software Application used to run a job" ,
+                                  "" ;
+                     
+                     rdfs:range csmd:Application ;
+                     
+                     rdfs:domain csmd:Job .
+
+
+
+###  csmd:keyword_investigation
+
+csmd:keyword_investigation rdf:type owl:FunctionalProperty ,
+                                    owl:ObjectProperty ;
+                           
+                           rdfs:label "keyword_investigation" ;
+                           
+                           rdfs:comment "The investigation to which this keyword applies" ;
+                           
+                           rdfs:range csmd:Investigation ;
+                           
+                           rdfs:domain csmd:Keyword .
+
+
+
+###  csmd:outputdatafile
+
+csmd:outputdatafile rdf:type owl:ObjectProperty ;
+                    
+                    rdfs:label "outputdatafile" ;
+                    
+                    rdfs:comment "an output datafile of a job " ;
+                    
+                    rdfs:range csmd:Datafile ;
+                    
+                    rdfs:domain csmd:Job .
+
+
+
+###  csmd:outputdataset
+
+csmd:outputdataset rdf:type owl:ObjectProperty ;
+                   
+                   rdfs:label "outputdataset" ;
+                   
+                   rdfs:comment "the output datasetof a job " ;
+                   
+                   rdfs:range csmd:Dataset ;
+                   
+                   rdfs:domain csmd:Job .
+
+
+
+###  csmd:parameter_type
+
+csmd:parameter_type rdf:type owl:FunctionalProperty ,
+                             owl:ObjectProperty ;
+                    
+                    rdfs:label "parameter_parametertype" ;
+                    
+                    rdfs:comment "The type of the parameter" ;
+                    
+                    rdfs:domain csmd:Parameter ;
+                    
+                    rdfs:range csmd:ParameterType .
+
+
+
+###  csmd:parametertype_facility
+
+csmd:parametertype_facility rdf:type owl:FunctionalProperty ,
+                                     owl:ObjectProperty ;
+                            
+                            rdfs:label "parametertype_facility" ;
+                            
+                            rdfs:comment "The facility which has defined this data set type" ;
+                            
+                            rdfs:range csmd:Facility ;
+                            
+                            rdfs:domain csmd:ParameterType .
+
+
+
+###  csmd:parametertype_permissiblestringvalue
+
+csmd:parametertype_permissiblestringvalue rdf:type owl:ObjectProperty ;
+                                          
+                                          rdfs:label "parametertype_permissiblestringvalue" ;
+                                          
+                                          rdfs:comment "" ;
+                                          
+                                          rdfs:domain csmd:ParameterType ;
+                                          
+                                          rdfs:range csmd:PermissibleStringValue ;
+                                          
+                                          owl:inverseOf csmd:permissiblestringvalue_type .
+
+
+
+###  csmd:permissiblestringvalue_type
+
+csmd:permissiblestringvalue_type rdf:type owl:FunctionalProperty ,
+                                          owl:ObjectProperty ;
+                                 
+                                 rdfs:label "permissiblestringvalue_parametertype" ;
+                                 
+                                 rdfs:comment "The parameter type to which this permissible string value applies" ;
+                                 
+                                 rdfs:range csmd:ParameterType ;
+                                 
+                                 rdfs:domain csmd:PermissibleStringValue .
+
+
+
+###  csmd:publication_investigation
+
+csmd:publication_investigation rdf:type owl:FunctionalProperty ,
+                                        owl:ObjectProperty ;
+                               
+                               rdfs:label "publication_investigation" ;
+                               
+                               rdfs:comment "" ;
+                               
+                               rdfs:range csmd:Investigation ;
+                               
+                               rdfs:domain csmd:Publication .
+
+
+
+###  csmd:relateddatafile_destDatafile
+
+csmd:relateddatafile_destDatafile rdf:type owl:ObjectProperty ;
+                                  
+                                  rdfs:label "relateddatafile_destDatafile" ;
+                                  
+                                  rdfs:comment "" ;
+                                  
+                                  rdfs:range csmd:Datafile ;
+                                  
+                                  rdfs:domain csmd:RelatedDatafile .
+
+
+
+###  csmd:relateddatafile_sourceDatafile
+
+csmd:relateddatafile_sourceDatafile rdf:type owl:ObjectProperty ;
+                                    
+                                    rdfs:label "relateddatafile_sourceDatafile" ;
+                                    
+                                    rdfs:comment "" ;
+                                    
+                                    rdfs:range csmd:Datafile ;
+                                    
+                                    rdfs:domain csmd:RelatedDatafile .
+
+
+
+###  csmd:sample_dataset
+
+csmd:sample_dataset rdf:type owl:ObjectProperty ;
+                    
+                    rdfs:label "sample_dataset" ;
+                    
+                    rdfs:comment "A dataset related to a sample" ;
+                    
+                    rdfs:range csmd:Dataset ;
+                    
+                    rdfs:domain csmd:Sample .
+
+
+
+###  csmd:sample_investigation
+
+csmd:sample_investigation rdf:type owl:FunctionalProperty ,
+                                   owl:ObjectProperty ;
+                          
+                          rdfs:label "sample_investigation" ;
+                          
+                          rdfs:comment "" ;
+                          
+                          rdfs:range csmd:Investigation ;
+                          
+                          rdfs:domain csmd:Sample .
+
+
+
+###  csmd:sample_parameter
+
+csmd:sample_parameter rdf:type owl:ObjectProperty ;
+                      
+                      rdfs:label "sample_parameter" ;
+                      
+                      rdfs:comment "A Parameter associated with a sample" ;
+                      
+                      rdfs:domain csmd:Sample ;
+                      
+                      rdfs:range csmd:SampleParameter ;
+                      
+                      owl:inverseOf csmd:sampleparameter_sample .
+
+
+
+###  csmd:sample_type
+
+csmd:sample_type rdf:type owl:ObjectProperty ;
+                 
+                 rdfs:label "sample_type" ;
+                 
+                 rdfs:comment "" ;
+                 
+                 rdfs:domain csmd:Sample ;
+                 
+                 rdfs:range csmd:SampleType ;
+                 
+                 owl:inverseOf csmd:sampletype_sample .
+
+
+
+###  csmd:sampleparameter_sample
+
+csmd:sampleparameter_sample rdf:type owl:FunctionalProperty ,
+                                     owl:ObjectProperty ;
+                            
+                            rdfs:label "sampleparameter_sample" ;
+                            
+                            rdfs:comment "The associated sample" ;
+                            
+                            rdfs:range csmd:Sample ;
+                            
+                            rdfs:domain csmd:SampleParameter .
+
+
+
+###  csmd:sampletype_facility
+
+csmd:sampletype_facility rdf:type owl:FunctionalProperty ,
+                                  owl:ObjectProperty ;
+                         
+                         rdfs:label "sampletype_facility" ;
+                         
+                         rdfs:comment "The facility which has defined this sample type" ;
+                         
+                         rdfs:range csmd:Facility ;
+                         
+                         rdfs:domain csmd:SampleType .
+
+
+
+###  csmd:sampletype_sample
+
+csmd:sampletype_sample rdf:type owl:ObjectProperty ;
+                       
+                       rdfs:label "sampletype_sample" ;
+                       
+                       rdfs:comment "" ;
+                       
+                       rdfs:range csmd:Sample ;
+                       
+                       rdfs:domain csmd:SampleType .
+
+
+
+###  csmd:shift_investigation
+
+csmd:shift_investigation rdf:type owl:FunctionalProperty ,
+                                  owl:ObjectProperty ;
+                         
+                         rdfs:label "shift_investigation" ;
+                         
+                         rdfs:comment "" ;
+                         
+                         rdfs:range csmd:Investigation ;
+                         
+                         rdfs:domain csmd:Shift .
+
+
+
+###  csmd:study_investigation
+
+csmd:study_investigation rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:label "study_investigation" ;
+                         
+                         rdfs:comment "An investigation in a study" ;
+                         
+                         rdfs:range csmd:Investigation ;
+                         
+                         rdfs:domain csmd:Study .
+
+
+
+###  csmd:study_user
+
+csmd:study_user rdf:type owl:FunctionalProperty ,
+                         owl:ObjectProperty ;
+                
+                rdfs:label "study_user" ;
+                
+                rdfs:comment "The user responsible for the study" ;
+                
+                rdfs:domain csmd:Study ;
+                
+                rdfs:range csmd:User .
+
+
+
+###  csmd:user_investigationUser
+
+csmd:user_investigationUser rdf:type owl:ObjectProperty ;
+                            
+                            rdfs:label "user_investigationUser" ;
+                            
+                            rdfs:comment "" ;
+                            
+                            rdfs:range csmd:InvestigationUser ;
+                            
+                            rdfs:domain csmd:User .
+
+
+
+###  csmd:user_study
+
+csmd:user_study rdf:type owl:ObjectProperty ;
+                
+                rdfs:label "user_study" ;
+                
+                rdfs:comment """The relationship between a user and a study
+        they contribute to.""" ;
+                
+                rdfs:range csmd:Study ;
+                
+                rdfs:domain csmd:User ;
+                
+                owl:inverseOf csmd:study_user .
+
+
+
+###  http://www.purl.org/net/CSMD/4.0#parametertype_parameter
+
+CSMD:parametertype_parameter rdf:type owl:ObjectProperty ;
+                             
+                             rdfs:range csmd:Parameter ;
+                             
+                             rdfs:domain csmd:ParameterType ;
+                             
+                             owl:inverseOf csmd:parameter_type .
+
+
+
+
+
+#################################################################
+#
+#    Data properties
+#
+#################################################################
+
+
+###  csmd:application_name
+
+csmd:application_name rdf:type owl:DatatypeProperty ;
+                      
+                      rdfs:label "application_name" ;
+                      
+                      rdfs:comment "A short name for the software - e.g. mantid" ;
+                      
+                      rdfs:domain csmd:Application ;
+                      
+                      rdfs:range xsd:string .
+
+
+
+###  csmd:application_version
+
+csmd:application_version rdf:type owl:DatatypeProperty ,
+                                  owl:FunctionalProperty ;
+                         
+                         rdfs:label "application_version" ;
+                         
+                         rdfs:comment "" ;
+                         
+                         rdfs:domain csmd:Application ;
+                         
+                         rdfs:range xsd:string .
+
+
+
+###  csmd:datafile_checksum
+
+csmd:datafile_checksum rdf:type owl:DatatypeProperty ,
+                                owl:FunctionalProperty ;
+                       
+                       rdfs:label "datafile_checksum" ;
+                       
+                       rdfs:comment "Checksum of file represented as a string" ;
+                       
+                       rdfs:domain csmd:Datafile ;
+                       
+                       rdfs:range xsd:string .
+
+
+
+###  csmd:datafile_datafileCreateTime
+
+csmd:datafile_datafileCreateTime rdf:type owl:DatatypeProperty ,
+                                          owl:FunctionalProperty ;
+                                 
+                                 rdfs:label "datafile_datafileCreateTime" ;
+                                 
+                                 rdfs:comment "Date of creation of the actual file rather than storing the metadata." ;
+                                 
+                                 rdfs:domain csmd:Datafile ;
+                                 
+                                 rdfs:range xsd:dateTime .
+
+
+
+###  csmd:datafile_datafileModTime
+
+csmd:datafile_datafileModTime rdf:type owl:DatatypeProperty ;
+                              
+                              rdfs:label "datafile_datafileModTime" ;
+                              
+                              rdfs:comment "Date of modification of the actual file rather than of the metadata." ;
+                              
+                              rdfs:domain csmd:Datafile ;
+                              
+                              rdfs:range xsd:dateTime .
+
+
+
+###  csmd:datafile_description
+
+csmd:datafile_description rdf:type owl:DatatypeProperty ;
+                          
+                          rdfs:label "datafile_description" ;
+                          
+                          rdfs:comment "Description of contents, mechanism of capture or other relevant details 
+pertaining to the datafile. It is expected that the topics covered by the description will be consistent across datafiles collected in a particular study." ;
+                          
+                          rdfs:domain csmd:Datafile ;
+                          
+                          rdfs:range xsd:string .
+
+
+
+###  csmd:datafile_doi
+
+csmd:datafile_doi rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                  
+                  rdfs:label "datafile_doi" ;
+                  
+                  rdfs:comment "The Digital Object Identifier associated with this data file" ;
+                  
+                  rdfs:domain csmd:Datafile ;
+                  
+                  rdfs:range xsd:string .
+
+
+
+###  csmd:datafile_fileSize
+
+csmd:datafile_fileSize rdf:type owl:DatatypeProperty ,
+                                owl:FunctionalProperty ;
+                       
+                       rdfs:label "datafile_fileSize" ;
+                       
+                       rdfs:comment "File size expressed in bytes.  This is the actual size of the file (as oppose to the size on a storage device which maybe greater due to block size issues). This could be a parameter but it is needed often and thus is present at this level." ;
+                       
+                       rdfs:domain csmd:Datafile ;
+                       
+                       rdfs:range xsd:long .
+
+
+
+###  csmd:datafile_location
+
+csmd:datafile_location rdf:type owl:DatatypeProperty ;
+                       
+                       rdfs:label "datafile_location" ;
+                       
+                       rdfs:comment """The logical location of the file - which may also be the physical location.
+This will be facility specific within the file name scheme of that facility.
+The locations are expected to be fully qualified but they could be relative if the parent dataset location is specified, again this should be consistent across all the datafiles associated with a facility.""" ;
+                       
+                       rdfs:domain csmd:Datafile ;
+                       
+                       rdfs:range xsd:string .
+
+
+
+###  csmd:datafile_name
+
+csmd:datafile_name rdf:type owl:DatatypeProperty ;
+                   
+                   rdfs:label "datafile_name" ;
+                   
+                   rdfs:comment "A name given to the file" ;
+                   
+                   rdfs:domain csmd:Datafile ;
+                   
+                   rdfs:range xsd:string .
+
+
+
+###  csmd:datafileformat_description
+
+csmd:datafileformat_description rdf:type owl:DatatypeProperty ;
+                                
+                                rdfs:label "datafileformat_description" ;
+                                
+                                rdfs:comment "A description of the format relating to the type, syntax, semantics and ussage of the data that it holds.   This also could be a link to more information about the format." ;
+                                
+                                rdfs:domain csmd:DatafileFormat ;
+                                
+                                rdfs:range xsd:string .
+
+
+
+###  csmd:datafileformat_name
+
+csmd:datafileformat_name rdf:type owl:DatatypeProperty ;
+                         
+                         rdfs:label "datafileformat_name" ;
+                         
+                         rdfs:comment "A short name identifying the format -e.g. \"mp3\" within the facility" ;
+                         
+                         rdfs:domain csmd:DatafileFormat ;
+                         
+                         rdfs:range xsd:string .
+
+
+
+###  csmd:datafileformat_type
+
+csmd:datafileformat_type rdf:type owl:DatatypeProperty ,
+                                  owl:FunctionalProperty ;
+                         
+                         rdfs:label "datafileformat_type" ;
+                         
+                         rdfs:comment "Holds the underlying format - such as binary or text" ;
+                         
+                         rdfs:domain csmd:DatafileFormat ;
+                         
+                         rdfs:range xsd:string .
+
+
+
+###  csmd:datafileformat_version
+
+csmd:datafileformat_version rdf:type owl:DatatypeProperty ,
+                                     owl:FunctionalProperty ;
+                            
+                            rdfs:label "datafileformat_version" ;
+                            
+                            rdfs:comment "The version if needed.  The version code may be part of the basic name" ;
+                            
+                            rdfs:domain csmd:DatafileFormat ;
+                            
+                            rdfs:range xsd:string .
+
+
+
+###  csmd:dataset_complete
+
+csmd:dataset_complete rdf:type owl:DatatypeProperty ,
+                               owl:FunctionalProperty ;
+                      
+                      rdfs:label "dataset_complete" ;
+                      
+                      rdfs:comment "May be set to true when all data files and parameters have been added to the data set. The precise meaning is facility dependent." ;
+                      
+                      rdfs:domain csmd:Dataset ;
+                      
+                      rdfs:range xsd:boolean .
+
+
+
+###  csmd:dataset_description
+
+csmd:dataset_description rdf:type owl:DatatypeProperty ;
+                         
+                         rdfs:label "dataset_description" ;
+                         
+                         rdfs:comment "An informal description of the data set" ;
+                         
+                         rdfs:domain csmd:Dataset ;
+                         
+                         rdfs:range xsd:string .
+
+
+
+###  csmd:dataset_doi
+
+csmd:dataset_doi rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                 
+                 rdfs:label "dataset_doi" ;
+                 
+                 rdfs:comment "The Digital Object Identifier associated with this data set" ;
+                 
+                 rdfs:domain csmd:Dataset ;
+                 
+                 rdfs:range xsd:string .
+
+
+
+###  csmd:dataset_endDate
+
+csmd:dataset_endDate rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                     
+                     rdfs:label "dataset_endDate" ;
+                     
+                     rdfs:comment "Time that the data set was last updated." ;
+                     
+                     rdfs:domain csmd:Dataset ;
+                     
+                     rdfs:range xsd:dateTime .
+
+
+
+###  csmd:dataset_location
+
+csmd:dataset_location rdf:type owl:DatatypeProperty ;
+                      
+                      rdfs:label "dataset_location" ;
+                      
+                      rdfs:comment "Identifies a location from which all the files of the data set might be accessed. It might be a directory" ;
+                      
+                      rdfs:domain csmd:Dataset ;
+                      
+                      rdfs:range xsd:string .
+
+
+
+###  csmd:dataset_name
+
+csmd:dataset_name rdf:type owl:DatatypeProperty ;
+                  
+                  rdfs:label "dataset_name" ;
+                  
+                  rdfs:comment "A short name for the data set" ;
+                  
+                  rdfs:domain csmd:Dataset ;
+                  
+                  rdfs:range xsd:string .
+
+
+
+###  csmd:dataset_startDate
+
+csmd:dataset_startDate rdf:type owl:DatatypeProperty ,
+                                owl:FunctionalProperty ;
+                       
+                       rdfs:label "dataset_startDate" ;
+                       
+                       rdfs:comment "The time that a dataset is created." ;
+                       
+                       rdfs:domain csmd:Dataset ;
+                       
+                       rdfs:range xsd:date .
+
+
+
+###  csmd:datasettype_description
+
+csmd:datasettype_description rdf:type owl:DatatypeProperty ;
+                             
+                             rdfs:label "datasettype_description" ;
+                             
+                             rdfs:comment "A description of this data set type" ;
+                             
+                             rdfs:domain csmd:DatasetType ;
+                             
+                             rdfs:range xsd:string .
+
+
+
+###  csmd:datasettype_name
+
+csmd:datasettype_name rdf:type owl:DatatypeProperty ;
+                      
+                      rdfs:label "datasettype_name" ;
+                      
+                      rdfs:comment "A short name identifying this data set type within the facility" ;
+                      
+                      rdfs:domain csmd:DatasetType ;
+                      
+                      rdfs:range xsd:string .
+
+
+
+###  csmd:facility_daysUntilRelease
+
+csmd:facility_daysUntilRelease rdf:type owl:DatatypeProperty ,
+                                        owl:FunctionalProperty ;
+                               
+                               rdfs:label "facility_daysUntilRelease" ;
+                               
+                               rdfs:comment "The number of days before data is made freely available after collecting it." ;
+                               
+                               rdfs:domain csmd:Facility ;
+                               
+                               rdfs:range xsd:integer .
+
+
+
+###  csmd:facility_description
+
+csmd:facility_description rdf:type owl:DatatypeProperty ;
+                          
+                          rdfs:label "facility_description" ;
+                          
+                          rdfs:comment "A description of this facility" ;
+                          
+                          rdfs:domain csmd:Facility ;
+                          
+                          rdfs:range xsd:string .
+
+
+
+###  csmd:facility_fullName
+
+csmd:facility_fullName rdf:type owl:DatatypeProperty ;
+                       
+                       rdfs:label "facility_fullName" ;
+                       
+                       rdfs:comment "The full name of the facility" ;
+                       
+                       rdfs:domain csmd:Facility ;
+                       
+                       rdfs:range xsd:string .
+
+
+
+###  csmd:facility_name
+
+csmd:facility_name rdf:type owl:DatatypeProperty ;
+                   
+                   rdfs:label "facility_name" ;
+                   
+                   rdfs:comment "A short name identifying this facility" ;
+                   
+                   rdfs:domain csmd:Facility ;
+                   
+                   rdfs:range xsd:string .
+
+
+
+###  csmd:facility_url
+
+csmd:facility_url rdf:type owl:DatatypeProperty ;
+                  
+                  rdfs:label "facility_url" ;
+                  
+                  rdfs:comment "A URL associated with this facility" ;
+                  
+                  rdfs:domain csmd:Facility ;
+                  
+                  rdfs:range xsd:string .
+
+
+
+###  csmd:facilitycycle_description
+
+csmd:facilitycycle_description rdf:type owl:DatatypeProperty ;
+                               
+                               rdfs:label "facilitycycle_description" ;
+                               
+                               rdfs:comment "A description of this facility cycle" ;
+                               
+                               rdfs:domain csmd:FacilityCycle ;
+                               
+                               rdfs:range xsd:string .
+
+
+
+###  csmd:facilitycycle_endDate
+
+csmd:facilitycycle_endDate rdf:type owl:DatatypeProperty ,
+                                    owl:FunctionalProperty ;
+                           
+                           rdfs:label "facilitycycle_endDate" ;
+                           
+                           rdfs:comment "End of cycle" ;
+                           
+                           rdfs:domain csmd:FacilityCycle ;
+                           
+                           rdfs:range xsd:date .
+
+
+
+###  csmd:facilitycycle_name
+
+csmd:facilitycycle_name rdf:type owl:DatatypeProperty ;
+                        
+                        rdfs:label "facilitycycle_name" ;
+                        
+                        rdfs:comment "A short name identifying this facility cycle within the facility" ;
+                        
+                        rdfs:domain csmd:FacilityCycle ;
+                        
+                        rdfs:range xsd:string .
+
+
+
+###  csmd:facilitycycle_startDate
+
+csmd:facilitycycle_startDate rdf:type owl:DatatypeProperty ,
+                                      owl:FunctionalProperty ;
+                             
+                             rdfs:label "facilitycycle_startDate" ;
+                             
+                             rdfs:comment "Start of cycle" ;
+                             
+                             rdfs:domain csmd:FacilityCycle ;
+                             
+                             rdfs:range xsd:dateTime .
+
+
+
+###  csmd:instrument_description
+
+csmd:instrument_description rdf:type owl:DatatypeProperty ;
+                            
+                            rdfs:label "instrument_description" ;
+                            
+                            rdfs:comment "A description of this instrument" ;
+                            
+                            rdfs:domain csmd:Instrument ;
+                            
+                            rdfs:range xsd:string .
+
+
+
+###  csmd:instrument_fullName
+
+csmd:instrument_fullName rdf:type owl:DatatypeProperty ;
+                         
+                         rdfs:label "instrument_fullName" ;
+                         
+                         rdfs:comment "The formal name of this instrument" ;
+                         
+                         rdfs:domain csmd:Instrument ;
+                         
+                         rdfs:range xsd:string .
+
+
+
+###  csmd:instrument_name
+
+csmd:instrument_name rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:label "instrument_name" ;
+                     
+                     rdfs:comment "A short name identifying this instrument within the facility" ;
+                     
+                     rdfs:domain csmd:Instrument ;
+                     
+                     rdfs:range xsd:string .
+
+
+
+###  csmd:instrument_type
+
+csmd:instrument_type rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:label "instrument_type" ;
+                     
+                     rdfs:comment """The type of the instrument - e.g. spectrometer
+        etc.  Also should refer to the technique (?)""" ;
+                     
+                     rdfs:domain csmd:Instrument ;
+                     
+                     rdfs:range xsd:string .
+
+
+
+###  csmd:investigation_doi
+
+csmd:investigation_doi rdf:type owl:DatatypeProperty ,
+                                owl:FunctionalProperty ;
+                       
+                       rdfs:label "investigation_doi" ;
+                       
+                       rdfs:comment "The Digital Object Identifier associated with this investigation" ;
+                       
+                       rdfs:domain csmd:Investigation ;
+                       
+                       rdfs:range xsd:string .
+
+
+
+###  csmd:investigation_endDate
+
+csmd:investigation_endDate rdf:type owl:DatatypeProperty ,
+                                    owl:FunctionalProperty ;
+                           
+                           rdfs:label "investigation_endDate" ;
+                           
+                           rdfs:comment "The latest date of change to the investigation" ;
+                           
+                           rdfs:domain csmd:Investigation ;
+                           
+                           rdfs:range xsd:dateTime .
+
+
+
+###  csmd:investigation_name
+
+csmd:investigation_name rdf:type owl:DatatypeProperty ;
+                        
+                        rdfs:label "investigation_name" ;
+                        
+                        rdfs:comment "A short name for the investigation" ;
+                        
+                        rdfs:domain csmd:Investigation ;
+                        
+                        rdfs:range xsd:string .
+
+
+
+###  csmd:investigation_releaseDate
+
+csmd:investigation_releaseDate rdf:type owl:DatatypeProperty ,
+                                        owl:FunctionalProperty ;
+                               
+                               rdfs:label "investigation_releaseDate" ;
+                               
+                               rdfs:comment "A date when the data will be made freely available after an embargo period" ;
+                               
+                               rdfs:domain csmd:Investigation ;
+                               
+                               rdfs:range xsd:date .
+
+
+
+###  csmd:investigation_startDate
+
+csmd:investigation_startDate rdf:type owl:DatatypeProperty ,
+                                      owl:FunctionalProperty ;
+                             
+                             rdfs:label "investigation_startDate" ;
+                             
+                             rdfs:comment "The time at which the investiation was initiated" ;
+                             
+                             rdfs:domain csmd:Investigation ;
+                             
+                             rdfs:range xsd:dateTime .
+
+
+
+###  csmd:investigation_summary
+
+csmd:investigation_summary rdf:type owl:DatatypeProperty ;
+                           
+                           rdfs:label "investigation_summary" ;
+                           
+                           rdfs:comment "Summary or abstract" ;
+                           
+                           rdfs:domain csmd:Investigation ;
+                           
+                           rdfs:range xsd:string .
+
+
+
+###  csmd:investigation_title
+
+csmd:investigation_title rdf:type owl:DatatypeProperty ;
+                         
+                         rdfs:label "investigation_title" ;
+                         
+                         rdfs:comment "Full title of the investigation" ;
+                         
+                         rdfs:domain csmd:Investigation ;
+                         
+                         rdfs:range xsd:string .
+
+
+
+###  csmd:investigation_visitId
+
+csmd:investigation_visitId rdf:type owl:DatatypeProperty ,
+                                    owl:FunctionalProperty ;
+                           
+                           rdfs:label "investigation_visitId" ;
+                           
+                           rdfs:comment "Identifier for the visit to which this investigation is related" ;
+                           
+                           rdfs:domain csmd:Investigation ;
+                           
+                           rdfs:range xsd:string .
+
+
+
+###  csmd:investigationtype_description
+
+csmd:investigationtype_description rdf:type owl:DatatypeProperty ;
+                                   
+                                   rdfs:label "investigationtype_description" ;
+                                   
+                                   rdfs:comment "A description of this type of investigation" ;
+                                   
+                                   rdfs:domain csmd:InvestigationType ;
+                                   
+                                   rdfs:range xsd:string .
+
+
+
+###  csmd:investigationtype_name
+
+csmd:investigationtype_name rdf:type owl:DatatypeProperty ;
+                            
+                            rdfs:label "investigationtype_name" ;
+                            
+                            rdfs:comment "A short name identifying this type of investigation" ;
+                            
+                            rdfs:domain csmd:InvestigationType ;
+                            
+                            rdfs:range xsd:string .
+
+
+
+###  csmd:investigationuser_role
+
+csmd:investigationuser_role rdf:type owl:DatatypeProperty ;
+                            
+                            rdfs:label "investigationuser_role" ;
+                            
+                            rdfs:comment "" ;
+                            
+                            rdfs:domain csmd:InvestigationUser ;
+                            
+                            rdfs:range xsd:string .
+
+
+
+###  csmd:keyword_name
+
+csmd:keyword_name rdf:type owl:DatatypeProperty ;
+                  
+                  rdfs:label "keyword_name" ;
+                  
+                  rdfs:comment "The name of the keyword" ;
+                  
+                  rdfs:domain csmd:Keyword ;
+                  
+                  rdfs:range xsd:string .
+
+
+
+###  csmd:parameter_dateTimeValue
+
+csmd:parameter_dateTimeValue rdf:type owl:DatatypeProperty ,
+                                      owl:FunctionalProperty ;
+                             
+                             rdfs:label "parameter_dateTimeValue" ;
+                             
+                             rdfs:comment "The value if the parameter is a date" ;
+                             
+                             rdfs:domain csmd:Parameter ;
+                             
+                             rdfs:range xsd:dateTime .
+
+
+
+###  csmd:parameter_error
+
+csmd:parameter_error rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                     
+                     rdfs:label "parameter_error" ;
+                     
+                     rdfs:comment "The error of the numeric parameter" ;
+                     
+                     rdfs:domain csmd:Parameter ;
+                     
+                     rdfs:range xsd:double .
+
+
+
+###  csmd:parameter_numericValue
+
+csmd:parameter_numericValue rdf:type owl:DatatypeProperty ,
+                                     owl:FunctionalProperty ;
+                            
+                            rdfs:label "parameter_numericValue" ;
+                            
+                            rdfs:comment "The value if the parameter is numeric" ;
+                            
+                            rdfs:domain csmd:Parameter ;
+                            
+                            rdfs:range xsd:double .
+
+
+
+###  csmd:parameter_rangeBottom
+
+csmd:parameter_rangeBottom rdf:type owl:DatatypeProperty ,
+                                    owl:FunctionalProperty ;
+                           
+                           rdfs:label "parameter_rangeBottom" ;
+                           
+                           rdfs:comment "The minimum value of the numeric parameter that was observed during the measurement period" ;
+                           
+                           rdfs:domain csmd:Parameter ;
+                           
+                           rdfs:range xsd:double ;
+                           
+                           rdfs:subPropertyOf owl:topDataProperty .
+
+
+
+###  csmd:parameter_rangeTop
+
+csmd:parameter_rangeTop rdf:type owl:DatatypeProperty ,
+                                 owl:FunctionalProperty ;
+                        
+                        rdfs:label "parameter_rangeTop" ;
+                        
+                        rdfs:comment "The maximum value of the numeric parameter that was observed during the measurement period" ;
+                        
+                        rdfs:domain csmd:Parameter ;
+                        
+                        rdfs:range xsd:double .
+
+
+
+###  csmd:parameter_stringValue
+
+csmd:parameter_stringValue rdf:type owl:DatatypeProperty ,
+                                    owl:FunctionalProperty ;
+                           
+                           rdfs:label "parameter_stringValue" ;
+                           
+                           rdfs:comment "The value if the parameter is a string" ;
+                           
+                           rdfs:domain csmd:Parameter ;
+                           
+                           rdfs:range xsd:string .
+
+
+
+###  csmd:parametertype_applicableToDatafile
+
+csmd:parametertype_applicableToDatafile rdf:type owl:DatatypeProperty ,
+                                                 owl:FunctionalProperty ;
+                                        
+                                        rdfs:label "parametertype_applicableToDatafile" ;
+                                        
+                                        rdfs:comment "If a parameter of this type may be applied to a data file" ;
+                                        
+                                        rdfs:domain csmd:ParameterType ;
+                                        
+                                        rdfs:range xsd:boolean .
+
+
+
+###  csmd:parametertype_applicableToDataset
+
+csmd:parametertype_applicableToDataset rdf:type owl:DatatypeProperty ,
+                                                owl:FunctionalProperty ;
+                                       
+                                       rdfs:label "parametertype_applicableToDataset" ;
+                                       
+                                       rdfs:comment "If a parameter of this type may be applied to a data set" ;
+                                       
+                                       rdfs:domain csmd:ParameterType ;
+                                       
+                                       rdfs:range xsd:boolean .
+
+
+
+###  csmd:parametertype_applicableToInvestigation
+
+csmd:parametertype_applicableToInvestigation rdf:type owl:DatatypeProperty ,
+                                                      owl:FunctionalProperty ;
+                                             
+                                             rdfs:label "parametertype_applicableToInvestigation" ;
+                                             
+                                             rdfs:comment "If a parameter of this type may be applied to an investigation" ;
+                                             
+                                             rdfs:domain csmd:ParameterType ;
+                                             
+                                             rdfs:range xsd:boolean .
+
+
+
+###  csmd:parametertype_applicableToSample
+
+csmd:parametertype_applicableToSample rdf:type owl:DatatypeProperty ,
+                                               owl:FunctionalProperty ;
+                                      
+                                      rdfs:label "parametertype_applicableToSample" ;
+                                      
+                                      rdfs:comment "If a parameter of this type may be applied to a sample" ;
+                                      
+                                      rdfs:domain csmd:ParameterType ;
+                                      
+                                      rdfs:range xsd:boolean .
+
+
+
+###  csmd:parametertype_description
+
+csmd:parametertype_description rdf:type owl:DatatypeProperty ;
+                               
+                               rdfs:label "parametertype_description" ;
+                               
+                               rdfs:comment "Description of the parameter type" ;
+                               
+                               rdfs:domain csmd:ParameterType ;
+                               
+                               rdfs:range xsd:string .
+
+
+
+###  csmd:parametertype_enforced
+
+csmd:parametertype_enforced rdf:type owl:DatatypeProperty ,
+                                     owl:FunctionalProperty ;
+                            
+                            rdfs:label "parametertype_enforced" ;
+                            
+                            rdfs:comment "True if constraints are enforced" ;
+                            
+                            rdfs:domain csmd:ParameterType ;
+                            
+                            rdfs:range xsd:boolean .
+
+
+
+###  csmd:parametertype_maximumNumericValue
+
+csmd:parametertype_maximumNumericValue rdf:type owl:DatatypeProperty ,
+                                                owl:FunctionalProperty ;
+                                       
+                                       rdfs:label "parametertype_maximumNumericValue" ;
+                                       
+                                       rdfs:comment "" ;
+                                       
+                                       rdfs:domain csmd:ParameterType ;
+                                       
+                                       rdfs:range xsd:double .
+
+
+
+###  csmd:parametertype_minimumNumericValue
+
+csmd:parametertype_minimumNumericValue rdf:type owl:DatatypeProperty ,
+                                                owl:FunctionalProperty ;
+                                       
+                                       rdfs:label "parametertype_minimumNumericValue" ;
+                                       
+                                       rdfs:comment "" ;
+                                       
+                                       rdfs:domain csmd:ParameterType ;
+                                       
+                                       rdfs:range xsd:double .
+
+
+
+###  csmd:parametertype_name
+
+csmd:parametertype_name rdf:type owl:DatatypeProperty ;
+                        
+                        rdfs:label "parametertype_name" ;
+                        
+                        rdfs:comment "The name of the parameter type" ;
+                        
+                        rdfs:domain csmd:ParameterType ;
+                        
+                        rdfs:range xsd:string .
+
+
+
+###  csmd:parametertype_units
+
+csmd:parametertype_units rdf:type owl:DatatypeProperty ,
+                                  owl:FunctionalProperty ;
+                         
+                         rdfs:label "parametertype_units" ;
+                         
+                         rdfs:comment "The name of the parameter type units" ;
+                         
+                         rdfs:domain csmd:ParameterType ;
+                         
+                         rdfs:range xsd:string .
+
+
+
+###  csmd:parametertype_unitsFullName
+
+csmd:parametertype_unitsFullName rdf:type owl:DatatypeProperty ;
+                                 
+                                 rdfs:label "parametertype_unitsFullName" ;
+                                 
+                                 rdfs:comment "The formal name of the parameter type units" ;
+                                 
+                                 rdfs:domain csmd:ParameterType ;
+                                 
+                                 rdfs:range xsd:string .
+
+
+
+###  csmd:parametertype_valueType
+
+csmd:parametertype_valueType rdf:type owl:DatatypeProperty ,
+                                      owl:FunctionalProperty ;
+                             
+                             rdfs:label "parametertype_valueType" ;
+                             
+                             rdfs:comment "enum with possible values: NUMERIC, STRING, DATE_AND_TIME" ;
+                             
+                             rdfs:domain csmd:ParameterType ;
+                             
+                             rdfs:range xsd:string .
+
+
+
+###  csmd:parametertype_verified
+
+csmd:parametertype_verified rdf:type owl:DatatypeProperty ,
+                                     owl:FunctionalProperty ;
+                            
+                            rdfs:label "parametertype_verified" ;
+                            
+                            rdfs:comment "If ordinary users are allowed to create their own parameter types this indicates that this one has been approved" ;
+                            
+                            rdfs:domain csmd:ParameterType ;
+                            
+                            rdfs:range xsd:boolean .
+
+
+
+###  csmd:permissiblestringvalue_value
+
+csmd:permissiblestringvalue_value rdf:type owl:DatatypeProperty ,
+                                           owl:FunctionalProperty ;
+                                  
+                                  rdfs:label "permissiblestringvalue_value" ;
+                                  
+                                  rdfs:comment "The value of the string" ;
+                                  
+                                  rdfs:domain csmd:PermissibleStringValue ;
+                                  
+                                  rdfs:range xsd:string .
+
+
+
+###  csmd:publication_doi
+
+csmd:publication_doi rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                     
+                     rdfs:label "publication_doi" ;
+                     
+                     rdfs:comment "The Digital Object Identifier associated with this publication" ;
+                     
+                     rdfs:domain csmd:Publication ;
+                     
+                     rdfs:range xsd:string .
+
+
+
+###  csmd:publication_fullReference
+
+csmd:publication_fullReference rdf:type owl:DatatypeProperty ;
+                               
+                               rdfs:label "publication_fullReference" ;
+                               
+                               rdfs:comment "A reference in the form to be used for citation" ;
+                               
+                               rdfs:domain csmd:Publication ;
+                               
+                               rdfs:range xsd:string .
+
+
+
+###  csmd:publication_repository
+
+csmd:publication_repository rdf:type owl:DatatypeProperty ;
+                            
+                            rdfs:label "publication_repository" ;
+                            
+                            rdfs:comment "The name of a repository where the publication is held" ;
+                            
+                            rdfs:domain csmd:Publication ;
+                            
+                            rdfs:range xsd:string .
+
+
+
+###  csmd:publication_repositoryId
+
+csmd:publication_repositoryId rdf:type owl:DatatypeProperty ;
+                              
+                              rdfs:label "publication_repositoryId" ;
+                              
+                              rdfs:comment "The id of the publication within the repository" ;
+                              
+                              rdfs:domain csmd:Publication ;
+                              
+                              rdfs:range xsd:string .
+
+
+
+###  csmd:publication_url
+
+csmd:publication_url rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:label "publication_url" ;
+                     
+                     rdfs:comment "A URL from which the publication may be downloaded" ;
+                     
+                     rdfs:domain csmd:Publication ;
+                     
+                     rdfs:range xsd:string .
+
+
+
+###  csmd:relateddatafile_relation
+
+csmd:relateddatafile_relation rdf:type owl:DatatypeProperty ,
+                                       owl:FunctionalProperty ;
+                              
+                              rdfs:label "relateddatafile_relation" ;
+                              
+                              rdfs:comment "Identifies the type of relationship between the two datafiles - e.g. \"COPY\"" ;
+                              
+                              rdfs:range xsd:string .
+
+
+
+###  csmd:sample_name
+
+csmd:sample_name rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "sample_name" ;
+                 
+                 rdfs:comment "" ;
+                 
+                 rdfs:domain csmd:Sample ;
+                 
+                 rdfs:range xsd:string .
+
+
+
+###  csmd:sampletype_molecularFormula
+
+csmd:sampletype_molecularFormula rdf:type owl:DatatypeProperty ;
+                                 
+                                 rdfs:label "sampletype_molecularFormula" ;
+                                 
+                                 rdfs:comment "The formula written as a string -e.g. C2H6O2 for ethylene glycol" ;
+                                 
+                                 rdfs:domain csmd:SampleType ;
+                                 
+                                 rdfs:range xsd:string .
+
+
+
+###  csmd:sampletype_name
+
+csmd:sampletype_name rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:label "sampletype_name" ;
+                     
+                     rdfs:comment "Name of a type of sample" ;
+                     
+                     rdfs:domain csmd:SampleType ;
+                     
+                     rdfs:range xsd:string .
+
+
+
+###  csmd:sampletype_safetyInformation
+
+csmd:sampletype_safetyInformation rdf:type owl:DatatypeProperty ;
+                                  
+                                  rdfs:label "sampletype_safetyInformation" ;
+                                  
+                                  rdfs:comment "Any safety information related to this sample" ;
+                                  
+                                  rdfs:domain csmd:SampleType ;
+                                  
+                                  rdfs:range xsd:string .
+
+
+
+###  csmd:shift_comment
+
+csmd:shift_comment rdf:type owl:DatatypeProperty ;
+                   
+                   rdfs:label "shift_comment" ;
+                   
+                   rdfs:comment "" ;
+                   
+                   rdfs:domain csmd:Shift ;
+                   
+                   rdfs:range xsd:string .
+
+
+
+###  csmd:shift_endDate
+
+csmd:shift_endDate rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                   
+                   rdfs:label "shift_endDate" ;
+                   
+                   rdfs:comment "" ;
+                   
+                   rdfs:domain csmd:Shift ;
+                   
+                   rdfs:range xsd:dateTime .
+
+
+
+###  csmd:shift_startDate
+
+csmd:shift_startDate rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                     
+                     rdfs:label "shift_startDate" ;
+                     
+                     rdfs:comment "" ;
+                     
+                     rdfs:domain csmd:Shift ;
+                     
+                     rdfs:range xsd:dateTime .
+
+
+
+###  csmd:study_description
+
+csmd:study_description rdf:type owl:DatatypeProperty ;
+                       
+                       rdfs:label "study_description" ;
+                       
+                       rdfs:comment "A description of the study and its purpose" ;
+                       
+                       rdfs:domain csmd:Study ;
+                       
+                       rdfs:range xsd:string .
+
+
+
+###  csmd:study_endDate
+
+csmd:study_endDate rdf:type owl:DatatypeProperty ,
+                            owl:FunctionalProperty ;
+                   
+                   rdfs:label "study_endDate" ;
+                   
+                   rdfs:comment "The end date of this study" ;
+                   
+                   rdfs:domain csmd:Study ;
+                   
+                   rdfs:range xsd:dateTime .
+
+
+
+###  csmd:study_name
+
+csmd:study_name rdf:type owl:DatatypeProperty ;
+                
+                rdfs:label "study_name" ;
+                
+                rdfs:comment "The name of the study" ;
+                
+                rdfs:domain csmd:Study ;
+                
+                rdfs:range xsd:string .
+
+
+
+###  csmd:study_startDate
+
+csmd:study_startDate rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                     
+                     rdfs:label "study_startDate" ;
+                     
+                     rdfs:comment "The start date of this study" ;
+                     
+                     rdfs:domain csmd:Study ;
+                     
+                     rdfs:range xsd:dateTime .
+
+
+
+###  csmd:study_status
+
+csmd:study_status rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                  
+                  rdfs:label "study_status" ;
+                  
+                  rdfs:comment "The status of the study. Possible values are: NEW, IN_PROGRESS, COMPLETE, CANCELLED" ;
+                  
+                  rdfs:domain csmd:Study ;
+                  
+                  rdfs:range xsd:string .
+
+
+
+###  csmd:user_fullName
+
+csmd:user_fullName rdf:type owl:DatatypeProperty ;
+                   
+                   rdfs:label "user_fullName" ;
+                   
+                   rdfs:comment "Full name of a user - may include title" ;
+                   
+                   rdfs:domain csmd:User ;
+                   
+                   rdfs:range xsd:string .
+
+
+
+###  csmd:user_name
+
+csmd:user_name rdf:type owl:DatatypeProperty ;
+               
+               rdfs:label "user_name" ;
+               
+               rdfs:comment "The name of the user to match that provided by the authentication mechanism" ;
+               
+               rdfs:domain csmd:User ;
+               
+               rdfs:range xsd:string .
+
+
+
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+###  csmd:Application
+
+csmd:Application rdf:type owl:Class ;
+                 
+                 rdfs:label "Application" ;
+                 
+                 rdfs:comment "Some piece of software" .
+
+
+
+###  csmd:Datafile
+
+csmd:Datafile rdf:type owl:Class ;
+              
+              rdfs:label "Datafile" ;
+              
+              rdfs:comment "A datafile associated with a study, corresponding to phycial files storing segments of data on a filesytem. This class has attibutes with information about logical names and physical locations." .
+
+
+
+###  csmd:DatafileFormat
+
+csmd:DatafileFormat rdf:type owl:Class ;
+                    
+                    rdfs:label "DatafileFormat" ;
+                    
+                    rdfs:comment "A valid datafile formats that are permitted in a datafile." .
+
+
+
+###  csmd:DatafileParameter
+
+csmd:DatafileParameter rdf:type owl:Class ;
+                       
+                       rdfs:label "DatafileParameter" ;
+                       
+                       rdfs:subClassOf csmd:Parameter ;
+                       
+                       rdfs:comment "A parameter associated with a data file, providing additional datafile specific metadata. " .
+
+
+
+###  csmd:Dataset
+
+csmd:Dataset rdf:type owl:Class ;
+             
+             rdfs:label "Dataset" ;
+             
+             rdfs:comment "A collection of data files and part of an investigation" .
+
+
+
+###  csmd:DatasetParameter
+
+csmd:DatasetParameter rdf:type owl:Class ;
+                      
+                      rdfs:label "DatasetParameter" ;
+                      
+                      rdfs:subClassOf csmd:Parameter ;
+                      
+                      rdfs:comment "A parameter associated with a data set" .
+
+
+
+###  csmd:DatasetType
+
+csmd:DatasetType rdf:type owl:Class ;
+                 
+                 rdfs:label "DatasetType" ;
+                 
+                 rdfs:comment "A type of data set" .
+
+
+
+###  csmd:Facility
+
+csmd:Facility rdf:type owl:Class ;
+              
+              rdfs:label "Facility" ;
+              
+              rdfs:comment "An experimental facility" .
+
+
+
+###  csmd:FacilityCycle
+
+csmd:FacilityCycle rdf:type owl:Class ;
+                   
+                   rdfs:label "FacilityCycle" ;
+                   
+                   rdfs:comment "An operating cycle within a facility" .
+
+
+
+###  csmd:Instrument
+
+csmd:Instrument rdf:type owl:Class ;
+                
+                rdfs:label "Instrument" ;
+                
+                rdfs:comment "Used by a user within an investigation" .
+
+
+
+###  csmd:Investigation
+
+csmd:Investigation rdf:type owl:Class ;
+                   
+                   rdfs:label "Investigation" ;
+                   
+                   rdfs:comment "An investigation or experiment" .
+
+
+
+###  csmd:InvestigationParameter
+
+csmd:InvestigationParameter rdf:type owl:Class ;
+                            
+                            rdfs:label "InvestigationParameter" ;
+                            
+                            rdfs:subClassOf csmd:Parameter ;
+                            
+                            rdfs:comment "A parameter associated with an investigation" .
+
+
+
+###  csmd:InvestigationType
+
+csmd:InvestigationType rdf:type owl:Class ;
+                       
+                       rdfs:label "InvestigationType" ;
+                       
+                       rdfs:comment "A type of investigation" .
+
+
+
+###  csmd:InvestigationUser
+
+csmd:InvestigationUser rdf:type owl:Class ;
+                       
+                       rdfs:label "InvestigationUser" ;
+                       
+                       rdfs:comment "Many to many relationship between investigation and user" .
+
+
+
+###  csmd:Job
+
+csmd:Job rdf:type owl:Class ;
+         
+         rdfs:label "Job" ;
+         
+         rdfs:comment "A run of an application with its related inputs and outputs" .
+
+
+
+###  csmd:Keyword
+
+csmd:Keyword rdf:type owl:Class ;
+             
+             rdfs:label "Keyword" ;
+             
+             rdfs:comment "Must be related to an investigation" .
+
+
+
+###  csmd:Parameter
+
+csmd:Parameter rdf:type owl:Class ;
+               
+               rdfs:label "Parameter" ;
+               
+               rdfs:comment "A parameter associated with an entity" .
+
+
+
+###  csmd:ParameterType
+
+csmd:ParameterType rdf:type owl:Class ;
+                   
+                   rdfs:label "ParameterType" ;
+                   
+                   rdfs:comment "A parameter type with unique name and units" .
+
+
+
+###  csmd:PermissibleStringValue
+
+csmd:PermissibleStringValue rdf:type owl:Class ;
+                            
+                            rdfs:label "PermissibleStringValue" ;
+                            
+                            rdfs:comment "Permissible value for string parameter types" .
+
+
+
+###  csmd:Publication
+
+csmd:Publication rdf:type owl:Class ;
+                 
+                 rdfs:label "Publication" ;
+                 
+                 rdfs:comment "A publication" .
+
+
+
+###  csmd:RelatedDatafile
+
+csmd:RelatedDatafile rdf:type owl:Class ;
+                     
+                     rdfs:label "RelatedDatafile" ;
+                     
+                     rdfs:comment "Used to represent an arbitrary relationship between data files" .
+
+
+
+###  csmd:Sample
+
+csmd:Sample rdf:type owl:Class ;
+            
+            rdfs:label "Sample" ;
+            
+            rdfs:comment "A sample to be used in an investigation" .
+
+
+
+###  csmd:SampleParameter
+
+csmd:SampleParameter rdf:type owl:Class ;
+                     
+                     rdfs:label "SampleParameter" ;
+                     
+                     rdfs:subClassOf csmd:Parameter ;
+                     
+                     rdfs:comment "A parameter associated with a sample" .
+
+
+
+###  csmd:SampleType
+
+csmd:SampleType rdf:type owl:Class ;
+                
+                rdfs:label "SampleType" ;
+                
+                rdfs:comment "A sample to be used in an investigation" .
+
+
+
+###  csmd:Shift
+
+csmd:Shift rdf:type owl:Class ;
+           
+           rdfs:label "Shift" ;
+           
+           rdfs:comment "A period of time related to an investigation" .
+
+
+
+###  csmd:Study
+
+csmd:Study rdf:type owl:Class ;
+           
+           rdfs:label "Study" ;
+           
+           rdfs:comment "A study which may be related to an investigation" .
+
+
+
+###  csmd:User
+
+csmd:User rdf:type owl:Class ;
+          
+          rdfs:label "User" ;
+          
+          rdfs:comment "A user of the facility" .
+
+
+
+
+###  Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net

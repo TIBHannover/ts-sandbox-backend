@@ -8,6 +8,7 @@ public enum GitTokenType {
     GITLAB_TOKEN,
     GIT_AACHEN_TOKEN,
     GIT_TIB_EU_TOKEN,
+    GIT_ETSI_TOKEN,
     //Github-related
 
     GITHUB_TOKEN,

@@ -16,6 +16,8 @@ public record GitDiffDto(
 
         String diff,
 
+        String message,
+
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
         Instant datetime
 ) {

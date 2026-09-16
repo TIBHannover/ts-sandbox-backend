@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <uri name="http://www.w3.org/2004/02/skos/core#" uri="imports/skos.rdf"/>
+  <uri name="http://www.w3.org/2004/02/skos/core" uri="imports/skos.rdf"/>
+  <uri name="http://www.w3.org/ns/prov-o#" uri="imports/prov-o.rdf"/>
+  <uri name="http://www.w3.org/ns/dcat#" uri="imports/dcat.ttl"/>
+  <uri name="https://www.w3.org/ns/dcat2.ttl" uri="imports/dcat2.ttl"/>
+  <uri name="http://www.purl.org/net/CSMD/4.0#" uri="imports/csmd.rdf"/>
+</catalog>

@@ -7,29 +7,35 @@ import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
 
-import java.net.URI;
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 @Jacksonized
-public class GitDiff {
+public class BatchProcessingJob {
 
     @Id
     private String id;
 
-    private URI uri;
+    private BatchJobStatus status;
 
-    private String sha;
+    private int total;
 
-    private String parentSha;
+    private int processed;
 
-    private String diff;
+    private int added;
+
+    private int notAdded;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Instant startedAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Instant finishedAt;
 
     private String message;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Instant datetime;
-
+    private List<BatchOntologyResult> results;
 }

@@ -2,7 +2,8 @@ package eu.tib.ontologyhistory.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
-import eu.tib.ontologyhistory.model.Commit;
+import eu.tib.ontologyhistory.dto.ProcessedDiffTimelineItem;
+import eu.tib.ontologyhistory.model.BatchProcessingJob;
 import eu.tib.ontologyhistory.service.OndetService;
 import eu.tib.ontologyhistory.view.Views;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -20,16 +22,12 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 @RestController
 @RequestMapping("/api/ondet/sdiffs")
 @AllArgsConstructor
 public class OndetController {
-
-    private final Map<String, CompletableFuture<Map<String, List<String>>>> jobs = new ConcurrentHashMap<>();
 
     private final OndetService ondetService;
 
@@ -47,10 +45,12 @@ public class OndetController {
     @GetMapping("/{sha}")
     @Operation(summary = "Find one object by sha")
     public ResponseEntity<DifferenceMarkdown> find(
-            @PathVariable String sha
+            @PathVariable String sha,
+            @RequestParam(defaultValue = "true") boolean includeGitDiff,
+            @RequestParam(defaultValue = "1000000") int maxGitDiffBytes
     ) {
 
-        val diff = ondetService.find(sha, DATASET);
+        val diff = ondetService.find(sha, DATASET, includeGitDiff, maxGitDiffBytes);
 
         return new ResponseEntity<>(diff, HttpStatus.OK);
     }
@@ -91,37 +91,29 @@ public class OndetController {
     }
 
     @PostMapping("/createBatch")
-    @Operation(summary = "Create a group of ontologies")
+    @Hidden
+    @Operation(hidden = true)
     public ResponseEntity<Map<String, String>> create(
             @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
             @RequestBody List<URI> uris
     ) {
 
-        val jobId = UUID.randomUUID().toString();
-        val future = ondetService.createBatchAsync(uris, DATASET);
-        jobs.put(jobId, future);
+        val jobId = ondetService.createBatchJob(uris, DATASET);
 
         return ResponseEntity.ok(Collections.singletonMap("jobId", jobId));
     }
 
     @GetMapping("/jobStatus/{jobId}")
-    public ResponseEntity<Map<String, Object>> getJobStatus(
+    @Hidden
+    @Operation(hidden = true)
+    public ResponseEntity<?> getJobStatus(
             @PathVariable String jobId
     ) {
-        val future = jobs.get(jobId);
-        if (future == null) {
+        val job = ondetService.findBatchJob(jobId);
+        if (job == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", "Job not found"));
         }
-        if (future.isDone()) {
-            try {
-                val result = future.get();
-                return ResponseEntity.ok(Collections.singletonMap("result", result));
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", e.getMessage()));
-            }
-        } else {
-            return ResponseEntity.ok(Collections.singletonMap("status", "in progress"));
-        }
+        return ResponseEntity.ok(job);
     }
 
     @DeleteMapping("/{id}")
@@ -178,18 +170,18 @@ public class OndetController {
     }
 
     @GetMapping("/commits")
-    @Operation(summary = "Get timeline for the ontology")
+    @Operation(summary = "Get processed diff timeline for the ontology")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the timeline"),
             @ApiResponse(responseCode = "404", description = "No timeline found", content = @Content)
     })
     @JsonView(Views.Short.class)
-    public ResponseEntity<List<? extends Commit>> getCommits(
+    public ResponseEntity<List<ProcessedDiffTimelineItem>> getCommits(
             @Parameter(description = "ontologyUrl")
             @RequestParam URI uri
     ) {
 
-        val commits = ondetService.getCommits(uri);
+        val commits = ondetService.getProcessedTimeline(uri);
 
         return new ResponseEntity<>(commits, HttpStatus.OK);
     }

@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class GitDiffService {
 
+    private static final int MAX_MONGO_DOCUMENT_BYTES = 15_000_000;
+
     private final GitDiffRepository gitDiffRepository;
 
     private final GittDiffMapper gittDiffMapper;
@@ -53,11 +55,47 @@ public class GitDiffService {
     }
 
     public String findByParentSha(String parentSha) {
-        val gitDiff = gitDiffRepository.findFirstByParentSha(parentSha);
+        val gitDiff = findByParentShaOrSha(parentSha);
         if (gitDiff != null) {
             return gitDiff.getDiff();
         }
         return "";
+    }
+
+    public String findByParentSha(String parentSha, int maxBytes) {
+        val gitDiff = findByParentShaOrSha(parentSha);
+        if (gitDiff == null || gitDiff.getDiff() == null) {
+            return "";
+        }
+        if (gitDiff.getDiff().getBytes(StandardCharsets.UTF_8).length > maxBytes) {
+            return "";
+        }
+        return gitDiff.getDiff();
+    }
+
+    public Integer findDiffSizeBytesByParentSha(String parentSha) {
+        val gitDiff = findByParentShaOrSha(parentSha);
+        if (gitDiff == null || gitDiff.getDiff() == null) {
+            return null;
+        }
+        return gitDiff.getDiff().getBytes(StandardCharsets.UTF_8).length;
+    }
+
+    public String findRemoteDiffUrlByParentSha(String parentSha) {
+        val gitDiff = findByParentShaOrSha(parentSha);
+        if (gitDiff == null) {
+            return "";
+        }
+
+        return buildRemoteDiffUrl(gitDiff.getUri(), gitDiff.getSha(), gitDiff.getParentSha());
+    }
+
+    private GitDiff findByParentShaOrSha(String sha) {
+        val gitDiff = gitDiffRepository.findFirstByParentSha(sha);
+        if (gitDiff != null) {
+            return gitDiff;
+        }
+        return gitDiffRepository.findFirstBySha(sha);
     }
 
     public GitDiffDto findFirstByUrl(URI uri) {
@@ -94,11 +132,20 @@ public class GitDiffService {
             val diff = makeDiff(Files.write(ontLeft, diffAdd.gitRawFileLeft().getBytes()),
                     Files.write(ontRight, diffAdd.gitRawFileRight().getBytes()));
 
+            if (diff.getBytes(StandardCharsets.UTF_8).length > MAX_MONGO_DOCUMENT_BYTES) {
+                log.warn("Skipping Git diff for ontology {} commit {} because diff is larger than MongoDB document limit",
+                        uri, diffAdd.parentSha());
+                ontLeft.toFile().delete();
+                ontRight.toFile().delete();
+                return;
+            }
+
             val gitDiff = GitDiff.builder()
                     .uri(uri)
                     .sha(diffAdd.sha())
                     .parentSha(diffAdd.parentSha())
                     .diff(diff)
+                    .message(diffAdd.messageRight())
                     .datetime(diffAdd.parentDatetime())
                     .build();
 
@@ -124,6 +171,44 @@ public class GitDiffService {
         }
 
         return "We are sorry to inform you, but some exception happened during creation of git diff";
+    }
+
+    private String buildRemoteDiffUrl(URI uri, String baseSha, String headSha) {
+        if (uri == null || uri.getHost() == null || baseSha == null || headSha == null) {
+            return "";
+        }
+
+        if ("raw.githubusercontent.com".equals(uri.getHost())) {
+            String[] segments = uri.getPath().split("/");
+            if (segments.length > 3) {
+                return String.format("https://github.com/%s/%s/compare/%s...%s",
+                        segments[1], segments[2], baseSha, headSha);
+            }
+        }
+
+        if (uri.getHost().equals("gitlab.com")
+                || uri.getHost().equals("git.rwth-aachen.de")
+                || uri.getHost().equals("git.tib.eu")
+                || uri.getHost().equals("labs.etsi.org")) {
+            String[] segments = uri.getPath().split("/");
+            StringBuilder projectPath = new StringBuilder();
+            for (int i = 1; i < segments.length; i++) {
+                if (i + 1 < segments.length && "-".equals(segments[i]) && "raw".equals(segments[i + 1])) {
+                    break;
+                }
+                if (!projectPath.isEmpty()) {
+                    projectPath.append("/");
+                }
+                projectPath.append(segments[i]);
+            }
+
+            if (!projectPath.isEmpty()) {
+                return String.format("https://%s/%s/-/compare/%s...%s",
+                        uri.getHost(), projectPath, baseSha, headSha);
+            }
+        }
+
+        return "";
     }
 
 }

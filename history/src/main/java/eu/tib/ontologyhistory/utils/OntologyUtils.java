@@ -34,6 +34,14 @@ public class OntologyUtils {
         return ioHelper.loadOntology(file);
     }
 
+    public static OWLOntology loadOntology(File file, File catalogFile) throws IOException {
+        IOHelper ioHelper = new IOHelper();
+        if (catalogFile == null) {
+            return ioHelper.loadOntology(file);
+        }
+        return ioHelper.loadOntology(file, catalogFile);
+    }
+
     public static OWLOntology loadOntology(IRI iri) throws IOException {
         IOHelper ioHelper = new IOHelper();
         return ioHelper.loadOntology(iri);

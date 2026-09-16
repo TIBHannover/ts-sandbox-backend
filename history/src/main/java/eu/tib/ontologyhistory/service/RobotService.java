@@ -7,11 +7,13 @@ import eu.tib.ontologyhistory.model.Axiom;
 import eu.tib.ontologyhistory.model.Diff;
 import eu.tib.ontologyhistory.model.exception.RobotDiffExecutionException;
 import eu.tib.ontologyhistory.repository.RobotRepository;
+import eu.tib.ontologyhistory.service.robot.RobotDiffFailure;
+import eu.tib.ontologyhistory.service.robot.RobotDiffFailureClassifier;
 import eu.tib.ontologyhistory.service.network.GitService;
 import eu.tib.ontologyhistory.utils.ExceptionUtils;
 import eu.tib.ontologyhistory.utils.OntologyUtils;
 import eu.tib.ontologyhistory.utils.ParserUtils;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bson.Document;
@@ -19,6 +21,7 @@ import org.obolibrary.robot.CommandState;
 import org.obolibrary.robot.DiffCommand;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -34,7 +37,7 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class RobotService {
 
@@ -42,9 +45,22 @@ public class RobotService {
 
     private static final String DIFF_PLAIN_OUTPUT_FILE = "diff-plain.txt";
 
+    private static final int MAX_MONGO_DOCUMENT_BYTES = 15_000_000;
+
+    private static final String STATUS_AVAILABLE = "AVAILABLE";
+
+    private static final String STATUS_FAILED = "FAILED";
+
+    private static final String STATUS_SKIPPED = "SKIPPED";
+
     private final RobotRepository robotRepository;
 
     private final DiffMapper diffMapper;
+
+    @Value("${ondet.robot.catalog.path:}")
+    private String robotCatalogPath;
+
+    private volatile boolean robotCatalogWarningLogged;
 
     public List<DiffDto> findAll() {
         val diff = robotRepository.findAll();
@@ -69,7 +85,9 @@ public class RobotService {
     }
 
     public DiffDto findByParentSha(String parentSha) {
-        val diff = robotRepository.findFirstByParentSha(parentSha).orElse(null);
+        val diff = robotRepository.findFirstByParentSha(parentSha)
+                .or(() -> robotRepository.findFirstBySha(parentSha))
+                .orElse(null);
         return diffMapper.entityToDto(diff);
     }
 
@@ -136,8 +154,9 @@ public class RobotService {
         try {
             val ontLeft = Files.createTempFile("left-file", ".txt");
             val ontRight = Files.createTempFile("right-file", ".txt");
-            OWLOntology owlOntologyLeft = OntologyUtils.loadOntology(Files.write(ontLeft, diffAdd.gitRawFileLeft().getBytes()).toFile());
-            OWLOntology owlOntologyRight = OntologyUtils.loadOntology(Files.write(ontRight, diffAdd.gitRawFileRight().getBytes()).toFile());
+            File catalogFile = robotCatalogFile().orElse(null);
+            OWLOntology owlOntologyLeft = OntologyUtils.loadOntology(Files.write(ontLeft, diffAdd.gitRawFileLeft().getBytes()).toFile(), catalogFile);
+            OWLOntology owlOntologyRight = OntologyUtils.loadOntology(Files.write(ontRight, diffAdd.gitRawFileRight().getBytes()).toFile(), catalogFile);
 
             val ontologySetProvider = OntologyUtils.getOwlOntologySetProvider(owlOntologyLeft, owlOntologyRight);
             val axiomsMarkdown = OntologyUtils.getAxiomsMarkdown(owlOntologyLeft, owlOntologyRight, ontologySetProvider);
@@ -146,24 +165,75 @@ public class RobotService {
                 Map<String, List<Axiom>> axioms = ParserUtils.parseAxioms(axiomsMarkdown.get().plainOutput());
                 Document markdown = new Document().append(MARKDOWN_DOCUMENT_KEY, axiomsMarkdown.get().markdownOutput());
 
+                if (markdown.toJson().getBytes().length > MAX_MONGO_DOCUMENT_BYTES) {
+                    val failure = RobotDiffFailureClassifier.outputTooLarge(MAX_MONGO_DOCUMENT_BYTES);
+                    log.warn("Skipping ROBOT diff for ontology {} commit {}: {}", uri, diffAdd.parentSha(), failure.message());
+                    insertRobotFailure(uri, diffAdd, STATUS_SKIPPED, failure);
+                    return;
+                }
+
                 val diff = Diff.builder()
                         .uri(uri)
                         .sha(diffAdd.sha())
                         .parentSha(diffAdd.parentSha())
-                        .datetime(diffAdd.parentDatetime())
+                        .datetime(diffAdd.datetime())
                         .parentDatetime(diffAdd.parentDatetime())
-                        .message(diffAdd.messageLeft())
+                        .message(diffAdd.messageRight())
                         .markdown(markdown)
                         .axioms(axioms)
+                        .processingStatus(STATUS_AVAILABLE)
                         .build();
 
                 robotRepository.insert(diff);
+            } else {
+                insertRobotFailure(uri, diffAdd, STATUS_FAILED, RobotDiffFailureClassifier.outputMissing());
             }
             ontLeft.toFile().delete();
             ontRight.toFile().delete();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            val failure = describeRobotFailure(e);
+            log.error("ROBOT diff failed for ontology {} commit {}: {}", uri, diffAdd.parentSha(), failure.message(), e);
+            insertRobotFailure(uri, diffAdd, STATUS_FAILED, failure);
         }
+    }
+
+    private void insertRobotFailure(URI uri, DiffAdd diffAdd, String processingStatus, RobotDiffFailure failure) {
+        val diff = Diff.builder()
+                .uri(uri)
+                .sha(diffAdd.sha())
+                .parentSha(diffAdd.parentSha())
+                .datetime(diffAdd.datetime())
+                .parentDatetime(diffAdd.parentDatetime())
+                .message(diffAdd.messageRight())
+                .markdown(new Document())
+                .axioms(Collections.emptyMap())
+                .processingStatus(processingStatus)
+                .error(failure.message())
+                .errorCode(failure.code().name())
+                .build();
+
+        robotRepository.insert(diff);
+    }
+
+    private RobotDiffFailure describeRobotFailure(Exception exception) {
+        return RobotDiffFailureClassifier.classify(exception);
+    }
+
+    private Optional<File> robotCatalogFile() {
+        if (robotCatalogPath == null || robotCatalogPath.isBlank()) {
+            return Optional.empty();
+        }
+
+        File catalogFile = Path.of(robotCatalogPath).toFile();
+        if (catalogFile.isFile()) {
+            return Optional.of(catalogFile);
+        }
+
+        if (!robotCatalogWarningLogged) {
+            log.warn("ROBOT catalog path is configured but does not point to a readable file: {}", robotCatalogPath);
+            robotCatalogWarningLogged = true;
+        }
+        return Optional.empty();
     }
 
     public Map<String, List<String>> resHistory(URI uri, Instant datetime, String resourceIRI) {
