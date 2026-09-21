@@ -190,10 +190,20 @@ It also writes a failure summary TSV for quick review of common causes.
 Batch COnto processing is disabled by default because COnto can block large quarterly runs:
 
 ```properties
-ondet.batch.conto.enabled=false
-ondet.batch.conto.max-diff-pairs=5
-ondet.batch.conto.max-pair-raw-bytes=5000000
+ondet.batch.conto.enabled=${ONDET_BATCH_CONTO_ENABLED:false}
+ondet.batch.conto.max-diff-pairs=${ONDET_BATCH_CONTO_MAX_DIFF_PAIRS:5}
+ondet.batch.conto.max-pair-raw-bytes=${ONDET_BATCH_CONTO_MAX_PAIR_RAW_BYTES:5000000}
 ```
+
+Configure these values through `.env` or deployment environment variables:
+
+```bash
+ONDET_BATCH_CONTO_ENABLED=false
+ONDET_BATCH_CONTO_MAX_DIFF_PAIRS=5
+ONDET_BATCH_CONTO_MAX_PAIR_RAW_BYTES=5000000
+```
+
+For a full curator-controlled ingestion run that includes Git diff, ROBOT, and COnto, set `ONDET_BATCH_CONTO_ENABLED=true` and raise the two limits deliberately for that environment. Keep the default disabled setting for safer unattended deployments.
 
 ROBOT can use an XML catalog to resolve `owl:imports` to local files instead of downloading common imports repeatedly during a batch. This is recommended for quarterly runs because public import URLs can rate-limit the backend, for example with HTTP `429`.
 
