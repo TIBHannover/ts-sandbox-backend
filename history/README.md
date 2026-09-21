@@ -124,13 +124,15 @@ Batch processing is intended for curators/admins, not normal TS frontend users.
 The batch trigger and status endpoints are intentionally hidden from Swagger, but remain callable for maintenance scripts:
 
 ```text
-POST /api/ondet/sdiffs/createBatch
+POST /api/ondet/sdiffs/createBatch?mode=FULL
+POST /api/ondet/sdiffs/createBatch?mode=INCREMENTAL
 GET /api/ondet/sdiffs/jobStatus/{jobId}
 ```
 
 Recommended operational model:
 
-- Run batch processing manually once per quarter.
+- Run `FULL` batch processing for fresh deployments, recovery runs, or when stored data should be rebuilt.
+- Run `INCREMENTAL` batch processing for recurring monthly/quarterly maintenance. Incremental mode keeps existing records and processes only missing adjacent commit pairs.
 - Fetch raw ontology URLs from the TS API.
 - Submit those URLs to the batch endpoint.
 - Poll job status until it reaches `COMPLETED` or `COMPLETED_WITH_FAILURES`.
@@ -140,7 +142,7 @@ Recommended operational model:
 Example:
 
 ```bash
-curl -X POST 'http://localhost:9090/api/ondet/sdiffs/createBatch' \
+curl -X POST 'http://localhost:9090/api/ondet/sdiffs/createBatch?mode=FULL' \
   -H 'Content-Type: application/json' \
   -d '[
     "https://raw.githubusercontent.com/oeg-upm/bimerr-material-properties/refs/heads/master/ontology/mat.ttl",
@@ -161,10 +163,16 @@ Local script:
 scripts/run-batch-processing.sh --input urls.txt
 ```
 
-Fetch URLs from the TS API and process them:
+Fetch URLs from the TS API and process them with full refresh mode:
 
 ```bash
-scripts/run-batch-processing.sh --fetch-ts
+scripts/run-batch-processing.sh --fetch-ts --mode full
+```
+
+Fetch URLs from the TS API and process only missing commit pairs:
+
+```bash
+scripts/run-batch-processing.sh --fetch-ts --mode incremental
 ```
 
 Prepare/filter URLs without submitting a batch:
@@ -179,7 +187,8 @@ Process a prepared list in chunks of 10:
 scripts/run-batch-processing.sh \
   --input-json batch-results/ontology-urls-all-<timestamp>.json \
   --chunk-size 10 \
-  --chunk-index 0
+  --chunk-index 0 \
+  --mode incremental
 ```
 
 The script writes a chunk manifest and prints the command for the next chunk when the current one finishes. Increase `--chunk-index` by one for each next chunk. For example, `--chunk-index 1` processes URLs 11-20.

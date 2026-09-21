@@ -269,8 +269,13 @@ public class OndetService {
     }
 
     public String createBatchJob(List<URI> uris, String dataset) {
+        return createBatchJob(uris, dataset, BatchProcessingMode.FULL);
+    }
+
+    public String createBatchJob(List<URI> uris, String dataset, BatchProcessingMode mode) {
         val jobId = UUID.randomUUID().toString();
         val safeUris = uris == null ? Collections.<URI>emptyList() : uris;
+        val safeMode = mode == null ? BatchProcessingMode.FULL : mode;
         val job = BatchProcessingJob.builder()
                 .id(jobId)
                 .status(BatchJobStatus.RUNNING)
@@ -280,11 +285,11 @@ public class OndetService {
                 .notAdded(0)
                 .startedAt(Instant.now())
                 .results(new ArrayList<>())
-                .message("Batch processing started")
+                .message("Batch processing started in " + safeMode + " mode")
                 .build();
 
         batchProcessingJobRepository.save(job);
-        CompletableFuture.runAsync(() -> processBatchJob(jobId, safeUris, dataset));
+        CompletableFuture.runAsync(() -> processBatchJob(jobId, safeUris, dataset, safeMode));
         return jobId;
     }
 
@@ -292,7 +297,7 @@ public class OndetService {
         return batchProcessingJobRepository.findById(jobId).orElse(null);
     }
 
-    private void processBatchJob(String jobId, List<URI> uris, String dataset) {
+    private void processBatchJob(String jobId, List<URI> uris, String dataset, BatchProcessingMode mode) {
         for (URI uri : uris) {
             val result = BatchOntologyResult.builder()
                     .uri(uri)
@@ -316,7 +321,9 @@ public class OndetService {
                     continue;
                 }
 
-                val resultMessage = createForBatch(uri, diffAdds, dataset);
+                val resultMessage = mode == BatchProcessingMode.INCREMENTAL
+                        ? createIncrementalForBatch(uri, diffAdds, dataset)
+                        : createForBatch(uri, diffAdds, dataset);
                 if (resultMessage == null) {
                     finishBatchResult(jobId, result, BatchOntologyStatus.FAILED,
                             "Diff pair(s) were found, but no diff records were created", diffAdds.size());
@@ -334,7 +341,7 @@ public class OndetService {
             }
         }
 
-        completeBatchJob(jobId);
+        completeBatchJob(jobId, mode);
     }
 
     private void addBatchResult(String jobId, BatchOntologyResult result) {
@@ -361,6 +368,45 @@ public class OndetService {
 
         log.warn("Skipping COnto for ontology {} during batch: {}", uri, warning);
         return new BatchCreateResult("Ontology processed; " + warning, warning);
+    }
+
+    private BatchCreateResult createIncrementalForBatch(URI uri, List<DiffAdd> diffAdds, String dataset) {
+        val missingGitDiffs = diffAdds.stream()
+                .filter(diffAdd -> !gitDiffService.existsByUriAndParentSha(uri, diffAdd.parentSha()))
+                .toList();
+        val missingRobotDiffs = diffAdds.stream()
+                .filter(diffAdd -> !robotService.existsByUriAndParentSha(uri, diffAdd.parentSha()))
+                .toList();
+
+        if (!missingGitDiffs.isEmpty()) {
+            gitDiffService.create(uri, missingGitDiffs);
+        }
+        if (!missingRobotDiffs.isEmpty()) {
+            robotService.create(uri, missingRobotDiffs);
+        }
+
+        val contoWarning = getBatchContoSkipReason(diffAdds);
+        int missingContoCount = 0;
+        if (contoWarning == null) {
+            val missingContoDiffs = diffAdds.stream()
+                    .filter(diffAdd -> !contoService.hasStoredOrInvalidDiff(uri, diffAdd.parentSha(), dataset))
+                    .toList();
+            missingContoCount = missingContoDiffs.size();
+            if (!missingContoDiffs.isEmpty()) {
+                contoService.createIncremental(uri, missingContoDiffs, dataset);
+            }
+        } else {
+            log.warn("Skipping COnto for ontology {} during incremental batch: {}", uri, contoWarning);
+        }
+
+        int missingPairCount = Math.max(Math.max(missingGitDiffs.size(), missingRobotDiffs.size()), missingContoCount);
+        if (missingPairCount == 0 && contoWarning == null) {
+            return new BatchCreateResult("Ontology already up to date", null);
+        }
+
+        val message = String.format("Ontology processed incrementally; missing Git=%d, ROBOT=%d, COnto=%d",
+                missingGitDiffs.size(), missingRobotDiffs.size(), missingContoCount);
+        return new BatchCreateResult(contoWarning == null ? message : message + "; " + contoWarning, contoWarning);
     }
 
     private String getBatchContoSkipReason(List<DiffAdd> diffAdds) {
@@ -422,14 +468,14 @@ public class OndetService {
         batchProcessingJobRepository.save(job);
     }
 
-    private void completeBatchJob(String jobId) {
+    private void completeBatchJob(String jobId, BatchProcessingMode mode) {
         val job = findBatchJob(jobId);
         if (job == null) {
             return;
         }
         job.setFinishedAt(Instant.now());
         job.setStatus(job.getNotAdded() == 0 ? BatchJobStatus.COMPLETED : BatchJobStatus.COMPLETED_WITH_FAILURES);
-        job.setMessage("Batch processing finished");
+        job.setMessage("Batch processing finished in " + mode + " mode");
         batchProcessingJobRepository.save(job);
     }
 
