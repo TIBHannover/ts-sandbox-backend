@@ -117,6 +117,10 @@ public class GitDiffService {
         return gittDiffMapper.entityToDto(gitDiffs);
     }
 
+    public boolean existsByUriAndParentSha(URI uri, String parentSha) {
+        return gitDiffRepository.existsByUriAndParentSha(uri, parentSha);
+    }
+
     public void deleteAll() {
         gitDiffRepository.deleteAll();
     }

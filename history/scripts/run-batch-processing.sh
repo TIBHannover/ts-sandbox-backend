@@ -10,6 +10,7 @@ OUTPUT_DIR="${OUTPUT_DIR:-batch-results}"
 PREPARE_ONLY=false
 CHUNK_SIZE=0
 CHUNK_INDEX=0
+BATCH_MODE="${BATCH_MODE:-FULL}"
 
 usage() {
   cat <<'USAGE'
@@ -20,6 +21,7 @@ Usage:
   scripts/run-batch-processing.sh --input-json batch-results/ontology-urls-YYYYMMDDTHHMMSSZ.json
   scripts/run-batch-processing.sh --fetch-ts
   scripts/run-batch-processing.sh --fetch-ts --prepare-only
+  scripts/run-batch-processing.sh --fetch-ts --mode incremental
   scripts/run-batch-processing.sh --input-json batch-results/ontology-urls-YYYYMMDDTHHMMSSZ.json --chunk-size 10 --chunk-index 0
 
 Environment:
@@ -27,12 +29,17 @@ Environment:
   TS_API_URL    Default: https://api.terminology.tib.eu/api/v2/ontologies?size=1000
   POLL_SECONDS  Default: 30
   OUTPUT_DIR    Default: batch-results
+  BATCH_MODE    Default: FULL
 
 Requirements:
   curl, jq
 
 Input file format:
   One raw ontology URL per line. Empty lines and lines starting with # are ignored.
+
+Modes:
+  --mode full submits a full-refresh batch. Existing records for each processed ontology are replaced.
+  --mode incremental submits only missing diff pairs and keeps existing records.
 
 Chunking:
   --chunk-size 10 submits only 10 URLs from the prepared list.
@@ -75,6 +82,10 @@ while [[ $# -gt 0 ]]; do
       CHUNK_INDEX="${2:-}"
       shift 2
       ;;
+    --mode)
+      BATCH_MODE="${2:-}"
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -104,6 +115,19 @@ if ! [[ "$CHUNK_INDEX" =~ ^[0-9]+$ ]]; then
   echo "--chunk-index must be a non-negative integer." >&2
   exit 1
 fi
+
+case "${BATCH_MODE,,}" in
+  full)
+    BATCH_MODE="FULL"
+    ;;
+  incremental)
+    BATCH_MODE="INCREMENTAL"
+    ;;
+  *)
+    echo "--mode must be either full or incremental." >&2
+    exit 1
+    ;;
+esac
 
 mkdir -p "$OUTPUT_DIR"
 timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -259,6 +283,7 @@ jq -n \
   --argjson chunkSize "$CHUNK_SIZE" \
   --argjson chunkIndex "$CHUNK_INDEX" \
   --argjson totalChunks "$total_chunks" \
+  --arg batchMode "$BATCH_MODE" \
   '{
     timestamp: $timestamp,
     urlsFile: $urlsFile,
@@ -267,7 +292,8 @@ jq -n \
     submittedUrls: $submitted,
     chunkSize: $chunkSize,
     chunkIndex: $chunkIndex,
-    totalChunks: $totalChunks
+    totalChunks: $totalChunks,
+    batchMode: $batchMode
   }' > "$chunk_manifest_file"
 
 skipped_count="$(wc -l < "$skipped_urls_file")"
@@ -284,8 +310,8 @@ if [[ "$PREPARE_ONLY" == "true" ]]; then
   exit 0
 fi
 
-echo "Submitting $count ontology URL(s) to $BACKEND_URL"
-curl -fsS -X POST "$BACKEND_URL/api/ondet/sdiffs/createBatch" \
+echo "Submitting $count ontology URL(s) to $BACKEND_URL in $BATCH_MODE mode"
+curl -fsS -X POST "$BACKEND_URL/api/ondet/sdiffs/createBatch?mode=$BATCH_MODE" \
   -H 'Content-Type: application/json' \
   --data @"$urls_json" \
   | tee "$submit_response" >/dev/null
@@ -333,5 +359,5 @@ echo "Skipped URL report saved to $skipped_urls_file"
 if [[ "$CHUNK_SIZE" -gt 0 && "$((CHUNK_INDEX + 1))" -lt "$total_chunks" ]]; then
   next_chunk=$((CHUNK_INDEX + 1))
   echo "Next chunk command:"
-  echo "  scripts/run-batch-processing.sh --input-json $all_urls_json --chunk-size $CHUNK_SIZE --chunk-index $next_chunk"
+  echo "  scripts/run-batch-processing.sh --input-json $all_urls_json --chunk-size $CHUNK_SIZE --chunk-index $next_chunk --mode ${BATCH_MODE,,}"
 fi

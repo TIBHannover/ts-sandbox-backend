@@ -366,6 +366,22 @@ public class ContoService {
         diffAdds.forEach(diffAdd -> create(uri, diffAdd, dataset));
     }
 
+    public void createIncremental(URI uri, List<DiffAdd> diffAdds, String dataset) {
+        diffAdds.forEach(diffAdd -> create(uri, diffAdd, dataset));
+    }
+
+    public boolean hasStoredOrInvalidDiff(URI uri, String parentSha, String dataset) {
+        if (invalidContoDiffRepository.existsByUriAndParentSha(String.valueOf(uri), parentSha)) {
+            return true;
+        }
+        try {
+            return !findTimelineChanges(parentSha, dataset).isEmpty();
+        } catch (Exception e) {
+            log.warn("Could not check existing COnto data for ontology {} commit {}", uri, parentSha, e);
+            return false;
+        }
+    }
+
     private void create(URI uri, DiffAdd diffAdd, String dataset) {
         invalidContoDiffRepository.deleteAllByUriAndParentSha(String.valueOf(uri), diffAdd.parentSha());
         ContoGeneratedFiles generatedFiles;

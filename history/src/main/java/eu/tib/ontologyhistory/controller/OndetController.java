@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import eu.tib.ontologyhistory.dto.DifferenceMarkdown;
 import eu.tib.ontologyhistory.dto.ProcessedDiffTimelineItem;
 import eu.tib.ontologyhistory.model.BatchProcessingJob;
+import eu.tib.ontologyhistory.model.BatchProcessingMode;
 import eu.tib.ontologyhistory.service.OndetService;
 import eu.tib.ontologyhistory.view.Views;
 import io.swagger.v3.oas.annotations.Operation;
@@ -95,10 +96,11 @@ public class OndetController {
     @Operation(hidden = true)
     public ResponseEntity<Map<String, String>> create(
             @Parameter(description = "Raw ontology URI", example = "https://raw.githubusercontent.com/OpenEnergyPlatform/ontology/refs/heads/dev/src/ontology/imports/iao-extracted.owl")
-            @RequestBody List<URI> uris
+            @RequestBody List<URI> uris,
+            @RequestParam(defaultValue = "FULL") BatchProcessingMode mode
     ) {
 
-        val jobId = ondetService.createBatchJob(uris, DATASET);
+        val jobId = ondetService.createBatchJob(uris, DATASET, mode);
 
         return ResponseEntity.ok(Collections.singletonMap("jobId", jobId));
     }

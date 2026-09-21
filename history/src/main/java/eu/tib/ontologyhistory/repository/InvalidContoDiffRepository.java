@@ -9,6 +9,8 @@ public interface InvalidContoDiffRepository extends MongoRepository<InvalidConto
 
     InvalidContoDiff findFirstByParentShaOrderByCreatedAtDesc(String parentSha);
 
+    boolean existsByUriAndParentSha(String uri, String parentSha);
+
     void deleteAllByUri(String uri);
 
     void deleteAllByUriAndParentSha(String uri, String parentSha);

@@ -109,6 +109,10 @@ public class RobotService {
         robotRepository.deleteAllByUri(uri);
     }
 
+    public boolean existsByUriAndParentSha(URI uri, String parentSha) {
+        return robotRepository.existsByUriAndParentSha(uri, parentSha);
+    }
+
     public void deleteAll() {
         robotRepository.deleteAll();
     }

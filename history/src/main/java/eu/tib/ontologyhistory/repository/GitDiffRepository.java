@@ -26,5 +26,7 @@ public interface GitDiffRepository extends MongoRepository<GitDiff, String> {
 
     GitDiff findFirstByUriOrderByDatetimeDesc(URI uri);
 
+    boolean existsByUriAndParentSha(URI uri, String parentSha);
+
     void deleteAllByUri(URI uri);
 }
