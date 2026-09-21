@@ -27,6 +27,16 @@ services:
     container_name: history-back
     build:
       context: history
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITLAB_TOKEN=${GITLAB_TOKEN}
+      - GIT_AACHEN_TOKEN=${GIT_AACHEN_TOKEN}
+      - GIT_TIB_EU_TOKEN=${GIT_TIB_EU_TOKEN}
+      - GIT_ETSI_TOKEN=${GIT_ETSI_TOKEN}
+      - ROBOT_CATALOG_PATH=${ROBOT_CATALOG_PATH:-}
+      - ONDET_BATCH_CONTO_ENABLED=${ONDET_BATCH_CONTO_ENABLED:-false}
+      - ONDET_BATCH_CONTO_MAX_DIFF_PAIRS=${ONDET_BATCH_CONTO_MAX_DIFF_PAIRS:-5}
+      - ONDET_BATCH_CONTO_MAX_PAIR_RAW_BYTES=${ONDET_BATCH_CONTO_MAX_PAIR_RAW_BYTES:-5000000}
     ports:
       - "9090:9090"
     networks:
@@ -34,6 +44,8 @@ services:
     links:
       - mongodb
       - fuseki
+    volumes:
+      - ./history/robot-catalog:/app/robot-catalog:ro
   fuseki:
     image: secoresearch/fuseki
     container_name: fuseki
