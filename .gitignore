@@ -36,3 +36,4 @@ src/main/resources/token.yml
 .gitsecret/keys/random_seed
 !*.secret
 history/info/github_access_token.txt
+.env
